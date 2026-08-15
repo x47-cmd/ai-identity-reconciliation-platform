@@ -1,0 +1,250 @@
+name: Run AI Identity Reconciliation Demo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  run-reconciliation-demo:
+
+    name: Generate Data and Run Reconciliation
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # ======================================================
+      # 1. DOWNLOAD REPOSITORY
+      # ======================================================
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # ======================================================
+      # 2. SETUP PYTHON
+      # ======================================================
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+
+      # ======================================================
+      # 3. DISPLAY ENVIRONMENT
+      # ======================================================
+
+      - name: Display Python version
+        run: |
+          python --version
+
+
+      # ======================================================
+      # 4. GENERATE SYNTHETIC DATA
+      # ======================================================
+
+      - name: Generate synthetic Master and Biometric data
+        run: |
+          python synthetic-data/generate_data.py
+
+
+      # ======================================================
+      # 5. VERIFY SYNTHETIC OUTPUT
+      # ======================================================
+
+      - name: Verify generated synthetic files
+        run: |
+          test -f synthetic-data/output/master_persons.csv
+          test -f synthetic-data/output/biometric_records.csv
+          test -f synthetic-data/output/ground_truth.csv
+          test -f synthetic-data/output/demo_summary.json
+
+          echo "Synthetic datasets generated successfully."
+
+
+      # ======================================================
+      # 6. RUN RECONCILIATION ENGINE
+      # ======================================================
+
+      - name: Run reconciliation engine
+        run: |
+          python reconciliation-engine/reconcile.py
+
+
+      # ======================================================
+      # 7. VERIFY RECONCILIATION OUTPUT
+      # ======================================================
+
+      - name: Verify reconciliation output
+        run: |
+          test -f reconciliation-engine/output/findings.csv
+          test -f reconciliation-engine/output/reconciliation_summary.json
+
+          echo "Reconciliation output generated successfully."
+
+
+      # ======================================================
+      # 8. DISPLAY DEMO SUMMARY
+      # ======================================================
+
+      - name: Display synthetic data summary
+        run: |
+          echo ""
+          echo "============================================"
+          echo " SYNTHETIC DATA SUMMARY"
+          echo "============================================"
+          cat synthetic-data/output/demo_summary.json
+
+
+      # ======================================================
+      # 9. DISPLAY RECONCILIATION SUMMARY
+      # ======================================================
+
+      - name: Display reconciliation summary
+        run: |
+          echo ""
+          echo "============================================"
+          echo " RECONCILIATION SUMMARY"
+          echo "============================================"
+          cat reconciliation-engine/output/reconciliation_summary.json
+
+
+      # ======================================================
+      # 10. DISPLAY HIGHEST PRIORITY FINDINGS
+      # ======================================================
+
+      - name: Display highest priority findings
+        run: |
+          echo ""
+          echo "============================================"
+          echo " TOP FINDINGS"
+          echo "============================================"
+
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+
+          path = Path(
+              "reconciliation-engine/output/findings.csv"
+          )
+
+          with path.open(
+              "r",
+              encoding="utf-8",
+              newline=""
+          ) as file:
+
+              findings = list(
+                  csv.DictReader(file)
+              )
+
+          print(
+              f"Total Findings: {len(findings)}"
+          )
+
+          print()
+
+          for finding in findings[:15]:
+
+              print(
+                  f"{finding['finding_id']} | "
+                  f"{finding['finding_type']} | "
+                  f"{finding['biometric_id']} | "
+                  f"Severity: {finding['severity']} | "
+                  f"Risk: {finding['risk_score']} | "
+                  f"Harm: {finding['harm_impact_score']} | "
+                  f"Protective Priority: "
+                  f"{finding['protective_priority_score']} | "
+                  f"Wrongly Affected: "
+                  f"{finding['wrongly_affected_person']}"
+              )
+          PY
+
+
+      # ======================================================
+      # 11. COUNT PROTECTIVE PRIORITY CASES
+      # ======================================================
+
+      - name: Analyze protective priority cases
+        run: |
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+
+          path = Path(
+              "reconciliation-engine/output/findings.csv"
+          )
+
+          with path.open(
+              "r",
+              encoding="utf-8",
+              newline=""
+          ) as file:
+
+              findings = list(
+                  csv.DictReader(file)
+              )
+
+          harm_cases = [
+              finding
+              for finding in findings
+              if finding[
+                  "wrongly_affected_person"
+              ].lower() == "true"
+          ]
+
+          critical_protective = [
+              finding
+              for finding in findings
+              if float(
+                  finding[
+                      "protective_priority_score"
+                  ]
+                  or 0
+              ) >= 95
+          ]
+
+          print(
+              "Wrongly Affected Person Cases:",
+              len(harm_cases)
+          )
+
+          print(
+              "Immediate Protective Priority Cases:",
+              len(critical_protective)
+          )
+
+          print()
+
+          for finding in harm_cases:
+
+              print(
+                  "PROTECTIVE PRIORITY | "
+                  f"{finding['finding_id']} | "
+                  f"{finding['biometric_id']} | "
+                  f"Current: "
+                  f"{finding['current_master_id']} | "
+                  f"Suspected Correct: "
+                  f"{finding['suspected_correct_master_id']} | "
+                  f"Priority: "
+                  f"{finding['protective_priority_score']}"
+              )
+          PY
+
+
+      # ======================================================
+      # 12. SAVE RESULTS AS GITHUB ARTIFACT
+      # ======================================================
+
+      - name: Upload reconciliation demo results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-identity-reconciliation-demo-results
+          path: |
+            synthetic-data/output/
+            reconciliation-engine/output/
+          if-no-files-found: error
+          retention-days: 7

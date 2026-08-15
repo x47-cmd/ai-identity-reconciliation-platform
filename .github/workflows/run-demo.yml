@@ -7,16 +7,16 @@ permissions:
   contents: read
 
 jobs:
-  run-reconciliation-demo:
+  run-ai-demo:
 
-    name: Generate Data and Run Reconciliation
+    name: Full AI Reconciliation Demo
 
     runs-on: ubuntu-latest
 
     steps:
 
       # ======================================================
-      # 1. DOWNLOAD REPOSITORY
+      # 1. CHECKOUT REPOSITORY
       # ======================================================
 
       - name: Checkout repository
@@ -37,8 +37,13 @@ jobs:
       # 3. DISPLAY ENVIRONMENT
       # ======================================================
 
-      - name: Display Python version
+      - name: Display environment
         run: |
+          echo "============================================"
+          echo " AI Identity Reconciliation Platform"
+          echo " Full Automated Demo"
+          echo "============================================"
+          echo ""
           python --version
 
 
@@ -46,23 +51,27 @@ jobs:
       # 4. GENERATE SYNTHETIC DATA
       # ======================================================
 
-      - name: Generate synthetic Master and Biometric data
+      - name: Generate synthetic data
         run: |
+          echo ""
+          echo "============================================"
+          echo " STEP 1 - SYNTHETIC DATA GENERATION"
+          echo "============================================"
           python synthetic-data/generate_data.py
 
 
       # ======================================================
-      # 5. VERIFY SYNTHETIC OUTPUT
+      # 5. VERIFY SYNTHETIC DATA
       # ======================================================
 
-      - name: Verify generated synthetic files
+      - name: Verify synthetic datasets
         run: |
           test -f synthetic-data/output/master_persons.csv
           test -f synthetic-data/output/biometric_records.csv
           test -f synthetic-data/output/ground_truth.csv
           test -f synthetic-data/output/demo_summary.json
 
-          echo "Synthetic datasets generated successfully."
+          echo "Synthetic datasets verified successfully."
 
 
       # ======================================================
@@ -71,6 +80,10 @@ jobs:
 
       - name: Run reconciliation engine
         run: |
+          echo ""
+          echo "============================================"
+          echo " STEP 2 - RECONCILIATION ENGINE"
+          echo "============================================"
           python reconciliation-engine/reconcile.py
 
 
@@ -78,16 +91,41 @@ jobs:
       # 7. VERIFY RECONCILIATION OUTPUT
       # ======================================================
 
-      - name: Verify reconciliation output
+      - name: Verify reconciliation results
         run: |
           test -f reconciliation-engine/output/findings.csv
           test -f reconciliation-engine/output/reconciliation_summary.json
 
-          echo "Reconciliation output generated successfully."
+          echo "Reconciliation results verified successfully."
 
 
       # ======================================================
-      # 8. DISPLAY DEMO SUMMARY
+      # 8. RUN PERFORMANCE EVALUATION
+      # ======================================================
+
+      - name: Evaluate detection performance
+        run: |
+          echo ""
+          echo "============================================"
+          echo " STEP 3 - PERFORMANCE EVALUATION"
+          echo "============================================"
+          python evaluation/evaluate_detection.py
+
+
+      # ======================================================
+      # 9. VERIFY EVALUATION OUTPUT
+      # ======================================================
+
+      - name: Verify evaluation results
+        run: |
+          test -f evaluation/output/performance_report.json
+          test -f evaluation/output/case_evaluation.csv
+
+          echo "Performance evaluation completed successfully."
+
+
+      # ======================================================
+      # 10. DISPLAY SYNTHETIC DATA SUMMARY
       # ======================================================
 
       - name: Display synthetic data summary
@@ -96,11 +134,12 @@ jobs:
           echo "============================================"
           echo " SYNTHETIC DATA SUMMARY"
           echo "============================================"
+
           cat synthetic-data/output/demo_summary.json
 
 
       # ======================================================
-      # 9. DISPLAY RECONCILIATION SUMMARY
+      # 11. DISPLAY RECONCILIATION SUMMARY
       # ======================================================
 
       - name: Display reconciliation summary
@@ -109,27 +148,149 @@ jobs:
           echo "============================================"
           echo " RECONCILIATION SUMMARY"
           echo "============================================"
+
           cat reconciliation-engine/output/reconciliation_summary.json
 
 
       # ======================================================
-      # 10. DISPLAY HIGHEST PRIORITY FINDINGS
+      # 12. DISPLAY PERFORMANCE REPORT
       # ======================================================
 
-      - name: Display highest priority findings
+      - name: Display AI performance report
         run: |
           echo ""
           echo "============================================"
-          echo " TOP FINDINGS"
+          echo " AI DETECTION PERFORMANCE"
           echo "============================================"
 
+          cat evaluation/output/performance_report.json
+
+
+      # ======================================================
+      # 13. DISPLAY EXECUTIVE METRICS
+      # ======================================================
+
+      - name: Display executive metrics
+        run: |
           python - <<'PY'
+
+          import json
+          from pathlib import Path
+
+
+          report_path = Path(
+              "evaluation/output/performance_report.json"
+          )
+
+          with report_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              report = json.load(file)
+
+
+          overall = report[
+              "overall_performance"
+          ]
+
+          identity = report[
+              "identity_resolution"
+          ]
+
+          protective = report[
+              "protective_priority"
+          ]
+
+
+          print()
+          print(
+              "============================================"
+          )
+
+          print(
+              " EXECUTIVE AI PERFORMANCE"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          print(
+              f"Precision: "
+              f"{overall['precision']}%"
+          )
+
+          print(
+              f"Recall: "
+              f"{overall['recall']}%"
+          )
+
+          print(
+              f"F1 Score: "
+              f"{overall['f1_score']}%"
+          )
+
+
+          print(
+              f"Identity Resolution Accuracy: "
+              f"{identity['accuracy']}%"
+          )
+
+
+          print(
+              f"Protective Detection Recall: "
+              f"{protective['detection_recall']}%"
+          )
+
+          print(
+              f"Protective Priority Accuracy: "
+              f"{protective['priority_accuracy']}%"
+          )
+
+
+          print(
+              f"Expected Synthetic Issues: "
+              f"{overall['total_ground_truth_cases']}"
+          )
+
+          print(
+              f"Detected Synthetic Issues: "
+              f"{overall['detected_ground_truth_cases']}"
+          )
+
+          print(
+              f"Missed Issues: "
+              f"{overall['missed_ground_truth_cases']}"
+          )
+
+          print(
+              f"False Positive Findings: "
+              f"{overall['false_positive_findings']}"
+          )
+
+          print()
+
+          PY
+
+
+      # ======================================================
+      # 14. DISPLAY PROTECTIVE PRIORITY CASES
+      # ======================================================
+
+      - name: Display protective priority cases
+        run: |
+          python - <<'PY'
+
           import csv
           from pathlib import Path
+
 
           path = Path(
               "reconciliation-engine/output/findings.csv"
           )
+
 
           with path.open(
               "r",
@@ -141,110 +302,374 @@ jobs:
                   csv.DictReader(file)
               )
 
+
+          protective_cases = [
+
+              finding
+
+              for finding in findings
+
+              if str(
+                  finding[
+                      "wrongly_affected_person"
+                  ]
+              ).lower() == "true"
+
+          ]
+
+
+          protective_cases.sort(
+
+              key=lambda finding:
+
+                  float(
+                      finding[
+                          "protective_priority_score"
+                      ]
+                      or 0
+                  ),
+
+              reverse=True
+          )
+
+
+          print()
           print(
-              f"Total Findings: {len(findings)}"
+              "============================================"
+          )
+
+          print(
+              " PROTECTIVE PRIORITY CASES"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          print(
+              f"Total Wrongly Affected Cases: "
+              f"{len(protective_cases)}"
           )
 
           print()
 
-          for finding in findings[:15]:
+
+          for finding in protective_cases:
+
+              print(
+                  f"{finding['finding_id']} | "
+                  f"{finding['biometric_id']} | "
+                  f"Current: "
+                  f"{finding['current_master_id']} | "
+                  f"Correct Candidate: "
+                  f"{finding['suspected_correct_master_id']} | "
+                  f"Risk: "
+                  f"{finding['risk_score']} | "
+                  f"Harm: "
+                  f"{finding['harm_impact_score']} | "
+                  f"Protective Priority: "
+                  f"{finding['protective_priority_score']}"
+              )
+
+          print()
+
+          PY
+
+
+      # ======================================================
+      # 15. DISPLAY TOP PRIORITY FINDINGS
+      # ======================================================
+
+      - name: Display highest priority findings
+        run: |
+          python - <<'PY'
+
+          import csv
+          from pathlib import Path
+
+
+          path = Path(
+              "reconciliation-engine/output/findings.csv"
+          )
+
+
+          with path.open(
+              "r",
+              encoding="utf-8",
+              newline=""
+          ) as file:
+
+              findings = list(
+                  csv.DictReader(file)
+              )
+
+
+          print()
+          print(
+              "============================================"
+          )
+
+          print(
+              " TOP AI FINDINGS"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          for finding in findings[:20]:
 
               print(
                   f"{finding['finding_id']} | "
                   f"{finding['finding_type']} | "
                   f"{finding['biometric_id']} | "
-                  f"Severity: {finding['severity']} | "
-                  f"Risk: {finding['risk_score']} | "
-                  f"Harm: {finding['harm_impact_score']} | "
-                  f"Protective Priority: "
-                  f"{finding['protective_priority_score']} | "
-                  f"Wrongly Affected: "
-                  f"{finding['wrongly_affected_person']}"
-              )
-          PY
-
-
-      # ======================================================
-      # 11. COUNT PROTECTIVE PRIORITY CASES
-      # ======================================================
-
-      - name: Analyze protective priority cases
-        run: |
-          python - <<'PY'
-          import csv
-          from pathlib import Path
-
-          path = Path(
-              "reconciliation-engine/output/findings.csv"
-          )
-
-          with path.open(
-              "r",
-              encoding="utf-8",
-              newline=""
-          ) as file:
-
-              findings = list(
-                  csv.DictReader(file)
-              )
-
-          harm_cases = [
-              finding
-              for finding in findings
-              if finding[
-                  "wrongly_affected_person"
-              ].lower() == "true"
-          ]
-
-          critical_protective = [
-              finding
-              for finding in findings
-              if float(
-                  finding[
-                      "protective_priority_score"
-                  ]
-                  or 0
-              ) >= 95
-          ]
-
-          print(
-              "Wrongly Affected Person Cases:",
-              len(harm_cases)
-          )
-
-          print(
-              "Immediate Protective Priority Cases:",
-              len(critical_protective)
-          )
-
-          print()
-
-          for finding in harm_cases:
-
-              print(
-                  "PROTECTIVE PRIORITY | "
-                  f"{finding['finding_id']} | "
-                  f"{finding['biometric_id']} | "
-                  f"Current: "
-                  f"{finding['current_master_id']} | "
-                  f"Suspected Correct: "
-                  f"{finding['suspected_correct_master_id']} | "
+                  f"{finding['severity']} | "
+                  f"Risk: "
+                  f"{finding['risk_score']} | "
+                  f"Harm: "
+                  f"{finding['harm_impact_score']} | "
                   f"Priority: "
                   f"{finding['protective_priority_score']}"
               )
+
+          print()
+
           PY
 
 
       # ======================================================
-      # 12. SAVE RESULTS AS GITHUB ARTIFACT
+      # 16. DISPLAY ANOMALY TYPE PERFORMANCE
       # ======================================================
 
-      - name: Upload reconciliation demo results
+      - name: Display anomaly detection breakdown
+        run: |
+          python - <<'PY'
+
+          import json
+          from pathlib import Path
+
+
+          path = Path(
+              "evaluation/output/performance_report.json"
+          )
+
+
+          with path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              report = json.load(file)
+
+
+          breakdown = report[
+              "anomaly_type_breakdown"
+          ]
+
+
+          print()
+          print(
+              "============================================"
+          )
+
+          print(
+              " ANOMALY DETECTION BREAKDOWN"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          for anomaly, result in breakdown.items():
+
+              print(
+                  f"{anomaly}: "
+                  f"{result['detected']} / "
+                  f"{result['expected']} "
+                  f"| Recall: "
+                  f"{result['recall']}%"
+              )
+
+          print()
+
+          PY
+
+
+      # ======================================================
+      # 17. CREATE DEMO RUN SUMMARY
+      # ======================================================
+
+      - name: Create final demo run summary
+        run: |
+          mkdir -p demo-output
+
+          python - <<'PY'
+
+          import json
+          from pathlib import Path
+          from datetime import datetime
+
+
+          demo_summary_path = Path(
+              "synthetic-data/output/demo_summary.json"
+          )
+
+          reconciliation_path = Path(
+              "reconciliation-engine/output/reconciliation_summary.json"
+          )
+
+          performance_path = Path(
+              "evaluation/output/performance_report.json"
+          )
+
+
+          with demo_summary_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              demo = json.load(file)
+
+
+          with reconciliation_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              reconciliation = json.load(file)
+
+
+          with performance_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              performance = json.load(file)
+
+
+          final_report = {
+
+              "project":
+                  "AI Identity Reconciliation Platform",
+
+              "environment":
+                  "Synthetic Demo Only",
+
+              "run_status":
+                  "COMPLETED",
+
+              "generated_at":
+                  datetime.now().isoformat(
+                      timespec="seconds"
+                  ),
+
+              "dataset": {
+
+                  "master_records":
+                      demo[
+                          "master_records"
+                      ],
+
+                  "biometric_records":
+                      demo[
+                          "biometric_records"
+                      ],
+
+                  "intentional_anomalies":
+                      demo[
+                          "intentional_anomalies"
+                      ],
+
+              },
+
+              "reconciliation": {
+
+                  "total_findings":
+                      reconciliation[
+                          "total_findings"
+                      ],
+
+                  "wrongly_affected_cases":
+                      reconciliation[
+                          "wrongly_affected_person_cases"
+                      ],
+
+                  "immediate_protective_priority_cases":
+                      reconciliation[
+                          "immediate_protective_priority_cases"
+                      ],
+
+              },
+
+              "performance":
+
+                  performance[
+                      "overall_performance"
+                  ],
+
+              "identity_resolution":
+
+                  performance[
+                      "identity_resolution"
+                  ],
+
+              "protective_priority":
+
+                  performance[
+                      "protective_priority"
+                  ],
+
+              "anomaly_detection":
+
+                  performance[
+                      "anomaly_type_breakdown"
+                  ],
+
+          }
+
+
+          output = Path(
+              "demo-output/final_demo_report.json"
+          )
+
+
+          with output.open(
+              "w",
+              encoding="utf-8"
+          ) as file:
+
+              json.dump(
+                  final_report,
+                  file,
+                  indent=4
+              )
+
+
+          print(
+              json.dumps(
+                  final_report,
+                  indent=4
+              )
+          )
+
+          PY
+
+
+      # ======================================================
+      # 18. UPLOAD ALL DEMO RESULTS
+      # ======================================================
+
+      - name: Upload complete AI demo results
         uses: actions/upload-artifact@v4
         with:
-          name: ai-identity-reconciliation-demo-results
+          name: ai-identity-reconciliation-full-demo
           path: |
             synthetic-data/output/
             reconciliation-engine/output/
+            evaluation/output/
+            demo-output/
           if-no-files-found: error
           retention-days: 7

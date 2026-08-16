@@ -6,17 +6,12 @@ import { usePathname } from "next/navigation";
 import { useLanguage } from "./LanguageProvider";
 
 import {
-  BadgeCheck,
   BarChart3,
-  BrainCircuit,
-  CircleCheckBig,
-  Database,
+  BadgeCheck,
   FileSearch,
   Fingerprint,
   History,
   LayoutDashboard,
-  ShieldCheck,
-  UserCheck,
 } from "lucide-react";
 
 
@@ -24,94 +19,85 @@ import {
    NAVIGATION
    ========================================================= */
 
-const navigationGroups = [
+const navigationItems = [
   {
-    labelKey: "sidebar.workspace",
+    label: {
+      en: "Home",
+      ar: "الرئيسية",
+    },
+    href: "/",
+    icon: LayoutDashboard,
+  },
 
-    items: [
-      {
-        labelKey: "sidebar.commandCenter",
-        href: "/",
-        icon: LayoutDashboard,
-      },
-
-      {
-        labelKey: "sidebar.cases",
-        href: "/cases",
-        icon: FileSearch,
-        count: "53",
-        matchPrefix: "/cases",
-      },
-
-      {
-        labelKey: "sidebar.aiInvestigations",
-        href: "/cases",
-        icon: BrainCircuit,
-
-        /*
-         * Dedicated AI Investigations index route
-         * is not implemented yet.
-         *
-         * This entry intentionally opens Cases
-         * but does not take ownership of the
-         * /cases active navigation state.
-         */
-        secondary: true,
-      },
-
-      {
-        labelKey: "sidebar.officerReview",
-        href: "/officer-review",
-        icon: UserCheck,
-        count: "5",
-      },
-
-      {
-        labelKey: "sidebar.managerApproval",
-        href: "/manager-approval",
-        icon: BadgeCheck,
-        count: "3",
-      },
-
-      {
-        labelKey:
-          "sidebar.correctionsVerification",
-        href: "/corrections-verification",
-        icon: CircleCheckBig,
-        count: "1",
-      },
+  {
+    label: {
+      en: "Cases",
+      ar: "الحالات",
+    },
+    href: "/cases",
+    icon: FileSearch,
+    count: "53",
+    matchPaths: [
+      "/cases",
     ],
   },
 
   {
-    labelKey: "sidebar.intelligence",
+    label: {
+      en: "Approvals",
+      ar: "الموافقات",
+    },
+    href: "/officer-review",
+    icon: BadgeCheck,
+    count: "5",
+    matchPaths: [
+      "/officer-review",
+      "/manager-approval",
+      "/corrections-verification",
+    ],
+  },
 
-    items: [
-      {
-        labelKey: "sidebar.analytics",
-        href: "/analytics",
-        icon: BarChart3,
-      },
+  {
+    label: {
+      en: "Reports & History",
+      ar: "التقارير والسجل",
+    },
+    href: "/reports-audit",
+    icon: History,
+    matchPaths: [
+      "/reports-audit",
+    ],
+  },
 
-      {
-        labelKey: "sidebar.dataIntegrity",
-        href: "/data-integrity",
-        icon: Database,
-      },
-
-      {
-        labelKey: "sidebar.reportsAudit",
-        href: "/reports-audit",
-        icon: History,
-      },
+  {
+    label: {
+      en: "Analytics",
+      ar: "التحليلات",
+    },
+    href: "/analytics",
+    icon: BarChart3,
+    matchPaths: [
+      "/analytics",
+      "/data-integrity",
     ],
   },
 ];
 
 
 /* =========================================================
-   ACTIVE ROUTE HELPER
+   HELPERS
    ========================================================= */
+
+function getLabel(
+  item,
+  language
+) {
+  return (
+    item.label[language] ||
+    item.label.en
+  );
+}
+
 
 function isItemActive(
   pathname,
@@ -125,9 +111,13 @@ function isItemActive(
     return pathname === "/";
   }
 
-  if (item.matchPrefix) {
-    return pathname.startsWith(
-      item.matchPrefix
+  if (item.matchPaths) {
+    return item.matchPaths.some(
+      (path) =>
+        pathname === path ||
+        pathname.startsWith(
+          `${path}/`
+        )
     );
   }
 
@@ -150,6 +140,10 @@ export default function Sidebar() {
   } = useLanguage();
 
 
+  const isArabic =
+    language === "ar";
+
+
   return (
     <aside className="sidebar">
 
@@ -164,128 +158,118 @@ export default function Sidebar() {
           textDecoration: "none",
           color: "inherit",
         }}
-        aria-label={t(
-          "sidebar.commandCenter"
-        )}
+        aria-label={
+          isArabic
+            ? "الرئيسية"
+            : "Home"
+        }
       >
         <div className="brandIcon">
-          <Fingerprint size={25} />
+          <Fingerprint
+            size={25}
+            aria-hidden="true"
+          />
         </div>
 
         <div>
           <div className="brandTitle">
-            {t(
-              "sidebar.platformName"
-            )}
+            {isArabic
+              ? "مراقبة سلامة الهوية"
+              : "Identity Integrity"}
           </div>
 
           <div className="brandSubtitle">
-            {t(
-              "sidebar.platformSubtitle"
-            )}
+            {isArabic
+              ? "المراقبة والمطابقة الذكية"
+              : "Smart Monitoring & Reconciliation"}
           </div>
         </div>
       </Link>
 
 
       {/* ==================================================
-          NAVIGATION
+          MAIN NAVIGATION
           ================================================== */}
 
       <nav
         className="navigation"
-        aria-label={t(
-          "sidebar.workspace"
-        )}
+        aria-label={
+          isArabic
+            ? "التنقل الرئيسي"
+            : "Main navigation"
+        }
       >
-        {navigationGroups.map(
-          (
-            group,
-            groupIndex
-          ) => (
-            <div
-              key={group.labelKey}
-            >
-              <div
-                className={
-                  groupIndex === 0
-                    ? "navLabel"
-                    : "navLabel navSecond"
-                }
-              >
-                {t(group.labelKey)}
-              </div>
+        <div>
+          <div className="navLabel">
+            {isArabic
+              ? "القائمة الرئيسية"
+              : "MAIN"}
+          </div>
 
 
-              {group.items.map(
-                (item) => {
-                  const Icon =
-                    item.icon;
+          {navigationItems.map(
+            (item) => {
+              const Icon =
+                item.icon;
 
-                  const active =
-                    isItemActive(
-                      pathname,
-                      item
-                    );
-
-                  const forceInactive =
-                    Boolean(
-                      item.secondary
-                    );
-
-                  const isCurrentPage =
-                    active &&
-                    !forceInactive;
+              const active =
+                isItemActive(
+                  pathname,
+                  item
+                );
 
 
-                  return (
-                    <Link
-                      key={
-                        item.labelKey
-                      }
-                      href={item.href}
-                      className={
-                        isCurrentPage
-                          ? "navItem active"
-                          : "navItem"
-                      }
-                      aria-current={
-                        isCurrentPage
-                          ? "page"
-                          : undefined
-                      }
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={
+                    active
+                      ? "navItem active"
+                      : "navItem"
+                  }
+                  aria-current={
+                    active
+                      ? "page"
+                      : undefined
+                  }
+                  aria-label={
+                    getLabel(
+                      item,
+                      language
+                    )
+                  }
+                >
+                  <Icon
+                    size={19}
+                    aria-hidden="true"
+                  />
+
+                  <span>
+                    {getLabel(
+                      item,
+                      language
+                    )}
+                  </span>
+
+                  {item.count && (
+                    <span
+                      className="navCount"
+                      aria-hidden="true"
                     >
-                      <Icon
-                        size={19}
-                        aria-hidden="true"
-                      />
-
-                      <span>
-                        {t(
-                          item.labelKey
-                        )}
-                      </span>
-
-                      {item.count && (
-                        <span
-                          className="navCount"
-                          aria-label={`${item.count}`}
-                        >
-                          {item.count}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                }
-              )}
-            </div>
-          )
-        )}
+                      {item.count}
+                    </span>
+                  )}
+                </Link>
+              );
+            }
+          )}
+        </div>
       </nav>
 
 
       {/* ==================================================
-          LANGUAGE SWITCHER
+          LANGUAGE
           ================================================== */}
 
       <div
@@ -334,7 +318,7 @@ export default function Sidebar() {
 
 
       {/* ==================================================
-          PLATFORM STATUS
+          SYSTEM STATUS
           ================================================== */}
 
       <div className="sidebarFooter">
@@ -345,70 +329,15 @@ export default function Sidebar() {
 
         <div>
           <div className="systemTitle">
-            {t(
-              "common.systemOperational"
-            )}
+            {isArabic
+              ? "المراقبة نشطة"
+              : "Monitoring Active"}
           </div>
 
           <div className="systemSubtitle">
-            {t(
-              "common.syntheticDemoEnvironment"
-            )}
-          </div>
-        </div>
-      </div>
-
-
-      {/* ==================================================
-          SAFETY STATUS
-          ================================================== */}
-
-      <div
-        style={{
-          marginTop: "9px",
-          padding: "11px 12px",
-          borderRadius: "11px",
-
-          border:
-            "1px solid rgba(52,211,153,0.07)",
-
-          background:
-            "rgba(52,211,153,0.025)",
-
-          display: "flex",
-          alignItems: "center",
-          gap: "9px",
-        }}
-      >
-        <ShieldCheck
-          size={15}
-          color="#59cfa0"
-          aria-hidden="true"
-        />
-
-        <div>
-          <div
-            style={{
-              color: "#76baa0",
-              fontSize: "8px",
-              fontWeight: 750,
-            }}
-          >
-            {t(
-              "common.masterProtected"
-            )}
-          </div>
-
-          <div
-            style={{
-              color: "#4e6c62",
-              fontSize: "7px",
-              marginTop: "2px",
-            }}
-          >
-            {t(
-              "common.readOnlyReference"
-            )}
+            {isArabic
+              ? "بيانات تجريبية فقط"
+              : "Synthetic demo data only"}
           </div>
         </div>
       </div>

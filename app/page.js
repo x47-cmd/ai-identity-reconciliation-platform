@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
 import Sidebar from "./components/Sidebar";
+
+import {
+  useLanguage,
+} from "./components/LanguageProvider";
 
 import {
   VERIFIED_DEMO_CASE,
@@ -26,33 +32,38 @@ import {
 
 /* =========================================================
    COMMAND CENTER DEMO METRICS
-
-   Synthetic Demo Only
    ========================================================= */
 
 const stats = [
   {
-    title: "Total Cases",
+    titleKey: "commandCenter.totalCases",
     value: "53",
-    subtitle: "Aggregated identity integrity cases",
+    subtitleKey:
+      "commandCenter.totalCasesSubtitle",
     icon: FileSearch,
   },
   {
-    title: "Immediate Priority",
+    titleKey:
+      "commandCenter.immediatePriority",
     value: "9",
-    subtitle: "Protective intervention priority",
+    subtitleKey:
+      "commandCenter.immediatePrioritySubtitle",
     icon: CircleAlert,
   },
   {
-    title: "High Priority",
+    titleKey:
+      "commandCenter.highPriority",
     value: "23",
-    subtitle: "Require accelerated human review",
+    subtitleKey:
+      "commandCenter.highPrioritySubtitle",
     icon: AlertTriangle,
   },
   {
-    title: "Unresolved Identity",
+    titleKey:
+      "commandCenter.unresolvedIdentity",
     value: "0",
-    subtitle: "All cases have canonical candidates",
+    subtitleKey:
+      "commandCenter.unresolvedIdentitySubtitle",
     icon: UserCheck,
   },
 ];
@@ -60,49 +71,44 @@ const stats = [
 
 /* =========================================================
    CURRENT ATTENTION QUEUE
-
-   CASE-2026-00001 is intentionally excluded because the
-   verified E2E demonstration case is already VERIFIED_CLOSED.
-
-   Queue identities below are aligned with the Cases workspace.
-
-   Only cases with implemented detail routes are linked.
    ========================================================= */
 
 const cases = [
   {
     id: "CASE-2026-00002",
-    type: "HARM IMPACT",
+    typeKey: "caseTypes.HARM_IMPACT",
     biometric: "BIO-000341",
     current: "REF-000882",
     proposed: "REF-001704",
     confidence: "99.98%",
     priority: "IMMEDIATE",
-    status: "Officer Review",
+    statusKey: "common.officerReview",
     protective: "97.5",
     hasDetail: false,
   },
   {
     id: "CASE-2026-00003",
-    type: "CRITICAL HARM CONFLICT",
+    typeKey:
+      "caseTypes.CRITICAL_HARM_CONFLICT",
     biometric: "BIO-000492",
     current: "REF-001547",
     proposed: "REF-000621",
     confidence: "99.98%",
     priority: "IMMEDIATE",
-    status: "AI Investigated",
+    statusKey: "common.aiInvestigated",
     protective: "97.0",
     hasDetail: false,
   },
   {
     id: "CASE-2026-00014",
-    type: "COMPLEX IDENTITY CONFLICT",
+    typeKey:
+      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
     biometric: "BIO-000795",
     current: "REF-001183",
     proposed: "REF-002343",
     confidence: "99.99%",
     priority: "HIGH",
-    status: "AI Investigated",
+    statusKey: "common.aiInvestigated",
     protective: "85.0",
     hasDetail: true,
   },
@@ -111,28 +117,33 @@ const cases = [
 
 const agents = [
   {
-    name: "Monitoring Agent",
-    status: "Active",
+    nameKey:
+      "commandCenter.monitoringAgent",
+    statusKey: "common.active",
     icon: Activity,
   },
   {
-    name: "Reconciliation Agent",
-    status: "Active",
+    nameKey:
+      "commandCenter.reconciliationAgent",
+    statusKey: "common.active",
     icon: Fingerprint,
   },
   {
-    name: "Investigation Agent",
-    status: "Active",
+    nameKey:
+      "commandCenter.investigationAgent",
+    statusKey: "common.active",
     icon: BrainCircuit,
   },
   {
-    name: "Approval Workflow",
-    status: "Ready",
+    nameKey:
+      "commandCenter.approvalWorkflow",
+    statusKey: "common.ready",
     icon: UserCheck,
   },
   {
-    name: "Verification Agent",
-    status: "Active",
+    nameKey:
+      "commandCenter.verificationAgent",
+    statusKey: "common.active",
     icon: ShieldCheck,
   },
 ];
@@ -144,6 +155,7 @@ const agents = [
 
 function MetricCard({
   item,
+  t,
 }) {
   const Icon =
     item.icon;
@@ -156,7 +168,7 @@ function MetricCard({
         </div>
 
         <span className="metricStatus">
-          DEMO KPI
+          {t("commandCenter.demoKpi")}
         </span>
       </div>
 
@@ -165,11 +177,11 @@ function MetricCard({
       </div>
 
       <div className="metricTitle">
-        {item.title}
+        {t(item.titleKey)}
       </div>
 
       <div className="metricSubtitle">
-        {item.subtitle}
+        {t(item.subtitleKey)}
       </div>
     </div>
   );
@@ -178,6 +190,7 @@ function MetricCard({
 
 function PriorityBadge({
   priority,
+  t,
 }) {
   const className =
     priority === "IMMEDIATE"
@@ -188,7 +201,7 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {priority}
+      {t(`priorities.${priority}`)}
     </span>
   );
 }
@@ -199,12 +212,13 @@ function PriorityBadge({
    ========================================================= */
 
 export default function Home() {
+  const {
+    t,
+  } = useLanguage();
+
+
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -220,17 +234,15 @@ export default function Home() {
             <div className="eyebrow">
               <Sparkles size={15} />
 
-              AI IDENTITY OPERATIONS
+              {t("commandCenter.eyebrow")}
             </div>
 
             <h1>
-              Command Center
+              {t("commandCenter.title")}
             </h1>
 
             <p>
-              Continuous identity reconciliation,
-              protective risk detection and
-              AI-assisted investigation.
+              {t("commandCenter.subtitle")}
             </p>
           </div>
 
@@ -240,7 +252,7 @@ export default function Home() {
               <Search size={18} />
 
               <span>
-                Search case
+                {t("common.searchCase")}
               </span>
             </button>
 
@@ -252,11 +264,13 @@ export default function Home() {
 
               <div className="profileText">
                 <strong>
-                  Monitoring Officer
+                  {t(
+                    "common.monitoringOfficer"
+                  )}
                 </strong>
 
                 <span>
-                  Operations
+                  {t("common.operations")}
                 </span>
               </div>
             </div>
@@ -275,14 +289,15 @@ export default function Home() {
 
           <div className="alertText">
             <strong>
-              Protective Priority Engine Active
+              {t(
+                "commandCenter.protectiveEngine"
+              )}
             </strong>
 
             <span>
-              9 protective cases were identified
-              in the current synthetic demo dataset
-              where identity conflicts may create
-              potential wrong-person impact.
+              {t(
+                "commandCenter.protectiveMessage"
+              )}
             </span>
           </div>
 
@@ -290,11 +305,10 @@ export default function Home() {
             href="/cases"
             className="bannerButton"
             style={{
-              textDecoration:
-                "none",
+              textDecoration: "none",
             }}
           >
-            Review Cases
+            {t("commandCenter.reviewCases")}
 
             <ChevronRight size={17} />
           </Link>
@@ -310,12 +324,9 @@ export default function Home() {
             stats.map(
               (item) => (
                 <MetricCard
-                  key={
-                    item.title
-                  }
-                  item={
-                    item
-                  }
+                  key={item.titleKey}
+                  item={item}
+                  t={t}
                 />
               )
             )
@@ -329,19 +340,19 @@ export default function Home() {
 
         <section className="dashboardGrid">
 
-          {/* ==============================================
-              CASE PRIORITY QUEUE
-              ============================================== */}
-
           <div className="panel casesPanel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  AI PRIORITY QUEUE
+                  {t(
+                    "commandCenter.aiPriorityQueue"
+                  )}
                 </div>
 
                 <h2>
-                  Cases Requiring Attention
+                  {t(
+                    "commandCenter.casesRequiringAttention"
+                  )}
                 </h2>
               </div>
 
@@ -349,11 +360,12 @@ export default function Home() {
                 href="/cases"
                 className="textButton"
                 style={{
-                  textDecoration:
-                    "none",
+                  textDecoration: "none",
                 }}
               >
-                View all cases
+                {t(
+                  "commandCenter.viewAllCases"
+                )}
 
                 <ChevronRight size={16} />
               </Link>
@@ -364,12 +376,31 @@ export default function Home() {
               <table>
                 <thead>
                   <tr>
-                    <th>CASE</th>
-                    <th>TYPE</th>
-                    <th>BIOMETRIC</th>
-                    <th>AI IDENTITY</th>
-                    <th>CONFIDENCE</th>
-                    <th>PRIORITY</th>
+                    <th>
+                      {t("common.case")}
+                    </th>
+
+                    <th>
+                      {t("common.type")}
+                    </th>
+
+                    <th>
+                      {t("common.biometric")}
+                    </th>
+
+                    <th>
+                      {t(
+                        "commandCenter.aiIdentity"
+                      )}
+                    </th>
+
+                    <th>
+                      {t("common.confidence")}
+                    </th>
+
+                    <th>
+                      {t("common.priority")}
+                    </th>
                   </tr>
                 </thead>
 
@@ -390,7 +421,6 @@ export default function Home() {
                                     style={{
                                       textDecoration:
                                         "none",
-
                                       display:
                                         "inline-block",
                                     }}
@@ -412,12 +442,12 @@ export default function Home() {
                             }
 
                             <div className="caseStatus">
-                              {item.status}
+                              {t(item.statusKey)}
                             </div>
                           </td>
 
                           <td>
-                            {item.type}
+                            {t(item.typeKey)}
                           </td>
 
                           <td className="mono">
@@ -449,6 +479,7 @@ export default function Home() {
                               priority={
                                 item.priority
                               }
+                              t={t}
                             />
                           </td>
                         </tr>
@@ -469,11 +500,15 @@ export default function Home() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  AGENTIC AI
+                  {t(
+                    "commandCenter.agenticAi"
+                  )}
                 </div>
 
                 <h2>
-                  Agent Operations
+                  {t(
+                    "commandCenter.agentOperations"
+                  )}
                 </h2>
               </div>
 
@@ -491,9 +526,7 @@ export default function Home() {
                     return (
                       <div
                         className="agentItem"
-                        key={
-                          agent.name
-                        }
+                        key={agent.nameKey}
                       >
                         <div className="agentLeft">
                           <div className="agentIcon">
@@ -502,11 +535,15 @@ export default function Home() {
 
                           <div>
                             <strong>
-                              {agent.name}
+                              {t(
+                                agent.nameKey
+                              )}
                             </strong>
 
                             <span>
-                              Operational
+                              {t(
+                                "common.operational"
+                              )}
                             </span>
                           </div>
                         </div>
@@ -514,7 +551,7 @@ export default function Home() {
                         <div className="agentStatus">
                           <div className="greenDot" />
 
-                          {agent.status}
+                          {t(agent.statusKey)}
                         </div>
                       </div>
                     );
@@ -527,21 +564,23 @@ export default function Home() {
             <div className="agentFooter">
               <div>
                 <span>
-                  Environment
+                  {t("common.environment")}
                 </span>
 
                 <strong>
-                  Synthetic Demo
+                  {t("common.syntheticDemo")}
                 </strong>
               </div>
 
               <div>
                 <span>
-                  Processing state
+                  {t(
+                    "common.processingState"
+                  )}
                 </span>
 
                 <strong>
-                  Operational
+                  {t("common.operational")}
                 </strong>
               </div>
             </div>
@@ -550,20 +589,18 @@ export default function Home() {
 
 
         {/* ================================================
-            VERIFIED DEMO CASE + PLATFORM HEALTH
+            VERIFIED CASE + PLATFORM HEALTH
             ================================================ */}
 
         <section className="lowerGrid">
-
-          {/* ==============================================
-              LATEST VERIFIED PROTECTIVE CASE
-              ============================================== */}
 
           <div className="panel selectedCase">
             <div className="caseHeroHeader">
               <div>
                 <div className="panelEyebrow">
-                  LATEST VERIFIED PROTECTIVE CASE
+                  {t(
+                    "commandCenter.latestVerifiedProtectiveCase"
+                  )}
                 </div>
 
                 <h2>
@@ -573,18 +610,10 @@ export default function Home() {
 
               <div
                 style={{
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  gap:
-                    "8px",
-
-                  flexWrap:
-                    "wrap",
-
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  flexWrap: "wrap",
                   justifyContent:
                     "flex-end",
                 }}
@@ -593,48 +622,40 @@ export default function Home() {
                   priority={
                     VERIFIED_DEMO_CASE.priority
                   }
+                  t={t}
                 />
 
                 <span
                   style={{
                     display:
                       "inline-flex",
-
                     alignItems:
                       "center",
-
                     justifyContent:
                       "center",
-
                     minHeight:
                       "25px",
-
                     padding:
                       "0 10px",
-
                     borderRadius:
                       "7px",
-
                     color:
                       "#59cfa0",
-
                     background:
                       "rgba(52,211,153,0.07)",
-
                     border:
                       "1px solid rgba(52,211,153,0.13)",
-
                     fontSize:
                       "10px",
-
                     fontWeight:
                       850,
-
                     letterSpacing:
                       "0.45px",
                   }}
                 >
-                  VERIFIED CLOSED
+                  {t(
+                    "statuses.VERIFIED_CLOSED"
+                  )}
                 </span>
               </div>
             </div>
@@ -651,7 +672,9 @@ export default function Home() {
                   </strong>
 
                   <span>
-                    Protective
+                    {t(
+                      "common.protectivePriority"
+                    )}
                   </span>
                 </div>
               </div>
@@ -660,7 +683,9 @@ export default function Home() {
               <div className="caseDetails">
                 <div className="detailRow">
                   <span>
-                    Biometric record
+                    {t(
+                      "common.biometricRecord"
+                    )}
                   </span>
 
                   <strong>
@@ -673,7 +698,9 @@ export default function Home() {
 
                 <div className="detailRow">
                   <span>
-                    Previous identity
+                    {t(
+                      "common.previousIdentity"
+                    )}
                   </span>
 
                   <strong className="dangerText">
@@ -686,7 +713,9 @@ export default function Home() {
 
                 <div className="detailRow">
                   <span>
-                    Verified identity
+                    {t(
+                      "common.verifiedIdentity"
+                    )}
                   </span>
 
                   <strong className="successText">
@@ -699,7 +728,7 @@ export default function Home() {
 
                 <div className="detailRow">
                   <span>
-                    AI confidence
+                    {t("common.confidence")}
                   </span>
 
                   <strong>
@@ -712,7 +741,9 @@ export default function Home() {
 
                 <div className="detailRow">
                   <span>
-                    Harm impact
+                    {t(
+                      "commandCenter.harmImpact"
+                    )}
                   </span>
 
                   <strong>
@@ -726,7 +757,7 @@ export default function Home() {
 
                 <div className="detailRow">
                   <span>
-                    Verification
+                    {t("common.verification")}
                   </span>
 
                   <strong className="successText">
@@ -750,17 +781,15 @@ export default function Home() {
 
               <div>
                 <strong>
-                  Protective wrong-person impact
-                  was detected
+                  {t(
+                    "commandCenter.protectiveWrongPersonDetected"
+                  )}
                 </strong>
 
                 <span>
-                  The identity conflict was assigned
-                  immediate protective priority,
-                  reviewed by both required human
-                  approval levels, corrected in the
-                  permitted target and subsequently
-                  verified closed.
+                  {t(
+                    "commandCenter.protectiveWrongPersonMessage"
+                  )}
                 </span>
               </div>
             </div>
@@ -769,21 +798,22 @@ export default function Home() {
             <div
               className="integrityInfo"
               style={{
-                margin:
-                  "14px 0 0",
+                margin: "14px 0 0",
               }}
             >
               <CheckCircle2 size={21} />
 
               <div>
                 <strong>
-                  End-to-End Verification Passed
+                  {t(
+                    "commandCenter.endToEndVerificationPassed"
+                  )}
                 </strong>
 
                 <span>
-                  The approved correction passed
-                  post-correction verification and
-                  reached VERIFIED_CLOSED status.
+                  {t(
+                    "commandCenter.verificationPassedMessage"
+                  )}
                 </span>
               </div>
             </div>
@@ -795,11 +825,12 @@ export default function Home() {
               }
               className="primaryButton"
               style={{
-                textDecoration:
-                  "none",
+                textDecoration: "none",
               }}
             >
-              View Verified Case Lifecycle
+              {t(
+                "commandCenter.viewVerifiedLifecycle"
+              )}
 
               <ChevronRight size={18} />
             </Link>
@@ -814,11 +845,13 @@ export default function Home() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  DATA INTEGRITY
+                  {t("dataIntegrity.title")}
                 </div>
 
                 <h2>
-                  Platform Health
+                  {t(
+                    "commandCenter.platformHealth"
+                  )}
                 </h2>
               </div>
 
@@ -829,7 +862,9 @@ export default function Home() {
             <div className="healthScore">
               <div>
                 <span>
-                  Canonical case resolution
+                  {t(
+                    "commandCenter.canonicalCaseResolution"
+                  )}
                 </span>
 
                 <strong>
@@ -846,7 +881,9 @@ export default function Home() {
             <div className="healthScore">
               <div>
                 <span>
-                  Protective detection
+                  {t(
+                    "commandCenter.protectiveDetection"
+                  )}
                 </span>
 
                 <strong>
@@ -863,7 +900,9 @@ export default function Home() {
             <div className="healthScore">
               <div>
                 <span>
-                  Unexplained false positives
+                  {t(
+                    "commandCenter.unexplainedFalsePositives"
+                  )}
                 </span>
 
                 <strong>
@@ -882,16 +921,15 @@ export default function Home() {
 
               <div>
                 <strong>
-                  Master Reference protected
+                  {t(
+                    "commandCenter.masterReferenceProtected"
+                  )}
                 </strong>
 
                 <span>
-                  The authoritative Master
-                  Reference remains read only.
-                  Automated corrections target
-                  only the permitted Biometric
-                  System runtime dataset after
-                  required human approval.
+                  {t(
+                    "commandCenter.masterProtectionMessage"
+                  )}
                 </span>
               </div>
             </div>
@@ -901,20 +939,15 @@ export default function Home() {
               href="/data-integrity"
               className="textButton"
               style={{
-                textDecoration:
-                  "none",
-
-                marginTop:
-                  "14px",
-
-                marginLeft:
-                  "18px",
-
-                width:
-                  "fit-content",
+                textDecoration: "none",
+                marginTop: "14px",
+                marginLeft: "18px",
+                width: "fit-content",
               }}
             >
-              Open Data Integrity Center
+              {t(
+                "commandCenter.openDataIntegrityCenter"
+              )}
 
               <ChevronRight size={16} />
             </Link>
@@ -928,14 +961,15 @@ export default function Home() {
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Synthetic Demonstration
+            {t("footer.platform")}
+            {" · "}
+            {t("footer.demo")}
           </span>
 
           <div>
             <Clock3 size={15} />
 
-            Continuous Monitoring Active
+            {t("footer.monitoring")}
           </div>
         </footer>
 

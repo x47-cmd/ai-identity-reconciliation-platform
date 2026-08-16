@@ -1,4 +1,10 @@
+"use client";
+
 import Sidebar from "../components/Sidebar";
+
+import {
+  useLanguage,
+} from "../components/LanguageProvider";
 
 import {
   Activity,
@@ -16,15 +22,22 @@ import {
 
 
 /* =========================================================
+   LANGUAGE HELPER
+   ========================================================= */
+
+function L(
+  language,
+  english,
+  arabic
+) {
+  return language === "ar"
+    ? arabic
+    : english;
+}
+
+
+/* =========================================================
    OFFICER REVIEW QUEUE
-
-   Synthetic Demo Only
-
-   CASE-2026-00001 is intentionally excluded because the
-   verified E2E demonstration case is already VERIFIED_CLOSED.
-
-   These records represent cases currently positioned at the
-   Level 1 human review stage in the frontend demonstration.
    ========================================================= */
 
 const officerCases = [
@@ -122,8 +135,6 @@ const officerCases = [
 
 /* =========================================================
    QUEUE METRICS
-
-   Derived from the queue to prevent frontend count drift.
    ========================================================= */
 
 const queueMetrics = {
@@ -167,11 +178,73 @@ const recommendedCase =
 
 
 /* =========================================================
+   HELPERS
+   ========================================================= */
+
+function getCaseTitle(
+  item,
+  language
+) {
+  const titles = {
+    HARM_IMPACT: {
+      en: "Potential Wrong-Person Harm",
+      ar: "ضرر محتمل على الشخص الخطأ",
+    },
+
+    COMPLEX_IDENTITY_CONFLICT: {
+      en: "Complex Identity Conflict",
+      ar: "تعارض هوية معقد",
+    },
+
+    DATA_MISMATCH: {
+      en: "Identity Data Mismatch",
+      ar: "اختلاف في بيانات الهوية",
+    },
+  };
+
+  return (
+    titles[item.type]?.[language]
+    ||
+    item.title
+  );
+}
+
+
+function getCaseType(
+  item,
+  language,
+  t
+) {
+  const keys = {
+    HARM_IMPACT:
+      "caseTypes.HARM_IMPACT",
+
+    COMPLEX_IDENTITY_CONFLICT:
+      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
+
+    DATA_MISMATCH:
+      "caseTypes.DATA_MISMATCH",
+  };
+
+  if (keys[item.type]) {
+    return t(keys[item.type]);
+  }
+
+  return L(
+    language,
+    item.type,
+    item.type
+  );
+}
+
+
+/* =========================================================
    SMALL COMPONENTS
    ========================================================= */
 
 function PriorityBadge({
   priority,
+  t,
 }) {
   const className =
     priority === "IMMEDIATE"
@@ -182,7 +255,7 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {priority}
+      {t(`priorities.${priority}`)}
     </span>
   );
 }
@@ -193,6 +266,7 @@ function Metric({
   label,
   value,
   description,
+  t,
 }) {
   return (
     <div className="metricCard">
@@ -202,7 +276,7 @@ function Metric({
         </div>
 
         <span className="metricStatus">
-          DEMO KPI
+          {t("commandCenter.demoKpi")}
         </span>
       </div>
 
@@ -227,6 +301,12 @@ function Metric({
    ========================================================= */
 
 export default function OfficerReviewPage() {
+  const {
+    language,
+    t,
+  } = useLanguage();
+
+
   return (
     <div className="appShell">
 
@@ -244,18 +324,23 @@ export default function OfficerReviewPage() {
             <div className="eyebrow">
               <UserCheck size={15} />
 
-              HUMAN-IN-THE-LOOP · LEVEL 1
+              {L(
+                language,
+                "HUMAN-IN-THE-LOOP · LEVEL 1",
+                "الإشراف البشري · المستوى الأول"
+              )}
             </div>
 
             <h1>
-              Officer Review
+              {t(
+                "officerReview.title"
+              )}
             </h1>
 
             <p>
-              Review AI investigation evidence,
-              validate proposed corrections and
-              decide whether a case should advance
-              to Manager approval.
+              {t(
+                "officerReview.subtitle"
+              )}
             </p>
           </div>
 
@@ -265,7 +350,11 @@ export default function OfficerReviewPage() {
               <Search size={18} />
 
               <span>
-                Search review queue
+                {L(
+                  language,
+                  "Search review queue",
+                  "البحث في قائمة المراجعة"
+                )}
               </span>
             </button>
 
@@ -277,11 +366,17 @@ export default function OfficerReviewPage() {
 
               <div className="profileText">
                 <strong>
-                  Monitoring Officer
+                  {t(
+                    "common.monitoringOfficer"
+                  )}
                 </strong>
 
                 <span>
-                  Level 1 Reviewer
+                  {L(
+                    language,
+                    "Level 1 Reviewer",
+                    "مراجع المستوى الأول"
+                  )}
                 </span>
               </div>
             </div>
@@ -300,18 +395,19 @@ export default function OfficerReviewPage() {
 
           <div className="alertText">
             <strong>
-              {queueMetrics.wrongPerson}
-              {" "}
-              Wrong-Person Impact Cases
-              Require Immediate Review
+              {
+                language === "ar"
+                  ? `${queueMetrics.wrongPerson} حالات ذات تأثير محتمل على الشخص الخطأ تتطلب مراجعة فورية`
+                  : `${queueMetrics.wrongPerson} Wrong-Person Impact Cases Require Immediate Review`
+              }
             </strong>
 
             <span>
-              Protective cases are positioned
-              ahead of normal technical cases
-              because an unrelated person may
-              be affected by an incorrect
-              identity relationship.
+              {L(
+                language,
+                "Protective cases are positioned ahead of normal technical cases because an unrelated person may be affected by an incorrect identity relationship.",
+                "يتم تقديم الحالات الوقائية على الحالات التقنية العادية لأن شخصًا غير مرتبط بالحالة قد يتأثر نتيجة علاقة هوية غير صحيحة."
+              )}
             </span>
           </div>
 
@@ -322,7 +418,11 @@ export default function OfficerReviewPage() {
               padding: "0 12px",
             }}
           >
-            REVIEW NOW
+            {L(
+              language,
+              "REVIEW NOW",
+              "راجع الآن"
+            )}
           </div>
         </section>
 
@@ -334,30 +434,82 @@ export default function OfficerReviewPage() {
         <section className="statsGrid">
           <Metric
             icon={UserCheck}
-            label="Awaiting Officer"
-            value={queueMetrics.total}
-            description="Cases positioned for Level 1 review"
+            label={
+              t(
+                "officerReview.awaitingOfficer"
+              )
+            }
+            value={
+              queueMetrics.total
+            }
+            description={
+              L(
+                language,
+                "Cases positioned for Level 1 review",
+                "حالات جاهزة لمراجعة المستوى الأول"
+              )
+            }
+            t={t}
           />
 
           <Metric
             icon={CircleAlert}
-            label="Immediate"
-            value={queueMetrics.immediate}
-            description="Protective intervention cases"
+            label={
+              t(
+                "officerReview.immediateCases"
+              )
+            }
+            value={
+              queueMetrics.immediate
+            }
+            description={
+              L(
+                language,
+                "Protective intervention cases",
+                "حالات تدخل وقائي"
+              )
+            }
+            t={t}
           />
 
           <Metric
             icon={BrainCircuit}
-            label="AI Investigated"
-            value={queueMetrics.aiInvestigated}
-            description="Evidence packages prepared for review"
+            label={
+              t(
+                "officerReview.aiInvestigated"
+              )
+            }
+            value={
+              queueMetrics.aiInvestigated
+            }
+            description={
+              L(
+                language,
+                "Evidence packages prepared for review",
+                "حزم الأدلة جاهزة للمراجعة"
+              )
+            }
+            t={t}
           />
 
           <Metric
             icon={BadgeCheck}
-            label="Awaiting Manager"
-            value={queueMetrics.sentToManager}
-            description="Officer-approved cases at Level 2"
+            label={
+              t(
+                "officerReview.awaitingManager"
+              )
+            }
+            value={
+              queueMetrics.sentToManager
+            }
+            description={
+              L(
+                language,
+                "Officer-approved cases at Level 2",
+                "حالات اعتمدها الضابط وانتقلت للمستوى الثاني"
+              )
+            }
+            t={t}
           />
         </section>
 
@@ -401,7 +553,11 @@ export default function OfficerReviewPage() {
                   color: "#d1deec",
                 }}
               >
-                Officer Review Control
+                {L(
+                  language,
+                  "Officer Review Control",
+                  "ضوابط مراجعة الضابط"
+                )}
               </strong>
 
               <span
@@ -413,11 +569,11 @@ export default function OfficerReviewPage() {
                   marginTop: "4px",
                 }}
               >
-                AI recommendations cannot authorize
-                corrections. A Monitoring Officer
-                must review the evidence and record
-                a human decision before Manager
-                approval becomes available.
+                {L(
+                  language,
+                  "AI recommendations cannot authorize corrections. A Monitoring Officer must review the evidence and record a human decision before Manager approval becomes available.",
+                  "لا تستطيع توصيات الذكاء الاصطناعي اعتماد التصحيحات. يجب على ضابط المراقبة مراجعة الأدلة وتسجيل قرار بشري قبل إتاحة اعتماد المدير."
+                )}
               </span>
             </div>
 
@@ -429,7 +585,11 @@ export default function OfficerReviewPage() {
                 whiteSpace: "nowrap",
               }}
             >
-              HUMAN DECISION REQUIRED
+              {L(
+                language,
+                "HUMAN DECISION REQUIRED",
+                "قرار بشري مطلوب"
+              )}
             </div>
           </div>
         </section>
@@ -462,7 +622,11 @@ export default function OfficerReviewPage() {
                 padding: "0 16px",
               }}
             >
-              All Pending
+              {L(
+                language,
+                "All Pending",
+                "جميع الحالات المعلقة"
+              )}
 
               <span
                 style={{
@@ -474,7 +638,9 @@ export default function OfficerReviewPage() {
             </button>
 
             <button className="searchButton">
-              Immediate
+              {t(
+                "officerReview.immediateCases"
+              )}
 
               <span>
                 {queueMetrics.immediate}
@@ -482,7 +648,9 @@ export default function OfficerReviewPage() {
             </button>
 
             <button className="searchButton">
-              High
+              {t(
+                "officerReview.highCases"
+              )}
 
               <span>
                 {queueMetrics.high}
@@ -490,7 +658,9 @@ export default function OfficerReviewPage() {
             </button>
 
             <button className="searchButton">
-              Medium
+              {t(
+                "officerReview.mediumCases"
+              )}
 
               <span>
                 {queueMetrics.medium}
@@ -498,7 +668,9 @@ export default function OfficerReviewPage() {
             </button>
 
             <button className="searchButton">
-              Wrong-Person Impact
+              {t(
+                "officerReview.wrongPersonCases"
+              )}
 
               <span>
                 {queueMetrics.wrongPerson}
@@ -516,11 +688,19 @@ export default function OfficerReviewPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                PRIORITIZED HUMAN REVIEW QUEUE
+                {L(
+                  language,
+                  "PRIORITIZED HUMAN REVIEW QUEUE",
+                  "قائمة المراجعة البشرية حسب الأولوية"
+                )}
               </div>
 
               <h2>
-                Cases Awaiting Monitoring Officer
+                {L(
+                  language,
+                  "Cases Awaiting Monitoring Officer",
+                  "حالات بانتظار ضابط المراقبة"
+                )}
               </h2>
             </div>
 
@@ -535,7 +715,11 @@ export default function OfficerReviewPage() {
             >
               <Activity size={15} />
 
-              Synthetic Review Queue
+              {L(
+                language,
+                "Synthetic Review Queue",
+                "قائمة مراجعة اصطناعية"
+              )}
             </div>
           </div>
 
@@ -548,15 +732,58 @@ export default function OfficerReviewPage() {
             >
               <thead>
                 <tr>
-                  <th>CASE</th>
-                  <th>INVESTIGATION</th>
-                  <th>IDENTITY CHANGE</th>
-                  <th>AI CONFIDENCE</th>
-                  <th>RISK</th>
-                  <th>HARM</th>
-                  <th>PROTECTIVE</th>
-                  <th>PRIORITY</th>
-                  <th>QUEUE</th>
+                  <th>
+                    {t("common.case")}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "INVESTIGATION",
+                      "التحقيق"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "IDENTITY CHANGE",
+                      "تغيير الهوية"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "AI CONFIDENCE",
+                      "ثقة الذكاء الاصطناعي"
+                    )}
+                  </th>
+
+                  <th>
+                    {t("common.risk")}
+                  </th>
+
+                  <th>
+                    {t("common.harm")}
+                  </th>
+
+                  <th>
+                    {t(
+                      "common.protectivePriority"
+                    )}
+                  </th>
+
+                  <th>
+                    {t("common.priority")}
+                  </th>
+
+                  <th>
+                    {t(
+                      "officerReview.queueOrder"
+                    )}
+                  </th>
+
                   <th></th>
                 </tr>
               </thead>
@@ -568,13 +795,12 @@ export default function OfficerReviewPage() {
                     (item) => (
                       <tr key={item.id}>
 
-                        {/* CASE */}
-
                         <td>
                           <span
                             className="caseId"
                             style={{
-                              display: "inline-block",
+                              display:
+                                "inline-block",
                             }}
                           >
                             {item.id}
@@ -585,8 +811,6 @@ export default function OfficerReviewPage() {
                           </div>
                         </td>
 
-
-                        {/* INVESTIGATION */}
 
                         <td>
                           <div
@@ -621,7 +845,12 @@ export default function OfficerReviewPage() {
                                   lineHeight: 1.45,
                                 }}
                               >
-                                {item.title}
+                                {
+                                  getCaseTitle(
+                                    item,
+                                    language
+                                  )
+                                }
                               </strong>
 
                               <span
@@ -633,17 +862,28 @@ export default function OfficerReviewPage() {
                                   marginTop: "4px",
                                 }}
                               >
-                                {item.type}
+                                {
+                                  getCaseType(
+                                    item,
+                                    language,
+                                    t
+                                  )
+                                }
+
                                 {" · "}
+
                                 {item.findings}
-                                {" findings"}
+
+                                {
+                                  language === "ar"
+                                    ? " نتائج"
+                                    : " findings"
+                                }
                               </span>
                             </div>
                           </div>
                         </td>
 
-
-                        {/* IDENTITY CHANGE */}
 
                         <td>
                           <div className="identityChange">
@@ -660,16 +900,12 @@ export default function OfficerReviewPage() {
                         </td>
 
 
-                        {/* CONFIDENCE */}
-
                         <td>
                           <span className="confidence">
                             {item.confidence}%
                           </span>
                         </td>
 
-
-                        {/* RISK */}
 
                         <td>
                           <strong
@@ -689,8 +925,6 @@ export default function OfficerReviewPage() {
                         </td>
 
 
-                        {/* HARM */}
-
                         <td>
                           <strong
                             style={{
@@ -706,8 +940,6 @@ export default function OfficerReviewPage() {
                           </strong>
                         </td>
 
-
-                        {/* PROTECTIVE */}
 
                         <td>
                           <strong
@@ -725,16 +957,15 @@ export default function OfficerReviewPage() {
                         </td>
 
 
-                        {/* PRIORITY */}
-
                         <td>
                           <PriorityBadge
-                            priority={item.priority}
+                            priority={
+                              item.priority
+                            }
+                            t={t}
                           />
                         </td>
 
-
-                        {/* QUEUE ORDER */}
 
                         <td>
                           <div
@@ -764,25 +995,31 @@ export default function OfficerReviewPage() {
                               {item.queueOrder}
                             </span>
 
-                            Priority
+                            {t(
+                              "common.priority"
+                            )}
                           </div>
                         </td>
 
-
-                        {/* REVIEW */}
 
                         <td>
                           <button
                             className="searchButton"
                             disabled
-                            title="Detailed case view is not included in the current frontend demo"
+                            title={
+                              t(
+                                "cases.detailUnavailable"
+                              )
+                            }
                             style={{
                               minWidth: "112px",
                               minHeight: "36px",
                               padding: "0 12px",
                             }}
                           >
-                            Review Case
+                            {t(
+                              "officerReview.reviewCase"
+                            )}
 
                             <ChevronRight size={14} />
                           </button>
@@ -803,7 +1040,8 @@ export default function OfficerReviewPage() {
               borderTop:
                 "1px solid rgba(255,255,255,0.05)",
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent:
+                "space-between",
               alignItems: "center",
               gap: "16px",
               color: "#687b93",
@@ -812,14 +1050,19 @@ export default function OfficerReviewPage() {
             }}
           >
             <span>
-              {queueMetrics.total}
-              {" "}
-              cases awaiting Level 1 human review
+              {
+                language === "ar"
+                  ? `${queueMetrics.total} حالات بانتظار المراجعة البشرية من المستوى الأول`
+                  : `${queueMetrics.total} cases awaiting Level 1 human review`
+              }
             </span>
 
             <span>
-              Protective Priority → Harm → Risk
-              → AI Confidence
+              {L(
+                language,
+                "Protective Priority → Harm → Risk → AI Confidence",
+                "الأولوية الوقائية ← الضرر ← المخاطر ← ثقة الذكاء الاصطناعي"
+              )}
             </span>
           </div>
         </section>
@@ -836,11 +1079,6 @@ export default function OfficerReviewPage() {
               "1.35fr 0.65fr",
           }}
         >
-
-          {/* ==============================================
-              NEXT RECOMMENDED REVIEW
-              ============================================== */}
-
           <div
             className="panel"
             style={{
@@ -850,14 +1088,18 @@ export default function OfficerReviewPage() {
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
+                justifyContent:
+                  "space-between",
+                alignItems:
+                  "flex-start",
                 gap: "20px",
               }}
             >
               <div>
                 <div className="panelEyebrow">
-                  NEXT RECOMMENDED REVIEW
+                  {t(
+                    "officerReview.nextRecommended"
+                  )}
                 </div>
 
                 <h2
@@ -878,19 +1120,11 @@ export default function OfficerReviewPage() {
                     marginTop: "9px",
                   }}
                 >
-                  The current highest-priority
-                  Officer review case contains a
-                  potential wrong-person identity
-                  conflict. The proposed identity
-                  relationship is
-                  {" "}
-                  {recommendedCase.proposed}
-                  {" "}
-                  with
-                  {" "}
-                  {recommendedCase.confidence}%
-                  {" "}
-                  AI confidence.
+                  {
+                    language === "ar"
+                      ? `تحتوي الحالة الحالية الأعلى أولوية في قائمة مراجعة الضابط على تعارض هوية قد يؤثر على الشخص الخطأ. الهوية المقترحة هي ${recommendedCase.proposed} بدرجة ثقة ${recommendedCase.confidence}% من الذكاء الاصطناعي.`
+                      : `The current highest-priority Officer review case contains a potential wrong-person identity conflict. The proposed identity relationship is ${recommendedCase.proposed} with ${recommendedCase.confidence}% AI confidence.`
+                  }
                 </p>
               </div>
 
@@ -898,6 +1132,7 @@ export default function OfficerReviewPage() {
                 priority={
                   recommendedCase.priority
                 }
+                t={t}
               />
             </div>
 
@@ -913,23 +1148,35 @@ export default function OfficerReviewPage() {
             >
               {[
                 [
-                  "AI Confidence",
+                  L(
+                    language,
+                    "AI Confidence",
+                    "ثقة الذكاء الاصطناعي"
+                  ),
                   `${recommendedCase.confidence}%`,
                 ],
+
                 [
-                  "Risk",
+                  t("common.risk"),
                   recommendedCase.risk,
                 ],
+
                 [
-                  "Harm",
+                  t("common.harm"),
                   recommendedCase.harm,
                 ],
+
                 [
-                  "Protective",
+                  t(
+                    "common.protectivePriority"
+                  ),
                   recommendedCase.protective,
                 ],
               ].map(
-                ([label, value]) => (
+                ([
+                  label,
+                  value,
+                ]) => (
                   <div
                     key={label}
                     style={{
@@ -970,12 +1217,20 @@ export default function OfficerReviewPage() {
             <button
               className="primaryButton"
               disabled
-              title="Detailed case view is not included in the current frontend demo"
+              title={
+                t(
+                  "cases.detailUnavailable"
+                )
+              }
               style={{
                 marginTop: "18px",
               }}
             >
-              Detailed Investigation View Planned
+              {L(
+                language,
+                "Detailed Investigation View Planned",
+                "عرض التحقيق التفصيلي مخطط له"
+              )}
 
               <ChevronRight size={17} />
             </button>
@@ -990,11 +1245,19 @@ export default function OfficerReviewPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  OFFICER DECISION
+                  {L(
+                    language,
+                    "OFFICER DECISION",
+                    "قرار الضابط"
+                  )}
                 </div>
 
                 <h2>
-                  Available Actions
+                  {L(
+                    language,
+                    "Available Actions",
+                    "الإجراءات المتاحة"
+                  )}
                 </h2>
               </div>
 
@@ -1021,32 +1284,36 @@ export default function OfficerReviewPage() {
                   lineHeight: 1.55,
                 }}
               >
-                Decision controls shown below
-                apply to the selected Officer
-                review case after its evidence
-                package is opened.
+                {L(
+                  language,
+                  "Decision controls shown below apply to the selected Officer review case after its evidence package is opened.",
+                  "تطبق خيارات القرار أدناه على الحالة المحددة بعد فتح حزمة الأدلة الخاصة بها."
+                )}
               </div>
 
-
-              {/* APPROVE */}
 
               <div className="integrityInfo">
                 <CheckCircle2 size={21} />
 
                 <div>
                   <strong>
-                    Approve
+                    {L(
+                      language,
+                      "Approve",
+                      "اعتماد"
+                    )}
                   </strong>
 
                   <span>
-                    Sends the reviewed correction
-                    package to Manager approval.
+                    {L(
+                      language,
+                      "Sends the reviewed correction package to Manager approval.",
+                      "يرسل حزمة التصحيح التي تمت مراجعتها إلى اعتماد المدير."
+                    )}
                   </span>
                 </div>
               </div>
 
-
-              {/* MORE INVESTIGATION */}
 
               <div
                 className="integrityInfo"
@@ -1068,19 +1335,23 @@ export default function OfficerReviewPage() {
                       color: "#e0ad5f",
                     }}
                   >
-                    More Investigation
+                    {L(
+                      language,
+                      "More Investigation",
+                      "مزيد من التحقيق"
+                    )}
                   </strong>
 
                   <span>
-                    Returns the case for
-                    additional AI-assisted or
-                    manual investigation.
+                    {L(
+                      language,
+                      "Returns the case for additional AI-assisted or manual investigation.",
+                      "يعيد الحالة لإجراء تحقيق إضافي مدعوم بالذكاء الاصطناعي أو تحقيق يدوي."
+                    )}
                   </span>
                 </div>
               </div>
 
-
-              {/* REJECT */}
 
               <div
                 className="integrityInfo"
@@ -1102,12 +1373,19 @@ export default function OfficerReviewPage() {
                       color: "#df7884",
                     }}
                   >
-                    Reject
+                    {L(
+                      language,
+                      "Reject",
+                      "رفض"
+                    )}
                   </strong>
 
                   <span>
-                    Stops the proposed correction
-                    and records the human reason.
+                    {L(
+                      language,
+                      "Stops the proposed correction and records the human reason.",
+                      "يوقف التصحيح المقترح ويسجل سبب القرار البشري."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1131,16 +1409,19 @@ export default function OfficerReviewPage() {
 
           <div>
             <strong>
-              AI Cannot Approve Its Own
-              Recommendation
+              {L(
+                language,
+                "AI Cannot Approve Its Own Recommendation",
+                "لا يستطيع الذكاء الاصطناعي اعتماد توصيته بنفسه"
+              )}
             </strong>
 
             <span>
-              Officer and Manager decisions
-              remain independent human controls.
-              No sensitive identity correction
-              can be executed from this workflow
-              without both approvals.
+              {L(
+                language,
+                "Officer and Manager decisions remain independent human controls. No sensitive identity correction can be executed from this workflow without both approvals.",
+                "تظل قرارات الضابط والمدير ضوابط بشرية مستقلة. ولا يمكن تنفيذ أي تصحيح حساس للهوية من هذا المسار دون الحصول على الاعتمادين."
+              )}
             </span>
           </div>
         </section>
@@ -1152,14 +1433,23 @@ export default function OfficerReviewPage() {
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Officer Review Workspace
+            {t("footer.platform")}
+            {" · "}
+            {L(
+              language,
+              "Officer Review Workspace",
+              "مساحة مراجعة الضابط"
+            )}
           </span>
 
           <div>
             <Activity size={15} />
 
-            Synthetic Review Queue
+            {L(
+              language,
+              "Synthetic Review Queue",
+              "قائمة مراجعة اصطناعية"
+            )}
           </div>
         </footer>
 

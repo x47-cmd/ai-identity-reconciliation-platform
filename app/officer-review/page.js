@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
   Activity,
   AlertTriangle,
@@ -9,11 +11,6 @@ import {
   ChevronRight,
   CircleAlert,
   Clock3,
-  Database,
-  FileSearch,
-  Fingerprint,
-  Gauge,
-  LayoutDashboard,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -121,107 +118,6 @@ const officerCases = [
 ];
 
 
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-          <span>Cases</span>
-          <span className="navCount">53</span>
-        </Link>
-
-        <div className="navItem">
-          <BrainCircuit size={19} />
-          <span>AI Investigations</span>
-        </div>
-
-        <Link
-          className="navItem active"
-          href="/officer-review"
-        >
-          <UserCheck size={19} />
-          <span>Officer Review</span>
-          <span className="navCount">6</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/manager-approval"
-        >
-          <BadgeCheck size={19} />
-          <span>Manager Approval</span>
-        </Link>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <div className="navItem">
-          <Gauge size={19} />
-          <span>Analytics</span>
-        </div>
-
-        <div className="navItem">
-          <Database size={19} />
-          <span>Data Integrity</span>
-        </div>
-
-        <div className="navItem">
-          <Activity size={19} />
-          <span>Audit Trail</span>
-        </div>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-
 function PriorityBadge({
   priority,
 }) {
@@ -273,9 +169,16 @@ function Metric({
 export default function OfficerReviewPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
 
+
       <main className="mainContent">
+
         {/* ================================================
             HEADER
             ================================================ */}
@@ -284,6 +187,7 @@ export default function OfficerReviewPage() {
           <div>
             <div className="eyebrow">
               <UserCheck size={15} />
+
               HUMAN-IN-THE-LOOP · LEVEL 1
             </div>
 
@@ -299,6 +203,7 @@ export default function OfficerReviewPage() {
             </p>
           </div>
 
+
           <div className="topbarActions">
             <button className="searchButton">
               <Search size={18} />
@@ -307,6 +212,7 @@ export default function OfficerReviewPage() {
                 Search review queue
               </span>
             </button>
+
 
             <div className="profile">
               <div className="avatar">
@@ -498,6 +404,7 @@ export default function OfficerReviewPage() {
               }}
             >
               All Pending
+
               <span
                 style={{
                   opacity: 0.7,
@@ -556,9 +463,11 @@ export default function OfficerReviewPage() {
               }}
             >
               <Activity size={15} />
+
               Live Queue
             </div>
           </div>
+
 
           <div className="tableWrap">
             <table
@@ -581,10 +490,14 @@ export default function OfficerReviewPage() {
                 </tr>
               </thead>
 
+
               <tbody>
                 {officerCases.map(
                   (item) => (
                     <tr key={item.id}>
+
+                      {/* CASE */}
+
                       <td>
                         <Link
                           href={`/cases/${item.id}`}
@@ -601,6 +514,9 @@ export default function OfficerReviewPage() {
                           {item.biometric}
                         </div>
                       </td>
+
+
+                      {/* INVESTIGATION */}
 
                       <td>
                         <div
@@ -650,6 +566,9 @@ export default function OfficerReviewPage() {
                         </div>
                       </td>
 
+
+                      {/* IDENTITY CHANGE */}
+
                       <td>
                         <div className="identityChange">
                           <span className="oldIdentity">
@@ -664,11 +583,17 @@ export default function OfficerReviewPage() {
                         </div>
                       </td>
 
+
+                      {/* CONFIDENCE */}
+
                       <td>
                         <span className="confidence">
                           {item.confidence}%
                         </span>
                       </td>
+
+
+                      {/* RISK */}
 
                       <td>
                         <strong
@@ -686,6 +611,9 @@ export default function OfficerReviewPage() {
                         </strong>
                       </td>
 
+
+                      {/* HARM */}
+
                       <td>
                         <strong
                           style={{
@@ -699,6 +627,9 @@ export default function OfficerReviewPage() {
                           {item.harm}
                         </strong>
                       </td>
+
+
+                      {/* PROTECTIVE */}
 
                       <td>
                         <strong
@@ -714,11 +645,17 @@ export default function OfficerReviewPage() {
                         </strong>
                       </td>
 
+
+                      {/* PRIORITY */}
+
                       <td>
                         <PriorityBadge
                           priority={item.priority}
                         />
                       </td>
+
+
+                      {/* WAITING */}
 
                       <td>
                         <div
@@ -731,9 +668,13 @@ export default function OfficerReviewPage() {
                           }}
                         >
                           <Clock3 size={13} />
+
                           {item.age}
                         </div>
                       </td>
+
+
+                      {/* OPEN REVIEW */}
 
                       <td>
                         <Link
@@ -750,15 +691,18 @@ export default function OfficerReviewPage() {
                           }}
                         >
                           Review Case
+
                           <ChevronRight size={14} />
                         </Link>
                       </td>
+
                     </tr>
                   )
                 )}
               </tbody>
             </table>
           </div>
+
 
           <div
             style={{
@@ -791,9 +735,15 @@ export default function OfficerReviewPage() {
         <section
           className="lowerGrid"
           style={{
-            gridTemplateColumns: "1.35fr 0.65fr",
+            gridTemplateColumns:
+              "1.35fr 0.65fr",
           }}
         >
+
+          {/* ==============================================
+              NEXT RECOMMENDED REVIEW
+              ============================================== */}
+
           <div
             className="panel"
             style={{
@@ -845,6 +795,7 @@ export default function OfficerReviewPage() {
                 priority="IMMEDIATE"
               />
             </div>
+
 
             <div
               style={{
@@ -910,6 +861,7 @@ export default function OfficerReviewPage() {
               )}
             </div>
 
+
             <Link
               href="/cases/CASE-2026-00001"
               className="primaryButton"
@@ -919,6 +871,7 @@ export default function OfficerReviewPage() {
               }}
             >
               Open Full AI Investigation
+
               <ChevronRight size={17} />
             </Link>
           </div>
@@ -943,11 +896,15 @@ export default function OfficerReviewPage() {
               <UserCheck size={22} />
             </div>
 
+
             <div
               style={{
                 padding: "17px",
               }}
             >
+
+              {/* APPROVE */}
+
               <div className="integrityInfo">
                 <CheckCircle2 size={21} />
 
@@ -962,6 +919,9 @@ export default function OfficerReviewPage() {
                   </span>
                 </div>
               </div>
+
+
+              {/* MORE INVESTIGATION */}
 
               <div
                 className="integrityInfo"
@@ -994,6 +954,9 @@ export default function OfficerReviewPage() {
                 </div>
               </div>
 
+
+              {/* REJECT */}
+
               <div
                 className="integrityInfo"
                 style={{
@@ -1023,6 +986,7 @@ export default function OfficerReviewPage() {
                   </span>
                 </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -1058,6 +1022,10 @@ export default function OfficerReviewPage() {
         </section>
 
 
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
             AI Identity Reconciliation Platform
@@ -1066,9 +1034,11 @@ export default function OfficerReviewPage() {
 
           <div>
             <Activity size={15} />
+
             Protective Queue Active
           </div>
         </footer>
+
       </main>
     </div>
   );

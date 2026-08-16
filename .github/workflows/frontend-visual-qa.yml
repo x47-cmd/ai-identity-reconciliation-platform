@@ -1,0 +1,208 @@
+name: Frontend Visual QA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  visual-qa:
+    name: Capture Frontend Screenshots
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Start production server
+        run: |
+          npm run start -- -p 3000 > /tmp/next.log 2>&1 &
+          echo $! > /tmp/next.pid
+
+      - name: Wait for frontend
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3000 > /dev/null; then
+              echo "Frontend is ready"
+              exit 0
+            fi
+
+            echo "Waiting for frontend..."
+            sleep 2
+          done
+
+          echo "Frontend failed to start"
+          cat /tmp/next.log
+          exit 1
+
+      - name: Capture screenshots
+        run: |
+          mkdir -p visual-qa
+
+          cat > /tmp/capture.mjs <<'EOF'
+          import { chromium } from "playwright";
+
+          const browser = await chromium.launch({
+            headless: true,
+          });
+
+          const context = await browser.newContext({
+            viewport: {
+              width: 1440,
+              height: 1000,
+            },
+            deviceScaleFactor: 1,
+          });
+
+          const pages = [
+            {
+              name: "01-command-center",
+              route: "/",
+            },
+            {
+              name: "02-cases",
+              route: "/cases",
+            },
+            {
+              name: "03-case-00001",
+              route: "/cases/CASE-2026-00001",
+            },
+            {
+              name: "04-case-00014",
+              route: "/cases/CASE-2026-00014",
+            },
+            {
+              name: "05-officer-review",
+              route: "/officer-review",
+            },
+            {
+              name: "06-manager-approval",
+              route: "/manager-approval",
+            },
+            {
+              name: "07-corrections-verification",
+              route: "/corrections-verification",
+            },
+            {
+              name: "08-analytics",
+              route: "/analytics",
+            },
+            {
+              name: "09-data-integrity",
+              route: "/data-integrity",
+            },
+            {
+              name: "10-reports-audit",
+              route: "/reports-audit",
+            },
+          ];
+
+          let failed = false;
+
+          for (const item of pages) {
+            const page = await context.newPage();
+
+            page.on("pageerror", (error) => {
+              console.error(
+                `[PAGE ERROR] ${item.route}:`,
+                error.message
+              );
+
+              failed = true;
+            });
+
+            page.on("console", (message) => {
+              if (message.type() === "error") {
+                console.error(
+                  `[CONSOLE ERROR] ${item.route}:`,
+                  message.text()
+                );
+              }
+            });
+
+            console.log(
+              `Opening ${item.route}`
+            );
+
+            const response = await page.goto(
+              `http://127.0.0.1:3000${item.route}`,
+              {
+                waitUntil: "networkidle",
+                timeout: 30000,
+              }
+            );
+
+            if (
+              !response
+              ||
+              !response.ok()
+            ) {
+              console.error(
+                `Failed ${item.route}: HTTP ${
+                  response
+                    ? response.status()
+                    : "NO RESPONSE"
+                }`
+              );
+
+              failed = true;
+            }
+
+            await page.screenshot({
+              path:
+                `visual-qa/${item.name}.png`,
+
+              fullPage:
+                true,
+            });
+
+            console.log(
+              `Captured ${item.name}.png`
+            );
+
+            await page.close();
+          }
+
+          await browser.close();
+
+          if (failed) {
+            process.exitCode = 1;
+          }
+          EOF
+
+          node /tmp/capture.mjs
+
+      - name: Upload visual QA screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-visual-qa
+          path: visual-qa/
+          retention-days: 14
+
+      - name: Show server log on failure
+        if: failure()
+        run: |
+          echo "===== NEXT.JS SERVER LOG ====="
+          cat /tmp/next.log || true
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f /tmp/next.pid ]; then
+            kill "$(cat /tmp/next.pid)" || true
+          fi

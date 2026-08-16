@@ -154,7 +154,268 @@ jobs:
 
 
       # ======================================================
-      # 12. DISPLAY EXECUTIVE PERFORMANCE
+      # 12. RUN CASE AGGREGATION ENGINE
+      # ======================================================
+
+      - name: Build investigation cases
+        run: |
+          echo ""
+          echo "============================================"
+          echo " STEP 5 - CASE AGGREGATION"
+          echo "============================================"
+
+          python case-engine/build_cases.py
+
+
+      # ======================================================
+      # 13. VERIFY CASE AGGREGATION OUTPUT
+      # ======================================================
+
+      - name: Verify case aggregation results
+        run: |
+          test -f case-engine/output/cases.csv
+          test -f case-engine/output/cases.json
+          test -f case-engine/output/case_findings.csv
+          test -f case-engine/output/case_summary.json
+
+          echo "Case aggregation completed successfully."
+
+
+      # ======================================================
+      # 14. DISPLAY CASE AGGREGATION RESULTS
+      # ======================================================
+
+      - name: Display case aggregation results
+        run: |
+          python - <<'PY'
+
+          import csv
+          import json
+          from pathlib import Path
+
+
+          summary_path = Path(
+              "case-engine/output/case_summary.json"
+          )
+
+          cases_path = Path(
+              "case-engine/output/cases.csv"
+          )
+
+
+          with summary_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              summary = json.load(file)
+
+
+          with cases_path.open(
+              "r",
+              encoding="utf-8",
+              newline=""
+          ) as file:
+
+              cases = list(
+                  csv.DictReader(file)
+              )
+
+
+          print()
+          print(
+              "============================================"
+          )
+
+          print(
+              " CASE AGGREGATION RESULTS"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          print(
+              f"Raw Findings: "
+              f"{summary['raw_findings']}"
+          )
+
+          print(
+              f"Aggregated Cases: "
+              f"{summary['aggregated_cases']}"
+          )
+
+          print(
+              f"Corroborating Findings Collapsed: "
+              f"{summary['findings_collapsed_into_existing_cases']}"
+          )
+
+          print(
+              f"Multi-Finding Cases: "
+              f"{summary['multi_finding_cases']}"
+          )
+
+          print(
+              f"Wrongly Affected Cases: "
+              f"{summary['wrongly_affected_cases']}"
+          )
+
+          print(
+              f"Unresolved Identity Cases: "
+              f"{summary['unresolved_identity_cases']}"
+          )
+
+
+          print()
+          print(
+              "Priority Breakdown:"
+          )
+
+          for priority, count in (
+              summary[
+                  "priority_breakdown"
+              ].items()
+          ):
+
+              print(
+                  f" - {priority}: {count}"
+              )
+
+
+          print()
+          print(
+              "Case Type Breakdown:"
+          )
+
+          for case_type, count in (
+              summary[
+                  "case_type_breakdown"
+              ].items()
+          ):
+
+              print(
+                  f" - {case_type}: {count}"
+              )
+
+
+          print()
+          print(
+              "============================================"
+          )
+
+          print(
+              " BIO-000795 VALIDATION"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          matching_cases = [
+
+              case
+
+              for case in cases
+
+              if "BIO-000795" in (
+                  case[
+                      "affected_biometric_ids"
+                  ]
+              ).split(",")
+
+          ]
+
+
+          if not matching_cases:
+
+              print(
+                  "BIO-000795 was not found in any case."
+              )
+
+          else:
+
+              for case in matching_cases:
+
+                  print(
+                      f"Case ID: "
+                      f"{case['case_id']}"
+                  )
+
+                  print(
+                      f"Case Type: "
+                      f"{case['case_type']}"
+                  )
+
+                  print(
+                      f"Priority: "
+                      f"{case['priority']}"
+                  )
+
+                  print(
+                      f"Primary Biometric: "
+                      f"{case['primary_biometric_id']}"
+                  )
+
+                  print(
+                      f"Affected Biometrics: "
+                      f"{case['affected_biometric_ids']}"
+                  )
+
+                  print(
+                      f"Current Master IDs: "
+                      f"{case['current_master_ids']}"
+                  )
+
+                  print(
+                      f"Canonical Identity: "
+                      f"{case['canonical_master_id']}"
+                  )
+
+                  print(
+                      f"Canonical Confidence: "
+                      f"{case['canonical_identity_confidence']}"
+                  )
+
+                  print(
+                      f"Identity Support Count: "
+                      f"{case['identity_support_count']}"
+                  )
+
+                  print(
+                      f"Finding Count: "
+                      f"{case['finding_count']}"
+                  )
+
+                  print(
+                      f"Finding Types: "
+                      f"{case['finding_types']}"
+                  )
+
+                  print(
+                      f"Risk: "
+                      f"{case['risk_score']}"
+                  )
+
+                  print(
+                      f"Harm: "
+                      f"{case['harm_impact_score']}"
+                  )
+
+                  print(
+                      f"Protective Priority: "
+                      f"{case['protective_priority_score']}"
+                  )
+
+
+          print()
+
+          PY
+
+
+      # ======================================================
+      # 15. DISPLAY EXECUTIVE PERFORMANCE
       # ======================================================
 
       - name: Display executive metrics
@@ -256,7 +517,7 @@ jobs:
 
 
       # ======================================================
-      # 13. DISPLAY DIAGNOSTIC RESULTS
+      # 16. DISPLAY DIAGNOSTIC RESULTS
       # ======================================================
 
       - name: Display false positive diagnostics
@@ -324,7 +585,7 @@ jobs:
 
           print()
           print(
-              "CASE LEVEL"
+              "CASE LEVEL - RAW FINDING EVALUATOR"
           )
 
           print(
@@ -344,7 +605,7 @@ jobs:
 
           print()
           print(
-              "IDENTITY RESOLUTION"
+              "IDENTITY RESOLUTION - RAW FINDING EVALUATOR"
           )
 
           print(
@@ -354,11 +615,23 @@ jobs:
 
           print()
 
+          print(
+              "NOTE:"
+          )
+
+          print(
+              "Raw finding-level case metrics are retained "
+              "for diagnostics. The Case Aggregation Engine "
+              "provides the operational case representation."
+          )
+
+          print()
+
           PY
 
 
       # ======================================================
-      # 14. DISPLAY IDENTITY RESOLUTION ERRORS
+      # 17. DISPLAY IDENTITY RESOLUTION ERRORS
       # ======================================================
 
       - name: Display identity resolution errors
@@ -401,7 +674,8 @@ jobs:
           if not errors:
 
               print(
-                  "No identity resolution errors detected."
+                  "No raw finding-level identity "
+                  "resolution errors detected."
               )
 
           for error in errors:
@@ -444,11 +718,19 @@ jobs:
 
           print()
 
+          print(
+              "These results are evaluated before "
+              "Case Aggregation. Canonical case-level "
+              "identity resolution is displayed separately."
+          )
+
+          print()
+
           PY
 
 
       # ======================================================
-      # 15. DISPLAY PROTECTIVE PRIORITY CASES
+      # 18. DISPLAY PROTECTIVE PRIORITY CASES
       # ======================================================
 
       - name: Display protective priority cases
@@ -459,7 +741,7 @@ jobs:
           from pathlib import Path
 
           path = Path(
-              "reconciliation-engine/output/findings.csv"
+              "case-engine/output/cases.csv"
           )
 
           with path.open(
@@ -468,18 +750,18 @@ jobs:
               newline=""
           ) as file:
 
-              findings = list(
+              cases = list(
                   csv.DictReader(file)
               )
 
           protective_cases = [
 
-              finding
+              case
 
-              for finding in findings
+              for case in cases
 
               if str(
-                  finding[
+                  case[
                       "wrongly_affected_person"
                   ]
               ).lower() == "true"
@@ -488,10 +770,10 @@ jobs:
 
           protective_cases.sort(
 
-              key=lambda finding:
+              key=lambda case:
 
                   float(
-                      finding[
+                      case[
                           "protective_priority_score"
                       ]
                       or 0
@@ -518,22 +800,39 @@ jobs:
               f"{len(protective_cases)}"
           )
 
-          for finding in protective_cases:
+          for case in protective_cases:
 
               print()
+
               print(
-                  f"{finding['finding_id']} | "
-                  f"{finding['biometric_id']} | "
-                  f"Current: "
-                  f"{finding['current_master_id']} | "
-                  f"Correct Candidate: "
-                  f"{finding['suspected_correct_master_id']} | "
+                  f"{case['case_id']} | "
+                  f"{case['case_type']} | "
+                  f"{case['priority']}"
+              )
+
+              print(
+                  f"Primary Biometric: "
+                  f"{case['primary_biometric_id']}"
+              )
+
+              print(
+                  f"Canonical Identity: "
+                  f"{case['canonical_master_id']}"
+              )
+
+              print(
                   f"Risk: "
-                  f"{finding['risk_score']} | "
+                  f"{case['risk_score']}"
+              )
+
+              print(
                   f"Harm: "
-                  f"{finding['harm_impact_score']} | "
+                  f"{case['harm_impact_score']}"
+              )
+
+              print(
                   f"Protective Priority: "
-                  f"{finding['protective_priority_score']}"
+                  f"{case['protective_priority_score']}"
               )
 
           print()
@@ -542,7 +841,7 @@ jobs:
 
 
       # ======================================================
-      # 16. DISPLAY ANOMALY BREAKDOWN
+      # 19. DISPLAY ANOMALY BREAKDOWN
       # ======================================================
 
       - name: Display anomaly detection breakdown
@@ -596,7 +895,7 @@ jobs:
 
 
       # ======================================================
-      # 17. CREATE FINAL COMBINED REPORT
+      # 20. CREATE FINAL COMBINED REPORT
       # ======================================================
 
       - name: Create final demo run summary
@@ -605,6 +904,7 @@ jobs:
 
           python - <<'PY'
 
+          import csv
           import json
           from pathlib import Path
           from datetime import datetime
@@ -624,6 +924,14 @@ jobs:
 
           diagnostic_path = Path(
               "evaluation/output/diagnostic_report.json"
+          )
+
+          case_summary_path = Path(
+              "case-engine/output/case_summary.json"
+          )
+
+          cases_path = Path(
+              "case-engine/output/cases.csv"
           )
 
 
@@ -657,6 +965,79 @@ jobs:
           ) as file:
 
               diagnostic = json.load(file)
+
+
+          with case_summary_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              case_summary = json.load(file)
+
+
+          with cases_path.open(
+              "r",
+              encoding="utf-8",
+              newline=""
+          ) as file:
+
+              cases = list(
+                  csv.DictReader(file)
+              )
+
+
+          bio_795_cases = [
+
+              case
+
+              for case in cases
+
+              if "BIO-000795" in (
+                  case[
+                      "affected_biometric_ids"
+                  ]
+              ).split(",")
+
+          ]
+
+
+          bio_795_validation = {
+
+              "found":
+                  bool(
+                      bio_795_cases
+                  ),
+
+              "expected_identity":
+                  "REF-002343",
+
+              "canonical_identity":
+                  (
+                      bio_795_cases[
+                          0
+                      ][
+                          "canonical_master_id"
+                      ]
+
+                      if bio_795_cases
+
+                      else ""
+                  ),
+
+              "case_id":
+                  (
+                      bio_795_cases[
+                          0
+                      ][
+                          "case_id"
+                      ]
+
+                      if bio_795_cases
+
+                      else ""
+                  ),
+
+          }
 
 
           final_report = {
@@ -701,12 +1082,12 @@ jobs:
                           "total_findings"
                       ],
 
-                  "wrongly_affected_cases":
+                  "wrongly_affected_findings":
                       reconciliation[
                           "wrongly_affected_person_cases"
                       ],
 
-                  "immediate_protective_priority_cases":
+                  "immediate_protective_priority_findings":
                       reconciliation[
                           "immediate_protective_priority_cases"
                       ],
@@ -740,17 +1121,64 @@ jobs:
                           "finding_level_analysis"
                       ],
 
-                  "case_level":
+                  "raw_case_level":
                       diagnostic[
                           "case_level_analysis"
                       ],
 
-                  "identity_resolution":
+                  "raw_identity_resolution":
                       diagnostic[
                           "identity_resolution_analysis"
                       ],
 
               },
+
+              "case_aggregation": {
+
+                  "raw_findings":
+                      case_summary[
+                          "raw_findings"
+                      ],
+
+                  "aggregated_cases":
+                      case_summary[
+                          "aggregated_cases"
+                      ],
+
+                  "findings_collapsed":
+                      case_summary[
+                          "findings_collapsed_into_existing_cases"
+                      ],
+
+                  "multi_finding_cases":
+                      case_summary[
+                          "multi_finding_cases"
+                      ],
+
+                  "wrongly_affected_cases":
+                      case_summary[
+                          "wrongly_affected_cases"
+                      ],
+
+                  "unresolved_identity_cases":
+                      case_summary[
+                          "unresolved_identity_cases"
+                      ],
+
+                  "priority_breakdown":
+                      case_summary[
+                          "priority_breakdown"
+                      ],
+
+                  "case_type_breakdown":
+                      case_summary[
+                          "case_type_breakdown"
+                      ],
+
+              },
+
+              "bio_000795_validation":
+                  bio_795_validation,
 
           }
 
@@ -783,13 +1211,14 @@ jobs:
 
 
       # ======================================================
-      # 18. CREATE GITHUB EXECUTIVE SUMMARY
+      # 21. CREATE GITHUB EXECUTIVE SUMMARY
       # ======================================================
 
       - name: Create GitHub executive summary
         run: |
           python - <<'PY'
 
+          import csv
           import json
           import os
           from pathlib import Path
@@ -801,6 +1230,14 @@ jobs:
 
           diagnostic_path = Path(
               "evaluation/output/diagnostic_report.json"
+          )
+
+          case_summary_path = Path(
+              "case-engine/output/case_summary.json"
+          )
+
+          cases_path = Path(
+              "case-engine/output/cases.csv"
           )
 
 
@@ -820,6 +1257,25 @@ jobs:
               diagnostic = json.load(file)
 
 
+          with case_summary_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              case_summary = json.load(file)
+
+
+          with cases_path.open(
+              "r",
+              encoding="utf-8",
+              newline=""
+          ) as file:
+
+              cases_data = list(
+                  csv.DictReader(file)
+              )
+
+
           overall = performance[
               "overall_performance"
           ]
@@ -836,13 +1292,42 @@ jobs:
               "finding_level_analysis"
           ]
 
-          cases = diagnostic[
+          raw_cases = diagnostic[
               "case_level_analysis"
           ]
 
           resolution = diagnostic[
               "identity_resolution_analysis"
           ]
+
+
+          matching_cases = [
+
+              case
+
+              for case in cases_data
+
+              if "BIO-000795" in (
+                  case[
+                      "affected_biometric_ids"
+                  ]
+              ).split(",")
+
+          ]
+
+
+          canonical_795 = (
+
+              matching_cases[
+                  0
+              ][
+                  "canonical_master_id"
+              ]
+
+              if matching_cases
+
+              else "NOT FOUND"
+          )
 
 
           summary = f"""
@@ -852,10 +1337,10 @@ jobs:
 
           | Metric | Result |
           |---|---:|
-          | Precision | {overall['precision']}% |
+          | Raw Precision | {overall['precision']}% |
           | Recall | {overall['recall']}% |
           | F1 Score | {overall['f1_score']}% |
-          | Identity Resolution Accuracy | {identity['accuracy']}% |
+          | Raw Identity Resolution Accuracy | {identity['accuracy']}% |
           | Protective Detection Recall | {protective['detection_recall']}% |
           | Protective Priority Accuracy | {protective['priority_accuracy']}% |
 
@@ -867,9 +1352,26 @@ jobs:
           | Secondary / Corroborating Findings | {findings['secondary_or_corroborating_findings']} |
           | Unexplained False Positives | {findings['unexplained_false_positive_findings']} |
           | Diagnostic Precision | {findings['diagnostic_precision_excluding_secondary_findings']}% |
-          | Case-Level Precision | {cases['case_level_precision']}% |
-          | Case-Level Recall | {cases['case_level_recall']}% |
-          | Identity Resolution Errors | {resolution['resolution_errors']} |
+          | Raw Case-Level Precision | {raw_cases['case_level_precision']}% |
+          | Raw Case-Level Recall | {raw_cases['case_level_recall']}% |
+          | Raw Identity Resolution Errors | {resolution['resolution_errors']} |
+
+          ## Case Aggregation
+
+          | Metric | Result |
+          |---|---:|
+          | Raw Findings | {case_summary['raw_findings']} |
+          | Aggregated Cases | {case_summary['aggregated_cases']} |
+          | Findings Collapsed | {case_summary['findings_collapsed_into_existing_cases']} |
+          | Multi-Finding Cases | {case_summary['multi_finding_cases']} |
+          | Wrongly Affected Cases | {case_summary['wrongly_affected_cases']} |
+          | Unresolved Identity Cases | {case_summary['unresolved_identity_cases']} |
+
+          ## BIO-000795 Validation
+
+          **Expected canonical identity:** REF-002343
+
+          **Case-level canonical identity:** {canonical_795}
 
           ## Protective Priority
 
@@ -898,7 +1400,7 @@ jobs:
 
 
       # ======================================================
-      # 19. UPLOAD COMPLETE RESULTS
+      # 22. UPLOAD COMPLETE RESULTS
       # ======================================================
 
       - name: Upload complete AI demo results
@@ -909,6 +1411,7 @@ jobs:
             synthetic-data/output/
             reconciliation-engine/output/
             evaluation/output/
+            case-engine/output/
             demo-output/
           if-no-files-found: error
           retention-days: 7

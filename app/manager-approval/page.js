@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
   Activity,
   AlertTriangle,
@@ -9,12 +11,7 @@ import {
   ChevronRight,
   CircleAlert,
   Clock3,
-  Database,
-  FileSearch,
-  Fingerprint,
-  Gauge,
   GitCompareArrows,
-  LayoutDashboard,
   LockKeyhole,
   Search,
   ShieldAlert,
@@ -81,107 +78,6 @@ const managerCases = [
 ];
 
 
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-          <span>Cases</span>
-          <span className="navCount">53</span>
-        </Link>
-
-        <div className="navItem">
-          <BrainCircuit size={19} />
-          <span>AI Investigations</span>
-        </div>
-
-        <Link
-          className="navItem"
-          href="/officer-review"
-        >
-          <UserCheck size={19} />
-          <span>Officer Review</span>
-        </Link>
-
-        <Link
-          className="navItem active"
-          href="/manager-approval"
-        >
-          <BadgeCheck size={19} />
-          <span>Manager Approval</span>
-          <span className="navCount">3</span>
-        </Link>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <div className="navItem">
-          <Gauge size={19} />
-          <span>Analytics</span>
-        </div>
-
-        <div className="navItem">
-          <Database size={19} />
-          <span>Data Integrity</span>
-        </div>
-
-        <div className="navItem">
-          <Activity size={19} />
-          <span>Audit Trail</span>
-        </div>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-
 function PriorityBadge({
   priority,
 }) {
@@ -233,7 +129,13 @@ function Metric({
 export default function ManagerApprovalPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
+
 
       <main className="mainContent">
 
@@ -245,6 +147,7 @@ export default function ManagerApprovalPage() {
           <div>
             <div className="eyebrow">
               <BadgeCheck size={15} />
+
               HUMAN-IN-THE-LOOP · LEVEL 2
             </div>
 
@@ -259,6 +162,7 @@ export default function ManagerApprovalPage() {
               execution is authorized.
             </p>
           </div>
+
 
           <div className="topbarActions">
             <button className="searchButton">
@@ -382,6 +286,9 @@ export default function ManagerApprovalPage() {
               marginTop: "17px",
             }}
           >
+
+            {/* AI INVESTIGATION */}
+
             <div
               style={{
                 padding: "16px",
@@ -419,10 +326,14 @@ export default function ManagerApprovalPage() {
               </span>
             </div>
 
+
             <ChevronRight
               size={17}
               color="#44566d"
             />
+
+
+            {/* OFFICER REVIEW */}
 
             <div
               style={{
@@ -461,10 +372,14 @@ export default function ManagerApprovalPage() {
               </span>
             </div>
 
+
             <ChevronRight
               size={17}
               color="#44566d"
             />
+
+
+            {/* MANAGER APPROVAL */}
 
             <div
               style={{
@@ -507,7 +422,7 @@ export default function ManagerApprovalPage() {
 
 
         {/* ================================================
-            QUEUE
+            FINAL APPROVAL QUEUE
             ================================================ */}
 
         <section className="panel">
@@ -532,9 +447,11 @@ export default function ManagerApprovalPage() {
               }}
             >
               <Activity size={15} />
+
               Management Queue
             </div>
           </div>
+
 
           <div className="tableWrap">
             <table
@@ -558,10 +475,14 @@ export default function ManagerApprovalPage() {
                 </tr>
               </thead>
 
+
               <tbody>
                 {managerCases.map(
                   (item) => (
                     <tr key={item.id}>
+
+                      {/* CASE */}
+
                       <td>
                         <Link
                           href={`/cases/${item.id}`}
@@ -578,6 +499,9 @@ export default function ManagerApprovalPage() {
                           {item.biometric}
                         </div>
                       </td>
+
+
+                      {/* INVESTIGATION */}
 
                       <td>
                         <div
@@ -624,6 +548,9 @@ export default function ManagerApprovalPage() {
                         </div>
                       </td>
 
+
+                      {/* PROPOSED CORRECTION */}
+
                       <td>
                         <div className="identityChange">
                           <span className="oldIdentity">
@@ -637,6 +564,9 @@ export default function ManagerApprovalPage() {
                           </span>
                         </div>
                       </td>
+
+
+                      {/* OFFICER APPROVAL */}
 
                       <td>
                         <div
@@ -678,11 +608,17 @@ export default function ManagerApprovalPage() {
                         </div>
                       </td>
 
+
+                      {/* AI CONFIDENCE */}
+
                       <td>
                         <span className="confidence">
                           {item.confidence}%
                         </span>
                       </td>
+
+
+                      {/* RISK */}
 
                       <td>
                         <strong
@@ -700,6 +636,9 @@ export default function ManagerApprovalPage() {
                         </strong>
                       </td>
 
+
+                      {/* HARM */}
+
                       <td>
                         <strong
                           style={{
@@ -713,6 +652,9 @@ export default function ManagerApprovalPage() {
                           {item.harm}
                         </strong>
                       </td>
+
+
+                      {/* PROTECTIVE */}
 
                       <td>
                         <strong
@@ -728,11 +670,17 @@ export default function ManagerApprovalPage() {
                         </strong>
                       </td>
 
+
+                      {/* PRIORITY */}
+
                       <td>
                         <PriorityBadge
                           priority={item.priority}
                         />
                       </td>
+
+
+                      {/* WAITING */}
 
                       <td>
                         <div
@@ -745,9 +693,13 @@ export default function ManagerApprovalPage() {
                           }}
                         >
                           <Clock3 size={13} />
+
                           {item.waiting}
                         </div>
                       </td>
+
+
+                      {/* FINAL REVIEW */}
 
                       <td>
                         <Link
@@ -764,15 +716,18 @@ export default function ManagerApprovalPage() {
                           }}
                         >
                           Final Review
+
                           <ChevronRight size={14} />
                         </Link>
                       </td>
+
                     </tr>
                   )
                 )}
               </tbody>
             </table>
           </div>
+
 
           <div
             style={{
@@ -808,6 +763,11 @@ export default function ManagerApprovalPage() {
               "1.35fr 0.65fr",
           }}
         >
+
+          {/* ==============================================
+              RECOMMENDED NEXT APPROVAL
+              ============================================== */}
+
           <div
             className="panel"
             style={{
@@ -861,6 +821,9 @@ export default function ManagerApprovalPage() {
               />
             </div>
 
+
+            {/* BEFORE / AFTER */}
+
             <div
               style={{
                 display: "grid",
@@ -903,10 +866,12 @@ export default function ManagerApprovalPage() {
                 </strong>
               </div>
 
+
               <GitCompareArrows
                 size={21}
                 color="#609cff"
               />
+
 
               <div
                 style={{
@@ -941,6 +906,9 @@ export default function ManagerApprovalPage() {
               </div>
             </div>
 
+
+            {/* RISK METRICS */}
+
             <div
               style={{
                 display: "grid",
@@ -951,10 +919,22 @@ export default function ManagerApprovalPage() {
               }}
             >
               {[
-                ["AI Confidence", "99.96%"],
-                ["Risk", "95.0"],
-                ["Harm", "94.5"],
-                ["Protective", "96.0"],
+                [
+                  "AI Confidence",
+                  "99.96%",
+                ],
+                [
+                  "Risk",
+                  "95.0",
+                ],
+                [
+                  "Harm",
+                  "94.5",
+                ],
+                [
+                  "Protective",
+                  "96.0",
+                ],
               ].map(
                 ([label, value]) => (
                   <div
@@ -993,6 +973,7 @@ export default function ManagerApprovalPage() {
               )}
             </div>
 
+
             <Link
               href="/cases/CASE-2026-00005"
               className="primaryButton"
@@ -1002,6 +983,7 @@ export default function ManagerApprovalPage() {
               }}
             >
               Open Complete Approval Package
+
               <ChevronRight size={17} />
             </Link>
           </div>
@@ -1026,11 +1008,15 @@ export default function ManagerApprovalPage() {
               <BadgeCheck size={22} />
             </div>
 
+
             <div
               style={{
                 padding: "17px",
               }}
             >
+
+              {/* APPROVE */}
+
               <div className="integrityInfo">
                 <CheckCircle2 size={21} />
 
@@ -1046,6 +1032,9 @@ export default function ManagerApprovalPage() {
                   </span>
                 </div>
               </div>
+
+
+              {/* RETURN TO OFFICER */}
 
               <div
                 className="integrityInfo"
@@ -1076,6 +1065,9 @@ export default function ManagerApprovalPage() {
                   </span>
                 </div>
               </div>
+
+
+              {/* MORE INVESTIGATION */}
 
               <div
                 className="integrityInfo"
@@ -1108,6 +1100,9 @@ export default function ManagerApprovalPage() {
                 </div>
               </div>
 
+
+              {/* REJECT */}
+
               <div
                 className="integrityInfo"
                 style={{
@@ -1138,6 +1133,7 @@ export default function ManagerApprovalPage() {
                   </span>
                 </div>
               </div>
+
             </div>
           </div>
         </section>
@@ -1175,6 +1171,10 @@ export default function ManagerApprovalPage() {
         </section>
 
 
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
             AI Identity Reconciliation Platform
@@ -1183,9 +1183,11 @@ export default function ManagerApprovalPage() {
 
           <div>
             <ShieldCheck size={15} />
+
             Two-Level Governance Active
           </div>
         </footer>
+
       </main>
     </div>
   );

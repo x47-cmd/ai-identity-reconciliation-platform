@@ -1,15 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import {
-  useParams,
-} from "next/navigation";
+import { useParams } from "next/navigation";
 
 import Sidebar from "../../components/Sidebar";
-
-import {
-  useLanguage,
-} from "../../components/LanguageProvider";
+import { useLanguage } from "../../components/LanguageProvider";
 
 import {
   COMPLEX_DEMO_CASE,
@@ -44,7 +39,7 @@ import {
 
 
 /* =========================================================
-   HELPERS
+   LANGUAGE HELPER
    ========================================================= */
 
 function L(
@@ -57,6 +52,10 @@ function L(
     : english;
 }
 
+
+/* =========================================================
+   STATUS LOCALIZATION
+   ========================================================= */
 
 function localizeStatus(
   value,
@@ -93,7 +92,10 @@ function localizeStatus(
   };
 
   if (keys[value]) {
-    return t(keys[value]);
+    return t(
+      keys[value],
+      value
+    );
   }
 
   return L(
@@ -104,41 +106,24 @@ function localizeStatus(
 }
 
 
+/* =========================================================
+   CASE TYPE LOCALIZATION
+   ========================================================= */
+
 function localizeCaseType(
   value,
-  language,
   t
 ) {
-  const keys = {
-    HARM_IMPACT:
-      "caseTypes.HARM_IMPACT",
-
-    CRITICAL_HARM_IDENTITY_CONFLICT:
-      "caseTypes.CRITICAL_HARM_CONFLICT",
-
-    COMPLEX_IDENTITY_CONFLICT:
-      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
-
-    DATA_MISMATCH:
-      "caseTypes.DATA_MISMATCH",
-
-    WRONG_MAPPING:
-      "caseTypes.WRONG_MAPPING",
-
-    DUPLICATE_IDENTITY:
-      "caseTypes.DUPLICATE_IDENTITY",
-
-    ORPHAN_RECORD:
-      "caseTypes.ORPHAN",
-  };
-
-  if (keys[value]) {
-    return t(keys[value]);
-  }
-
-  return value;
+  return t(
+    `caseTypes.${value}`,
+    value
+  );
 }
 
+
+/* =========================================================
+   FINDING TYPE LOCALIZATION
+   ========================================================= */
 
 function localizeFindingType(
   value,
@@ -146,43 +131,67 @@ function localizeFindingType(
 ) {
   const labels = {
     WRONG_MAPPING: {
-      en: "Wrong Mapping",
-      ar: "ربط خاطئ",
+      en:
+        "Wrong Mapping",
+
+      ar:
+        "ربط خاطئ",
     },
 
     HARM_IMPACT: {
-      en: "Harm Impact",
-      ar: "تأثير ضرر",
+      en:
+        "Harm Impact",
+
+      ar:
+        "تأثير ضرر",
     },
 
     DUPLICATE_BIOMETRIC: {
-      en: "Duplicate Biometric",
-      ar: "سجل بيومتري مكرر",
+      en:
+        "Duplicate Biometric",
+
+      ar:
+        "سجل بيومتري مكرر",
     },
 
     DATA_MISMATCH: {
-      en: "Data Mismatch",
-      ar: "اختلاف بيانات",
+      en:
+        "Data Mismatch",
+
+      ar:
+        "اختلاف بيانات",
     },
 
     DUPLICATE_IDENTITY: {
-      en: "Duplicate Identity",
-      ar: "هوية مكررة",
+      en:
+        "Duplicate Identity",
+
+      ar:
+        "هوية مكررة",
     },
 
     IDENTITY_CORRELATION: {
-      en: "Identity Correlation",
-      ar: "مطابقة الهوية",
+      en:
+        "Identity Correlation",
+
+      ar:
+        "مطابقة الهوية",
     },
   };
 
   return (
-    labels[value]?.[language]
-    ||
+    labels[value]?.[
+      language
+    ] ||
+    labels[value]?.en ||
     value
   );
 }
 
+
+/* =========================================================
+   CASE TITLE LOCALIZATION
+   ========================================================= */
 
 function localizeCaseTitle(
   caseData,
@@ -190,31 +199,42 @@ function localizeCaseTitle(
 ) {
   const labels = {
     [VERIFIED_DEMO_CASE.id]: {
-      en: VERIFIED_DEMO_CASE.title,
-      ar: "حالة تأثير وقائي على الشخص الخطأ",
+      en:
+        VERIFIED_DEMO_CASE.title,
+
+      ar:
+        "حالة تأثير وقائي على الشخص الخطأ",
     },
 
     [COMPLEX_DEMO_CASE.id]: {
-      en: COMPLEX_DEMO_CASE.title,
-      ar: "تعارض هوية معقد",
+      en:
+        COMPLEX_DEMO_CASE.title,
+
+      ar:
+        "تعارض هوية معقد",
     },
   };
 
   return (
-    labels[caseData.id]?.[language]
-    ||
+    labels[caseData.id]?.[
+      language
+    ] ||
     caseData.title
   );
 }
 
+
+/* =========================================================
+   AI CONCLUSION
+   ========================================================= */
 
 function getAiConclusion(
   caseData,
   language
 ) {
   if (
-    caseData.id
-    === VERIFIED_DEMO_CASE.id
+    caseData.id ===
+    VERIFIED_DEMO_CASE.id
   ) {
     return L(
       language,
@@ -235,20 +255,24 @@ function getAiConclusion(
 }
 
 
+/* =========================================================
+   ROOT CAUSE
+   ========================================================= */
+
 function getRootCause(
   caseData,
   language
 ) {
   if (
-    caseData.id
-    === VERIFIED_DEMO_CASE.id
+    caseData.id ===
+    VERIFIED_DEMO_CASE.id
   ) {
     return L(
       language,
 
       caseData.rootCause,
 
-      "أدى تعارض في الربط بعد التسجيل بين السجل البيومتري والهوية إلى ربط السجل البيومتري بهوية غير صحيحة داخل المرجع الرئيسي."
+      "أدى تعارض في الربط بعد التسجيل إلى ربط السجل البيومتري بمرجع هوية غير صحيح، بينما ظل المرجع الرئيسي نفسه دون تعديل."
     );
   }
 
@@ -263,10 +287,18 @@ function getRootCause(
 
 
 /* =========================================================
-   CASE DATA
+   CASE DATABASE
+
+   Only two detail routes are supported in the static demo:
+   - CASE-2026-00001
+   - CASE-2026-00014
    ========================================================= */
 
 const caseDatabase = {
+  /* =======================================================
+     VERIFIED E2E CASE
+     ======================================================= */
+
   [VERIFIED_DEMO_CASE.id]: {
     id:
       VERIFIED_DEMO_CASE.id,
@@ -290,7 +322,7 @@ const caseDatabase = {
       VERIFIED_DEMO_CASE.currentIdentity,
 
     proposedIdentity:
-      VERIFIED_DEMO_CASE.canonicalIdentity,
+      VERIFIED_DEMO_CASE.proposedIdentity,
 
     confidence:
       VERIFIED_DEMO_CASE.aiConfidence,
@@ -337,78 +369,130 @@ const caseDatabase = {
     rootCause:
       (
         "A post-registration biometric-to-identity mapping conflict "
-        + "associated the biometric record with an incorrect Master "
-        + "Reference identity."
+        + "associated the biometric record with an incorrect identity "
+        + "reference while the authoritative Master Reference remained unchanged."
       ),
 
     evidence: {
       resolutionConfidence:
         VERIFIED_DEMO_CASE.aiConfidence,
 
-      postCorrectionMatch:
+      postCorrectionMatchRaw:
         VERIFIED_DEMO_CASE.verification.biometricMatch,
+
+      postCorrectionMatchPercent:
+        VERIFIED_DEMO_CASE.verification.biometricMatchPercent,
     },
 
     dataComparison: [
       {
-        field: "Previous Master Identity",
-        fieldAr: "الهوية الرئيسية السابقة",
+        field:
+          "Previous Master Identity",
+
+        fieldAr:
+          "مرجع الهوية السابق",
+
         current:
           VERIFIED_DEMO_CASE.currentIdentity,
+
         reference:
           VERIFIED_DEMO_CASE.canonicalIdentity,
-        result: "CONFLICT",
+
+        result:
+          "CONFLICT",
       },
 
       {
-        field: "Biometric Ownership",
-        fieldAr: "ملكية السجل البيومتري",
+        field:
+          "Biometric Ownership",
+
+        fieldAr:
+          "ارتباط السجل البيومتري",
+
         current:
           VERIFIED_DEMO_CASE.currentIdentity,
+
         reference:
           VERIFIED_DEMO_CASE.canonicalIdentity,
-        result: "CONFLICT",
+
+        result:
+          "CONFLICT",
       },
 
       {
-        field: "Identity Attributes",
-        fieldAr: "سمات الهوية",
-        current: "Low consistency",
-        currentAr: "اتساق منخفض",
-        reference: "High consistency",
-        referenceAr: "اتساق مرتفع",
-        result: "MISMATCH",
+        field:
+          "Identity Attributes",
+
+        fieldAr:
+          "سمات الهوية",
+
+        current:
+          "Low consistency",
+
+        currentAr:
+          "اتساق منخفض",
+
+        reference:
+          "High consistency",
+
+        referenceAr:
+          "اتساق مرتفع",
+
+        result:
+          "MISMATCH",
       },
 
       {
-        field: "Canonical Resolution",
-        fieldAr: "الحسم المرجعي",
+        field:
+          "Canonical Resolution",
+
+        fieldAr:
+          "الحسم المرجعي",
+
         current:
           "Previous mapping rejected",
+
         currentAr:
           "تم رفض الربط السابق",
+
         reference:
           `${VERIFIED_DEMO_CASE.aiConfidence}% confidence`,
+
         referenceAr:
           `ثقة ${VERIFIED_DEMO_CASE.aiConfidence}%`,
-        result: "MATCH",
+
+        result:
+          "MATCH",
       },
     ],
 
     findingsList: [
       {
-        id: "SYN-FND-0001",
-        type: "WRONG_MAPPING",
-        role: "PRIMARY",
+        id:
+          "SYN-FND-0001",
+
+        type:
+          "WRONG_MAPPING",
+
+        role:
+          "PRIMARY",
+
         confidence:
           VERIFIED_DEMO_CASE.aiConfidence,
       },
 
       {
-        id: "SYN-FND-0002",
-        type: "HARM_IMPACT",
-        role: "CORROBORATING",
-        confidence: 99.97,
+        id:
+          "SYN-FND-0002",
+
+        type:
+          "HARM_IMPACT",
+
+        role:
+          "CORROBORATING",
+
+        confidence:
+          99.97,
       },
     ],
 
@@ -436,26 +520,28 @@ const caseDatabase = {
     },
 
     officer: {
-      status: "APPROVED",
+      status:
+        "APPROVED",
 
       name:
-        "Demo Monitoring Officer",
+        VERIFIED_DEMO_CASE.officer.actor,
 
       decision:
-        VERIFIED_DEMO_CASE.officerDecision,
+        VERIFIED_DEMO_CASE.officer.decision,
 
       comments:
         "Monitoring Officer reviewed the investigation evidence and approved the proposed correction.",
     },
 
     manager: {
-      status: "APPROVED",
+      status:
+        "APPROVED",
 
       name:
-        "Demo Supervising Manager",
+        VERIFIED_DEMO_CASE.manager.actor,
 
       decision:
-        VERIFIED_DEMO_CASE.managerDecision,
+        VERIFIED_DEMO_CASE.manager.decision,
 
       comments:
         "Manager completed the second-level review and authorized controlled execution.",
@@ -468,8 +554,11 @@ const caseDatabase = {
       score:
         VERIFIED_DEMO_CASE.verification.score,
 
-      biometricMatch:
+      biometricMatchRaw:
         VERIFIED_DEMO_CASE.verification.biometricMatch,
+
+      biometricMatchPercent:
+        VERIFIED_DEMO_CASE.verification.biometricMatchPercent,
 
       identityMappingValid:
         VERIFIED_DEMO_CASE.verification.identityMappingValid,
@@ -480,83 +569,135 @@ const caseDatabase = {
       secondaryConflict:
         VERIFIED_DEMO_CASE.verification.secondaryConflict,
 
+      rollbackRequired:
+        VERIFIED_DEMO_CASE.verification.rollbackRequired,
+
       finalStatus:
         VERIFIED_DEMO_CASE.finalStatus,
     },
 
     audit: [
       {
-        sequence: "01",
-        actor: "Investigation Agent",
-        actorAr: "وكيل التحقيق",
+        sequence:
+          "01",
+
+        actor:
+          "Investigation Agent",
+
+        actorAr:
+          "وكيل التحقيق",
+
         action:
           "AI investigation completed",
+
         actionAr:
           "اكتمل تحقيق الذكاء الاصطناعي",
+
         detail:
           "Identity evidence, risk, harm and proposed correction were prepared for human review.",
+
         detailAr:
           "تم تجهيز أدلة الهوية والمخاطر والضرر والتصحيح المقترح للمراجعة البشرية.",
       },
 
       {
-        sequence: "02",
-        actor: "Monitoring Officer",
-        actorAr: "ضابط المراقبة",
+        sequence:
+          "02",
+
+        actor:
+          "Monitoring Officer",
+
+        actorAr:
+          "ضابط المراقبة",
+
         action:
           "Officer approval recorded",
+
         actionAr:
           "تم تسجيل اعتماد الضابط",
+
         detail:
           "Level 1 human review approved the proposed identity correction.",
+
         detailAr:
           "اعتمد المستوى الأول من المراجعة البشرية تصحيح الهوية المقترح.",
       },
 
       {
-        sequence: "03",
-        actor: "Supervising Manager",
-        actorAr: "المدير المشرف",
+        sequence:
+          "03",
+
+        actor:
+          "Supervising Manager",
+
+        actorAr:
+          "المدير المشرف",
+
         action:
           "Manager approval recorded",
+
         actionAr:
           "تم تسجيل اعتماد المدير",
+
         detail:
           "Level 2 human review authorized controlled correction execution.",
+
         detailAr:
           "صرح المستوى الثاني من المراجعة البشرية بتنفيذ التصحيح الخاضع للتحكم.",
       },
 
       {
-        sequence: "04",
-        actor: "Execution Agent",
-        actorAr: "وكيل التنفيذ",
+        sequence:
+          "04",
+
+        actor:
+          "Execution Agent",
+
+        actorAr:
+          "وكيل التنفيذ",
+
         action:
           "Controlled correction completed",
+
         actionAr:
           "اكتمل التصحيح الخاضع للتحكم",
+
         detail:
           "BIO-000166 was reassigned from REF-002711 to REF-001009 in the permitted runtime target.",
+
         detailAr:
           "تمت إعادة ربط BIO-000166 من REF-002711 إلى REF-001009 داخل هدف التشغيل المسموح.",
       },
 
       {
-        sequence: "05",
-        actor: "Verification Agent",
-        actorAr: "وكيل التحقق",
+        sequence:
+          "05",
+
+        actor:
+          "Verification Agent",
+
+        actorAr:
+          "وكيل التحقق",
+
         action:
           "Post-correction verification passed",
+
         actionAr:
           "نجح التحقق بعد التصحيح",
+
         detail:
           "Verification score reached 100 and the case reached VERIFIED_CLOSED.",
+
         detailAr:
           "وصلت درجة التحقق إلى 100 وتم إغلاق الحالة بعد التحقق.",
       },
     ],
   },
 
+
+  /* =======================================================
+     COMPLEX CASE
+     ======================================================= */
 
   [COMPLEX_DEMO_CASE.id]: {
     id:
@@ -572,16 +713,16 @@ const caseDatabase = {
       COMPLEX_DEMO_CASE.priority,
 
     status:
-      "AI_INVESTIGATED",
+      COMPLEX_DEMO_CASE.finalStatus,
 
     biometricId:
       COMPLEX_DEMO_CASE.primaryBiometricId,
 
     currentIdentity:
-      COMPLEX_DEMO_CASE.currentMasterIdentities[0],
+      COMPLEX_DEMO_CASE.currentIdentity,
 
     proposedIdentity:
-      COMPLEX_DEMO_CASE.canonicalIdentity,
+      COMPLEX_DEMO_CASE.proposedIdentity,
 
     confidence:
       COMPLEX_DEMO_CASE.aiConfidence,
@@ -635,79 +776,138 @@ const caseDatabase = {
       resolutionConfidence:
         COMPLEX_DEMO_CASE.aiConfidence,
 
-      postCorrectionMatch:
+      postCorrectionMatchRaw:
+        null,
+
+      postCorrectionMatchPercent:
         null,
     },
 
     dataComparison: [
       {
-        field: "Current Master Link",
-        fieldAr: "الربط الرئيسي الحالي",
+        field:
+          "Current Master Link",
+
+        fieldAr:
+          "الربط المرجعي الحالي",
+
         current:
-          COMPLEX_DEMO_CASE.currentMasterIdentities[0],
+          COMPLEX_DEMO_CASE.currentIdentity,
+
         reference:
           COMPLEX_DEMO_CASE.canonicalIdentity,
-        result: "CONFLICT",
+
+        result:
+          "CONFLICT",
       },
 
       {
-        field: "Related Biometric",
-        fieldAr: "السجل البيومتري المرتبط",
+        field:
+          "Related Biometric",
+
+        fieldAr:
+          "السجل البيومتري المرتبط",
+
         current:
           COMPLEX_DEMO_CASE.affectedBiometrics[0],
+
         reference:
           COMPLEX_DEMO_CASE.primaryBiometricId,
-        result: "RELATED",
+
+        result:
+          "RELATED",
       },
 
       {
-        field: "Canonical Resolution",
-        fieldAr: "الحسم المرجعي",
+        field:
+          "Canonical Resolution",
+
+        fieldAr:
+          "الحسم المرجعي",
+
         current:
           "Unresolved at raw finding level",
+
         currentAr:
           "غير محسوم على مستوى النتائج الأولية",
+
         reference:
           COMPLEX_DEMO_CASE.canonicalIdentity,
-        result: "MATCH",
+
+        result:
+          "MATCH",
       },
     ],
 
     findingsList: [
       {
-        id: "SYN-FND-0011",
-        type: "WRONG_MAPPING",
-        role: "PRIMARY",
+        id:
+          "SYN-FND-0011",
+
+        type:
+          "WRONG_MAPPING",
+
+        role:
+          "PRIMARY",
+
         confidence:
           COMPLEX_DEMO_CASE.aiConfidence,
       },
 
       {
-        id: "SYN-FND-0012",
-        type: "DUPLICATE_BIOMETRIC",
-        role: "CORROBORATING",
-        confidence: 100,
+        id:
+          "SYN-FND-0012",
+
+        type:
+          "DUPLICATE_BIOMETRIC",
+
+        role:
+          "CORROBORATING",
+
+        confidence:
+          100,
       },
 
       {
-        id: "SYN-FND-0013",
-        type: "DATA_MISMATCH",
-        role: "CORROBORATING",
-        confidence: 99.95,
+        id:
+          "SYN-FND-0013",
+
+        type:
+          "DATA_MISMATCH",
+
+        role:
+          "CORROBORATING",
+
+        confidence:
+          99.95,
       },
 
       {
-        id: "SYN-FND-0014",
-        type: "DUPLICATE_IDENTITY",
-        role: "CORROBORATING",
-        confidence: 99.92,
+        id:
+          "SYN-FND-0014",
+
+        type:
+          "DUPLICATE_IDENTITY",
+
+        role:
+          "CORROBORATING",
+
+        confidence:
+          99.92,
       },
 
       {
-        id: "SYN-FND-0015",
-        type: "IDENTITY_CORRELATION",
-        role: "CORROBORATING",
-        confidence: 99.91,
+        id:
+          "SYN-FND-0015",
+
+        type:
+          "IDENTITY_CORRELATION",
+
+        role:
+          "CORROBORATING",
+
+        confidence:
+          99.91,
       },
     ],
 
@@ -725,86 +925,138 @@ const caseDatabase = {
         "linked_master_id",
 
       before:
-        COMPLEX_DEMO_CASE.currentMasterIdentities[0],
+        COMPLEX_DEMO_CASE.currentIdentity,
 
       after:
-        COMPLEX_DEMO_CASE.canonicalIdentity,
+        COMPLEX_DEMO_CASE.proposedIdentity,
 
       execution:
         "NOT_AUTHORIZED",
     },
 
     officer: {
-      status: "PENDING",
-      name: "Not assigned",
-      decision: "PENDING",
+      status:
+        "PENDING",
+
+      name:
+        "Not assigned",
+
+      decision:
+        "PENDING",
+
       comments:
         "Awaiting Monitoring Officer review.",
     },
 
     manager: {
-      status: "NOT_READY",
-      name: "Not assigned",
-      decision: "NOT_READY",
+      status:
+        "NOT_READY",
+
+      name:
+        "Not assigned",
+
+      decision:
+        "NOT_READY",
+
       comments:
         "Manager review becomes available only after Officer approval.",
     },
 
     verification: {
-      status: "NOT_STARTED",
-      score: null,
-      biometricMatch: null,
-      identityMappingValid: null,
-      conflictResolved: null,
-      secondaryConflict: null,
-      finalStatus: "AI_INVESTIGATED",
+      status:
+        "NOT_STARTED",
+
+      score:
+        null,
+
+      biometricMatchRaw:
+        null,
+
+      biometricMatchPercent:
+        null,
+
+      identityMappingValid:
+        null,
+
+      conflictResolved:
+        null,
+
+      secondaryConflict:
+        null,
+
+      rollbackRequired:
+        false,
+
+      finalStatus:
+        COMPLEX_DEMO_CASE.finalStatus,
     },
 
     audit: [
       {
-        sequence: "01",
+        sequence:
+          "01",
+
         actor:
           "Reconciliation Agent",
+
         actorAr:
           "وكيل المطابقة",
+
         action:
           "Multiple related findings detected",
+
         actionAr:
           "تم اكتشاف نتائج مترابطة متعددة",
+
         detail:
           "Related biometric and identity inconsistencies were identified during reconciliation.",
+
         detailAr:
           "تم اكتشاف اختلافات مترابطة في السجلات البيومترية والهوية أثناء عملية المطابقة.",
       },
 
       {
-        sequence: "02",
+        sequence:
+          "02",
+
         actor:
           "Case Aggregation Engine",
+
         actorAr:
           "محرك تجميع الحالات",
+
         action:
           "Findings aggregated",
+
         actionAr:
           "تم تجميع النتائج",
+
         detail:
           "Five related findings were consolidated into one complex identity case.",
+
         detailAr:
           "تم دمج خمس نتائج مترابطة داخل حالة تعارض هوية معقدة واحدة.",
       },
 
       {
-        sequence: "03",
+        sequence:
+          "03",
+
         actor:
           "Identity Resolution Agent",
+
         actorAr:
           "وكيل حسم الهوية",
+
         action:
           "Canonical identity resolved",
+
         actionAr:
           "تم حسم الهوية المرجعية",
+
         detail:
           "REF-002343 was selected as the strongest case-level identity candidate.",
+
         detailAr:
           "تم اختيار REF-002343 كأقوى مرشح للهوية على مستوى الحالة.",
       },
@@ -814,7 +1066,7 @@ const caseDatabase = {
 
 
 /* =========================================================
-   SMALL COMPONENTS
+   PRIORITY BADGE
    ========================================================= */
 
 function PriorityBadge({
@@ -830,11 +1082,18 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {t(`priorities.${priority}`)}
+      {t(
+        `priorities.${priority}`,
+        priority
+      )}
     </span>
   );
 }
 
+
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
 
 function StatusBadge({
   value,
@@ -889,19 +1148,39 @@ function StatusBadge({
   return (
     <span
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "25px",
-        padding: "0 10px",
-        borderRadius: "7px",
+        display:
+          "inline-flex",
+
+        alignItems:
+          "center",
+
+        justifyContent:
+          "center",
+
+        minHeight:
+          "25px",
+
+        padding:
+          "0 10px",
+
+        borderRadius:
+          "7px",
+
         color,
+
         background,
+
         border:
           `1px solid ${border}`,
-        fontSize: "10px",
-        fontWeight: 800,
-        whiteSpace: "nowrap",
+
+        fontSize:
+          "10px",
+
+        fontWeight:
+          800,
+
+        whiteSpace:
+          "nowrap",
       }}
     >
       {localizeStatus(
@@ -913,6 +1192,10 @@ function StatusBadge({
   );
 }
 
+
+/* =========================================================
+   RISK METRIC
+   ========================================================= */
 
 function RiskMetric({
   label,
@@ -929,21 +1212,35 @@ function RiskMetric({
   return (
     <div
       style={{
-        flex: 1,
-        minWidth: "150px",
-        padding: "17px",
-        borderRadius: "13px",
+        flex:
+          1,
+
+        minWidth:
+          "150px",
+
+        padding:
+          "17px",
+
+        borderRadius:
+          "13px",
+
         background:
           "rgba(255,255,255,0.025)",
+
         border:
           "1px solid rgba(255,255,255,0.055)",
       }}
     >
       <div
         style={{
-          color: "#71839a",
-          fontSize: "10px",
-          marginBottom: "9px",
+          color:
+            "#71839a",
+
+          fontSize:
+            "10px",
+
+          marginBottom:
+            "9px",
         }}
       >
         {label}
@@ -952,7 +1249,9 @@ function RiskMetric({
       <strong
         style={{
           color,
-          fontSize: "24px",
+
+          fontSize:
+            "24px",
         }}
       >
         {value}
@@ -960,8 +1259,11 @@ function RiskMetric({
 
       <span
         style={{
-          color: "#667991",
-          fontSize: "10px",
+          color:
+            "#667991",
+
+          fontSize:
+            "10px",
         }}
       >
         {" / 100"}
@@ -972,21 +1274,29 @@ function RiskMetric({
 
 
 /* =========================================================
-   LIFECYCLE
+   CASE LIFECYCLE
    ========================================================= */
 
 function getLifecycle(
   caseData,
   language
 ) {
-  const items = [
+  return [
     [
-      L(language, "Detected", "تم الاكتشاف"),
+      L(
+        language,
+        "Detected",
+        "تم الاكتشاف"
+      ),
       true,
     ],
 
     [
-      L(language, "Reconciled", "تمت المطابقة"),
+      L(
+        language,
+        "Reconciled",
+        "تمت المطابقة"
+      ),
       true,
     ],
 
@@ -1018,22 +1328,32 @@ function getLifecycle(
     ],
 
     [
-      L(language, "Execution", "التنفيذ"),
+      L(
+        language,
+        "Execution",
+        "التنفيذ"
+      ),
       caseData.isVerifiedClosed,
     ],
 
     [
-      L(language, "Verification", "التحقق"),
+      L(
+        language,
+        "Verification",
+        "التحقق"
+      ),
       caseData.isVerifiedClosed,
     ],
 
     [
-      L(language, "Closed", "مغلقة"),
+      L(
+        language,
+        "Closed",
+        "مغلقة"
+      ),
       caseData.isVerifiedClosed,
     ],
   ];
-
-  return items;
 }
 
 
@@ -1055,26 +1375,47 @@ function CaseNotFound({
           href="/cases"
           className="textButton"
           style={{
-            width: "fit-content",
-            textDecoration: "none",
+            width:
+              "fit-content",
+
+            textDecoration:
+              "none",
           }}
         >
-          <ArrowLeft size={16} />
+          {language === "ar" ? (
+            <ArrowRight
+              size={16}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={16}
+              aria-hidden="true"
+            />
+          )}
 
-          {t("caseDetail.backToCases")}
+          {t(
+            "caseDetail.backToCases"
+          )}
         </Link>
 
         <div
           className="panel"
           style={{
-            padding: "50px",
-            marginTop: "20px",
-            textAlign: "center",
+            padding:
+              "50px",
+
+            marginTop:
+              "20px",
+
+            textAlign:
+              "center",
           }}
         >
           <CircleAlert
             size={40}
             color="#ff7786"
+            aria-hidden="true"
           />
 
           <h1>
@@ -1086,11 +1427,13 @@ function CaseNotFound({
           </h1>
 
           <p
+            dir="ltr"
             style={{
-              color: "#7b8da4",
+              color:
+                "#7b8da4",
             }}
           >
-            {caseId}
+            {caseId || "UNKNOWN"}
           </p>
         </div>
       </main>
@@ -1107,8 +1450,15 @@ export default function CaseInvestigationPage() {
   const params =
     useParams();
 
-  const caseId =
+  const rawCaseId =
     params?.caseId;
+
+  const caseId =
+    Array.isArray(
+      rawCaseId
+    )
+      ? rawCaseId[0]
+      : rawCaseId;
 
 
   const {
@@ -1117,8 +1467,14 @@ export default function CaseInvestigationPage() {
   } = useLanguage();
 
 
+  const isArabic =
+    language === "ar";
+
+
   const caseData =
-    caseDatabase[caseId];
+    caseId
+      ? caseDatabase[caseId]
+      : null;
 
 
   if (!caseData) {
@@ -1139,6 +1495,14 @@ export default function CaseInvestigationPage() {
     );
 
 
+  const navigationArrowStyle = {
+    transform:
+      isArabic
+        ? "rotate(180deg)"
+        : "none",
+  };
+
+
   return (
     <div className="appShell">
 
@@ -1153,34 +1517,58 @@ export default function CaseInvestigationPage() {
 
         <div
           style={{
-            marginBottom: "19px",
+            marginBottom:
+              "19px",
           }}
         >
           <Link
             href="/cases"
             className="textButton"
             style={{
-              width: "fit-content",
-              padding: 0,
-              textDecoration: "none",
-              marginBottom: "15px",
+              width:
+                "fit-content",
+
+              padding:
+                0,
+
+              textDecoration:
+                "none",
+
+              marginBottom:
+                "15px",
             }}
           >
-            <ArrowLeft size={16} />
+            {isArabic ? (
+              <ArrowRight
+                size={16}
+                aria-hidden="true"
+              />
+            ) : (
+              <ArrowLeft
+                size={16}
+                aria-hidden="true"
+              />
+            )}
 
-            {t("caseDetail.backToCases")}
+            {t(
+              "caseDetail.backToCases"
+            )}
           </Link>
 
 
           <header
             className="topbar"
             style={{
-              marginBottom: 0,
+              marginBottom:
+                0,
             }}
           >
             <div>
               <div className="eyebrow">
-                <BrainCircuit size={15} />
+                <BrainCircuit
+                  size={15}
+                  aria-hidden="true"
+                />
 
                 {L(
                   language,
@@ -1192,16 +1580,27 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  flexWrap: "wrap",
-                  marginTop: "7px",
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap:
+                    "12px",
+
+                  flexWrap:
+                    "wrap",
+
+                  marginTop:
+                    "7px",
                 }}
               >
                 <h1
+                  dir="ltr"
                   style={{
-                    margin: 0,
+                    margin:
+                      0,
                   }}
                 >
                   {caseData.id}
@@ -1218,7 +1617,9 @@ export default function CaseInvestigationPage() {
                   value={
                     caseData.status
                   }
-                  language={language}
+                  language={
+                    language
+                  }
                   t={t}
                 />
               </div>
@@ -1226,32 +1627,34 @@ export default function CaseInvestigationPage() {
 
               <p
                 style={{
-                  marginTop: "7px",
+                  marginTop:
+                    "7px",
                 }}
               >
-                {
-                  localizeCaseTitle(
-                    caseData,
-                    language
-                  )
-                }
+                {localizeCaseTitle(
+                  caseData,
+                  language
+                )}
 
                 {" · "}
 
-                {
-                  localizeCaseType(
-                    caseData.caseType,
-                    language,
-                    t
-                  )
-                }
+                {localizeCaseType(
+                  caseData.caseType,
+                  t
+                )}
               </p>
             </div>
 
 
             <div className="topbarActions">
-              <button className="searchButton">
-                <Search size={18} />
+              <button
+                type="button"
+                className="searchButton"
+              >
+                <Search
+                  size={18}
+                  aria-hidden="true"
+                />
 
                 <span>
                   {L(
@@ -1289,13 +1692,16 @@ export default function CaseInvestigationPage() {
 
 
         {/* ===============================================
-            WRONG PERSON WARNING
+            WRONG-PERSON WARNING
             =============================================== */}
 
         {caseData.wronglyAffected && (
           <section className="alertBanner">
             <div className="alertIcon">
-              <ShieldAlert size={24} />
+              <ShieldAlert
+                size={24}
+                aria-hidden="true"
+              />
             </div>
 
             <div className="alertText">
@@ -1319,8 +1725,11 @@ export default function CaseInvestigationPage() {
             <div
               className="priority immediate"
               style={{
-                height: "32px",
-                padding: "0 13px",
+                height:
+                  "32px",
+
+                padding:
+                  "0 13px",
               }}
             >
               {L(
@@ -1341,11 +1750,17 @@ export default function CaseInvestigationPage() {
           <section
             className="integrityInfo"
             style={{
-              margin: "0 0 20px",
-              padding: "17px",
+              margin:
+                "0 0 20px",
+
+              padding:
+                "17px",
             }}
           >
-            <CheckCircle2 size={24} />
+            <CheckCircle2
+              size={24}
+              aria-hidden="true"
+            />
 
             <div>
               <strong>
@@ -1373,17 +1788,23 @@ export default function CaseInvestigationPage() {
             =============================================== */}
 
         <section className="statsGrid">
+
           <div className="metricCard">
             <div className="metricTop">
               <div className="metricIcon">
-                <Fingerprint size={20} />
+                <Fingerprint
+                  size={20}
+                  aria-hidden="true"
+                />
               </div>
             </div>
 
             <div
               className="metricValue"
+              dir="ltr"
               style={{
-                fontSize: "18px",
+                fontSize:
+                  "18px",
               }}
             >
               {caseData.biometricId}
@@ -1410,7 +1831,10 @@ export default function CaseInvestigationPage() {
           <div className="metricCard">
             <div className="metricTop">
               <div className="metricIcon">
-                <BrainCircuit size={20} />
+                <BrainCircuit
+                  size={20}
+                  aria-hidden="true"
+                />
               </div>
             </div>
 
@@ -1439,7 +1863,10 @@ export default function CaseInvestigationPage() {
           <div className="metricCard">
             <div className="metricTop">
               <div className="metricIcon">
-                <ShieldAlert size={20} />
+                <ShieldAlert
+                  size={20}
+                  aria-hidden="true"
+                />
               </div>
             </div>
 
@@ -1474,7 +1901,10 @@ export default function CaseInvestigationPage() {
           <div className="metricCard">
             <div className="metricTop">
               <div className="metricIcon">
-                <FileSearch size={20} />
+                <FileSearch
+                  size={20}
+                  aria-hidden="true"
+                />
               </div>
             </div>
 
@@ -1506,8 +1936,11 @@ export default function CaseInvestigationPage() {
         <section
           className="panel"
           style={{
-            marginBottom: "16px",
-            padding: "18px 20px",
+            marginBottom:
+              "16px",
+
+            padding:
+              "18px 20px",
           }}
         >
           <div className="panelEyebrow">
@@ -1521,12 +1954,23 @@ export default function CaseInvestigationPage() {
 
           <div
             style={{
-              marginTop: "17px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              overflowX: "auto",
-              paddingBottom: "4px",
+              marginTop:
+                "17px",
+
+              display:
+                "flex",
+
+              alignItems:
+                "center",
+
+              gap:
+                "8px",
+
+              overflowX:
+                "auto",
+
+              paddingBottom:
+                "4px",
             }}
           >
             {lifecycle.map(
@@ -1538,19 +1982,31 @@ export default function CaseInvestigationPage() {
                 index
               ) => (
                 <div
-                  key={label}
+                  key={`${label}-${index}`}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    flexShrink: 0,
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    gap:
+                      "8px",
+
+                    flexShrink:
+                      0,
                   }}
                 >
                   <div
                     style={{
-                      minWidth: "108px",
-                      padding: "10px 12px",
-                      borderRadius: "10px",
+                      minWidth:
+                        "108px",
+
+                      padding:
+                        "10px 12px",
+
+                      borderRadius:
+                        "10px",
 
                       border:
                         complete
@@ -1567,27 +2023,46 @@ export default function CaseInvestigationPage() {
                           ? "#5fd0a5"
                           : "#74869d",
 
-                      fontSize: "10px",
-                      fontWeight: 700,
+                      fontSize:
+                        "10px",
 
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
+                      fontWeight:
+                        700,
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      gap:
+                        "6px",
                     }}
                   >
                     {complete ? (
-                      <CheckCircle2 size={14} />
+                      <CheckCircle2
+                        size={14}
+                        aria-hidden="true"
+                      />
                     ) : (
-                      <Clock3 size={14} />
+                      <Clock3
+                        size={14}
+                        aria-hidden="true"
+                      />
                     )}
 
                     {label}
                   </div>
 
-                  {index < 7 && (
+                  {index <
+                    lifecycle.length - 1 && (
                     <ChevronRight
                       size={14}
                       color="#52647b"
+                      style={
+                        navigationArrowStyle
+                      }
+                      aria-hidden="true"
                     />
                   )}
                 </div>
@@ -1598,10 +2073,11 @@ export default function CaseInvestigationPage() {
 
 
         {/* ===============================================
-            AI INVESTIGATION + INFO
+            AI INVESTIGATION + METADATA
             =============================================== */}
 
         <section className="dashboardGrid">
+
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -1622,45 +2098,64 @@ export default function CaseInvestigationPage() {
                 </h2>
               </div>
 
-              <BrainCircuit size={23} />
+              <BrainCircuit
+                size={23}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "21px",
+                padding:
+                  "21px",
               }}
             >
               <div
                 style={{
-                  padding: "17px",
-                  borderRadius: "13px",
+                  padding:
+                    "17px",
+
+                  borderRadius:
+                    "13px",
+
                   background:
                     "rgba(54,125,255,0.055)",
+
                   border:
                     "1px solid rgba(72,139,255,0.1)",
                 }}
               >
                 <div
                   style={{
-                    display: "flex",
-                    gap: "10px",
+                    display:
+                      "flex",
+
+                    gap:
+                      "10px",
                   }}
                 >
                   <Sparkles
                     size={20}
                     color="#69a1ff"
                     style={{
-                      flexShrink: 0,
+                      flexShrink:
+                        0,
                     }}
+                    aria-hidden="true"
                   />
 
                   <div>
                     <strong
                       style={{
-                        display: "block",
-                        fontSize: "11px",
-                        color: "#d7e6f9",
+                        display:
+                          "block",
+
+                        fontSize:
+                          "11px",
+
+                        color:
+                          "#d7e6f9",
                       }}
                     >
                       {L(
@@ -1672,10 +2167,17 @@ export default function CaseInvestigationPage() {
 
                     <p
                       style={{
-                        color: "#8799b0",
-                        fontSize: "11px",
-                        lineHeight: 1.75,
-                        margin: "8px 0 0",
+                        color:
+                          "#8799b0",
+
+                        fontSize:
+                          "11px",
+
+                        lineHeight:
+                          1.75,
+
+                        margin:
+                          "8px 0 0",
                       }}
                     >
                       {getAiConclusion(
@@ -1690,7 +2192,8 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  marginTop: "19px",
+                  marginTop:
+                    "19px",
                 }}
               >
                 <div className="panelEyebrow">
@@ -1703,10 +2206,17 @@ export default function CaseInvestigationPage() {
 
                 <p
                   style={{
-                    color: "#96a6ba",
-                    fontSize: "11px",
-                    lineHeight: 1.75,
-                    margin: "10px 0 0",
+                    color:
+                      "#96a6ba",
+
+                    fontSize:
+                      "11px",
+
+                    lineHeight:
+                      1.75,
+
+                    margin:
+                      "10px 0 0",
                   }}
                 >
                   {getRootCause(
@@ -1719,10 +2229,17 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  marginTop: "20px",
-                  display: "flex",
-                  gap: "10px",
-                  flexWrap: "wrap",
+                  marginTop:
+                    "20px",
+
+                  display:
+                    "flex",
+
+                  gap:
+                    "10px",
+
+                  flexWrap:
+                    "wrap",
                 }}
               >
                 <span className="confidence">
@@ -1731,14 +2248,19 @@ export default function CaseInvestigationPage() {
                     "AI Confidence:",
                     "ثقة الذكاء الاصطناعي:"
                   )}
+
                   {" "}
+
                   {caseData.confidence}%
                 </span>
 
                 <span
                   style={{
-                    color: "#71839a",
-                    fontSize: "10px",
+                    color:
+                      "#71839a",
+
+                    fontSize:
+                      "10px",
                   }}
                 >
                   {L(
@@ -1746,8 +2268,12 @@ export default function CaseInvestigationPage() {
                     "Investigation:",
                     "التحقيق:"
                   )}
+
                   {" "}
-                  {caseData.investigationId}
+
+                  <span dir="ltr">
+                    {caseData.investigationId}
+                  </span>
                 </span>
               </div>
             </div>
@@ -1774,13 +2300,17 @@ export default function CaseInvestigationPage() {
                 </h2>
               </div>
 
-              <FileSearch size={22} />
+              <FileSearch
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "7px 19px 17px",
+                padding:
+                  "7px 19px 17px",
               }}
             >
               {[
@@ -1791,6 +2321,7 @@ export default function CaseInvestigationPage() {
                     "رقم الحالة"
                   ),
                   caseData.id,
+                  true,
                 ],
 
                 [
@@ -1800,6 +2331,7 @@ export default function CaseInvestigationPage() {
                     "رقم التحقيق"
                   ),
                   caseData.investigationId,
+                  true,
                 ],
 
                 [
@@ -1810,9 +2342,9 @@ export default function CaseInvestigationPage() {
                   ),
                   localizeCaseType(
                     caseData.caseType,
-                    language,
                     t
                   ),
+                  false,
                 ],
 
                 [
@@ -1824,11 +2356,12 @@ export default function CaseInvestigationPage() {
                   L(
                     language,
                     caseData.detectedAt,
-                    caseData.id
-                    === VERIFIED_DEMO_CASE.id
+                    caseData.id ===
+                    VERIFIED_DEMO_CASE.id
                       ? "عرض تجريبي اصطناعي متكامل"
                       : "تشغيل المطابقة الاصطناعية"
                   ),
+                  false,
                 ],
 
                 [
@@ -1842,6 +2375,7 @@ export default function CaseInvestigationPage() {
                     caseData.sourceSystem,
                     "النظام البيومتري"
                   ),
+                  false,
                 ],
 
                 [
@@ -1855,11 +2389,13 @@ export default function CaseInvestigationPage() {
                     caseData.referenceSystem,
                     "نظام المرجع الرئيسي"
                   ),
+                  false,
                 ],
               ].map(
                 ([
                   label,
                   value,
+                  forceLtr,
                 ]) => (
                   <div
                     className="detailRow"
@@ -1869,7 +2405,13 @@ export default function CaseInvestigationPage() {
                       {label}
                     </span>
 
-                    <strong>
+                    <strong
+                      dir={
+                        forceLtr
+                          ? "ltr"
+                          : undefined
+                      }
+                    >
                       {value}
                     </strong>
                   </div>
@@ -1887,7 +2429,8 @@ export default function CaseInvestigationPage() {
         <section
           className="panel"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -1907,98 +2450,154 @@ export default function CaseInvestigationPage() {
               </h2>
             </div>
 
-            <GitCompareArrows size={23} />
+            <GitCompareArrows
+              size={23}
+              aria-hidden="true"
+            />
           </div>
 
 
           <div
             style={{
-              display: "grid",
+              display:
+                "grid",
+
               gridTemplateColumns:
                 "1fr auto 1fr",
-              alignItems: "stretch",
-              gap: "18px",
-              padding: "22px",
+
+              alignItems:
+                "stretch",
+
+              gap:
+                "18px",
+
+              padding:
+                "22px",
             }}
           >
             <div
               style={{
-                padding: "22px",
-                borderRadius: "15px",
+                padding:
+                  "22px",
+
+                borderRadius:
+                  "15px",
+
                 border:
                   "1px solid rgba(255,90,108,0.15)",
+
                 background:
                   "rgba(255,76,96,0.055)",
               }}
             >
               <div
                 style={{
-                  color: "#d27a85",
-                  fontSize: "10px",
-                  fontWeight: 800,
-                  letterSpacing: "1px",
+                  color:
+                    "#d27a85",
+
+                  fontSize:
+                    "10px",
+
+                  fontWeight:
+                    800,
+
+                  letterSpacing:
+                    "1px",
                 }}
               >
-                {
-                  caseData.isVerifiedClosed
-                    ? L(
-                        language,
-                        "PREVIOUS MAPPING",
-                        "الربط السابق"
-                      )
-                    : L(
-                        language,
-                        "CURRENT MAPPING",
-                        "الربط الحالي"
-                      )
-                }
+                {caseData.isVerifiedClosed
+                  ? L(
+                      language,
+                      "PREVIOUS MAPPING",
+                      "الربط السابق"
+                    )
+                  : L(
+                      language,
+                      "CURRENT MAPPING",
+                      "الربط الحالي"
+                    )}
               </div>
 
 
               <div
                 style={{
-                  marginTop: "17px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "11px",
+                  marginTop:
+                    "17px",
+
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap:
+                    "11px",
                 }}
               >
                 <div
                   style={{
-                    width: "43px",
-                    height: "43px",
-                    borderRadius: "12px",
-                    display: "grid",
-                    placeItems: "center",
+                    width:
+                      "43px",
+
+                    height:
+                      "43px",
+
+                    borderRadius:
+                      "12px",
+
+                    display:
+                      "grid",
+
+                    placeItems:
+                      "center",
+
                     background:
                       "rgba(255,92,108,0.09)",
-                    color: "#ff7887",
+
+                    color:
+                      "#ff7887",
                   }}
                 >
-                  <Users size={21} />
+                  <Users
+                    size={21}
+                    aria-hidden="true"
+                  />
                 </div>
 
                 <div>
                   <span
                     style={{
-                      display: "block",
-                      color: "#976c74",
-                      fontSize: "10px",
+                      display:
+                        "block",
+
+                      color:
+                        "#976c74",
+
+                      fontSize:
+                        "10px",
                     }}
                   >
                     {L(
                       language,
-                      "Linked Master Identity",
-                      "الهوية الرئيسية المرتبطة"
+                      "Linked Identity Reference",
+                      "مرجع الهوية المرتبط"
                     )}
                   </span>
 
                   <strong
+                    dir="ltr"
                     style={{
-                      display: "block",
-                      color: "#ff8592",
-                      fontSize: "20px",
-                      marginTop: "3px",
+                      display:
+                        "block",
+
+                      color:
+                        "#ff8592",
+
+                      fontSize:
+                        "20px",
+
+                      marginTop:
+                        "3px",
                     }}
                   >
                     {caseData.currentIdentity}
@@ -2009,10 +2608,17 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  marginTop: "18px",
-                  color: "#ab737b",
-                  fontSize: "10px",
-                  lineHeight: 1.6,
+                  marginTop:
+                    "18px",
+
+                  color:
+                    "#ab737b",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.6,
                 }}
               >
                 {L(
@@ -2026,100 +2632,155 @@ export default function CaseInvestigationPage() {
 
             <div
               style={{
-                display: "grid",
-                placeItems: "center",
+                display:
+                  "grid",
+
+                placeItems:
+                  "center",
               }}
             >
               <div
                 style={{
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "50%",
-                  display: "grid",
-                  placeItems: "center",
+                  width:
+                    "42px",
+
+                  height:
+                    "42px",
+
+                  borderRadius:
+                    "50%",
+
+                  display:
+                    "grid",
+
+                  placeItems:
+                    "center",
+
                   background:
                     "rgba(58,130,255,0.1)",
+
                   border:
                     "1px solid rgba(72,141,255,0.18)",
-                  color: "#6ca4ff",
+
+                  color:
+                    "#6ca4ff",
                 }}
               >
-                {
-                  language === "ar"
-                    ? (
-                      <ArrowLeft size={19} />
-                    )
-                    : (
-                      <ArrowRight size={19} />
-                    )
-                }
+                {isArabic ? (
+                  <ArrowLeft
+                    size={19}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <ArrowRight
+                    size={19}
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             </div>
 
 
             <div
               style={{
-                padding: "22px",
-                borderRadius: "15px",
+                padding:
+                  "22px",
+
+                borderRadius:
+                  "15px",
+
                 border:
                   "1px solid rgba(52,211,153,0.14)",
+
                 background:
                   "rgba(52,211,153,0.045)",
               }}
             >
               <div
                 style={{
-                  color: "#58bd96",
-                  fontSize: "10px",
-                  fontWeight: 800,
-                  letterSpacing: "1px",
+                  color:
+                    "#58bd96",
+
+                  fontSize:
+                    "10px",
+
+                  fontWeight:
+                    800,
+
+                  letterSpacing:
+                    "1px",
                 }}
               >
-                {
-                  caseData.isVerifiedClosed
-                    ? L(
-                        language,
-                        "VERIFIED CANONICAL IDENTITY",
-                        "الهوية المرجعية المتحقق منها"
-                      )
-                    : L(
-                        language,
-                        "AI CANONICAL RESOLUTION",
-                        "الحسم المرجعي بالذكاء الاصطناعي"
-                      )
-                }
+                {caseData.isVerifiedClosed
+                  ? L(
+                      language,
+                      "VERIFIED CANONICAL IDENTITY",
+                      "الهوية المرجعية المتحقق منها"
+                    )
+                  : L(
+                      language,
+                      "AI CANONICAL RESOLUTION",
+                      "الحسم المرجعي بالذكاء الاصطناعي"
+                    )}
               </div>
 
 
               <div
                 style={{
-                  marginTop: "17px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "11px",
+                  marginTop:
+                    "17px",
+
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap:
+                    "11px",
                 }}
               >
                 <div
                   style={{
-                    width: "43px",
-                    height: "43px",
-                    borderRadius: "12px",
-                    display: "grid",
-                    placeItems: "center",
+                    width:
+                      "43px",
+
+                    height:
+                      "43px",
+
+                    borderRadius:
+                      "12px",
+
+                    display:
+                      "grid",
+
+                    placeItems:
+                      "center",
+
                     background:
                       "rgba(52,211,153,0.08)",
-                    color: "#55c99c",
+
+                    color:
+                      "#55c99c",
                   }}
                 >
-                  <UserCheck size={21} />
+                  <UserCheck
+                    size={21}
+                    aria-hidden="true"
+                  />
                 </div>
 
                 <div>
                   <span
                     style={{
-                      display: "block",
-                      color: "#679585",
-                      fontSize: "10px",
+                      display:
+                        "block",
+
+                      color:
+                        "#679585",
+
+                      fontSize:
+                        "10px",
                     }}
                   >
                     {t(
@@ -2128,11 +2789,19 @@ export default function CaseInvestigationPage() {
                   </span>
 
                   <strong
+                    dir="ltr"
                     style={{
-                      display: "block",
-                      color: "#59d0a1",
-                      fontSize: "20px",
-                      marginTop: "3px",
+                      display:
+                        "block",
+
+                      color:
+                        "#59d0a1",
+
+                      fontSize:
+                        "20px",
+
+                      marginTop:
+                        "3px",
                     }}
                   >
                     {caseData.proposedIdentity}
@@ -2143,18 +2812,29 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  marginTop: "18px",
-                  display: "flex",
+                  marginTop:
+                    "18px",
+
+                  display:
+                    "flex",
+
                   justifyContent:
                     "space-between",
-                  alignItems: "center",
-                  gap: "12px",
+
+                  alignItems:
+                    "center",
+
+                  gap:
+                    "12px",
                 }}
               >
                 <span
                   style={{
-                    color: "#719a8b",
-                    fontSize: "10px",
+                    color:
+                      "#719a8b",
+
+                    fontSize:
+                      "10px",
                   }}
                 >
                   {L(
@@ -2166,8 +2846,11 @@ export default function CaseInvestigationPage() {
 
                 <strong
                   style={{
-                    color: "#59d0a1",
-                    fontSize: "13px",
+                    color:
+                      "#59d0a1",
+
+                    fontSize:
+                      "13px",
                   }}
                 >
                   {caseData.confidence}%
@@ -2185,7 +2868,8 @@ export default function CaseInvestigationPage() {
         <section
           className="dashboardGrid"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panel">
@@ -2204,26 +2888,41 @@ export default function CaseInvestigationPage() {
                 </h2>
               </div>
 
-              <Fingerprint size={23} />
+              <Fingerprint
+                size={23}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "18px 20px 20px",
+                padding:
+                  "18px 20px 20px",
               }}
             >
               <div
                 style={{
-                  padding: "14px",
-                  borderRadius: "11px",
+                  padding:
+                    "14px",
+
+                  borderRadius:
+                    "11px",
+
                   background:
                     "rgba(70,140,255,0.045)",
+
                   border:
                     "1px solid rgba(70,140,255,0.08)",
-                  color: "#8194ad",
-                  fontSize: "10px",
-                  lineHeight: 1.65,
+
+                  color:
+                    "#8194ad",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.65,
                 }}
               >
                 {t(
@@ -2234,7 +2933,8 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  marginTop: "15px",
+                  marginTop:
+                    "15px",
                 }}
               >
                 <div className="detailRow">
@@ -2246,8 +2946,7 @@ export default function CaseInvestigationPage() {
 
                   <strong className="confidence">
                     {
-                      caseData.evidence
-                        .resolutionConfidence
+                      caseData.evidence.resolutionConfidence
                     }
                     %
                   </strong>
@@ -2272,7 +2971,10 @@ export default function CaseInvestigationPage() {
                     )}
                   </span>
 
-                  <strong className="successText">
+                  <strong
+                    className="successText"
+                    dir="ltr"
+                  >
                     {caseData.proposedIdentity}
                   </strong>
                 </div>
@@ -2295,27 +2997,48 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  marginTop: "15px",
-                  padding: "15px",
-                  borderRadius: "11px",
+                  marginTop:
+                    "15px",
+
+                  padding:
+                    "15px",
+
+                  borderRadius:
+                    "11px",
+
                   background:
                     "rgba(54,125,255,0.06)",
+
                   border:
                     "1px solid rgba(73,140,255,0.11)",
-                  display: "flex",
-                  alignItems: "center",
+
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
                   justifyContent:
                     "space-between",
-                  gap: "15px",
+
+                  gap:
+                    "15px",
                 }}
               >
                 <div>
                   <span
                     style={{
-                      display: "block",
-                      color: "#7185a0",
-                      fontSize: "10px",
-                      fontWeight: 750,
+                      display:
+                        "block",
+
+                      color:
+                        "#7185a0",
+
+                      fontSize:
+                        "10px",
+
+                      fontWeight:
+                        750,
                     }}
                   >
                     {t(
@@ -2325,15 +3048,21 @@ export default function CaseInvestigationPage() {
 
                   <strong
                     style={{
-                      display: "block",
-                      marginTop: "4px",
-                      color: "#74a9ff",
-                      fontSize: "20px",
+                      display:
+                        "block",
+
+                      marginTop:
+                        "4px",
+
+                      color:
+                        "#74a9ff",
+
+                      fontSize:
+                        "20px",
                     }}
                   >
                     {
-                      caseData.evidence
-                        .resolutionConfidence
+                      caseData.evidence.resolutionConfidence
                     }
                     %
                   </strong>
@@ -2342,6 +3071,7 @@ export default function CaseInvestigationPage() {
                 <BrainCircuit
                   size={28}
                   color="#639fff"
+                  aria-hidden="true"
                 />
               </div>
 
@@ -2350,10 +3080,14 @@ export default function CaseInvestigationPage() {
                 <div
                   className="integrityInfo"
                   style={{
-                    margin: "14px 0 0",
+                    margin:
+                      "14px 0 0",
                   }}
                 >
-                  <ShieldCheck size={21} />
+                  <ShieldCheck
+                    size={21}
+                    aria-hidden="true"
+                  />
 
                   <div>
                     <strong>
@@ -2366,9 +3100,9 @@ export default function CaseInvestigationPage() {
                       {L(
                         language,
 
-                        `Verified biometric match score: ${caseData.evidence.postCorrectionMatch}%. This value comes from the completed post-correction verification stage.`,
+                        `Verified biometric match score: ${caseData.evidence.postCorrectionMatchRaw} (${caseData.evidence.postCorrectionMatchPercent}%). This value comes from the completed post-correction verification stage.`,
 
-                        `درجة مطابقة السجل البيومتري المتحقق منها: ${caseData.evidence.postCorrectionMatch}%. هذه القيمة ناتجة عن مرحلة التحقق المكتملة بعد التصحيح.`
+                        `درجة مطابقة السجل البيومتري المتحقق منها: ${caseData.evidence.postCorrectionMatchRaw} (${caseData.evidence.postCorrectionMatchPercent}%). هذه القيمة ناتجة عن مرحلة التحقق المكتملة بعد التصحيح.`
                       )}
                     </span>
                   </div>
@@ -2396,16 +3130,26 @@ export default function CaseInvestigationPage() {
                 </h2>
               </div>
 
-              <ShieldAlert size={23} />
+              <ShieldAlert
+                size={23}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "18px",
-                display: "flex",
-                flexDirection: "column",
-                gap: "9px",
+                padding:
+                  "18px",
+
+                display:
+                  "flex",
+
+                flexDirection:
+                  "column",
+
+                gap:
+                  "9px",
               }}
             >
               <RiskMetric
@@ -2416,7 +3160,9 @@ export default function CaseInvestigationPage() {
                     "درجة المخاطر"
                   )
                 }
-                value={caseData.risk}
+                value={
+                  caseData.risk
+                }
                 type="danger"
               />
 
@@ -2426,7 +3172,9 @@ export default function CaseInvestigationPage() {
                     "commandCenter.harmImpact"
                   )
                 }
-                value={caseData.harm}
+                value={
+                  caseData.harm
+                }
                 type="danger"
               />
 
@@ -2444,7 +3192,10 @@ export default function CaseInvestigationPage() {
 
 
               <div className="integrityInfo">
-                <ShieldAlert size={21} />
+                <ShieldAlert
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -2452,11 +3203,10 @@ export default function CaseInvestigationPage() {
                       "caseDetail.wronglyAffectedPerson"
                     )}
                     {": "}
-                    {
-                      caseData.wronglyAffected
-                        ? t("common.yes")
-                        : t("common.no")
-                    }
+
+                    {caseData.wronglyAffected
+                      ? t("common.yes")
+                      : t("common.no")}
                   </strong>
 
                   <span>
@@ -2480,7 +3230,8 @@ export default function CaseInvestigationPage() {
         <section
           className="panel"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -2502,7 +3253,10 @@ export default function CaseInvestigationPage() {
               </h2>
             </div>
 
-            <Database size={22} />
+            <Database
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -2546,96 +3300,112 @@ export default function CaseInvestigationPage() {
 
 
               <tbody>
-                {
-                  caseData.dataComparison.map(
-                    (row) => (
-                      <tr key={row.field}>
-                        <td>
-                          <strong
-                            style={{
-                              color: "#cbd7e7",
-                            }}
-                          >
-                            {
-                              language === "ar"
-                                ? row.fieldAr
-                                : row.field
-                            }
-                          </strong>
-                        </td>
+                {caseData.dataComparison.map(
+                  (row) => (
+                    <tr
+                      key={row.field}
+                    >
+                      <td>
+                        <strong
+                          style={{
+                            color:
+                              "#cbd7e7",
+                          }}
+                        >
+                          {isArabic
+                            ? row.fieldAr
+                            : row.field}
+                        </strong>
+                      </td>
 
-                        <td className="mono">
-                          {
-                            language === "ar"
-                            &&
-                            row.currentAr
-                              ? row.currentAr
-                              : row.current
+                      <td
+                        className="mono"
+                        dir={
+                          isArabic &&
+                          row.currentAr
+                            ? undefined
+                            : "ltr"
+                        }
+                      >
+                        {isArabic &&
+                        row.currentAr
+                          ? row.currentAr
+                          : row.current}
+                      </td>
+
+                      <td
+                        className="mono"
+                        dir={
+                          isArabic &&
+                          row.referenceAr
+                            ? undefined
+                            : "ltr"
+                        }
+                      >
+                        {isArabic &&
+                        row.referenceAr
+                          ? row.referenceAr
+                          : row.reference}
+                      </td>
+
+                      <td>
+                        <span
+                          className={
+                            row.result ===
+                            "MATCH"
+                              ? "priority medium"
+                              : row.result ===
+                                  "RELATED"
+                                ? "priority high"
+                                : "priority immediate"
                           }
-                        </td>
+                          style={
+                            row.result ===
+                            "MATCH"
+                              ? {
+                                  color:
+                                    "#56ca9d",
 
-                        <td className="mono">
-                          {
-                            language === "ar"
-                            &&
-                            row.referenceAr
-                              ? row.referenceAr
-                              : row.reference
+                                  background:
+                                    "rgba(52,211,153,0.07)",
+
+                                  border:
+                                    "1px solid rgba(52,211,153,0.13)",
+                                }
+                              : undefined
                           }
-                        </td>
-
-                        <td>
-                          <span
-                            className={
-                              row.result === "MATCH"
-                                ? "priority medium"
-                                : row.result === "RELATED"
-                                  ? "priority high"
-                                  : "priority immediate"
-                            }
-                            style={
-                              row.result === "MATCH"
-                                ? {
-                                    color: "#56ca9d",
-                                    background:
-                                      "rgba(52,211,153,0.07)",
-                                    border:
-                                      "1px solid rgba(52,211,153,0.13)",
-                                  }
-                                : undefined
-                            }
-                          >
-                            {
-                              row.result === "MATCH"
+                        >
+                          {row.result ===
+                          "MATCH"
+                            ? L(
+                                language,
+                                "MATCH",
+                                "متطابق"
+                              )
+                            : row.result ===
+                                "RELATED"
+                              ? L(
+                                  language,
+                                  "RELATED",
+                                  "مرتبط"
+                                )
+                              : row.result ===
+                                  "MISMATCH"
                                 ? L(
                                     language,
-                                    "MATCH",
-                                    "متطابق"
+                                    "MISMATCH",
+                                    "غير متطابق"
                                   )
-                                : row.result === "RELATED"
-                                  ? L(
-                                      language,
-                                      "RELATED",
-                                      "مرتبط"
-                                    )
-                                  : row.result === "MISMATCH"
-                                    ? L(
-                                        language,
-                                        "MISMATCH",
-                                        "غير متطابق"
-                                      )
-                                    : L(
-                                        language,
-                                        "CONFLICT",
-                                        "تعارض"
-                                      )
-                            }
-                          </span>
-                        </td>
-                      </tr>
-                    )
+                                : L(
+                                    language,
+                                    "CONFLICT",
+                                    "تعارض"
+                                  )}
+                        </span>
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -2643,13 +3413,14 @@ export default function CaseInvestigationPage() {
 
 
         {/* ===============================================
-            FINDINGS
+            SUPPORTING FINDINGS
             =============================================== */}
 
         <section
           className="panel"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -2669,16 +3440,27 @@ export default function CaseInvestigationPage() {
               </h2>
             </div>
 
-            <BrainCircuit size={22} />
+            <BrainCircuit
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
           <div
             style={{
-              padding: "12px 18px",
-              color: "#71839a",
-              fontSize: "10px",
-              lineHeight: 1.6,
+              padding:
+                "12px 18px",
+
+              color:
+                "#71839a",
+
+              fontSize:
+                "10px",
+
+              lineHeight:
+                1.6,
+
               borderBottom:
                 "1px solid rgba(255,255,255,0.045)",
             }}
@@ -2702,7 +3484,9 @@ export default function CaseInvestigationPage() {
                   </th>
 
                   <th>
-                    {t("common.type")}
+                    {t(
+                      "common.type"
+                    )}
                   </th>
 
                   <th>
@@ -2725,57 +3509,62 @@ export default function CaseInvestigationPage() {
 
 
               <tbody>
-                {
-                  caseData.findingsList.map(
-                    (finding) => (
-                      <tr key={finding.id}>
-                        <td className="mono">
-                          {finding.id}
-                        </td>
+                {caseData.findingsList.map(
+                  (finding) => (
+                    <tr
+                      key={
+                        finding.id
+                      }
+                    >
+                      <td
+                        className="mono"
+                        dir="ltr"
+                      >
+                        {finding.id}
+                      </td>
 
-                        <td>
-                          {
-                            localizeFindingType(
-                              finding.type,
-                              language
-                            )
+                      <td>
+                        {localizeFindingType(
+                          finding.type,
+                          language
+                        )}
+                      </td>
+
+                      <td>
+                        <span
+                          className={
+                            finding.role ===
+                            "PRIMARY"
+                              ? "priority high"
+                              : "priority medium"
                           }
-                        </td>
+                        >
+                          {finding.role ===
+                          "PRIMARY"
+                            ? L(
+                                language,
+                                "PRIMARY",
+                                "رئيسي"
+                              )
+                            : L(
+                                language,
+                                "CORROBORATING",
+                                "داعم"
+                              )}
+                        </span>
+                      </td>
 
-                        <td>
-                          <span
-                            className={
-                              finding.role === "PRIMARY"
-                                ? "priority high"
-                                : "priority medium"
-                            }
-                          >
-                            {
-                              finding.role
-                              === "PRIMARY"
-                                ? L(
-                                    language,
-                                    "PRIMARY",
-                                    "رئيسي"
-                                  )
-                                : L(
-                                    language,
-                                    "CORROBORATING",
-                                    "داعم"
-                                  )
-                            }
-                          </span>
-                        </td>
-
-                        <td>
-                          <span className="confidence">
-                            {finding.confidence}%
-                          </span>
-                        </td>
-                      </tr>
-                    )
+                      <td>
+                        <span className="confidence">
+                          {
+                            finding.confidence
+                          }
+                          %
+                        </span>
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -2789,7 +3578,8 @@ export default function CaseInvestigationPage() {
         <section
           className="panel"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -2803,55 +3593,73 @@ export default function CaseInvestigationPage() {
               </div>
 
               <h2>
-                {
-                  caseData.isVerifiedClosed
-                    ? L(
-                        language,
-                        "Executed Correction",
-                        "التصحيح المنفذ"
-                      )
-                    : L(
-                        language,
-                        "Proposed Correction",
-                        "التصحيح المقترح"
-                      )
-                }
+                {caseData.isVerifiedClosed
+                  ? L(
+                      language,
+                      "Executed Correction",
+                      "التصحيح المنفذ"
+                    )
+                  : L(
+                      language,
+                      "Proposed Correction",
+                      "التصحيح المقترح"
+                    )}
               </h2>
             </div>
 
-            <GitCompareArrows size={22} />
+            <GitCompareArrows
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
           <div
             style={{
-              padding: "22px",
+              padding:
+                "22px",
             }}
           >
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
+
                 gridTemplateColumns:
                   "1fr 1fr",
-                gap: "14px",
+
+                gap:
+                  "14px",
               }}
             >
               <div
                 style={{
-                  padding: "20px",
-                  borderRadius: "14px",
+                  padding:
+                    "20px",
+
+                  borderRadius:
+                    "14px",
+
                   border:
                     "1px solid rgba(255,86,103,0.14)",
+
                   background:
                     "rgba(255,74,94,0.045)",
                 }}
               >
                 <div
                   style={{
-                    color: "#cd7580",
-                    fontSize: "10px",
-                    fontWeight: 800,
-                    letterSpacing: "1px",
+                    color:
+                      "#cd7580",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      800,
+
+                    letterSpacing:
+                      "1px",
                   }}
                 >
                   {L(
@@ -2862,42 +3670,59 @@ export default function CaseInvestigationPage() {
                 </div>
 
                 <div
+                  dir="ltr"
                   style={{
-                    marginTop: "15px",
-                    color: "#71839a",
-                    fontSize: "10px",
+                    marginTop:
+                      "15px",
+
+                    color:
+                      "#71839a",
+
+                    fontSize:
+                      "10px",
                   }}
                 >
                   {
-                    caseData.correction
-                      .targetRecord
+                    caseData.correction.targetRecord
                   }
                 </div>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display: "block",
-                    color: "#ff808d",
-                    fontSize: "22px",
-                    marginTop: "5px",
+                    display:
+                      "block",
+
+                    color:
+                      "#ff808d",
+
+                    fontSize:
+                      "22px",
+
+                    marginTop:
+                      "5px",
                   }}
                 >
                   {
-                    caseData.correction
-                      .before
+                    caseData.correction.before
                   }
                 </strong>
 
                 <div
+                  dir="ltr"
                   style={{
-                    color: "#916a71",
-                    fontSize: "10px",
-                    marginTop: "7px",
+                    color:
+                      "#916a71",
+
+                    fontSize:
+                      "10px",
+
+                    marginTop:
+                      "7px",
                   }}
                 >
                   {
-                    caseData.correction
-                      .field
+                    caseData.correction.field
                   }
                 </div>
               </div>
@@ -2905,74 +3730,101 @@ export default function CaseInvestigationPage() {
 
               <div
                 style={{
-                  padding: "20px",
-                  borderRadius: "14px",
+                  padding:
+                    "20px",
+
+                  borderRadius:
+                    "14px",
+
                   border:
                     "1px solid rgba(52,211,153,0.14)",
+
                   background:
                     "rgba(52,211,153,0.04)",
                 }}
               >
                 <div
                   style={{
-                    color: "#5fc79d",
-                    fontSize: "10px",
-                    fontWeight: 800,
-                    letterSpacing: "1px",
+                    color:
+                      "#5fc79d",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      800,
+
+                    letterSpacing:
+                      "1px",
                   }}
                 >
-                  {
-                    caseData.isVerifiedClosed
-                      ? L(
-                          language,
-                          "VERIFIED AFTER",
-                          "بعد التحقق"
-                        )
-                      : L(
-                          language,
-                          "AI PROPOSED AFTER",
-                          "بعد التصحيح المقترح"
-                        )
-                  }
+                  {caseData.isVerifiedClosed
+                    ? L(
+                        language,
+                        "VERIFIED AFTER",
+                        "بعد التحقق"
+                      )
+                    : L(
+                        language,
+                        "AI PROPOSED AFTER",
+                        "بعد التصحيح المقترح"
+                      )}
                 </div>
 
                 <div
+                  dir="ltr"
                   style={{
-                    marginTop: "15px",
-                    color: "#71839a",
-                    fontSize: "10px",
+                    marginTop:
+                      "15px",
+
+                    color:
+                      "#71839a",
+
+                    fontSize:
+                      "10px",
                   }}
                 >
                   {
-                    caseData.correction
-                      .targetRecord
+                    caseData.correction.targetRecord
                   }
                 </div>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display: "block",
-                    color: "#58cea0",
-                    fontSize: "22px",
-                    marginTop: "5px",
+                    display:
+                      "block",
+
+                    color:
+                      "#58cea0",
+
+                    fontSize:
+                      "22px",
+
+                    marginTop:
+                      "5px",
                   }}
                 >
                   {
-                    caseData.correction
-                      .after
+                    caseData.correction.after
                   }
                 </strong>
 
                 <div
+                  dir="ltr"
                   style={{
-                    color: "#668c7e",
-                    fontSize: "10px",
-                    marginTop: "7px",
+                    color:
+                      "#668c7e",
+
+                    fontSize:
+                      "10px",
+
+                    marginTop:
+                      "7px",
                   }}
                 >
                   {
-                    caseData.correction
-                      .field
+                    caseData.correction.field
                   }
                 </div>
               </div>
@@ -2981,11 +3833,17 @@ export default function CaseInvestigationPage() {
 
             <div
               style={{
-                marginTop: "15px",
-                display: "grid",
+                marginTop:
+                  "15px",
+
+                display:
+                  "grid",
+
                 gridTemplateColumns:
                   "1fr 1fr 1fr",
-                gap: "10px",
+
+                gap:
+                  "10px",
               }}
             >
               {[
@@ -3027,19 +3885,29 @@ export default function CaseInvestigationPage() {
                   <div
                     key={label}
                     style={{
-                      padding: "13px",
-                      borderRadius: "10px",
+                      padding:
+                        "13px",
+
+                      borderRadius:
+                        "10px",
+
                       background:
                         "rgba(255,255,255,0.024)",
+
                       border:
                         "1px solid rgba(255,255,255,0.05)",
                     }}
                   >
                     <span
                       style={{
-                        display: "block",
-                        color: "#71839a",
-                        fontSize: "10px",
+                        display:
+                          "block",
+
+                        color:
+                          "#71839a",
+
+                        fontSize:
+                          "10px",
                       }}
                     >
                       {label}
@@ -3047,10 +3915,17 @@ export default function CaseInvestigationPage() {
 
                     <strong
                       style={{
-                        display: "block",
-                        marginTop: "5px",
-                        color: "#c2cfdf",
-                        fontSize: "10px",
+                        display:
+                          "block",
+
+                        marginTop:
+                          "5px",
+
+                        color:
+                          "#c2cfdf",
+
+                        fontSize:
+                          "10px",
                       }}
                     >
                       {value}
@@ -3064,50 +3939,49 @@ export default function CaseInvestigationPage() {
             <div
               className="integrityInfo"
               style={{
-                margin: "15px 0 0",
+                margin:
+                  "15px 0 0",
               }}
             >
-              {
-                caseData.isVerifiedClosed
-                  ? (
-                    <ShieldCheck size={21} />
-                  )
-                  : (
-                    <LockKeyhole size={21} />
-                  )
-              }
+              {caseData.isVerifiedClosed ? (
+                <ShieldCheck
+                  size={21}
+                  aria-hidden="true"
+                />
+              ) : (
+                <LockKeyhole
+                  size={21}
+                  aria-hidden="true"
+                />
+              )}
 
               <div>
                 <strong>
-                  {
-                    caseData.isVerifiedClosed
-                      ? L(
-                          language,
-                          "Controlled Correction Completed",
-                          "اكتمل التصحيح الخاضع للتحكم"
-                        )
-                      : L(
-                          language,
-                          "Execution Locked",
-                          "التنفيذ مقفل"
-                        )
-                  }
+                  {caseData.isVerifiedClosed
+                    ? L(
+                        language,
+                        "Controlled Correction Completed",
+                        "اكتمل التصحيح الخاضع للتحكم"
+                      )
+                    : L(
+                        language,
+                        "Execution Locked",
+                        "التنفيذ مقفل"
+                      )}
                 </strong>
 
                 <span>
-                  {
-                    caseData.isVerifiedClosed
-                      ? L(
-                          language,
-                          "The correction was executed only after both required human approvals and subsequently passed verification.",
-                          "تم تنفيذ التصحيح فقط بعد الحصول على الاعتمادين البشريين المطلوبين، ثم اجتاز مرحلة التحقق."
-                        )
-                      : L(
-                          language,
-                          "The AI can recommend and prepare this correction but cannot execute it until both Monitoring Officer and Manager approvals are complete.",
-                          "يمكن للذكاء الاصطناعي اقتراح هذا التصحيح وتجهيزه، لكنه لا يستطيع تنفيذه قبل اكتمال اعتماد ضابط المراقبة والمدير."
-                        )
-                  }
+                  {caseData.isVerifiedClosed
+                    ? L(
+                        language,
+                        "The correction was executed only after both required human approvals and subsequently passed verification.",
+                        "تم تنفيذ التصحيح فقط بعد الحصول على الاعتمادين البشريين المطلوبين، ثم اجتاز مرحلة التحقق."
+                      )
+                    : L(
+                        language,
+                        "The AI can recommend and prepare this correction but cannot execute it until both Monitoring Officer and Manager approvals are complete.",
+                        "يمكن للذكاء الاصطناعي اقتراح هذا التصحيح وتجهيزه، لكنه لا يستطيع تنفيذه قبل اكتمال اعتماد ضابط المراقبة والمدير."
+                      )}
                 </span>
               </div>
             </div>
@@ -3116,7 +3990,7 @@ export default function CaseInvestigationPage() {
 
 
         {/* ===============================================
-            APPROVALS
+            HUMAN APPROVALS
             =============================================== */}
 
         <section
@@ -3124,9 +3998,14 @@ export default function CaseInvestigationPage() {
           style={{
             gridTemplateColumns:
               "1fr 1fr",
-            marginTop: "16px",
+
+            marginTop:
+              "16px",
           }}
         >
+
+          {/* OFFICER */}
+
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -3145,30 +4024,45 @@ export default function CaseInvestigationPage() {
                 </h2>
               </div>
 
-              <UserCheck size={22} />
+              <UserCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "18px",
+                padding:
+                  "18px",
               }}
             >
               <div
                 style={{
-                  display: "flex",
+                  display:
+                    "flex",
+
                   justifyContent:
                     "space-between",
-                  alignItems: "center",
-                  marginBottom: "15px",
+
+                  alignItems:
+                    "center",
+
+                  marginBottom:
+                    "15px",
                 }}
               >
                 <div>
                   <span
                     style={{
-                      display: "block",
-                      color: "#71839a",
-                      fontSize: "10px",
+                      display:
+                        "block",
+
+                      color:
+                        "#71839a",
+
+                      fontSize:
+                        "10px",
                     }}
                   >
                     {L(
@@ -3180,43 +4074,44 @@ export default function CaseInvestigationPage() {
 
                   <strong
                     style={{
-                      display: "block",
-                      marginTop: "4px",
+                      display:
+                        "block",
+
+                      marginTop:
+                        "4px",
 
                       color:
-                        caseData.officer.status
-                        === "APPROVED"
+                        caseData.officer.status ===
+                        "APPROVED"
                           ? "#59cfa0"
                           : "#ffbd67",
 
-                      fontSize: "11px",
+                      fontSize:
+                        "11px",
                     }}
                   >
-                    {
-                      localizeStatus(
-                        caseData.officer.status,
-                        language,
-                        t
-                      )
-                    }
+                    {localizeStatus(
+                      caseData.officer.status,
+                      language,
+                      t
+                    )}
                   </strong>
                 </div>
 
-                {
-                  caseData.officer.status === "APPROVED"
-                    ? (
-                      <CheckCircle2
-                        size={21}
-                        color="#59cfa0"
-                      />
-                    )
-                    : (
-                      <Clock3
-                        size={21}
-                        color="#ffbd67"
-                      />
-                    )
-                }
+                {caseData.officer.status ===
+                "APPROVED" ? (
+                  <CheckCircle2
+                    size={21}
+                    color="#59cfa0"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <Clock3
+                    size={21}
+                    color="#ffbd67"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
 
 
@@ -3230,15 +4125,13 @@ export default function CaseInvestigationPage() {
                 </span>
 
                 <strong>
-                  {
-                    language === "ar"
-                      ? (
-                          caseData.isVerifiedClosed
-                            ? "ضابط المراقبة التجريبي"
-                            : "غير معين"
-                        )
-                      : caseData.officer.name
-                  }
+                  {isArabic
+                    ? (
+                        caseData.isVerifiedClosed
+                          ? "ضابط المراقبة التجريبي"
+                          : "غير معين"
+                      )
+                    : caseData.officer.name}
                 </strong>
               </div>
 
@@ -3253,69 +4146,102 @@ export default function CaseInvestigationPage() {
                 </span>
 
                 <strong>
-                  {
-                    localizeStatus(
-                      caseData.officer.decision,
-                      language,
-                      t
-                    )
-                  }
+                  {localizeStatus(
+                    caseData.officer.decision,
+                    language,
+                    t
+                  )}
                 </strong>
               </div>
 
 
               <p
                 style={{
-                  color: "#788ba2",
-                  fontSize: "10px",
-                  lineHeight: 1.65,
+                  color:
+                    "#788ba2",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.65,
                 }}
               >
-                {
-                  caseData.isVerifiedClosed
-                    ? L(
-                        language,
-                        caseData.officer.comments,
-                        "راجع ضابط المراقبة أدلة التحقيق واعتمد التصحيح المقترح."
-                      )
-                    : L(
-                        language,
-                        caseData.officer.comments,
-                        "بانتظار مراجعة ضابط المراقبة."
-                      )
-                }
+                {caseData.isVerifiedClosed
+                  ? L(
+                      language,
+                      caseData.officer.comments,
+                      "راجع ضابط المراقبة أدلة التحقيق واعتمد التصحيح المقترح."
+                    )
+                  : L(
+                      language,
+                      caseData.officer.comments,
+                      "بانتظار مراجعة ضابط المراقبة."
+                    )}
               </p>
 
 
               {!caseData.isVerifiedClosed && (
                 <div
                   style={{
-                    display: "grid",
+                    display:
+                      "grid",
+
                     gridTemplateColumns:
                       "1fr 1fr",
-                    gap: "8px",
-                    marginTop: "16px",
+
+                    gap:
+                      "8px",
+
+                    marginTop:
+                      "16px",
                   }}
                 >
-                  <button className="primaryButton">
-                    <Check size={17} />
+                  <Link
+                    href="/officer-review"
+                    className="primaryButton"
+                    style={{
+                      textDecoration:
+                        "none",
+
+                      justifyContent:
+                        "center",
+                    }}
+                  >
+                    <UserCheck
+                      size={17}
+                      aria-hidden="true"
+                    />
 
                     {L(
                       language,
-                      "Approve",
-                      "اعتماد"
+                      "Open Officer Review",
+                      "فتح مراجعة الضابط"
                     )}
-                  </button>
+                  </Link>
 
                   <button
+                    type="button"
                     className="searchButton"
+                    disabled
                     style={{
                       justifyContent:
                         "center",
-                      height: "42px",
+
+                      height:
+                        "42px",
+
                       borderColor:
                         "rgba(255,185,90,0.15)",
-                      color: "#e0ad5f",
+
+                      color:
+                        "#e0ad5f",
+
+                      opacity:
+                        0.62,
+
+                      cursor:
+                        "not-allowed",
                     }}
                   >
                     {L(
@@ -3329,6 +4255,8 @@ export default function CaseInvestigationPage() {
             </div>
           </div>
 
+
+          {/* MANAGER */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -3348,30 +4276,45 @@ export default function CaseInvestigationPage() {
                 </h2>
               </div>
 
-              <BadgeCheck size={22} />
+              <BadgeCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "18px",
+                padding:
+                  "18px",
               }}
             >
               <div
                 style={{
-                  display: "flex",
+                  display:
+                    "flex",
+
                   justifyContent:
                     "space-between",
-                  alignItems: "center",
-                  marginBottom: "15px",
+
+                  alignItems:
+                    "center",
+
+                  marginBottom:
+                    "15px",
                 }}
               >
                 <div>
                   <span
                     style={{
-                      display: "block",
-                      color: "#71839a",
-                      fontSize: "10px",
+                      display:
+                        "block",
+
+                      color:
+                        "#71839a",
+
+                      fontSize:
+                        "10px",
                     }}
                   >
                     {L(
@@ -3383,43 +4326,44 @@ export default function CaseInvestigationPage() {
 
                   <strong
                     style={{
-                      display: "block",
-                      marginTop: "4px",
+                      display:
+                        "block",
+
+                      marginTop:
+                        "4px",
 
                       color:
-                        caseData.manager.status
-                        === "APPROVED"
+                        caseData.manager.status ===
+                        "APPROVED"
                           ? "#59cfa0"
                           : "#8495aa",
 
-                      fontSize: "11px",
+                      fontSize:
+                        "11px",
                     }}
                   >
-                    {
-                      localizeStatus(
-                        caseData.manager.status,
-                        language,
-                        t
-                      )
-                    }
+                    {localizeStatus(
+                      caseData.manager.status,
+                      language,
+                      t
+                    )}
                   </strong>
                 </div>
 
-                {
-                  caseData.manager.status === "APPROVED"
-                    ? (
-                      <CheckCircle2
-                        size={21}
-                        color="#59cfa0"
-                      />
-                    )
-                    : (
-                      <LockKeyhole
-                        size={21}
-                        color="#74869d"
-                      />
-                    )
-                }
+                {caseData.manager.status ===
+                "APPROVED" ? (
+                  <CheckCircle2
+                    size={21}
+                    color="#59cfa0"
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <LockKeyhole
+                    size={21}
+                    color="#74869d"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
 
 
@@ -3433,15 +4377,13 @@ export default function CaseInvestigationPage() {
                 </span>
 
                 <strong>
-                  {
-                    language === "ar"
-                      ? (
-                          caseData.isVerifiedClosed
-                            ? "المدير المشرف التجريبي"
-                            : "غير معين"
-                        )
-                      : caseData.manager.name
-                  }
+                  {isArabic
+                    ? (
+                        caseData.isVerifiedClosed
+                          ? "المدير المشرف التجريبي"
+                          : "غير معين"
+                      )
+                    : caseData.manager.name}
                 </strong>
               </div>
 
@@ -3456,53 +4398,70 @@ export default function CaseInvestigationPage() {
                 </span>
 
                 <strong>
-                  {
-                    localizeStatus(
-                      caseData.manager.decision,
-                      language,
-                      t
-                    )
-                  }
+                  {localizeStatus(
+                    caseData.manager.decision,
+                    language,
+                    t
+                  )}
                 </strong>
               </div>
 
 
               <p
                 style={{
-                  color: "#788ba2",
-                  fontSize: "10px",
-                  lineHeight: 1.65,
+                  color:
+                    "#788ba2",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.65,
                 }}
               >
-                {
-                  caseData.isVerifiedClosed
-                    ? L(
-                        language,
-                        caseData.manager.comments,
-                        "أكمل المدير المراجعة من المستوى الثاني وصرح بالتنفيذ الخاضع للتحكم."
-                      )
-                    : L(
-                        language,
-                        caseData.manager.comments,
-                        "تتاح مراجعة المدير فقط بعد اعتماد ضابط المراقبة."
-                      )
-                }
+                {caseData.isVerifiedClosed
+                  ? L(
+                      language,
+                      caseData.manager.comments,
+                      "أكمل المدير المراجعة من المستوى الثاني وصرح بالتنفيذ الخاضع للتحكم."
+                    )
+                  : L(
+                      language,
+                      caseData.manager.comments,
+                      "تتاح مراجعة المدير فقط بعد اعتماد ضابط المراقبة."
+                    )}
               </p>
 
 
               {!caseData.isVerifiedClosed && (
                 <button
+                  type="button"
                   className="searchButton"
                   disabled
                   style={{
-                    width: "100%",
+                    width:
+                      "100%",
+
                     justifyContent:
                       "center",
-                    height: "42px",
-                    marginTop: "16px",
+
+                    height:
+                      "42px",
+
+                    marginTop:
+                      "16px",
+
+                    cursor:
+                      "not-allowed",
+
+                    opacity:
+                      0.62,
                   }}
                 >
-                  <LockKeyhole size={16} />
+                  <LockKeyhole
+                    size={16}
+                    aria-hidden="true"
+                  />
 
                   {L(
                     language,
@@ -3523,7 +4482,8 @@ export default function CaseInvestigationPage() {
         <section
           className="panel"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -3545,17 +4505,26 @@ export default function CaseInvestigationPage() {
               </h2>
             </div>
 
-            <ShieldCheck size={22} />
+            <ShieldCheck
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
           <div
             style={{
-              padding: "22px",
-              display: "grid",
+              padding:
+                "22px",
+
+              display:
+                "grid",
+
               gridTemplateColumns:
                 "repeat(3, 1fr)",
-              gap: "12px",
+
+              gap:
+                "12px",
             }}
           >
             {[
@@ -3604,9 +4573,7 @@ export default function CaseInvestigationPage() {
                   FileCheck2,
               },
             ].map(
-              (
-                item
-              ) => {
+              (item) => {
                 const Icon =
                   item.icon;
 
@@ -3619,15 +4586,17 @@ export default function CaseInvestigationPage() {
                     item.value
                   );
 
-
                 return (
                   <div
                     key={
                       item.label
                     }
                     style={{
-                      padding: "17px",
-                      borderRadius: "12px",
+                      padding:
+                        "17px",
+
+                      borderRadius:
+                        "12px",
 
                       background:
                         complete
@@ -3647,13 +4616,19 @@ export default function CaseInvestigationPage() {
                           ? "#59cfa0"
                           : "#7b8da4"
                       }
+                      aria-hidden="true"
                     />
 
                     <strong
                       style={{
-                        display: "block",
-                        marginTop: "12px",
-                        fontSize: "11px",
+                        display:
+                          "block",
+
+                        marginTop:
+                          "12px",
+
+                        fontSize:
+                          "11px",
                       }}
                     >
                       {item.label}
@@ -3661,24 +4636,26 @@ export default function CaseInvestigationPage() {
 
                     <span
                       style={{
-                        display: "block",
+                        display:
+                          "block",
 
                         color:
                           complete
                             ? "#59cfa0"
                             : "#71839a",
 
-                        marginTop: "5px",
-                        fontSize: "10px",
+                        marginTop:
+                          "5px",
+
+                        fontSize:
+                          "10px",
                       }}
                     >
-                      {
-                        localizeStatus(
-                          item.value,
-                          language,
-                          t
-                        )
-                      }
+                      {localizeStatus(
+                        item.value,
+                        language,
+                        t
+                      )}
                     </span>
                   </div>
                 );
@@ -3690,16 +4667,21 @@ export default function CaseInvestigationPage() {
           {caseData.isVerifiedClosed && (
             <div
               style={{
-                padding: "0 22px 22px",
+                padding:
+                  "0 22px 22px",
               }}
             >
               <div
                 className="integrityInfo"
                 style={{
-                  margin: 0,
+                  margin:
+                    0,
                 }}
               >
-                <ShieldCheck size={21} />
+                <ShieldCheck
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -3707,15 +4689,18 @@ export default function CaseInvestigationPage() {
                       "caseDetail.verificationScore"
                     )}
                     {": "}
-                    {caseData.verification.score}
+                    {
+                      caseData.verification.score
+                    }
                   </strong>
 
                   <span>
                     {L(
                       language,
-                      `Biometric Match: ${caseData.verification.biometricMatch}% · Identity Mapping Valid: ${caseData.verification.identityMappingValid ? "TRUE" : "FALSE"} · Conflict Resolved: ${caseData.verification.conflictResolved ? "TRUE" : "FALSE"} · Secondary Conflict: ${caseData.verification.secondaryConflict ? "TRUE" : "FALSE"}`,
 
-                      `مطابقة السجل البيومتري: ${caseData.verification.biometricMatch}% · ربط الهوية صحيح: ${caseData.verification.identityMappingValid ? "نعم" : "لا"} · تم حل التعارض: ${caseData.verification.conflictResolved ? "نعم" : "لا"} · تعارض ثانوي: ${caseData.verification.secondaryConflict ? "نعم" : "لا"}`
+                      `Biometric Match Score: ${caseData.verification.biometricMatchRaw} (${caseData.verification.biometricMatchPercent}%) · Identity Mapping Valid: ${caseData.verification.identityMappingValid ? "TRUE" : "FALSE"} · Conflict Resolved: ${caseData.verification.conflictResolved ? "TRUE" : "FALSE"} · Secondary Conflict: ${caseData.verification.secondaryConflict ? "TRUE" : "FALSE"}`,
+
+                      `درجة المطابقة البيومترية: ${caseData.verification.biometricMatchRaw} (${caseData.verification.biometricMatchPercent}%) · ربط الهوية صحيح: ${caseData.verification.identityMappingValid ? "نعم" : "لا"} · تم حل التعارض: ${caseData.verification.conflictResolved ? "نعم" : "لا"} · تعارض ثانوي: ${caseData.verification.secondaryConflict ? "نعم" : "لا"}`
                     )}
                   </span>
                 </div>
@@ -3726,13 +4711,14 @@ export default function CaseInvestigationPage() {
 
 
         {/* ===============================================
-            AUDIT
+            AUDIT TRAIL
             =============================================== */}
 
         <section
           className="panel"
           style={{
-            marginTop: "16px",
+            marginTop:
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -3754,125 +4740,167 @@ export default function CaseInvestigationPage() {
               </h2>
             </div>
 
-            <Activity size={22} />
+            <Activity
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
           <div
             style={{
-              padding: "8px 21px 20px",
+              padding:
+                "8px 21px 20px",
             }}
           >
-            {
-              caseData.audit.map(
-                (
-                  event,
-                  index
-                ) => (
-                  <div
-                    key={
-                      `${event.sequence}-${event.action}`
-                    }
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns:
-                        "70px 24px 1fr",
-                      gap: "10px",
-                      padding: "15px 0",
+            {caseData.audit.map(
+              (
+                event,
+                index
+              ) => (
+                <div
+                  key={
+                    `${event.sequence}-${event.action}`
+                  }
+                  style={{
+                    display:
+                      "grid",
 
-                      borderBottom:
-                        index
-                        < caseData.audit.length - 1
-                          ? "1px solid rgba(255,255,255,0.045)"
-                          : "none",
+                    gridTemplateColumns:
+                      "70px 24px 1fr",
+
+                    gap:
+                      "10px",
+
+                    padding:
+                      "15px 0",
+
+                    borderBottom:
+                      index <
+                      caseData.audit.length - 1
+                        ? "1px solid rgba(255,255,255,0.045)"
+                        : "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      color:
+                        "#687b93",
+
+                      fontSize:
+                        "10px",
+
+                      paddingTop:
+                        "3px",
                     }}
                   >
+                    {L(
+                      language,
+                      `STEP ${event.sequence}`,
+                      `الخطوة ${event.sequence}`
+                    )}
+                  </div>
+
+
+                  <div
+                    style={{
+                      width:
+                        "22px",
+
+                      height:
+                        "22px",
+
+                      borderRadius:
+                        "50%",
+
+                      display:
+                        "grid",
+
+                      placeItems:
+                        "center",
+
+                      background:
+                        "rgba(66,139,255,0.09)",
+
+                      color:
+                        "#659eff",
+                    }}
+                  >
+                    <Check
+                      size={12}
+                      aria-hidden="true"
+                    />
+                  </div>
+
+
+                  <div>
                     <div
                       style={{
-                        color: "#687b93",
-                        fontSize: "10px",
-                        paddingTop: "3px",
+                        display:
+                          "flex",
+
+                        gap:
+                          "7px",
+
+                        alignItems:
+                          "center",
+
+                        flexWrap:
+                          "wrap",
                       }}
                     >
-                      {L(
-                        language,
-                        `STEP ${event.sequence}`,
-                        `الخطوة ${event.sequence}`
-                      )}
-                    </div>
+                      <strong
+                        style={{
+                          fontSize:
+                            "11px",
 
+                          color:
+                            "#cbd8e7",
+                        }}
+                      >
+                        {isArabic
+                          ? event.actionAr
+                          : event.action}
+                      </strong>
+
+                      <span
+                        style={{
+                          color:
+                            "#6390cd",
+
+                          fontSize:
+                            "10px",
+                        }}
+                      >
+                        {isArabic
+                          ? event.actorAr
+                          : event.actor}
+                      </span>
+                    </div>
 
                     <div
                       style={{
-                        width: "22px",
-                        height: "22px",
-                        borderRadius: "50%",
-                        display: "grid",
-                        placeItems: "center",
-                        background:
-                          "rgba(66,139,255,0.09)",
-                        color: "#659eff",
+                        color:
+                          "#74869d",
+
+                        fontSize:
+                          "10px",
+
+                        lineHeight:
+                          1.6,
+
+                        marginTop:
+                          "5px",
                       }}
                     >
-                      <Check size={12} />
-                    </div>
-
-
-                    <div>
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "7px",
-                          alignItems: "center",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <strong
-                          style={{
-                            fontSize: "11px",
-                            color: "#cbd8e7",
-                          }}
-                        >
-                          {
-                            language === "ar"
-                              ? event.actionAr
-                              : event.action
-                          }
-                        </strong>
-
-                        <span
-                          style={{
-                            color: "#6390cd",
-                            fontSize: "10px",
-                          }}
-                        >
-                          {
-                            language === "ar"
-                              ? event.actorAr
-                              : event.actor
-                          }
-                        </span>
-                      </div>
-
-                      <div
-                        style={{
-                          color: "#74869d",
-                          fontSize: "10px",
-                          lineHeight: 1.6,
-                          marginTop: "5px",
-                        }}
-                      >
-                        {
-                          language === "ar"
-                            ? event.detailAr
-                            : event.detail
-                        }
-                      </div>
+                      {isArabic
+                        ? event.detailAr
+                        : event.detail}
                     </div>
                   </div>
-                )
+                </div>
               )
-            }
+            )}
           </div>
         </section>
 
@@ -3884,11 +4912,17 @@ export default function CaseInvestigationPage() {
         <section
           className="integrityInfo"
           style={{
-            margin: "16px 0 0",
-            padding: "17px",
+            margin:
+              "16px 0 0",
+
+            padding:
+              "17px",
           }}
         >
-          <ShieldCheck size={24} />
+          <ShieldCheck
+            size={24}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
@@ -3903,9 +4937,9 @@ export default function CaseInvestigationPage() {
               {L(
                 language,
 
-                `AI can detect, investigate, prioritize and recommend corrections, but AI approval is disabled. Officer and Manager authorization are required before controlled execution. The Master Reference remains ${GOVERNANCE.masterReferenceAccess}.`,
+                `AI can detect, investigate, prioritize and recommend corrections, but AI approval is disabled. Monitoring Officer and Supervising Manager authorization are required before controlled execution. The Master Reference remains ${GOVERNANCE.masterReferenceAccess}.`,
 
-                "يمكن للذكاء الاصطناعي اكتشاف الحالات والتحقيق فيها وتحديد الأولويات واقتراح التصحيحات، لكن اعتماد الذكاء الاصطناعي غير مسموح. يلزم تصريح ضابط المراقبة والمدير قبل التنفيذ الخاضع للتحكم. ويظل المرجع الرئيسي للقراءة فقط."
+                "يمكن للذكاء الاصطناعي اكتشاف الحالات والتحقيق فيها وتحديد الأولويات واقتراح التصحيحات، لكن اعتماد الذكاء الاصطناعي غير مسموح. يلزم تصريح ضابط المراقبة والمدير المشرف قبل التنفيذ الخاضع للتحكم. ويظل المرجع الرئيسي للقراءة فقط."
               )}
             </span>
           </div>
@@ -3918,13 +4952,22 @@ export default function CaseInvestigationPage() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
-            {t("footer.demo")}
+
+            {t(
+              "footer.demo"
+            )}
           </span>
 
           <div>
-            <Clock3 size={15} />
+            <Clock3
+              size={15}
+              aria-hidden="true"
+            />
 
             {L(
               language,

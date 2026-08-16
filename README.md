@@ -1,147 +1,88 @@
 # AI Identity Reconciliation Platform
 
-> AI-powered post-registration identity monitoring, reconciliation, investigation, remediation, approval, verification, audit, and intelligent analytics platform.
+> AI-powered post-registration identity monitoring, reconciliation, investigation, controlled remediation, human approval, verification, audit traceability, and executive intelligence platform.
 
 ---
 
 ## Project Status
 
 **Phase:** Prototype / Demonstration  
-**Data Classification:** Synthetic Demo Data Only  
-**Repository:** Private  
+**Data Classification:** Synthetic Demonstration Data Only  
+**Production Personal Data:** None  
+**Production Biometric Data:** None  
+**Master Reference Access:** Read Only  
+**Correction Target:** Biometric System Only  
+**Human Approval:** Two-Level Approval Required  
+**PDF Reporting:** Planned  
+**Power BI Integration:** Planned  
 
 ---
 
-## Overview
+# Overview
 
-The AI Identity Reconciliation Platform is an intelligent post-registration monitoring system designed to continuously compare biometric records against an authoritative Master Reference System.
+The **AI Identity Reconciliation Platform** is a post-registration identity integrity platform designed to continuously compare operational biometric relationships against an authoritative Master Reference System.
 
-The platform does **not** perform identity registration.
+The platform does **not** perform initial identity registration.
 
-Instead, it operates after registration to detect incorrect biometric mappings, identity conflicts, duplicate records, cross-system inconsistencies, and other data integrity issues.
+Instead, it operates after registration to identify and investigate issues such as:
 
-The system uses Artificial Intelligence and Agentic AI to investigate detected conflicts, identify the most likely correct identity, assess the potential impact of the error, generate a proposed correction, and manage the complete human approval, correction, verification, and audit workflow.
+- Incorrect biometric-to-identity mappings
+- Identity conflicts
+- Duplicate identities
+- Data mismatches
+- Orphan records
+- Cross-system inconsistencies
+- Harm-sensitive identity conflicts
+- Potential wrong-person impact
+
+Artificial Intelligence and Agentic AI are used to detect anomalies, investigate evidence, resolve the strongest identity candidate, assess risk and potential harm, calculate protective priority, and prepare proposed corrections.
+
+AI does **not** independently approve sensitive identity corrections.
+
+A proposed correction must pass two independent human approval stages before controlled execution is permitted.
+
+---
+
+# Platform Objective
+
+The platform is designed around one primary objective:
+
+> Detect identity integrity problems after registration, determine the safest corrective action, protect potentially affected individuals, and ensure that every sensitive correction remains human-controlled and verifiable.
+
+A key differentiator is the platform's **Protective Priority** model.
+
+Technical severity alone does not determine case priority.
+
+If an incorrect identity relationship could negatively affect another person, the case can receive elevated protective priority and be moved ahead of lower-risk technical cases.
 
 ---
 
 # Core Systems
 
-The platform operates across three logical systems.
+The architecture contains three primary logical systems.
 
-## 1. Biometric System
+## System A — Biometric System
 
-Contains biometric registrations and their associated identity mappings.
+The Biometric System represents the operational registration environment containing biometric records and their linked identity references.
 
-Example:
+In the current demonstration, biometric evidence is represented using **generic synthetic vectors**.
 
-- Biometric Record ID
-- Person Reference ID
-- Face biometric
-- Iris biometric
-- Fingerprint biometric
-- Personal data
-- Registration history
-- Record status
+The repository does not contain real:
 
-This system may contain incorrect identity mappings or conflicting records.
+- Face templates
+- Fingerprint templates
+- Iris templates
+- Personal identity records
+- Production biometric scores
+- Production PII
 
----
+The Biometric System may contain incorrect identity relationships and is therefore treated as the permitted target for approved controlled corrections.
 
-## 2. Master Reference System
-
-The authoritative identity database.
-
-This system acts as the:
-
-**Source of Truth**
-
-The AI Reconciliation Platform uses it as the primary reference when validating identities and investigating conflicts.
-
-The Master Reference System is treated as:
-
-**READ ONLY**
-
-The AI platform must never automatically modify the Master Reference System.
-
----
-
-## 3. AI Reconciliation Platform
-
-The intelligent monitoring layer between the two systems.
-
-Its responsibilities include:
-
-- Continuous monitoring
-- Cross-system reconciliation
-- Biometric correlation
-- Identity resolution
-- Data integrity analysis
-- Conflict detection
-- Duplicate detection
-- Anomaly detection
-- AI investigation
-- Harm impact analysis
-- Risk assessment
-- Protective priority calculation
-- Proposed correction generation
-- Human approval workflow
-- Authorized correction execution
-- Post-correction verification
-- Audit documentation
-- Power BI analytics
-- Executive reporting
-
----
-
-# Core Workflow
+Example logical fields:
 
 ```text
-BIOMETRIC SYSTEM
-        │
-        ▼
-AUTOMATED MONITORING
-        │
-        ▼
-AI RECONCILIATION
-        │
-        ▼
-CONFLICT DETECTION
-        │
-        ▼
-AI INVESTIGATION
-        │
-        ▼
-IDENTITY RESOLUTION
-        │
-        ▼
-RISK & HARM ANALYSIS
-        │
-        ▼
-PROTECTIVE PRIORITY
-        │
-        ▼
-PROPOSED CORRECTION
-        │
-        ▼
-MONITORING OFFICER REVIEW
-        │
-        ▼
-OFFICER APPROVAL
-        │
-        ▼
-MANAGER REVIEW
-        │
-        ▼
-MANAGER APPROVAL
-        │
-        ▼
-AUTHORIZED CORRECTION
-        │
-        ▼
-POST-CORRECTION VERIFICATION
-        │
-        ▼
-AUDIT REPORT
-        │
-        ▼
-CASE CLOSED
+biometric_record_id
+linked_master_id
+synthetic_vector
+record_status
+registration_metadata

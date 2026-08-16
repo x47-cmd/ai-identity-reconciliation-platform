@@ -78,10 +78,10 @@ function caseTypeLabel(
 
     WRONG_MAPPING: {
       en:
-        "Incorrect Identity Link",
+        "Incorrect Biometric Link",
 
       ar:
-        "ربط هوية غير صحيح",
+        "ربط بيومتري غير صحيح",
     },
 
     HARM_IMPACT: {
@@ -94,34 +94,34 @@ function caseTypeLabel(
 
     CRITICAL_HARM_IDENTITY_CONFLICT: {
       en:
-        "Critical Identity Conflict",
+        "Critical Record Conflict",
 
       ar:
-        "تعارض هوية حرج",
+        "تعارض حرج في الربط",
     },
 
     COMPLEX_IDENTITY_CONFLICT: {
       en:
-        "Complex Identity Conflict",
+        "Complex Record Conflict",
 
       ar:
-        "تعارض هوية معقد",
+        "تعارض معقد بين السجلات",
     },
 
     DUPLICATE_IDENTITY: {
       en:
-        "Duplicate Identity",
+        "Duplicate Reference Record",
 
       ar:
-        "هوية مكررة",
+        "تكرار في السجل المرجعي",
     },
 
     ORPHAN_RECORD: {
       en:
-        "Missing Identity Link",
+        "Biometric Record Without Reference",
 
       ar:
-        "سجل بدون هوية مرتبطة",
+        "سجل بيومتري بدون مرجع",
     },
   };
 
@@ -313,8 +313,8 @@ export default function AnalyticsPage() {
 
               {L(
                 language,
-                "AI PERFORMANCE & MANAGEMENT KPIs",
-                "أداء الذكاء الاصطناعي ومؤشرات الإدارة"
+                "AI BIOMETRIC PERFORMANCE & MANAGEMENT KPIs",
+                "أداء النظام البيومتري والذكاء الاصطناعي ومؤشرات الإدارة"
               )}
             </div>
 
@@ -331,8 +331,8 @@ export default function AnalyticsPage() {
             <p>
               {L(
                 language,
-                "Management view of identity cases, priorities, AI performance, approvals and resolution results.",
-                "عرض إداري لحالات الهوية والأولويات وأداء الذكاء الاصطناعي والموافقات ونتائج معالجة الحالات."
+                "Management view of biometric matching cases, priorities, AI performance, approvals, corrections and verification results.",
+                "عرض إداري لحالات المطابقة البيومترية والأولويات وأداء الذكاء الاصطناعي والموافقات والتصحيحات ونتائج التحقق."
               )}
             </p>
 
@@ -361,13 +361,14 @@ export default function AnalyticsPage() {
             aria-hidden="true"
           />
 
+
           <div>
 
             <strong>
               {L(
                 language,
-                "Current monitoring scope",
-                "نطاق المراقبة الحالي"
+                "Current biometric monitoring scope",
+                "نطاق المراقبة البيومترية الحالي"
               )}
             </strong>
 
@@ -376,9 +377,9 @@ export default function AnalyticsPage() {
               {L(
                 language,
 
-                `The synthetic demonstration compares ${PLATFORM_METRICS.biometricRecords.toLocaleString()} biometric records with ${PLATFORM_METRICS.masterIdentities.toLocaleString()} authoritative identities. The system detected ${PLATFORM_METRICS.aggregatedCases} identity cases.`,
+                `The synthetic demonstration compares ${PLATFORM_METRICS.biometricRecords.toLocaleString()} biometric records with ${PLATFORM_METRICS.masterIdentities.toLocaleString()} records in the authoritative reference. The system detected ${PLATFORM_METRICS.aggregatedCases} cases requiring investigation or follow-up.`,
 
-                `يقارن العرض التجريبي ${PLATFORM_METRICS.biometricRecords.toLocaleString()} سجل بيومتري مع ${PLATFORM_METRICS.masterIdentities.toLocaleString()} هوية معتمدة، واكتشف النظام ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى المتابعة.`
+                `يقارن العرض التجريبي ${PLATFORM_METRICS.biometricRecords.toLocaleString()} سجل بيومتري مع ${PLATFORM_METRICS.masterIdentities.toLocaleString()} سجل في المرجع المعتمد، واكتشف النظام ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى تحقيق أو متابعة.`
               )}
             </span>
 
@@ -408,8 +409,8 @@ export default function AnalyticsPage() {
             description={
               L(
                 language,
-                "Identity cases requiring investigation or follow-up",
-                "حالات تحتاج إلى تحقيق أو متابعة"
+                "Biometric matching and linking problems requiring follow-up",
+                "مشكلات في المطابقة والربط تحتاج إلى متابعة"
               )
             }
           />
@@ -465,15 +466,15 @@ export default function AnalyticsPage() {
             title={
               L(
                 language,
-                "Unresolved Identity",
-                "هويات غير محسومة"
+                "Unresolved Reference Match",
+                "حالات بدون مرجع محسوم"
               )
             }
             description={
               L(
                 language,
-                "Cases without an identity candidate",
-                "حالات لم يتم تحديد هوية مرجحة لها"
+                "Cases without a recommended reference candidate",
+                "حالات لم يتم تحديد مرجع مناسب لها"
               )
             }
             success={
@@ -500,6 +501,7 @@ export default function AnalyticsPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
@@ -508,13 +510,15 @@ export default function AnalyticsPage() {
                 )}
               </div>
 
+
               <h2>
                 {L(
                   language,
-                  "AI Detection Performance",
-                  "أداء الاكتشاف بالذكاء الاصطناعي"
+                  "AI Detection & Analysis Performance",
+                  "أداء الاكتشاف والتحليل بالذكاء الاصطناعي"
                 )}
               </h2>
+
             </div>
 
 
@@ -580,7 +584,7 @@ export default function AnalyticsPage() {
               description={
                 L(
                   language,
-                  "Accuracy after related findings were analyzed",
+                  "Accuracy after related findings were analyzed and consolidated",
                   "الدقة بعد تحليل وتجميع النتائج المرتبطة"
                 )
               }
@@ -596,14 +600,14 @@ export default function AnalyticsPage() {
               title={
                 L(
                   language,
-                  "Protective Detection",
+                  "High-Risk Detection",
                   "اكتشاف الحالات الحساسة"
                 )
               }
               description={
                 L(
                   language,
-                  "Wrong-person impact cases successfully identified",
+                  "Cases with possible wrong-person impact successfully identified",
                   "الحالات التي قد تؤثر على شخص آخر وتم اكتشافها"
                 )
               }
@@ -657,9 +661,9 @@ export default function AnalyticsPage() {
             {L(
               language,
 
-              "These values are based on the synthetic evaluation dataset. Related raw findings are combined and analyzed before the system presents the final case-level result.",
+              "These values are based on the synthetic evaluation dataset. Related raw findings are analyzed and consolidated before the system presents the final case-level result.",
 
-              "تعتمد هذه المؤشرات على مجموعة البيانات التجريبية الاصطناعية. ويتم تجميع وتحليل النتائج الأولية المرتبطة قبل عرض النتيجة النهائية على مستوى الحالة."
+              "تعتمد هذه المؤشرات على مجموعة البيانات التجريبية الاصطناعية. ويتم تحليل وتجميع النتائج الأولية المرتبطة قبل عرض النتيجة النهائية على مستوى الحالة."
             )}
           </div>
 
@@ -679,6 +683,7 @@ export default function AnalyticsPage() {
             <div className="panelHeader">
 
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
@@ -687,6 +692,7 @@ export default function AnalyticsPage() {
                   )}
                 </div>
 
+
                 <h2>
                   {L(
                     language,
@@ -694,7 +700,9 @@ export default function AnalyticsPage() {
                     "توزيع الحالات حسب الأولوية"
                   )}
                 </h2>
+
               </div>
+
 
               <ShieldAlert
                 size={22}
@@ -767,6 +775,7 @@ export default function AnalyticsPage() {
 
 
                         <div>
+
                           <strong
                             style={{
                               color:
@@ -778,6 +787,7 @@ export default function AnalyticsPage() {
                           >
                             {item.value}
                           </strong>
+
 
                           <span
                             style={{
@@ -793,6 +803,7 @@ export default function AnalyticsPage() {
                           >
                             {width}%
                           </span>
+
                         </div>
 
                       </div>
@@ -827,13 +838,15 @@ export default function AnalyticsPage() {
             <div className="panelHeader">
 
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "IDENTITY ISSUES",
-                    "أنواع مشكلات الهوية"
+                    "BIOMETRIC MATCHING ISSUES",
+                    "أنواع مشكلات المطابقة البيومترية"
                   )}
                 </div>
+
 
                 <h2>
                   {L(
@@ -842,7 +855,9 @@ export default function AnalyticsPage() {
                     "توزيع الحالات حسب المشكلة"
                   )}
                 </h2>
+
               </div>
+
 
               <BarChart3
                 size={22}
@@ -969,13 +984,15 @@ export default function AnalyticsPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "CURRENT WORKFLOW",
+                  "CURRENT CASE WORKFLOW",
                   "حالة سير العمل"
                 )}
               </div>
+
 
               <h2>
                 {L(
@@ -984,7 +1001,9 @@ export default function AnalyticsPage() {
                   "وين وصلت الحالات؟"
                 )}
               </h2>
+
             </div>
+
 
             <Activity
               size={22}
@@ -1183,8 +1202,8 @@ export default function AnalyticsPage() {
           >
             {L(
               language,
-              "Workflow values are a demonstration snapshot and are not separate totals that must add up to the total number of cases.",
-              "تمثل أرقام سير العمل لقطة تجريبية للحالة الحالية، وليست أرقامًا منفصلة يجب أن يساوي مجموعها إجمالي الحالات."
+              "Workflow values are a demonstration snapshot and are not separate totals that must add up to the total number of detected cases.",
+              "تمثل أرقام سير العمل لقطة تجريبية للحالة الحالية، وليست أرقامًا منفصلة يجب أن يساوي مجموعها إجمالي الحالات المكتشفة."
             )}
           </div>
 
@@ -1206,6 +1225,7 @@ export default function AnalyticsPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
@@ -1214,6 +1234,7 @@ export default function AnalyticsPage() {
                 )}
               </div>
 
+
               <h2>
                 {L(
                   language,
@@ -1221,7 +1242,9 @@ export default function AnalyticsPage() {
                   "لوحة Power BI"
                 )}
               </h2>
+
             </div>
+
 
             <BarChart3
               size={22}
@@ -1305,8 +1328,8 @@ export default function AnalyticsPage() {
                   >
                     {L(
                       language,
-                      "Executive Identity Dashboard",
-                      "لوحة مؤشرات الهوية التنفيذية"
+                      "Executive Biometric Operations Dashboard",
+                      "لوحة العمليات البيومترية التنفيذية"
                     )}
                   </strong>
 
@@ -1512,10 +1535,10 @@ export default function AnalyticsPage() {
                 {[
                   {
                     en:
-                      "Case volumes and trends",
+                      "Biometric case volumes and trends",
 
                     ar:
-                      "أعداد الحالات واتجاهاتها",
+                      "أعداد الحالات البيومترية واتجاهاتها",
                   },
 
                   {
@@ -1528,10 +1551,10 @@ export default function AnalyticsPage() {
 
                   {
                     en:
-                      "AI detection performance",
+                      "AI detection and analysis performance",
 
                     ar:
-                      "أداء اكتشاف الذكاء الاصطناعي",
+                      "أداء اكتشاف وتحليل الذكاء الاصطناعي",
                   },
 
                   {
@@ -1544,10 +1567,10 @@ export default function AnalyticsPage() {
 
                   {
                     en:
-                      "Correction and verification results",
+                      "Biometric correction and verification results",
 
                     ar:
-                      "نتائج التصحيح والتحقق",
+                      "نتائج التصحيح البيومتري والتحقق",
                   },
                 ].map(
                   (item) => (
@@ -1631,9 +1654,9 @@ export default function AnalyticsPage() {
               {L(
                 language,
 
-                `The system detected ${PLATFORM_METRICS.aggregatedCases} identity cases. ${PLATFORM_METRICS.priority.immediate} require urgent attention, while ${PLATFORM_METRICS.wronglyAffectedCases} cases include potential wrong-person impact. No identity cases remain unresolved in the synthetic evaluation.`,
+                `The system detected ${PLATFORM_METRICS.aggregatedCases} biometric matching cases. ${PLATFORM_METRICS.priority.immediate} require urgent attention, while ${PLATFORM_METRICS.wronglyAffectedCases} may involve wrong-person impact. No cases remain without a recommended reference in the synthetic evaluation.`,
 
-                `اكتشف النظام ${PLATFORM_METRICS.aggregatedCases} حالة هوية، منها ${PLATFORM_METRICS.priority.immediate} حالات تحتاج إلى متابعة فورية، و${PLATFORM_METRICS.wronglyAffectedCases} حالات قد تتضمن تأثيرًا على شخص آخر. ولا توجد حالات هوية غير محسومة في التقييم التجريبي.`
+                `اكتشف النظام ${PLATFORM_METRICS.aggregatedCases} حالة في المطابقة البيومترية، منها ${PLATFORM_METRICS.priority.immediate} حالات تحتاج إلى متابعة فورية، و${PLATFORM_METRICS.wronglyAffectedCases} حالات قد تتضمن تأثيرًا على شخص آخر. ولا توجد حالات بدون مرجع موصى به في التقييم التجريبي.`
               )}
             </span>
 
@@ -1686,13 +1709,14 @@ export default function AnalyticsPage() {
             aria-hidden="true"
           />
 
+
           <div>
 
             <strong>
               {L(
                 language,
-                "Management analytics do not replace human approval",
-                "التحليلات الإدارية لا تستبدل الاعتماد البشري"
+                "AI analytics support decisions — they do not authorize corrections",
+                "تحليلات الذكاء الاصطناعي تدعم القرار — ولا تعتمد التصحيح"
               )}
             </strong>
 
@@ -1700,8 +1724,8 @@ export default function AnalyticsPage() {
             <span>
               {L(
                 language,
-                "AI analytics support monitoring and decision-making. Sensitive identity corrections still require the approved human review process.",
-                "تدعم تحليلات الذكاء الاصطناعي المراقبة واتخاذ القرار، بينما تظل تصحيحات الهوية الحساسة خاضعة لمسار الاعتماد البشري."
+                "AI analytics support monitoring and management decisions. Sensitive biometric link corrections still require the approved human review process.",
+                "تدعم تحليلات الذكاء الاصطناعي المراقبة وقرارات الإدارة، بينما تظل تصحيحات الربط البيومتري الحساسة خاضعة لمسار الاعتماد البشري."
               )}
             </span>
 
@@ -1719,13 +1743,14 @@ export default function AnalyticsPage() {
           <span>
             {L(
               language,
-              "AI Identity Reconciliation Platform · Analytics",
-              "منصة مطابقة الهوية بالذكاء الاصطناعي · التحليلات"
+              "AI Biometric Reconciliation Platform · Analytics",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · التحليلات"
             )}
           </span>
 
 
           <div>
+
             <Activity
               size={15}
               aria-hidden="true"
@@ -1736,11 +1761,13 @@ export default function AnalyticsPage() {
               "Synthetic analytics view",
               "عرض تحليلات تجريبي"
             )}
+
           </div>
 
         </footer>
 
       </main>
+
     </div>
   );
 }

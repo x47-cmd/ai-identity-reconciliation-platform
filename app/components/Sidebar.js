@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
-  Activity,
   BadgeCheck,
   BarChart3,
   BrainCircuit,
@@ -49,7 +48,7 @@ const navigationGroups = [
         label: "Officer Review",
         href: "/officer-review",
         icon: UserCheck,
-        count: "6",
+        count: "5",
       },
 
       {

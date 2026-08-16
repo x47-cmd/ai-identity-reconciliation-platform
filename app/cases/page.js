@@ -163,7 +163,7 @@ const cases = [
     findings: 3,
   },
   {
-    id: "CASE-2026-00010",
+    id: "CASE-2026-00014",
     type: "COMPLEX_IDENTITY_CONFLICT",
     title: "Complex Identity Conflict",
     biometric: "BIO-000795",

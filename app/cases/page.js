@@ -42,7 +42,7 @@ function L(
 /* =========================================================
    REPRESENTATIVE CASES
 
-   Names are synthetic demo identities.
+   Synthetic demonstration names only.
    Only supported detail routes are linked.
    ========================================================= */
 
@@ -100,10 +100,10 @@ const cases = [
 
     aiFinding: {
       en:
-        "AI found a critical conflict between identity records with possible wrong-person impact.",
+        "AI detected a critical conflict between linked records with possible wrong-person impact.",
 
       ar:
-        "اكتشف الذكاء الاصطناعي تعارضًا حرجًا بين سجلات الهوية مع احتمال التأثير على شخص آخر.",
+        "اكتشف الذكاء الاصطناعي تعارضًا حرجًا بين السجلات المرتبطة مع احتمال التأثير على شخص آخر.",
     },
 
     confidence:
@@ -136,10 +136,10 @@ const cases = [
 
     aiFinding: {
       en:
-        "AI analysis confirmed a high-risk identity conflict and prepared a correction recommendation.",
+        "AI analysis confirmed a high-risk record conflict and prepared a correction recommendation.",
 
       ar:
-        "أكد تحليل الذكاء الاصطناعي وجود تعارض هوية عالي الخطورة وتم تجهيز توصية بالتصحيح.",
+        "أكد تحليل الذكاء الاصطناعي وجود تعارض عالي الخطورة بين السجلات وتم تجهيز توصية بالتصحيح.",
     },
 
     confidence:
@@ -172,10 +172,10 @@ const cases = [
 
     aiFinding: {
       en:
-        "AI detected an incorrect identity relationship and identified a stronger identity candidate.",
+        "AI detected an incorrect biometric-to-person link and identified a stronger matching reference.",
 
       ar:
-        "اكتشف الذكاء الاصطناعي ربط هوية غير صحيح وحدد هوية أخرى أكثر تطابقًا.",
+        "اكتشف الذكاء الاصطناعي ربطًا غير صحيح بين السجل البيومتري والشخص وحدد مرجعًا آخر أكثر تطابقًا.",
     },
 
     confidence:
@@ -208,10 +208,10 @@ const cases = [
 
     aiFinding: {
       en:
-        "AI combined five related findings and identified REF-002343 as the strongest identity candidate.",
+        "AI combined five related findings and identified REF-002343 as the strongest reference candidate.",
 
       ar:
-        "جمع الذكاء الاصطناعي خمس نتائج مترابطة وحدد REF-002343 كأقوى مرشح للهوية.",
+        "جمع الذكاء الاصطناعي خمس نتائج مترابطة وحدد REF-002343 كأقوى مرجع مطابق للسجل.",
     },
 
     confidence:
@@ -244,10 +244,10 @@ const cases = [
 
     aiFinding: {
       en:
-        "AI detected an incorrect identity relationship. The approved correction was completed and verified.",
+        "AI detected an incorrect biometric-to-person link. The approved correction was completed and verified.",
 
       ar:
-        "اكتشف الذكاء الاصطناعي ربط هوية غير صحيح، وتم اعتماد التصحيح وتنفيذه والتحقق منه.",
+        "اكتشف الذكاء الاصطناعي ربطًا غير صحيح للسجل البيومتري، وتم اعتماد التصحيح وتنفيذه والتحقق منه.",
     },
 
     confidence:
@@ -284,50 +284,50 @@ function getIssueLabel(
 
     CRITICAL_HARM_IDENTITY_CONFLICT: {
       en:
-        "Critical Identity Conflict",
+        "Critical Record Conflict",
 
       ar:
-        "تعارض هوية حرج",
+        "تعارض حرج في الربط",
     },
 
     WRONG_MAPPING: {
       en:
-        "Incorrect Identity Link",
+        "Incorrect Biometric Link",
 
       ar:
-        "ربط هوية غير صحيح",
+        "ربط بيومتري غير صحيح",
     },
 
     COMPLEX_IDENTITY_CONFLICT: {
       en:
-        "Complex Identity Conflict",
+        "Complex Record Conflict",
 
       ar:
-        "تعارض هوية معقد",
+        "تعارض معقد بين السجلات",
     },
 
     DUPLICATE_IDENTITY: {
       en:
-        "Duplicate Identity",
+        "Duplicate Reference Record",
 
       ar:
-        "هوية مكررة",
+        "تكرار في السجل المرجعي",
     },
 
     DATA_MISMATCH: {
       en:
-        "Identity Data Mismatch",
+        "Data Mismatch",
 
       ar:
-        "اختلاف في بيانات الهوية",
+        "اختلاف بين البيانات",
     },
 
     ORPHAN_RECORD: {
       en:
-        "Missing Identity Link",
+        "Biometric Record Without Reference",
 
       ar:
-        "سجل بدون هوية مرتبطة",
+        "سجل بيومتري بدون مرجع",
     },
   };
 
@@ -560,8 +560,8 @@ export default function CasesPage() {
 
               {L(
                 language,
-                "AI-DETECTED IDENTITY CASES",
-                "حالات الهوية المكتشفة بالذكاء الاصطناعي"
+                "AI-DETECTED BIOMETRIC CASES",
+                "الحالات البيومترية المكتشفة بالذكاء الاصطناعي"
               )}
             </div>
 
@@ -569,7 +569,7 @@ export default function CasesPage() {
             <h1>
               {L(
                 language,
-                "Identity Cases",
+                "Cases",
                 "الحالات"
               )}
             </h1>
@@ -579,9 +579,9 @@ export default function CasesPage() {
               {L(
                 language,
 
-                "Review identity problems detected by the system, understand the AI analysis, and follow each case until it is resolved.",
+                "Review biometric matching and linking problems detected by the system, understand the AI analysis, and follow each case until it is resolved.",
 
-                "راجع مشكلات الهوية التي رصدها النظام، واطلع على تحليل الذكاء الاصطناعي، وتابع كل حالة حتى يتم حلها."
+                "راجع مشكلات المطابقة والربط في السجلات البيومترية التي رصدها النظام، واطلع على تحليل الذكاء الاصطناعي، وتابع كل حالة حتى يتم حلها."
               )}
             </p>
 
@@ -610,23 +610,26 @@ export default function CasesPage() {
           />
 
           <div>
+
             <strong>
               {L(
                 language,
-                "How are these cases created?",
-                "كيف يتم إنشاء هذه الحالات؟"
+                "How are these cases detected?",
+                "كيف يكتشف النظام هذه الحالات؟"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
 
-                `AI continuously compares biometric relationships with the authoritative identity reference. The current synthetic demo detected ${PLATFORM_METRICS.aggregatedCases} cases that require investigation, review or follow-up.`,
+                `AI continuously compares ${PLATFORM_METRICS.biometricRecords.toLocaleString()} biometric records with ${PLATFORM_METRICS.masterIdentities.toLocaleString()} records in the authoritative reference. The current synthetic demo detected ${PLATFORM_METRICS.aggregatedCases} cases that require investigation, review or follow-up.`,
 
-                `يقارن الذكاء الاصطناعي بشكل مستمر علاقات السجلات البيومترية مع مرجع الهوية المعتمد. واكتشف العرض التجريبي الحالي ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى تحقيق أو مراجعة أو متابعة.`
+                `يقارن الذكاء الاصطناعي بشكل مستمر ${PLATFORM_METRICS.biometricRecords.toLocaleString()} سجل بيومتري مع ${PLATFORM_METRICS.masterIdentities.toLocaleString()} سجل في المرجع المعتمد. واكتشف العرض التجريبي الحالي ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى تحقيق أو مراجعة أو متابعة.`
               )}
             </span>
+
           </div>
         </section>
 
@@ -652,8 +655,8 @@ export default function CasesPage() {
             description={
               L(
                 language,
-                "Identity issues detected by the system",
-                "مشكلات هوية رصدها النظام"
+                "Matching and linking problems detected by the system",
+                "مشكلات في المطابقة والربط رصدها النظام"
               )
             }
           />
@@ -743,7 +746,7 @@ export default function CasesPage() {
               {L(
                 language,
 
-                `${PLATFORM_METRICS.wronglyAffectedCases} cases may affect the wrong person`,
+                `${PLATFORM_METRICS.wronglyAffectedCases} cases may affect another person`,
 
                 `${PLATFORM_METRICS.wronglyAffectedCases} حالات قد تؤثر على شخص آخر`
               )}
@@ -754,9 +757,9 @@ export default function CasesPage() {
               {L(
                 language,
 
-                "AI identified these cases as requiring additional protection because an incorrect identity relationship could negatively affect another person.",
+                "AI identified these cases as requiring additional protection because an incorrect biometric-to-person link may negatively affect someone else.",
 
-                "حدد الذكاء الاصطناعي هذه الحالات كحالات تحتاج إلى حماية إضافية لأن ربط الهوية بشكل خاطئ قد يؤثر سلبًا على شخص آخر."
+                "حدد الذكاء الاصطناعي هذه الحالات كحالات تحتاج إلى حماية إضافية لأن ربط السجل البيومتري بشخص غير صحيح قد يؤثر سلبًا على شخص آخر."
               )}
             </span>
 
@@ -774,6 +777,7 @@ export default function CasesPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
@@ -782,6 +786,7 @@ export default function CasesPage() {
                 )}
               </div>
 
+
               <h2>
                 {L(
                   language,
@@ -789,6 +794,7 @@ export default function CasesPage() {
                   "الحالات التي تحتاج إلى متابعة"
                 )}
               </h2>
+
             </div>
 
 
@@ -875,6 +881,7 @@ export default function CasesPage() {
                     {/* PERSON */}
 
                     <div>
+
                       <strong
                         style={{
                           display:
@@ -889,6 +896,7 @@ export default function CasesPage() {
                       >
                         {personName}
                       </strong>
+
 
                       <span
                         dir="ltr"
@@ -908,12 +916,14 @@ export default function CasesPage() {
                       >
                         {item.id}
                       </span>
+
                     </div>
 
 
                     {/* ISSUE */}
 
                     <div>
+
                       <strong
                         style={{
                           display:
@@ -931,6 +941,7 @@ export default function CasesPage() {
                           language
                         )}
                       </strong>
+
 
                       <span
                         style={{
@@ -953,12 +964,14 @@ export default function CasesPage() {
                           `ثقة الذكاء الاصطناعي: ${item.confidence}%`
                         )}
                       </span>
+
                     </div>
 
 
                     {/* AI FINDING */}
 
                     <div>
+
                       <div
                         style={{
                           display:
@@ -991,13 +1004,16 @@ export default function CasesPage() {
                         >
                           {aiFinding}
                         </span>
+
                       </div>
+
                     </div>
 
 
                     {/* STATUS */}
 
                     <div>
+
                       <span
                         style={{
                           display:
@@ -1024,6 +1040,7 @@ export default function CasesPage() {
                         )}
                       </span>
 
+
                       <div
                         style={{
                           marginTop:
@@ -1039,12 +1056,14 @@ export default function CasesPage() {
                           }
                         />
                       </div>
+
                     </div>
 
 
                     {/* OPEN */}
 
                     <div>
+
                       {item.hasDetail ? (
                         <div
                           style={{
@@ -1092,6 +1111,7 @@ export default function CasesPage() {
                           }}
                         />
                       )}
+
                     </div>
 
                   </div>
@@ -1158,9 +1178,9 @@ export default function CasesPage() {
             {L(
               language,
 
-              `This screen shows representative demonstration cases. The validated synthetic dataset contains ${PLATFORM_METRICS.aggregatedCases} aggregated cases in total.`,
+              `This screen shows representative demonstration cases. The validated synthetic dataset contains ${PLATFORM_METRICS.aggregatedCases} detected cases in total.`,
 
-              `تعرض هذه الشاشة حالات تجريبية تمثيلية، بينما تحتوي مجموعة البيانات الاصطناعية المعتمدة على ${PLATFORM_METRICS.aggregatedCases} حالة مجمعة إجمالًا.`
+              `تعرض هذه الشاشة حالات تجريبية تمثيلية، بينما تحتوي مجموعة البيانات الاصطناعية المعتمدة على ${PLATFORM_METRICS.aggregatedCases} حالة مكتشفة إجمالًا.`
             )}
           </div>
 
@@ -1168,7 +1188,7 @@ export default function CasesPage() {
 
 
         {/* ================================================
-            SIMPLE GOVERNANCE NOTE
+            GOVERNANCE
             ================================================ */}
 
         <section
@@ -1191,8 +1211,8 @@ export default function CasesPage() {
             <strong>
               {L(
                 language,
-                "AI analyzes — people approve",
-                "الذكاء الاصطناعي يحلل — والإنسان يعتمد"
+                "AI analyzes — authorized staff decide",
+                "الذكاء الاصطناعي يحلل — والموظف المخول يقرر"
               )}
             </strong>
 
@@ -1201,13 +1221,14 @@ export default function CasesPage() {
               {L(
                 language,
 
-                "AI detects identity problems, analyzes the evidence and recommends the likely correction. Sensitive identity changes still require authorized human approval before execution.",
+                "AI detects biometric matching and linking problems, analyzes the evidence and recommends the most likely correction. Sensitive changes still require authorized human approval before execution.",
 
-                "يكتشف الذكاء الاصطناعي مشكلات الهوية ويحلل الأدلة ويقترح التصحيح المرجح، بينما تتطلب أي تغييرات حساسة اعتماد الموظفين المخولين قبل التنفيذ."
+                "يكتشف الذكاء الاصطناعي مشكلات المطابقة والربط في السجلات البيومترية، ويحلل الأدلة ويقترح التصحيح المرجح، بينما تتطلب التغييرات الحساسة اعتماد الموظفين المخولين قبل التنفيذ."
               )}
             </span>
 
           </div>
+
         </section>
 
 
@@ -1220,13 +1241,14 @@ export default function CasesPage() {
           <span>
             {L(
               language,
-              "AI Identity Reconciliation Platform · Cases",
-              "منصة مطابقة الهوية بالذكاء الاصطناعي · الحالات"
+              "AI Biometric Reconciliation Platform · Cases",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · الحالات"
             )}
           </span>
 
 
           <div>
+
             <Activity
               size={15}
               aria-hidden="true"
@@ -1237,11 +1259,13 @@ export default function CasesPage() {
               "Continuous Monitoring Active",
               "المراقبة المستمرة نشطة"
             )}
+
           </div>
 
         </footer>
 
       </main>
+
     </div>
   );
 }

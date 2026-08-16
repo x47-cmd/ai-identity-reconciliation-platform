@@ -3,6 +3,12 @@ import Link from "next/link";
 import Sidebar from "../../components/Sidebar";
 
 import {
+  COMPLEX_DEMO_CASE,
+  GOVERNANCE,
+  VERIFIED_DEMO_CASE,
+} from "../../lib/demo-data";
+
+import {
   Activity,
   ArrowLeft,
   ArrowRight,
@@ -30,51 +36,55 @@ import {
 
 
 /* =========================================================
-   SYNTHETIC DEMO CASES
+   CASE DETAIL VIEW MODELS
 
-   Frontend demo data only.
-   Later this page will consume backend/API case data.
+   Core identity, risk and verification values come from:
+   app/lib/demo-data.js
+
+   Additional narrative/evidence fields below are frontend
+   presentation data for the synthetic demonstration.
    ========================================================= */
 
 const caseDatabase = {
-  "CASE-2026-00001": {
-    id: "CASE-2026-00001",
+  [VERIFIED_DEMO_CASE.id]: {
+    id:
+      VERIFIED_DEMO_CASE.id,
 
     title:
-      "Potential Wrong-Person Harm",
+      VERIFIED_DEMO_CASE.title,
 
     caseType:
-      "HARM_IMPACT",
+      VERIFIED_DEMO_CASE.caseType,
 
     priority:
-      "IMMEDIATE",
+      VERIFIED_DEMO_CASE.priority,
 
     status:
-      "READY_FOR_OFFICER_REVIEW",
+      VERIFIED_DEMO_CASE.finalStatus,
 
     biometricId:
-      "BIO-000166",
+      VERIFIED_DEMO_CASE.biometricId,
 
     currentIdentity:
-      "REF-002711",
+      VERIFIED_DEMO_CASE.currentIdentity,
 
     proposedIdentity:
-      "REF-001009",
+      VERIFIED_DEMO_CASE.canonicalIdentity,
 
     confidence:
-      99.99,
+      VERIFIED_DEMO_CASE.aiConfidence,
 
     risk:
-      94.99,
+      VERIFIED_DEMO_CASE.risk,
 
     harm:
-      97.5,
+      VERIFIED_DEMO_CASE.harm,
 
     protectivePriority:
-      98.0,
+      VERIFIED_DEMO_CASE.protectivePriority,
 
     wronglyAffected:
-      true,
+      VERIFIED_DEMO_CASE.wronglyAffected,
 
     findings:
       2,
@@ -83,7 +93,7 @@ const caseDatabase = {
       "INV-2026-00001",
 
     detectedAt:
-      "16 Aug 2026 · 11:56",
+      "Synthetic E2E demonstration",
 
     sourceSystem:
       "Biometric System",
@@ -91,21 +101,23 @@ const caseDatabase = {
     referenceSystem:
       "Master Reference System",
 
+    isVerifiedClosed:
+      true,
+
     aiConclusion:
       (
         "The aggregated biometric and identity evidence strongly "
         + "indicates that BIO-000166 is associated with REF-001009 "
-        + "rather than its current identity REF-002711. The current "
-        + "mapping may cause adverse information belonging to another "
-        + "identity to affect an unrelated person. Immediate human "
-        + "review is recommended."
+        + "rather than its previous mapping REF-002711. The identity "
+        + "conflict created potential wrong-person impact and was "
+        + "therefore assigned immediate protective priority."
       ),
 
     rootCause:
       (
         "A post-registration biometric-to-identity mapping conflict "
-        + "appears to have associated the biometric record with the "
-        + "wrong Master Reference identity."
+        + "associated the biometric record with an incorrect Master "
+        + "Reference identity."
       ),
 
     evidence: {
@@ -119,19 +131,19 @@ const caseDatabase = {
         99.97,
 
       combined:
-        99.99,
+        VERIFIED_DEMO_CASE.aiConfidence,
     },
 
     dataComparison: [
       {
         field:
-          "Master Identity",
+          "Previous Master Identity",
 
         current:
-          "REF-002711",
+          VERIFIED_DEMO_CASE.currentIdentity,
 
         reference:
-          "REF-001009",
+          VERIFIED_DEMO_CASE.canonicalIdentity,
 
         result:
           "CONFLICT",
@@ -142,10 +154,10 @@ const caseDatabase = {
           "Biometric Ownership",
 
         current:
-          "REF-002711",
+          VERIFIED_DEMO_CASE.currentIdentity,
 
         reference:
-          "REF-001009",
+          VERIFIED_DEMO_CASE.canonicalIdentity,
 
         result:
           "CONFLICT",
@@ -173,7 +185,7 @@ const caseDatabase = {
           "Low support",
 
         reference:
-          "99.99% support",
+          `${VERIFIED_DEMO_CASE.aiConfidence}% support`,
 
         result:
           "MATCH",
@@ -192,7 +204,7 @@ const caseDatabase = {
           "PRIMARY",
 
         confidence:
-          99.99,
+          VERIFIED_DEMO_CASE.aiConfidence,
       },
 
       {
@@ -212,181 +224,207 @@ const caseDatabase = {
 
     correction: {
       action:
-        "REASSIGN_BIOMETRIC_IDENTITY",
+        VERIFIED_DEMO_CASE.execution.action,
 
       targetSystem:
-        "BIOMETRIC_SYSTEM",
+        VERIFIED_DEMO_CASE.execution.targetSystem,
 
       targetRecord:
-        "BIO-000166",
+        VERIFIED_DEMO_CASE.execution.targetRecord,
 
       field:
-        "linked_master_id",
+        VERIFIED_DEMO_CASE.execution.field,
 
       before:
-        "REF-002711",
+        VERIFIED_DEMO_CASE.execution.before,
 
       after:
-        "REF-001009",
+        VERIFIED_DEMO_CASE.execution.after,
 
       execution:
-        "NOT_AUTHORIZED",
+        VERIFIED_DEMO_CASE.execution.status,
     },
 
     officer: {
       status:
-        "PENDING",
+        "APPROVED",
 
       name:
-        "Not assigned",
+        "Demo Monitoring Officer",
 
       decision:
-        "PENDING",
+        VERIFIED_DEMO_CASE.officerDecision,
 
       comments:
-        "Awaiting Monitoring Officer review.",
+        "Monitoring Officer reviewed the investigation evidence and approved the proposed correction.",
     },
 
     manager: {
       status:
-        "NOT_READY",
+        "APPROVED",
 
       name:
-        "Not assigned",
+        "Demo Supervising Manager",
 
       decision:
-        "NOT_READY",
+        VERIFIED_DEMO_CASE.managerDecision,
 
       comments:
-        "Manager review becomes available after Officer approval.",
+        "Manager completed the second-level review and authorized controlled execution.",
+    },
+
+    verification: {
+      status:
+        VERIFIED_DEMO_CASE.verification.status,
+
+      score:
+        VERIFIED_DEMO_CASE.verification.score,
+
+      biometricMatch:
+        VERIFIED_DEMO_CASE.verification.biometricMatch,
+
+      identityMappingValid:
+        VERIFIED_DEMO_CASE.verification.identityMappingValid,
+
+      conflictResolved:
+        VERIFIED_DEMO_CASE.verification.originalConflictResolved,
+
+      secondaryConflict:
+        VERIFIED_DEMO_CASE.verification.secondaryConflict,
+
+      finalStatus:
+        VERIFIED_DEMO_CASE.finalStatus,
     },
 
     audit: [
       {
-        time:
-          "11:56:01",
-
-        actor:
-          "Monitoring Agent",
-
-        action:
-          "Change detected",
-
-        detail:
-          "Biometric identity relationship selected for reconciliation.",
-      },
-
-      {
-        time:
-          "11:56:02",
-
-        actor:
-          "Reconciliation Agent",
-
-        action:
-          "Identity conflict detected",
-
-        detail:
-          "Current biometric mapping conflicts with Master Reference evidence.",
-      },
-
-      {
-        time:
-          "11:56:02",
-
-        actor:
-          "Identity Resolution Agent",
-
-        action:
-          "Canonical identity resolved",
-
-        detail:
-          "REF-001009 selected as strongest identity candidate at 99.99% confidence.",
-      },
-
-      {
-        time:
-          "11:56:03",
+        sequence:
+          "01",
 
         actor:
           "Investigation Agent",
 
         action:
-          "Harm impact identified",
+          "AI investigation completed",
 
         detail:
-          "Potential wrong-person adverse impact detected and protective priority raised to 98.",
+          "Identity evidence, risk, harm and proposed correction were prepared for human review.",
       },
 
       {
-        time:
-          "11:56:03",
+        sequence:
+          "02",
 
         actor:
-          "Approval Workflow Agent",
+          "Monitoring Officer",
 
         action:
-          "Officer review requested",
+          "Officer approval recorded",
 
         detail:
-          "Correction package prepared. Automatic execution remains blocked.",
+          "Level 1 human review approved the proposed identity correction.",
+      },
+
+      {
+        sequence:
+          "03",
+
+        actor:
+          "Supervising Manager",
+
+        action:
+          "Manager approval recorded",
+
+        detail:
+          "Level 2 human review authorized controlled correction execution.",
+      },
+
+      {
+        sequence:
+          "04",
+
+        actor:
+          "Execution Agent",
+
+        action:
+          "Controlled correction completed",
+
+        detail:
+          "BIO-000166 was reassigned from REF-002711 to REF-001009 in the permitted runtime target.",
+      },
+
+      {
+        sequence:
+          "05",
+
+        actor:
+          "Verification Agent",
+
+        action:
+          "Post-correction verification passed",
+
+        detail:
+          "Verification score reached 100 and the case reached VERIFIED_CLOSED.",
       },
     ],
   },
 
 
-  /* -------------------------------------------------------
-     Second case used to demonstrate complex conflict
-     ------------------------------------------------------- */
+  /* ======================================================
+     ACTUAL COMPLEX CASE
 
-  "CASE-2026-00010": {
+     Backend-confirmed mapping:
+     BIO-000795 → CASE-2026-00014
+     ====================================================== */
+
+  [COMPLEX_DEMO_CASE.id]: {
     id:
-      "CASE-2026-00010",
+      COMPLEX_DEMO_CASE.id,
 
     title:
-      "Complex Identity Conflict",
+      COMPLEX_DEMO_CASE.title,
 
     caseType:
-      "COMPLEX_IDENTITY_CONFLICT",
+      COMPLEX_DEMO_CASE.caseType,
 
     priority:
-      "HIGH",
+      COMPLEX_DEMO_CASE.priority,
 
     status:
       "AI_INVESTIGATED",
 
     biometricId:
-      "BIO-000795",
+      COMPLEX_DEMO_CASE.primaryBiometricId,
 
     currentIdentity:
-      "REF-001183",
+      COMPLEX_DEMO_CASE.currentMasterIdentities[0],
 
     proposedIdentity:
-      "REF-002343",
+      COMPLEX_DEMO_CASE.canonicalIdentity,
 
     confidence:
-      99.99,
+      COMPLEX_DEMO_CASE.aiConfidence,
 
     risk:
-      90.0,
+      COMPLEX_DEMO_CASE.risk,
 
     harm:
-      60.0,
+      COMPLEX_DEMO_CASE.harm,
 
     protectivePriority:
-      85.0,
+      COMPLEX_DEMO_CASE.protectivePriority,
 
     wronglyAffected:
-      false,
+      COMPLEX_DEMO_CASE.wronglyAffected,
 
     findings:
-      5,
+      COMPLEX_DEMO_CASE.findingCount,
 
     investigationId:
-      "INV-2026-00010",
+      "INV-2026-00014",
 
     detectedAt:
-      "16 Aug 2026 · 11:56",
+      "Synthetic reconciliation run",
 
     sourceSystem:
       "Biometric System",
@@ -394,17 +432,22 @@ const caseDatabase = {
     referenceSystem:
       "Master Reference System",
 
+    isVerifiedClosed:
+      false,
+
     aiConclusion:
       (
-        "Multiple related biometric findings were aggregated into "
-        + "one investigation case. The strongest canonical identity "
-        + "candidate is REF-002343 with 99.99% confidence."
+        "Multiple related biometric and identity findings were "
+        + "aggregated into one complex investigation case. "
+        + "Case-level identity resolution selected REF-002343 "
+        + "as the canonical identity candidate with 99.99% confidence."
       ),
 
     rootCause:
       (
         "Multiple biometric and identity relationships conflict "
-        + "across linked registration records."
+        + "across linked registration records, requiring case-level "
+        + "aggregation before canonical identity resolution."
       ),
 
     evidence: {
@@ -418,7 +461,7 @@ const caseDatabase = {
         99.96,
 
       combined:
-        99.99,
+        COMPLEX_DEMO_CASE.aiConfidence,
     },
 
     dataComparison: [
@@ -427,10 +470,10 @@ const caseDatabase = {
           "Current Master Link",
 
         current:
-          "REF-001183",
+          COMPLEX_DEMO_CASE.currentMasterIdentities[0],
 
         reference:
-          "REF-002343",
+          COMPLEX_DEMO_CASE.canonicalIdentity,
 
         result:
           "CONFLICT",
@@ -441,10 +484,10 @@ const caseDatabase = {
           "Related Biometric",
 
         current:
-          "BIO-000277",
+          COMPLEX_DEMO_CASE.affectedBiometrics[0],
 
         reference:
-          "BIO-000795",
+          COMPLEX_DEMO_CASE.primaryBiometricId,
 
         result:
           "RELATED",
@@ -455,10 +498,10 @@ const caseDatabase = {
           "Canonical Resolution",
 
         current:
-          "Unresolved at finding level",
+          "Unresolved at raw finding level",
 
         reference:
-          "REF-002343",
+          COMPLEX_DEMO_CASE.canonicalIdentity,
 
         result:
           "MATCH",
@@ -477,7 +520,7 @@ const caseDatabase = {
           "PRIMARY",
 
         confidence:
-          99.99,
+          COMPLEX_DEMO_CASE.aiConfidence,
       },
 
       {
@@ -545,16 +588,16 @@ const caseDatabase = {
         "BIOMETRIC_SYSTEM",
 
       targetRecord:
-        "BIO-000795",
+        COMPLEX_DEMO_CASE.primaryBiometricId,
 
       field:
         "linked_master_id",
 
       before:
-        "REF-001183",
+        COMPLEX_DEMO_CASE.currentMasterIdentities[0],
 
       after:
-        "REF-002343",
+        COMPLEX_DEMO_CASE.canonicalIdentity,
 
       execution:
         "NOT_AUTHORIZED",
@@ -588,24 +631,47 @@ const caseDatabase = {
         "Manager review becomes available after Officer approval.",
     },
 
+    verification: {
+      status:
+        "NOT_STARTED",
+
+      score:
+        null,
+
+      biometricMatch:
+        null,
+
+      identityMappingValid:
+        null,
+
+      conflictResolved:
+        null,
+
+      secondaryConflict:
+        null,
+
+      finalStatus:
+        "AI_INVESTIGATED",
+    },
+
     audit: [
       {
-        time:
-          "11:56:01",
+        sequence:
+          "01",
 
         actor:
           "Reconciliation Agent",
 
         action:
-          "Multiple findings detected",
+          "Multiple related findings detected",
 
         detail:
-          "Five related findings were detected across linked biometric records.",
+          "Related biometric and identity inconsistencies were identified during reconciliation.",
       },
 
       {
-        time:
-          "11:56:02",
+        sequence:
+          "02",
 
         actor:
           "Case Aggregation Engine",
@@ -614,12 +680,12 @@ const caseDatabase = {
           "Findings aggregated",
 
         detail:
-          "Related findings were collapsed into one complex identity case.",
+          "Five related findings were consolidated into one complex identity case.",
       },
 
       {
-        time:
-          "11:56:03",
+        sequence:
+          "03",
 
         actor:
           "Identity Resolution Agent",
@@ -628,7 +694,7 @@ const caseDatabase = {
           "Canonical identity resolved",
 
         detail:
-          "REF-002343 selected with 99.99% confidence.",
+          "REF-002343 was selected as the strongest case-level identity candidate.",
       },
     ],
   },
@@ -652,6 +718,69 @@ function PriorityBadge({
   return (
     <span className={className}>
       {priority}
+    </span>
+  );
+}
+
+
+function StatusBadge({
+  value,
+}) {
+  const success =
+    [
+      "APPROVED",
+      "COMPLETED",
+      "PASSED",
+      "VERIFIED_CLOSED",
+    ].includes(value);
+
+  const pending =
+    [
+      "PENDING",
+      "NOT_READY",
+      "NOT_STARTED",
+      "NOT_AUTHORIZED",
+      "AI_INVESTIGATED",
+    ].includes(value);
+
+  const color =
+    success
+      ? "#59cfa0"
+      : pending
+        ? "#ffbd67"
+        : "#76a9ff";
+
+  const background =
+    success
+      ? "rgba(52,211,153,0.07)"
+      : pending
+        ? "rgba(255,185,90,0.06)"
+        : "rgba(70,140,255,0.07)";
+
+  const border =
+    success
+      ? "rgba(52,211,153,0.13)"
+      : pending
+        ? "rgba(255,185,90,0.12)"
+        : "rgba(70,140,255,0.12)";
+
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "25px",
+        padding: "0 9px",
+        borderRadius: "7px",
+        color,
+        background,
+        border: `1px solid ${border}`,
+        fontSize: "8px",
+        fontWeight: 800,
+      }}
+    >
+      {value}
     </span>
   );
 }
@@ -813,6 +942,90 @@ function RiskMetric({
 
 
 /* =========================================================
+   CASE LIFECYCLE
+   ========================================================= */
+
+function getLifecycle(
+  caseData
+) {
+  if (
+    caseData.isVerifiedClosed
+  ) {
+    return [
+      [
+        "Detected",
+        true,
+      ],
+      [
+        "Reconciled",
+        true,
+      ],
+      [
+        "AI Investigated",
+        true,
+      ],
+      [
+        "Officer Review",
+        true,
+      ],
+      [
+        "Manager Approval",
+        true,
+      ],
+      [
+        "Execution",
+        true,
+      ],
+      [
+        "Verification",
+        true,
+      ],
+      [
+        "Closed",
+        true,
+      ],
+    ];
+  }
+
+
+  return [
+    [
+      "Detected",
+      true,
+    ],
+    [
+      "Reconciled",
+      true,
+    ],
+    [
+      "AI Investigated",
+      true,
+    ],
+    [
+      "Officer Review",
+      false,
+    ],
+    [
+      "Manager Approval",
+      false,
+    ],
+    [
+      "Execution",
+      false,
+    ],
+    [
+      "Verification",
+      false,
+    ],
+    [
+      "Closed",
+      false,
+    ],
+  ];
+}
+
+
+/* =========================================================
    NOT FOUND
    ========================================================= */
 
@@ -821,11 +1034,9 @@ function CaseNotFound({
 }) {
   return (
     <div className="appShell">
-
       <Sidebar />
 
       <main className="mainContent">
-
         <Link
           href="/cases"
           className="textButton"
@@ -873,7 +1084,6 @@ function CaseNotFound({
             {caseId}
           </p>
         </div>
-
       </main>
     </div>
   );
@@ -891,6 +1101,7 @@ export default async function CaseInvestigationPage({
     caseId,
   } = await params;
 
+
   const caseData =
     caseDatabase[
       caseId
@@ -906,12 +1117,14 @@ export default async function CaseInvestigationPage({
   }
 
 
+  const lifecycle =
+    getLifecycle(
+      caseData
+    );
+
+
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -998,6 +1211,12 @@ export default async function CaseInvestigationPage({
                     caseData.priority
                   }
                 />
+
+                <StatusBadge
+                  value={
+                    caseData.status
+                  }
+                />
               </div>
 
 
@@ -1024,7 +1243,6 @@ export default async function CaseInvestigationPage({
                   Search Evidence
                 </span>
               </button>
-
 
               <div className="profile">
                 <div className="avatar">
@@ -1063,12 +1281,11 @@ export default async function CaseInvestigationPage({
               </strong>
 
               <span>
-                The AI investigation indicates
-                that an unrelated person may be
-                negatively affected by the current
-                identity mapping. Protective
-                review has been automatically
-                prioritized.
+                This case was assigned immediate
+                protective priority because an
+                unrelated person could be affected
+                by the incorrect identity
+                relationship.
               </span>
             </div>
 
@@ -1089,11 +1306,45 @@ export default async function CaseInvestigationPage({
 
 
         {/* ===============================================
+            VERIFIED SUCCESS
+            =============================================== */}
+
+        {caseData.isVerifiedClosed && (
+          <section
+            className="integrityInfo"
+            style={{
+              margin:
+                "0 0 20px",
+
+              padding:
+                "17px",
+            }}
+          >
+            <CheckCircle2 size={24} />
+
+            <div>
+              <strong>
+                Correction Verified and Case Closed
+              </strong>
+
+              <span>
+                The approved correction was
+                executed successfully and passed
+                post-correction verification with
+                a score of
+                {" "}
+                {caseData.verification.score}.
+              </span>
+            </div>
+          </section>
+        )}
+
+
+        {/* ===============================================
             CASE HEADER CARDS
             =============================================== */}
 
         <section className="statsGrid">
-
           <div className="metricCard">
             <div className="metricTop">
               <div className="metricIcon">
@@ -1190,7 +1441,6 @@ export default async function CaseInvestigationPage({
               Aggregated supporting evidence
             </div>
           </div>
-
         </section>
 
 
@@ -1234,40 +1484,7 @@ export default async function CaseInvestigationPage({
                 "4px",
             }}
           >
-            {[
-              [
-                "Detected",
-                true,
-              ],
-              [
-                "Reconciled",
-                true,
-              ],
-              [
-                "AI Investigated",
-                true,
-              ],
-              [
-                "Officer Review",
-                false,
-              ],
-              [
-                "Manager Approval",
-                false,
-              ],
-              [
-                "Execution",
-                false,
-              ],
-              [
-                "Verification",
-                false,
-              ],
-              [
-                "Closed",
-                false,
-              ],
-            ].map(
+            {lifecycle.map(
               (
                 [
                   label,
@@ -1360,7 +1577,6 @@ export default async function CaseInvestigationPage({
             =============================================== */}
 
         <section className="dashboardGrid">
-
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -1559,7 +1775,7 @@ export default async function CaseInvestigationPage({
                   caseData.caseType,
                 ],
                 [
-                  "Detected",
+                  "Detection Context",
                   caseData.detectedAt,
                 ],
                 [
@@ -1591,12 +1807,11 @@ export default async function CaseInvestigationPage({
               )}
             </div>
           </div>
-
         </section>
 
 
         {/* ===============================================
-            IDENTITY BEFORE / AI RESOLUTION
+            IDENTITY RESOLUTION
             =============================================== */}
 
         <section
@@ -1613,7 +1828,7 @@ export default async function CaseInvestigationPage({
               </div>
 
               <h2>
-                Current Mapping vs AI
+                Previous / Current Mapping vs
                 Canonical Identity
               </h2>
             </div>
@@ -1640,9 +1855,6 @@ export default async function CaseInvestigationPage({
                 "22px",
             }}
           >
-
-            {/* CURRENT */}
-
             <div
               style={{
                 padding:
@@ -1673,7 +1885,11 @@ export default async function CaseInvestigationPage({
                     "1px",
                 }}
               >
-                CURRENT MAPPING
+                {
+                  caseData.isVerifiedClosed
+                    ? "PREVIOUS MAPPING"
+                    : "CURRENT MAPPING"
+                }
               </div>
 
 
@@ -1718,7 +1934,6 @@ export default async function CaseInvestigationPage({
                 >
                   <Users size={21} />
                 </div>
-
 
                 <div>
                   <span
@@ -1772,15 +1987,13 @@ export default async function CaseInvestigationPage({
                     1.6,
                 }}
               >
-                AI evidence indicates that
-                this identity relationship
-                is inconsistent with the
-                biometric evidence.
+                AI evidence identified this
+                relationship as inconsistent
+                with the stronger biometric and
+                identity evidence.
               </div>
             </div>
 
-
-            {/* ARROW */}
 
             <div
               style={{
@@ -1823,8 +2036,6 @@ export default async function CaseInvestigationPage({
             </div>
 
 
-            {/* AI RESOLUTION */}
-
             <div
               style={{
                 padding:
@@ -1855,7 +2066,11 @@ export default async function CaseInvestigationPage({
                     "1px",
                 }}
               >
-                AI CANONICAL RESOLUTION
+                {
+                  caseData.isVerifiedClosed
+                    ? "VERIFIED CANONICAL IDENTITY"
+                    : "AI CANONICAL RESOLUTION"
+                }
               </div>
 
 
@@ -1901,7 +2116,6 @@ export default async function CaseInvestigationPage({
                   <UserCheck size={21} />
                 </div>
 
-
                 <div>
                   <span
                     style={{
@@ -1915,7 +2129,7 @@ export default async function CaseInvestigationPage({
                         "8px",
                     }}
                   >
-                    Canonical Identity Candidate
+                    Canonical Identity
                   </span>
 
                   <strong
@@ -1979,7 +2193,6 @@ export default async function CaseInvestigationPage({
                 </strong>
               </div>
             </div>
-
           </div>
         </section>
 
@@ -1995,7 +2208,6 @@ export default async function CaseInvestigationPage({
               "14px",
           }}
         >
-
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -2184,7 +2396,6 @@ export default async function CaseInvestigationPage({
               </div>
             </div>
           </div>
-
         </section>
 
 
@@ -2218,21 +2429,10 @@ export default async function CaseInvestigationPage({
             <table>
               <thead>
                 <tr>
-                  <th>
-                    FIELD
-                  </th>
-
-                  <th>
-                    BIOMETRIC SYSTEM
-                  </th>
-
-                  <th>
-                    MASTER REFERENCE
-                  </th>
-
-                  <th>
-                    RESULT
-                  </th>
+                  <th>FIELD</th>
+                  <th>BIOMETRIC SYSTEM</th>
+                  <th>MASTER REFERENCE</th>
+                  <th>RESULT</th>
                 </tr>
               </thead>
 
@@ -2266,7 +2466,9 @@ export default async function CaseInvestigationPage({
                             className={
                               row.result === "MATCH"
                                 ? "priority medium"
-                                : "priority immediate"
+                                : row.result === "RELATED"
+                                  ? "priority high"
+                                  : "priority immediate"
                             }
                             style={
                               row.result === "MATCH"
@@ -2323,21 +2525,10 @@ export default async function CaseInvestigationPage({
             <table>
               <thead>
                 <tr>
-                  <th>
-                    FINDING ID
-                  </th>
-
-                  <th>
-                    TYPE
-                  </th>
-
-                  <th>
-                    ROLE
-                  </th>
-
-                  <th>
-                    AI CONFIDENCE
-                  </th>
+                  <th>FINDING ID</th>
+                  <th>TYPE</th>
+                  <th>ROLE</th>
+                  <th>AI CONFIDENCE</th>
                 </tr>
               </thead>
 
@@ -2383,7 +2574,7 @@ export default async function CaseInvestigationPage({
 
 
         {/* ===============================================
-            PROPOSED CORRECTION
+            CORRECTION
             =============================================== */}
 
         <section
@@ -2400,7 +2591,11 @@ export default async function CaseInvestigationPage({
               </div>
 
               <h2>
-                Proposed Correction
+                {
+                  caseData.isVerifiedClosed
+                    ? "Executed Correction"
+                    : "Proposed Correction"
+                }
               </h2>
             </div>
 
@@ -2426,9 +2621,6 @@ export default async function CaseInvestigationPage({
                   "14px",
               }}
             >
-
-              {/* BEFORE */}
-
               <div
                 style={{
                   padding:
@@ -2521,8 +2713,6 @@ export default async function CaseInvestigationPage({
               </div>
 
 
-              {/* AFTER */}
-
               <div
                 style={{
                   padding:
@@ -2553,7 +2743,11 @@ export default async function CaseInvestigationPage({
                       "1px",
                   }}
                 >
-                  AI PROPOSED AFTER
+                  {
+                    caseData.isVerifiedClosed
+                      ? "VERIFIED AFTER"
+                      : "AI PROPOSED AFTER"
+                  }
                 </div>
 
                 <div
@@ -2613,7 +2807,6 @@ export default async function CaseInvestigationPage({
                   }
                 </div>
               </div>
-
             </div>
 
 
@@ -2711,19 +2904,31 @@ export default async function CaseInvestigationPage({
                   "15px 0 0",
               }}
             >
-              <LockKeyhole size={21} />
+              {
+                caseData.isVerifiedClosed
+                  ? (
+                    <ShieldCheck size={21} />
+                  )
+                  : (
+                    <LockKeyhole size={21} />
+                  )
+              }
 
               <div>
                 <strong>
-                  Execution Locked
+                  {
+                    caseData.isVerifiedClosed
+                      ? "Controlled Correction Completed"
+                      : "Execution Locked"
+                  }
                 </strong>
 
                 <span>
-                  The AI can recommend and
-                  prepare this correction but
-                  cannot execute it until both
-                  Monitoring Officer and Manager
-                  approvals are complete.
+                  {
+                    caseData.isVerifiedClosed
+                      ? "The correction was executed only after both required human approvals and subsequently passed verification."
+                      : "The AI can recommend and prepare this correction but cannot execute it until both Monitoring Officer and Manager approvals are complete."
+                  }
                 </span>
               </div>
             </div>
@@ -2745,9 +2950,6 @@ export default async function CaseInvestigationPage({
               "14px",
           }}
         >
-
-          {/* OFFICER */}
-
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -2810,7 +3012,9 @@ export default async function CaseInvestigationPage({
                         "4px",
 
                       color:
-                        "#ffbd67",
+                        caseData.officer.status === "APPROVED"
+                          ? "#59cfa0"
+                          : "#ffbd67",
 
                       fontSize:
                         "11px",
@@ -2820,10 +3024,21 @@ export default async function CaseInvestigationPage({
                   </strong>
                 </div>
 
-                <Clock3
-                  size={21}
-                  color="#ffbd67"
-                />
+                {
+                  caseData.officer.status === "APPROVED"
+                    ? (
+                      <CheckCircle2
+                        size={21}
+                        color="#59cfa0"
+                      />
+                    )
+                    : (
+                      <Clock3
+                        size={21}
+                        color="#ffbd67"
+                      />
+                    )
+                }
               </div>
 
 
@@ -2865,45 +3080,45 @@ export default async function CaseInvestigationPage({
               </p>
 
 
-              <div
-                style={{
-                  display:
-                    "grid",
-
-                  gridTemplateColumns:
-                    "1fr 1fr",
-
-                  gap:
-                    "8px",
-
-                  marginTop:
-                    "16px",
-                }}
-              >
-                <button className="primaryButton">
-                  <Check size={17} />
-
-                  Approve
-                </button>
-
-                <button
-                  className="searchButton"
+              {!caseData.isVerifiedClosed && (
+                <div
                   style={{
-                    justifyContent:
-                      "center",
+                    display:
+                      "grid",
 
-                    height:
-                      "42px",
+                    gridTemplateColumns:
+                      "1fr 1fr",
+
+                    gap:
+                      "8px",
+
+                    marginTop:
+                      "16px",
                   }}
                 >
-                  More Investigation
-                </button>
-              </div>
+                  <button className="primaryButton">
+                    <Check size={17} />
+
+                    Approve
+                  </button>
+
+                  <button
+                    className="searchButton"
+                    style={{
+                      justifyContent:
+                        "center",
+
+                      height:
+                        "42px",
+                    }}
+                  >
+                    More Investigation
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-
-          {/* MANAGER */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -2967,7 +3182,9 @@ export default async function CaseInvestigationPage({
                         "4px",
 
                       color:
-                        "#687b94",
+                        caseData.manager.status === "APPROVED"
+                          ? "#59cfa0"
+                          : "#687b94",
 
                       fontSize:
                         "11px",
@@ -2977,10 +3194,21 @@ export default async function CaseInvestigationPage({
                   </strong>
                 </div>
 
-                <LockKeyhole
-                  size={21}
-                  color="#64768d"
-                />
+                {
+                  caseData.manager.status === "APPROVED"
+                    ? (
+                      <CheckCircle2
+                        size={21}
+                        color="#59cfa0"
+                      />
+                    )
+                    : (
+                      <LockKeyhole
+                        size={21}
+                        color="#64768d"
+                      />
+                    )
+                }
               </div>
 
 
@@ -3022,36 +3250,37 @@ export default async function CaseInvestigationPage({
               </p>
 
 
-              <button
-                className="searchButton"
-                disabled
-                style={{
-                  width:
-                    "100%",
+              {!caseData.isVerifiedClosed && (
+                <button
+                  className="searchButton"
+                  disabled
+                  style={{
+                    width:
+                      "100%",
 
-                  justifyContent:
-                    "center",
+                    justifyContent:
+                      "center",
 
-                  height:
-                    "42px",
+                    height:
+                      "42px",
 
-                  marginTop:
-                    "16px",
+                    marginTop:
+                      "16px",
 
-                  cursor:
-                    "not-allowed",
+                    cursor:
+                      "not-allowed",
 
-                  opacity:
-                    0.45,
-                }}
-              >
-                <LockKeyhole size={16} />
+                    opacity:
+                      0.45,
+                  }}
+                >
+                  <LockKeyhole size={16} />
 
-                Waiting for Officer Approval
-              </button>
+                  Waiting for Officer Approval
+                </button>
+              )}
             </div>
           </div>
-
         </section>
 
 
@@ -3097,170 +3326,177 @@ export default async function CaseInvestigationPage({
                 "12px",
             }}
           >
-            <div
-              style={{
-                padding:
-                  "17px",
+            {[
+              {
+                label:
+                  "Execution",
 
-                borderRadius:
-                  "12px",
+                value:
+                  caseData.correction.execution,
 
-                background:
-                  "rgba(255,255,255,0.025)",
+                icon:
+                  LockKeyhole,
+              },
 
-                border:
-                  "1px solid rgba(255,255,255,0.055)",
-              }}
-            >
-              <LockKeyhole
-                size={20}
-                color="#6d809a"
-              />
+              {
+                label:
+                  "Verification",
 
-              <strong
-                style={{
-                  display:
-                    "block",
+                value:
+                  caseData.verification.status,
 
-                  marginTop:
-                    "12px",
+                icon:
+                  Activity,
+              },
 
-                  fontSize:
-                    "10px",
-                }}
-              >
-                Execution
-              </strong>
+              {
+                label:
+                  "Case Closure",
 
-              <span
-                style={{
-                  display:
-                    "block",
+                value:
+                  caseData.verification.finalStatus,
 
-                  color:
-                    "#60728c",
+                icon:
+                  FileCheck2,
+              },
+            ].map(
+              (
+                item
+              ) => {
+                const Icon =
+                  item.icon;
 
-                  marginTop:
-                    "5px",
-
-                  fontSize:
-                    "9px",
-                }}
-              >
-                NOT AUTHORIZED
-              </span>
-            </div>
+                const complete =
+                  [
+                    "COMPLETED",
+                    "PASSED",
+                    "VERIFIED_CLOSED",
+                  ].includes(
+                    item.value
+                  );
 
 
-            <div
-              style={{
-                padding:
-                  "17px",
+                return (
+                  <div
+                    key={
+                      item.label
+                    }
+                    style={{
+                      padding:
+                        "17px",
 
-                borderRadius:
-                  "12px",
+                      borderRadius:
+                        "12px",
 
-                background:
-                  "rgba(255,255,255,0.025)",
+                      background:
+                        complete
+                          ? "rgba(52,211,153,0.045)"
+                          : "rgba(255,255,255,0.025)",
 
-                border:
-                  "1px solid rgba(255,255,255,0.055)",
-              }}
-            >
-              <Activity
-                size={20}
-                color="#6d809a"
-              />
+                      border:
+                        complete
+                          ? "1px solid rgba(52,211,153,0.11)"
+                          : "1px solid rgba(255,255,255,0.055)",
+                    }}
+                  >
+                    <Icon
+                      size={20}
+                      color={
+                        complete
+                          ? "#59cfa0"
+                          : "#6d809a"
+                      }
+                    />
 
-              <strong
-                style={{
-                  display:
-                    "block",
+                    <strong
+                      style={{
+                        display:
+                          "block",
 
-                  marginTop:
-                    "12px",
+                        marginTop:
+                          "12px",
 
-                  fontSize:
-                    "10px",
-                }}
-              >
-                Verification
-              </strong>
+                        fontSize:
+                          "10px",
+                      }}
+                    >
+                      {item.label}
+                    </strong>
 
-              <span
-                style={{
-                  display:
-                    "block",
+                    <span
+                      style={{
+                        display:
+                          "block",
 
-                  color:
-                    "#60728c",
+                        color:
+                          complete
+                            ? "#59cfa0"
+                            : "#60728c",
 
-                  marginTop:
-                    "5px",
+                        marginTop:
+                          "5px",
 
-                  fontSize:
-                    "9px",
-                }}
-              >
-                NOT STARTED
-              </span>
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "17px",
-
-                borderRadius:
-                  "12px",
-
-                background:
-                  "rgba(255,255,255,0.025)",
-
-                border:
-                  "1px solid rgba(255,255,255,0.055)",
-              }}
-            >
-              <FileCheck2
-                size={20}
-                color="#6d809a"
-              />
-
-              <strong
-                style={{
-                  display:
-                    "block",
-
-                  marginTop:
-                    "12px",
-
-                  fontSize:
-                    "10px",
-                }}
-              >
-                Case Closure
-              </strong>
-
-              <span
-                style={{
-                  display:
-                    "block",
-
-                  color:
-                    "#60728c",
-
-                  marginTop:
-                    "5px",
-
-                  fontSize:
-                    "9px",
-                }}
-              >
-                PENDING VERIFICATION
-              </span>
-            </div>
+                        fontSize:
+                          "9px",
+                      }}
+                    >
+                      {item.value}
+                    </span>
+                  </div>
+                );
+              }
+            )}
           </div>
+
+
+          {caseData.isVerifiedClosed && (
+            <div
+              style={{
+                padding:
+                  "0 22px 22px",
+              }}
+            >
+              <div
+                className="integrityInfo"
+                style={{
+                  margin:
+                    0,
+                }}
+              >
+                <ShieldCheck size={21} />
+
+                <div>
+                  <strong>
+                    Verification Score:
+                    {" "}
+                    {caseData.verification.score}
+                  </strong>
+
+                  <span>
+                    Biometric Match:
+                    {" "}
+                    {caseData.verification.biometricMatch}%
+                    {" · "}
+                    Identity Mapping Valid:
+                    {" "}
+                    {
+                      caseData.verification.identityMappingValid
+                        ? "TRUE"
+                        : "FALSE"
+                    }
+                    {" · "}
+                    Conflict Resolved:
+                    {" "}
+                    {
+                      caseData.verification.conflictResolved
+                        ? "TRUE"
+                        : "FALSE"
+                    }
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </section>
 
 
@@ -3278,11 +3514,11 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                IMMUTABLE CASE HISTORY
+                TRACEABLE CASE HISTORY
               </div>
 
               <h2>
-                Audit Timeline
+                Audit Sequence
               </h2>
             </div>
 
@@ -3304,14 +3540,14 @@ export default async function CaseInvestigationPage({
                 ) => (
                   <div
                     key={
-                      `${event.time}-${event.action}`
+                      `${event.sequence}-${event.action}`
                     }
                     style={{
                       display:
                         "grid",
 
                       gridTemplateColumns:
-                        "80px 24px 1fr",
+                        "70px 24px 1fr",
 
                       gap:
                         "10px",
@@ -3338,8 +3574,9 @@ export default async function CaseInvestigationPage({
                           "3px",
                       }}
                     >
-                      {event.time}
+                      STEP {event.sequence}
                     </div>
+
 
                     <div
                       style={{
@@ -3367,6 +3604,7 @@ export default async function CaseInvestigationPage({
                     >
                       <Check size={12} />
                     </div>
+
 
                     <div>
                       <div
@@ -3436,7 +3674,7 @@ export default async function CaseInvestigationPage({
 
 
         {/* ===============================================
-            SAFETY FOOTER
+            GOVERNANCE
             =============================================== */}
 
         <section
@@ -3458,13 +3696,15 @@ export default async function CaseInvestigationPage({
             </strong>
 
             <span>
-              AI agents can detect,
-              investigate, prioritize and
-              recommend corrections. Sensitive
-              identity changes remain blocked
-              until required human approvals are
-              recorded. The Master Reference
-              remains read only.
+              AI can detect, investigate,
+              prioritize and recommend
+              corrections, but AI approval is
+              disabled. Officer and Manager
+              authorization are required before
+              controlled execution.
+              The Master Reference remains
+              {" "}
+              {GOVERNANCE.masterReferenceAccess}.
             </span>
           </div>
         </section>
@@ -3483,7 +3723,7 @@ export default async function CaseInvestigationPage({
           <div>
             <Clock3 size={15} />
 
-            Full Case Audit Active
+            Traceable Case Lifecycle
           </div>
         </footer>
 

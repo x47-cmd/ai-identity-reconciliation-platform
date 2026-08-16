@@ -1,4 +1,4 @@
-name: Frontend Build
+name: Frontend Build & Smoke Test
 
 on:
   workflow_dispatch:
@@ -13,8 +13,8 @@ on:
       - ".github/workflows/frontend-build.yml"
 
 jobs:
-  build:
-    name: Build Next.js Frontend
+  build-and-test:
+    name: Build & Test Next.js Frontend
     runs-on: ubuntu-latest
 
     steps:
@@ -31,3 +31,67 @@ jobs:
 
       - name: Build frontend
         run: npm run build
+
+      - name: Start production server
+        run: |
+          npm run start -- -p 3000 > /tmp/next.log 2>&1 &
+          echo $! > /tmp/next.pid
+
+      - name: Wait for frontend
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:3000 > /dev/null; then
+              echo "Frontend is ready"
+              exit 0
+            fi
+
+            echo "Waiting for frontend..."
+            sleep 2
+          done
+
+          echo "Frontend failed to start"
+          cat /tmp/next.log
+          exit 1
+
+      - name: Smoke test routes
+        run: |
+          set -e
+
+          routes=(
+            "/"
+            "/cases"
+            "/cases/CASE-2026-00001"
+            "/cases/CASE-2026-00014"
+            "/officer-review"
+            "/manager-approval"
+            "/corrections-verification"
+            "/analytics"
+            "/data-integrity"
+            "/reports-audit"
+          )
+
+          for route in "${routes[@]}"; do
+            echo "Testing $route"
+
+            curl \
+              --fail \
+              --silent \
+              --show-error \
+              "http://localhost:3000$route" \
+              > /dev/null
+
+            echo "PASS $route"
+          done
+
+      - name: Show server log on failure
+        if: failure()
+        run: |
+          echo "===== NEXT.JS SERVER LOG ====="
+          cat /tmp/next.log || true
+
+      - name: Stop production server
+        if: always()
+        run: |
+          if [ -f /tmp/next.pid ]; then
+            kill "$(cat /tmp/next.pid)" || true
+          fi

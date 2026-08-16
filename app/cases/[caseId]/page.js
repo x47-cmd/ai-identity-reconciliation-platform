@@ -65,10 +65,10 @@ const cases = {
 
     caseType: {
       en:
-        "Incorrect Identity Link",
+        "Incorrect Biometric Link",
 
       ar:
-        "ربط هوية غير صحيح",
+        "ربط بيومتري غير صحيح",
     },
 
     priority:
@@ -105,26 +105,26 @@ const cases = {
 
     aiConclusion: {
       en:
-        "AI analysis found that the biometric record was linked to the wrong identity. The combined identity evidence strongly matched Salem Mohammed Al Kaabi instead of the previous identity reference.",
+        "AI Identity Resolution found that the biometric record was linked to the wrong person. The combined biometric and reference evidence strongly matched Salem Mohammed Al Kaabi instead of the previous reference.",
 
       ar:
-        "اكتشف تحليل الذكاء الاصطناعي أن السجل البيومتري كان مرتبطًا بهوية غير صحيحة. وأظهرت الأدلة المجمعة تطابقًا قويًا مع سالم محمد الكعبي بدل الهوية المرتبطة سابقًا.",
+        "توصل حسم الهوية بالذكاء الاصطناعي إلى أن السجل البيومتري كان مرتبطًا بالشخص الخطأ. وأظهرت الأدلة البيومترية والمرجعية المجمعة تطابقًا قويًا مع سالم محمد الكعبي بدل المرجع المرتبط سابقًا.",
     },
 
     aiReason: {
       en:
-        "The system compared the biometric relationship, identity attributes and supporting reconciliation findings. The previous relationship was inconsistent, while the proposed identity produced the strongest combined match.",
+        "The AI reconciliation process compared the biometric relationship, reference attributes and supporting findings. The previous link was inconsistent with the combined evidence, while the proposed reference produced the strongest case-level match.",
 
       ar:
-        "قارن النظام علاقة السجل البيومتري وبيانات الهوية ونتائج المطابقة الداعمة. وتبين أن الربط السابق غير متوافق، بينما حققت الهوية المقترحة أقوى تطابق مجمع.",
+        "قارنت عملية المطابقة بالذكاء الاصطناعي علاقة السجل البيومتري وبيانات المرجع والنتائج الداعمة. وتبين أن الربط السابق غير متوافق مع الأدلة المجمعة، بينما حقق المرجع المقترح أقوى تطابق على مستوى الحالة.",
     },
 
     humanImpact: {
       en:
-        "The incorrect relationship could have affected another person, so the case was treated as urgent.",
+        "The incorrect biometric link could have affected another person, so the case was classified as urgent.",
 
       ar:
-        "كان من الممكن أن يؤثر الربط الخاطئ على شخص آخر، لذلك تم التعامل مع الحالة كحالة فورية.",
+        "كان من الممكن أن يؤدي الربط البيومتري الخاطئ إلى التأثير على شخص آخر، لذلك تم تصنيف الحالة كحالة فورية.",
     },
 
     officer: {
@@ -180,10 +180,10 @@ const cases = {
 
         description: {
           en:
-            "AI analyzed the identity evidence and prepared the recommended correction.",
+            "AI analyzed the biometric and reference evidence and prepared the recommended link correction.",
 
           ar:
-            "حلل الذكاء الاصطناعي أدلة الهوية وجهز التصحيح الموصى به.",
+            "حلل الذكاء الاصطناعي الأدلة البيومترية والمرجعية وجهز تصحيح الربط الموصى به.",
         },
       },
 
@@ -216,46 +216,46 @@ const cases = {
 
         description: {
           en:
-            "The second human review authorized execution.",
+            "The second human review authorized controlled execution.",
 
           ar:
-            "صرحت المراجعة البشرية الثانية بتنفيذ التصحيح.",
+            "صرحت المراجعة البشرية الثانية بالتنفيذ الخاضع للتحكم.",
         },
       },
 
       {
         title: {
           en:
-            "Correction completed",
+            "Biometric link corrected",
 
           ar:
-            "تم تنفيذ التصحيح",
+            "تم تصحيح الربط البيومتري",
         },
 
         description: {
           en:
-            "The biometric record was linked to the approved identity.",
+            "The biometric record was reassigned to the approved reference.",
 
           ar:
-            "تم ربط السجل البيومتري بالهوية المعتمدة.",
+            "تمت إعادة ربط السجل البيومتري بالمرجع المعتمد.",
         },
       },
 
       {
         title: {
           en:
-            "Verification passed",
+            "Post-correction verification passed",
 
           ar:
-            "نجح التحقق",
+            "نجح التحقق بعد التصحيح",
         },
 
         description: {
           en:
-            "The corrected relationship was verified and the case was closed.",
+            "The corrected biometric-to-person relationship was verified and the case was closed.",
 
           ar:
-            "تم التحقق من صحة الربط الجديد وإغلاق الحالة.",
+            "تم التحقق من صحة العلاقة الجديدة بين السجل البيومتري والشخص وإغلاق الحالة.",
         },
       },
     ],
@@ -279,10 +279,10 @@ const cases = {
 
     caseType: {
       en:
-        "Complex Identity Conflict",
+        "Complex Biometric Record Conflict",
 
       ar:
-        "تعارض هوية معقد",
+        "تعارض معقد في السجلات البيومترية",
     },
 
     priority:
@@ -319,26 +319,26 @@ const cases = {
 
     aiConclusion: {
       en:
-        "AI combined five related findings into one investigation and identified Ali Saeed Al Dhaheri as the strongest identity candidate.",
+        "AI Investigation combined five related findings into one case. AI Identity Resolution identified Ali Saeed Al Dhaheri as the strongest canonical identity candidate for the biometric record.",
 
       ar:
-        "جمع الذكاء الاصطناعي خمس نتائج مترابطة داخل تحقيق واحد، وحدد علي سعيد الظاهري كأقوى مرشح للهوية.",
+        "جمع تحقيق الذكاء الاصطناعي خمس نتائج مترابطة داخل حالة واحدة. وحدد حسم الهوية بالذكاء الاصطناعي علي سعيد الظاهري كأقوى مرشح للهوية المرجعية المرتبطة بالسجل البيومتري.",
     },
 
     aiReason: {
       en:
-        "Several biometric and identity relationships conflicted with each other. AI reconciliation grouped the related evidence and found that REF-002343 had the strongest overall support.",
+        "Several biometric-to-reference relationships conflicted with each other. AI reconciliation aggregated the related evidence and determined that REF-002343 had the strongest overall support.",
 
       ar:
-        "وجد النظام عدة علاقات متعارضة بين السجلات البيومترية والهويات. وقام الذكاء الاصطناعي بتجميع الأدلة المرتبطة ووجد أن REF-002343 لديه أقوى دعم إجمالي.",
+        "وجدت عملية المطابقة عدة علاقات متعارضة بين السجلات البيومترية والمراجع المرتبطة بها. وقام الذكاء الاصطناعي بتجميع الأدلة ذات العلاقة وحدد REF-002343 كأقوى مرجع مدعوم بالأدلة.",
     },
 
     humanImpact: {
       en:
-        "The conflict should be reviewed before any identity relationship is changed.",
+        "The conflict must be reviewed before any biometric-to-person relationship is changed.",
 
       ar:
-        "يجب مراجعة التعارض قبل إجراء أي تغيير على علاقة الهوية.",
+        "يجب مراجعة التعارض قبل إجراء أي تغيير على علاقة السجل البيومتري بالشخص.",
     },
 
     officer: {
@@ -386,25 +386,25 @@ const cases = {
       {
         title: {
           en:
-            "Identity conflicts detected",
+            "Biometric conflicts detected",
 
           ar:
-            "تم اكتشاف تعارضات في الهوية",
+            "تم اكتشاف تعارضات في السجلات البيومترية",
         },
 
         description: {
           en:
-            "AI reconciliation detected several related inconsistencies.",
+            "AI reconciliation detected several related inconsistencies across biometric and reference relationships.",
 
           ar:
-            "اكتشفت المطابقة بالذكاء الاصطناعي عدة اختلافات مترابطة.",
+            "اكتشفت المطابقة بالذكاء الاصطناعي عدة اختلافات مترابطة بين السجلات البيومترية والمراجع.",
         },
       },
 
       {
         title: {
           en:
-            "Evidence combined",
+            "Evidence aggregated",
 
           ar:
             "تم تجميع الأدلة",
@@ -412,28 +412,28 @@ const cases = {
 
         description: {
           en:
-            "Five related findings were grouped into a single investigation.",
+            "Five related findings were consolidated into a single AI investigation.",
 
           ar:
-            "تم جمع خمس نتائج مترابطة داخل تحقيق واحد.",
+            "تم جمع خمس نتائج مترابطة داخل تحقيق واحد بالذكاء الاصطناعي.",
         },
       },
 
       {
         title: {
           en:
-            "AI identity recommendation prepared",
+            "AI Identity Resolution completed",
 
           ar:
-            "تم تجهيز توصية الذكاء الاصطناعي",
+            "اكتمل حسم الهوية بالذكاء الاصطناعي",
         },
 
         description: {
           en:
-            "REF-002343 was identified as the strongest identity candidate and is waiting for human review.",
+            "REF-002343 was identified as the strongest canonical identity candidate and the case is now waiting for human review.",
 
           ar:
-            "تم تحديد REF-002343 كأقوى مرشح للهوية والحالة الآن بانتظار المراجعة البشرية.",
+            "تم تحديد REF-002343 كأقوى مرشح للهوية المرجعية، والحالة الآن بانتظار المراجعة البشرية.",
         },
       },
     ],
@@ -548,10 +548,10 @@ function statusLabel(
 
     AI_INVESTIGATED: {
       en:
-        "AI Analysis Complete",
+        "AI Investigation Complete",
 
       ar:
-        "اكتمل تحليل الذكاء الاصطناعي",
+        "اكتمل تحقيق الذكاء الاصطناعي",
     },
   };
 
@@ -699,10 +699,12 @@ function CaseNotFound({
           {language === "ar" ? (
             <ArrowRight
               size={16}
+              aria-hidden="true"
             />
           ) : (
             <ArrowLeft
               size={16}
+              aria-hidden="true"
             />
           )}
 
@@ -729,6 +731,7 @@ function CaseNotFound({
         >
           <FileSearch
             size={38}
+            aria-hidden="true"
           />
 
           <h1>
@@ -741,6 +744,7 @@ function CaseNotFound({
         </div>
 
       </main>
+
     </div>
   );
 }
@@ -885,8 +889,8 @@ export default function CasePage() {
 
               {L(
                 language,
-                "AI CASE INVESTIGATION",
-                "تحقيق الحالة بالذكاء الاصطناعي"
+                "AI BIOMETRIC CASE INVESTIGATION",
+                "تحقيق الحالة البيومترية بالذكاء الاصطناعي"
               )}
             </div>
 
@@ -993,6 +997,7 @@ export default function CasePage() {
             />
 
             <div>
+
               <strong>
                 {L(
                   language,
@@ -1004,11 +1009,13 @@ export default function CasePage() {
               <span>
                 {L(
                   language,
-                  "The approved identity correction was completed and passed the required post-correction verification.",
-                  "تم تنفيذ تصحيح الهوية المعتمد واجتاز التحقق المطلوب بعد التصحيح."
+                  "The approved biometric link correction was completed and passed the required post-correction verification.",
+                  "تم تنفيذ تصحيح الربط البيومتري المعتمد واجتاز التحقق المطلوب بعد التصحيح."
                 )}
               </span>
+
             </div>
+
           </section>
         ) : (
           <section className="alertBanner">
@@ -1022,6 +1029,7 @@ export default function CasePage() {
 
 
             <div className="alertText">
+
               <strong>
                 {L(
                   language,
@@ -1033,10 +1041,11 @@ export default function CasePage() {
               <span>
                 {L(
                   language,
-                  "AI analysis is complete. No identity correction can be executed until the required human approvals are completed.",
-                  "اكتمل تحليل الذكاء الاصطناعي، ولا يمكن تنفيذ أي تصحيح للهوية قبل اكتمال الاعتمادات البشرية المطلوبة."
+                  "AI investigation is complete. No biometric link correction can be executed until the required human approvals are completed.",
+                  "اكتمل تحقيق الذكاء الاصطناعي، ولا يمكن تنفيذ أي تصحيح للربط البيومتري قبل اكتمال الاعتمادات البشرية المطلوبة."
                 )}
               </span>
+
             </div>
 
           </section>
@@ -1044,7 +1053,7 @@ export default function CasePage() {
 
 
         {/* ================================================
-            SIMPLE SUMMARY
+            SUMMARY
             ================================================ */}
 
         <section className="statsGrid">
@@ -1058,7 +1067,10 @@ export default function CasePage() {
               />
             </div>
 
-            <div className="metricValue">
+            <div
+              className="metricValue"
+              dir="ltr"
+            >
               {caseData.aiConfidence}%
             </div>
 
@@ -1073,8 +1085,8 @@ export default function CasePage() {
             <div className="metricSubtitle">
               {L(
                 language,
-                "Confidence in the recommended identity",
-                "الثقة في الهوية التي أوصى بها النظام"
+                "Confidence in AI Identity Resolution",
+                "درجة الثقة في حسم الهوية بالذكاء الاصطناعي"
               )}
             </div>
 
@@ -1210,11 +1222,12 @@ export default function CasePage() {
             <div className="panelHeader">
 
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "AI INVESTIGATION",
-                    "تحقيق الذكاء الاصطناعي"
+                    "AI INVESTIGATION & IDENTITY RESOLUTION",
+                    "تحقيق الذكاء الاصطناعي وحسم الهوية"
                   )}
                 </div>
 
@@ -1225,7 +1238,9 @@ export default function CasePage() {
                     "ماذا اكتشف الذكاء الاصطناعي؟"
                   )}
                 </h2>
+
               </div>
+
 
               <BrainCircuit
                 size={22}
@@ -1257,6 +1272,7 @@ export default function CasePage() {
                     "1px solid rgba(70,140,255,0.10)",
                 }}
               >
+
                 <strong
                   style={{
                     display:
@@ -1271,10 +1287,11 @@ export default function CasePage() {
                 >
                   {L(
                     language,
-                    "AI Conclusion",
-                    "استنتاج الذكاء الاصطناعي"
+                    "AI Identity Resolution Conclusion",
+                    "استنتاج حسم الهوية بالذكاء الاصطناعي"
                   )}
                 </strong>
+
 
                 <p
                   style={{
@@ -1296,6 +1313,7 @@ export default function CasePage() {
                   ] ||
                     caseData.aiConclusion.en}
                 </p>
+
               </div>
 
 
@@ -1305,6 +1323,7 @@ export default function CasePage() {
                     "18px",
                 }}
               >
+
                 <strong
                   style={{
                     display:
@@ -1319,10 +1338,11 @@ export default function CasePage() {
                 >
                   {L(
                     language,
-                    "Why did AI reach this conclusion?",
-                    "لماذا وصل الذكاء الاصطناعي لهذه النتيجة؟"
+                    "AI Evidence Reasoning",
+                    "تحليل الأدلة بواسطة الذكاء الاصطناعي"
                   )}
                 </strong>
+
 
                 <p
                   style={{
@@ -1344,6 +1364,7 @@ export default function CasePage() {
                   ] ||
                     caseData.aiReason.en}
                 </p>
+
               </div>
 
 
@@ -1365,6 +1386,7 @@ export default function CasePage() {
                     "1px solid rgba(255,185,90,0.08)",
                 }}
               >
+
                 <strong
                   style={{
                     display:
@@ -1383,6 +1405,7 @@ export default function CasePage() {
                     "التأثير المحتمل على الأشخاص"
                   )}
                 </strong>
+
 
                 <span
                   style={{
@@ -1407,6 +1430,7 @@ export default function CasePage() {
                   ] ||
                     caseData.humanImpact.en}
                 </span>
+
               </div>
 
             </div>
@@ -1423,11 +1447,12 @@ export default function CasePage() {
             <div className="panelHeader">
 
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "CURRENT STATUS",
-                    "الحالة الحالية"
+                    "CASE WORKFLOW",
+                    "مسار الحالة"
                   )}
                 </div>
 
@@ -1438,7 +1463,9 @@ export default function CasePage() {
                     "وين وصلت الحالة؟"
                   )}
                 </h2>
+
               </div>
+
 
               <Activity
                 size={22}
@@ -1456,11 +1483,12 @@ export default function CasePage() {
             >
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
-                    "AI Analysis",
-                    "تحليل الذكاء الاصطناعي"
+                    "AI Investigation",
+                    "تحقيق الذكاء الاصطناعي"
                   )}
                 </span>
 
@@ -1471,10 +1499,12 @@ export default function CasePage() {
                     "مكتمل"
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1489,10 +1519,12 @@ export default function CasePage() {
                     language
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1507,15 +1539,17 @@ export default function CasePage() {
                     language
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
-                    "Correction",
-                    "التصحيح"
+                    "Biometric Link Correction",
+                    "تصحيح الربط البيومتري"
                   )}
                 </span>
 
@@ -1525,15 +1559,17 @@ export default function CasePage() {
                     language
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
-                    "Verification",
-                    "التحقق"
+                    "Post-Correction Verification",
+                    "التحقق بعد التصحيح"
                   )}
                 </span>
 
@@ -1543,6 +1579,7 @@ export default function CasePage() {
                     language
                   )}
                 </strong>
+
               </div>
 
 
@@ -1579,7 +1616,7 @@ export default function CasePage() {
 
 
         {/* ================================================
-            IDENTITY CORRECTION
+            AI LINK RECOMMENDATION
             ================================================ */}
 
         <section
@@ -1597,8 +1634,8 @@ export default function CasePage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "AI IDENTITY RECOMMENDATION",
-                  "توصية الذكاء الاصطناعي للهوية"
+                  "AI RECOMMENDED BIOMETRIC LINK",
+                  "توصية الذكاء الاصطناعي للربط البيومتري"
                 )}
               </div>
 
@@ -1611,6 +1648,7 @@ export default function CasePage() {
               </h2>
 
             </div>
+
 
             <GitCompareArrows
               size={22}
@@ -1677,8 +1715,8 @@ export default function CasePage() {
                     )
                   : L(
                       language,
-                      "CURRENT LINK",
-                      "الربط الحالي"
+                      "CURRENT BIOMETRIC LINK",
+                      "الربط البيومتري الحالي"
                     )}
               </span>
 
@@ -1766,7 +1804,7 @@ export default function CasePage() {
             </div>
 
 
-            {/* CORRECT */}
+            {/* RECOMMENDED */}
 
             <div
               style={{
@@ -1799,13 +1837,13 @@ export default function CasePage() {
                 {caseData.completed
                   ? L(
                       language,
-                      "VERIFIED IDENTITY",
-                      "الهوية الصحيحة بعد التحقق"
+                      "VERIFIED REFERENCE",
+                      "المرجع الصحيح بعد التحقق"
                     )
                   : L(
                       language,
-                      "AI RECOMMENDED IDENTITY",
-                      "الهوية التي أوصى بها الذكاء الاصطناعي"
+                      "AI RECOMMENDED REFERENCE",
+                      "المرجع الذي أوصى به الذكاء الاصطناعي"
                     )}
               </span>
 
@@ -1868,8 +1906,8 @@ export default function CasePage() {
               >
                 {L(
                   language,
-                  `AI Confidence ${caseData.aiConfidence}%`,
-                  `ثقة الذكاء الاصطناعي ${caseData.aiConfidence}%`
+                  `AI Identity Resolution Confidence ${caseData.aiConfidence}%`,
+                  `ثقة حسم الهوية بالذكاء الاصطناعي ${caseData.aiConfidence}%`
                 )}
               </span>
 
@@ -1891,6 +1929,7 @@ export default function CasePage() {
             />
 
             <div>
+
               <strong>
                 {L(
                   language,
@@ -1902,11 +1941,13 @@ export default function CasePage() {
               <span>
                 {L(
                   language,
-                  "AI can recommend the correction, but it cannot approve or execute a sensitive identity change on its own.",
-                  "يمكن للذكاء الاصطناعي اقتراح التصحيح، لكنه لا يستطيع اعتماد أو تنفيذ تغيير حساس على الهوية بشكل مستقل."
+                  "AI can identify the recommended reference and prepare the correction, but it cannot approve or execute a sensitive biometric-to-person link change on its own.",
+                  "يمكن للذكاء الاصطناعي تحديد المرجع الموصى به وتجهيز التصحيح، لكنه لا يستطيع اعتماد أو تنفيذ تغيير حساس في ربط السجل البيومتري بالشخص بشكل مستقل."
                 )}
               </span>
+
             </div>
+
           </div>
 
         </section>
@@ -1930,12 +1971,14 @@ export default function CasePage() {
           <div className="panel">
 
             <div className="panelHeader">
+
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "FIRST APPROVAL",
-                    "الاعتماد الأول"
+                    "FIRST HUMAN APPROVAL",
+                    "الاعتماد البشري الأول"
                   )}
                 </div>
 
@@ -1946,12 +1989,15 @@ export default function CasePage() {
                     "ضابط المراقبة"
                   )}
                 </h2>
+
               </div>
+
 
               <UserCheck
                 size={22}
                 aria-hidden="true"
               />
+
             </div>
 
 
@@ -1961,7 +2007,9 @@ export default function CasePage() {
                   "18px",
               }}
             >
+
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1976,9 +2024,12 @@ export default function CasePage() {
                   ] ||
                     caseData.officer.name.en}
                 </strong>
+
               </div>
 
+
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1995,7 +2046,9 @@ export default function CasePage() {
                     language
                   }
                 />
+
               </div>
+
             </div>
 
           </div>
@@ -2004,12 +2057,14 @@ export default function CasePage() {
           <div className="panel">
 
             <div className="panelHeader">
+
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "SECOND APPROVAL",
-                    "الاعتماد الثاني"
+                    "SECOND HUMAN APPROVAL",
+                    "الاعتماد البشري الثاني"
                   )}
                 </div>
 
@@ -2020,12 +2075,15 @@ export default function CasePage() {
                     "المدير المشرف"
                   )}
                 </h2>
+
               </div>
+
 
               <ShieldCheck
                 size={22}
                 aria-hidden="true"
               />
+
             </div>
 
 
@@ -2035,7 +2093,9 @@ export default function CasePage() {
                   "18px",
               }}
             >
+
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -2050,9 +2110,12 @@ export default function CasePage() {
                   ] ||
                     caseData.manager.name.en}
                 </strong>
+
               </div>
 
+
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -2069,7 +2132,9 @@ export default function CasePage() {
                     language
                   }
                 />
+
               </div>
+
             </div>
 
           </div>
@@ -2092,22 +2157,25 @@ export default function CasePage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "CORRECTION STATUS",
-                  "حالة التصحيح"
+                  "CONTROLLED CORRECTION",
+                  "التصحيح الخاضع للتحكم"
                 )}
               </div>
 
               <h2>
                 {L(
                   language,
-                  "Execution & Verification",
-                  "التنفيذ والتحقق"
+                  "Execution & Post-Correction Verification",
+                  "التنفيذ والتحقق بعد التصحيح"
                 )}
               </h2>
+
             </div>
+
 
             <CheckCircle2
               size={22}
@@ -2138,8 +2206,8 @@ export default function CasePage() {
                 label:
                   L(
                     language,
-                    "Correction",
-                    "التصحيح"
+                    "Biometric Link Correction",
+                    "تصحيح الربط البيومتري"
                   ),
 
                 value:
@@ -2189,6 +2257,7 @@ export default function CasePage() {
                       "1px solid rgba(255,255,255,0.05)",
                   }}
                 >
+
                   <span
                     style={{
                       display:
@@ -2203,6 +2272,7 @@ export default function CasePage() {
                   >
                     {item.label}
                   </span>
+
 
                   <strong
                     style={{
@@ -2232,6 +2302,7 @@ export default function CasePage() {
                       language
                     )}
                   </strong>
+
                 </div>
               )
             )}
@@ -2253,6 +2324,7 @@ export default function CasePage() {
               />
 
               <div>
+
                 <strong>
                   {L(
                     language,
@@ -2264,11 +2336,13 @@ export default function CasePage() {
                 <span>
                   {L(
                     language,
-                    "The corrected identity relationship passed verification and the case was safely closed.",
-                    "اجتاز ربط الهوية المصحح عملية التحقق وتم إغلاق الحالة بأمان."
+                    "The corrected biometric-to-person relationship passed verification and the case was safely closed.",
+                    "اجتازت العلاقة المصححة بين السجل البيومتري والشخص عملية التحقق وتم إغلاق الحالة بأمان."
                   )}
                 </span>
+
               </div>
+
             </div>
           )}
 
@@ -2290,11 +2364,12 @@ export default function CasePage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "AUDIT HISTORY",
-                  "سجل التدقيق"
+                  "TRACEABLE AUDIT HISTORY",
+                  "سجل التدقيق القابل للتتبع"
                 )}
               </div>
 
@@ -2305,7 +2380,9 @@ export default function CasePage() {
                   "تاريخ الحالة"
                 )}
               </h2>
+
             </div>
+
 
             <Activity
               size={22}
@@ -2456,21 +2533,23 @@ export default function CasePage() {
             aria-hidden="true"
           />
 
+
           <div>
 
             <strong>
               {L(
                 language,
-                "AI supports the decision — humans authorize it",
-                "الذكاء الاصطناعي يدعم القرار — والإنسان يعتمد"
+                "AI investigates and recommends — authorized humans decide",
+                "الذكاء الاصطناعي يحقق ويوصي — والإنسان المخول يقرر"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
-                "The AI detects, investigates and recommends. Officer and Manager approval are required before sensitive correction. The authoritative Master Reference remains read-only.",
-                "يكتشف الذكاء الاصطناعي المشكلة ويحقق فيها ويقدم التوصية، بينما يلزم اعتماد الضابط والمدير قبل أي تصحيح حساس. ويبقى المرجع الرئيسي المعتمد للقراءة فقط."
+                "AI detects biometric conflicts, performs Identity Resolution, analyzes evidence and prepares the recommended correction. Officer and Manager approval remain mandatory before sensitive execution, and the authoritative Master Reference remains read-only.",
+                "يكتشف الذكاء الاصطناعي تعارضات السجلات البيومترية، وينفذ حسم الهوية ويحلل الأدلة ويجهز التصحيح الموصى به. ويظل اعتماد الضابط والمدير إلزاميًا قبل التنفيذ الحساس، كما يبقى المرجع الرئيسي المعتمد للقراءة فقط."
               )}
             </span>
 
@@ -2488,12 +2567,14 @@ export default function CasePage() {
           <span>
             {L(
               language,
-              "AI Identity Reconciliation Platform · Case Investigation",
-              "منصة مطابقة الهوية بالذكاء الاصطناعي · تحقيق الحالة"
+              "AI Biometric Reconciliation Platform · Case Investigation",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · تحقيق الحالة"
             )}
           </span>
 
+
           <div>
+
             <BrainCircuit
               size={15}
               aria-hidden="true"
@@ -2504,11 +2585,13 @@ export default function CasePage() {
               "AI-assisted investigation",
               "تحقيق مدعوم بالذكاء الاصطناعي"
             )}
+
           </div>
 
         </footer>
 
       </main>
+
     </div>
   );
 }

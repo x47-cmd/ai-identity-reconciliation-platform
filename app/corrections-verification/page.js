@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
+
+import {
+  useLanguage,
+} from "../components/LanguageProvider";
 
 import {
   AlertTriangle,
@@ -20,6 +26,93 @@ import {
   UserCheck,
 } from "lucide-react";
 
+
+/* =========================================================
+   LANGUAGE HELPER
+   ========================================================= */
+
+function L(
+  language,
+  english,
+  arabic
+) {
+  return language === "ar"
+    ? arabic
+    : english;
+}
+
+
+function localizeStatus(
+  value,
+  language,
+  t
+) {
+  const keys = {
+    COMPLETED:
+      "statuses.COMPLETED",
+
+    PASSED:
+      "statuses.PASSED",
+
+    VERIFIED_CLOSED:
+      "statuses.VERIFIED_CLOSED",
+
+    NOT_STARTED:
+      "statuses.NOT_STARTED",
+
+    NOT_AUTHORIZED:
+      "statuses.NOT_AUTHORIZED",
+
+    APPROVED:
+      "statuses.APPROVED",
+
+    PENDING:
+      "statuses.PENDING",
+
+    NOT_READY:
+      "statuses.NOT_READY",
+  };
+
+
+  if (keys[value]) {
+    return t(keys[value]);
+  }
+
+
+  const labels = {
+    AWAITING_APPROVAL: {
+      en: "AWAITING APPROVAL",
+      ar: "بانتظار الاعتماد",
+    },
+
+    NOT_REQUIRED: {
+      en: "NOT REQUIRED",
+      ar: "غير مطلوب",
+    },
+
+    FAILED: {
+      en: "FAILED",
+      ar: "فشل",
+    },
+
+    VERIFICATION_FAILED: {
+      en: "VERIFICATION FAILED",
+      ar: "فشل التحقق",
+    },
+  };
+
+
+  return (
+    labels[value]?.[language]
+    ||
+    value
+  );
+}
+
+
+/* =========================================================
+   CORRECTION CASES
+   ========================================================= */
 
 const correctionCases = [
   {
@@ -78,6 +171,10 @@ const correctionCases = [
 ];
 
 
+/* =========================================================
+   SMALL COMPONENTS
+   ========================================================= */
+
 function Metric({
   icon: Icon,
   label,
@@ -110,10 +207,15 @@ function Metric({
 
 function StatusPill({
   value,
+  language,
+  t,
 }) {
-  let color = "#79a9ff";
+  let color =
+    "#79a9ff";
+
   let background =
     "rgba(80,140,255,0.08)";
+
   let border =
     "rgba(80,140,255,0.13)";
 
@@ -125,7 +227,8 @@ function StatusPill({
     ||
     value === "VERIFIED_CLOSED"
   ) {
-    color = "#59cfa0";
+    color =
+      "#59cfa0";
 
     background =
       "rgba(52,211,153,0.07)";
@@ -140,7 +243,8 @@ function StatusPill({
     ||
     value === "VERIFICATION_FAILED"
   ) {
-    color = "#ff7d8b";
+    color =
+      "#ff7d8b";
 
     background =
       "rgba(255,80,100,0.07)";
@@ -157,7 +261,8 @@ function StatusPill({
     ||
     value === "AWAITING_APPROVAL"
   ) {
-    color = "#ffbd67";
+    color =
+      "#ffbd67";
 
     background =
       "rgba(255,185,90,0.06)";
@@ -197,9 +302,18 @@ function StatusPill({
 
         letterSpacing:
           "0.4px",
+
+        whiteSpace:
+          "nowrap",
       }}
     >
-      {value}
+      {
+        localizeStatus(
+          value,
+          language,
+          t
+        )
+      }
     </span>
   );
 }
@@ -207,6 +321,7 @@ function StatusPill({
 
 function BooleanResult({
   value,
+  language,
 }) {
   if (value === null) {
     return (
@@ -220,6 +335,7 @@ function BooleanResult({
       </span>
     );
   }
+
 
   return (
     <span
@@ -236,19 +352,37 @@ function BooleanResult({
           750,
       }}
     >
-      {value ? "TRUE" : "FALSE"}
+      {
+        value
+          ? L(
+              language,
+              "TRUE",
+              "نعم"
+            )
+          : L(
+              language,
+              "FALSE",
+              "لا"
+            )
+      }
     </span>
   );
 }
 
 
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 export default function CorrectionsVerificationPage() {
+  const {
+    language,
+    t,
+  } = useLanguage();
+
+
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -264,29 +398,38 @@ export default function CorrectionsVerificationPage() {
             <div className="eyebrow">
               <CircleCheckBig size={15} />
 
-              CONTROLLED REMEDIATION
+              {t(
+                "corrections.eyebrow"
+              )}
             </div>
 
             <h1>
-              Corrections & Verification
+              {t(
+                "corrections.title"
+              )}
             </h1>
 
             <p>
-              Track authorized identity
-              corrections, post-correction
-              verification, rollback controls
-              and final case closure.
+              {t(
+                "corrections.subtitle"
+              )}
             </p>
           </div>
+
 
           <div className="topbarActions">
             <button className="searchButton">
               <Search size={18} />
 
               <span>
-                Search correction
+                {L(
+                  language,
+                  "Search correction",
+                  "البحث عن تصحيح"
+                )}
               </span>
             </button>
+
 
             <div className="profile">
               <div className="avatar">
@@ -295,11 +438,19 @@ export default function CorrectionsVerificationPage() {
 
               <div className="profileText">
                 <strong>
-                  Identity Operations
+                  {L(
+                    language,
+                    "Identity Operations",
+                    "عمليات الهوية"
+                  )}
                 </strong>
 
                 <span>
-                  Controlled Execution
+                  {L(
+                    language,
+                    "Controlled Execution",
+                    "التنفيذ الخاضع للتحكم"
+                  )}
                 </span>
               </div>
             </div>
@@ -325,17 +476,21 @@ export default function CorrectionsVerificationPage() {
 
           <div>
             <strong>
-              Closed-Loop Correction Control
+              {L(
+                language,
+                "Closed-Loop Correction Control",
+                "التحكم المغلق في دورة التصحيح"
+              )}
             </strong>
 
             <span>
-              Every authorized correction must
-              pass post-correction verification
-              before the case can reach
-              VERIFIED_CLOSED status.
-              Failed verification prevents case
-              closure and may trigger controlled
-              rollback.
+              {L(
+                language,
+
+                "Every authorized correction must pass post-correction verification before the case can reach VERIFIED_CLOSED status. Failed verification prevents case closure and may trigger controlled rollback.",
+
+                "يجب أن يجتاز كل تصحيح مصرح به مرحلة التحقق بعد التصحيح قبل أن تصل الحالة إلى مرحلة التحقق والإغلاق. ويمنع فشل التحقق إغلاق الحالة وقد يؤدي إلى تشغيل إجراء تراجع خاضع للتحكم."
+              )}
             </span>
           </div>
         </section>
@@ -348,30 +503,78 @@ export default function CorrectionsVerificationPage() {
         <section className="statsGrid">
           <Metric
             icon={LockKeyhole}
-            label="Authorized"
+            label={
+              L(
+                language,
+                "Authorized",
+                "مصرح به"
+              )
+            }
             value="1"
-            description="Passed both human approvals"
+            description={
+              L(
+                language,
+                "Passed both human approvals",
+                "اجتاز الاعتمادين البشريين"
+              )
+            }
           />
 
           <Metric
             icon={CircleCheckBig}
-            label="Executed"
+            label={
+              L(
+                language,
+                "Executed",
+                "تم التنفيذ"
+              )
+            }
             value="1"
-            description="Controlled correction completed"
+            description={
+              L(
+                language,
+                "Controlled correction completed",
+                "اكتمل التصحيح الخاضع للتحكم"
+              )
+            }
           />
 
           <Metric
             icon={ShieldCheck}
-            label="Verified"
+            label={
+              L(
+                language,
+                "Verified",
+                "تم التحقق"
+              )
+            }
             value="1"
-            description="Post-correction verification passed"
+            description={
+              L(
+                language,
+                "Post-correction verification passed",
+                "نجح التحقق بعد التصحيح"
+              )
+            }
           />
 
           <Metric
             icon={FileCheck2}
-            label="Closed"
+            label={
+              L(
+                language,
+                "Closed",
+                "مغلقة"
+              )
+            }
             value="1"
-            description="Cases successfully verified and closed"
+            description={
+              L(
+                language,
+                "Cases successfully verified and closed",
+                "حالات تم التحقق منها وإغلاقها بنجاح"
+              )
+            }
           />
         </section>
 
@@ -391,8 +594,11 @@ export default function CorrectionsVerificationPage() {
           }}
         >
           <div className="panelEyebrow">
-            CORRECTION LIFECYCLE
+            {t(
+              "corrections.correctionLifecycle"
+            )}
           </div>
+
 
           <div
             style={{
@@ -406,37 +612,61 @@ export default function CorrectionsVerificationPage() {
           >
             {[
               [
-                "Officer Approved",
+                L(
+                  language,
+                  "Officer Approved",
+                  "اعتماد الضابط"
+                ),
                 UserCheck,
                 true,
               ],
 
               [
-                "Manager Approved",
+                L(
+                  language,
+                  "Manager Approved",
+                  "اعتماد المدير"
+                ),
                 BadgeCheck,
                 true,
               ],
 
               [
-                "Authorized",
+                L(
+                  language,
+                  "Authorized",
+                  "مصرح به"
+                ),
                 LockKeyhole,
                 true,
               ],
 
               [
-                "Executed",
+                L(
+                  language,
+                  "Executed",
+                  "تم التنفيذ"
+                ),
                 CircleCheckBig,
                 true,
               ],
 
               [
-                "Verified",
+                L(
+                  language,
+                  "Verified",
+                  "تم التحقق"
+                ),
                 ShieldCheck,
                 true,
               ],
 
               [
-                "Case Closed",
+                L(
+                  language,
+                  "Case Closed",
+                  "تم إغلاق الحالة"
+                ),
                 FileCheck2,
                 true,
               ],
@@ -529,7 +759,11 @@ export default function CorrectionsVerificationPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                VERIFIED CORRECTION
+                {L(
+                  language,
+                  "VERIFIED CORRECTION",
+                  "تصحيح تم التحقق منه"
+                )}
               </div>
 
               <h2>
@@ -539,8 +773,11 @@ export default function CorrectionsVerificationPage() {
 
             <StatusPill
               value="VERIFIED_CLOSED"
+              language={language}
+              t={t}
             />
           </div>
+
 
           <div
             style={{
@@ -562,8 +799,6 @@ export default function CorrectionsVerificationPage() {
                 alignItems: "center",
               }}
             >
-
-              {/* BEFORE */}
 
               <div
                 style={{
@@ -595,7 +830,11 @@ export default function CorrectionsVerificationPage() {
                       "1px",
                   }}
                 >
-                  BEFORE CORRECTION
+                  {L(
+                    language,
+                    "BEFORE CORRECTION",
+                    "قبل التصحيح"
+                  )}
                 </div>
 
                 <div
@@ -644,12 +883,14 @@ export default function CorrectionsVerificationPage() {
                       "6px",
                   }}
                 >
-                  Incorrect identity mapping
+                  {L(
+                    language,
+                    "Incorrect identity mapping",
+                    "ربط هوية غير صحيح"
+                  )}
                 </span>
               </div>
 
-
-              {/* ARROW */}
 
               <div
                 style={{
@@ -682,8 +923,6 @@ export default function CorrectionsVerificationPage() {
               </div>
 
 
-              {/* AFTER */}
-
               <div
                 style={{
                   padding:
@@ -714,7 +953,11 @@ export default function CorrectionsVerificationPage() {
                       "1px",
                   }}
                 >
-                  AFTER CORRECTION
+                  {L(
+                    language,
+                    "AFTER CORRECTION",
+                    "بعد التصحيح"
+                  )}
                 </div>
 
                 <div
@@ -763,7 +1006,11 @@ export default function CorrectionsVerificationPage() {
                       "6px",
                   }}
                 >
-                  Verified canonical identity
+                  {L(
+                    language,
+                    "Verified canonical identity",
+                    "الهوية المرجعية المتحقق منها"
+                  )}
                 </span>
               </div>
             </div>
@@ -793,27 +1040,42 @@ export default function CorrectionsVerificationPage() {
 
                 <div>
                   <strong>
-                    Officer Approval
+                    {L(
+                      language,
+                      "Officer Approval",
+                      "اعتماد الضابط"
+                    )}
                   </strong>
 
                   <span>
-                    APPROVED · Demo Monitoring
-                    Officer
+                    {
+                      language === "ar"
+                        ? "معتمد · ضابط المراقبة التجريبي"
+                        : "APPROVED · Demo Monitoring Officer"
+                    }
                   </span>
                 </div>
               </div>
+
 
               <div className="integrityInfo">
                 <BadgeCheck size={21} />
 
                 <div>
                   <strong>
-                    Manager Approval
+                    {L(
+                      language,
+                      "Manager Approval",
+                      "اعتماد المدير"
+                    )}
                   </strong>
 
                   <span>
-                    APPROVED · Demo Supervising
-                    Manager
+                    {
+                      language === "ar"
+                        ? "معتمد · المدير المشرف التجريبي"
+                        : "APPROVED · Demo Supervising Manager"
+                    }
                   </span>
                 </div>
               </div>
@@ -840,11 +1102,17 @@ export default function CorrectionsVerificationPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  EXECUTION AGENT
+                  {L(
+                    language,
+                    "EXECUTION AGENT",
+                    "وكيل التنفيذ"
+                  )}
                 </div>
 
                 <h2>
-                  Authorized Correction
+                  {t(
+                    "corrections.authorizedCorrection"
+                  )}
                 </h2>
               </div>
 
@@ -852,6 +1120,7 @@ export default function CorrectionsVerificationPage() {
                 size={22}
               />
             </div>
+
 
             <div
               style={{
@@ -883,37 +1152,58 @@ export default function CorrectionsVerificationPage() {
                       "9px",
                   }}
                 >
-                  Execution Status
+                  {t(
+                    "caseDetail.executionStatus"
+                  )}
                 </span>
 
                 <StatusPill
                   value="COMPLETED"
+                  language={language}
+                  t={t}
                 />
               </div>
 
+
               {[
                 [
-                  "Target System",
+                  L(
+                    language,
+                    "Target System",
+                    "النظام المستهدف"
+                  ),
                   "BIOMETRIC_SYSTEM",
                 ],
 
                 [
-                  "Target Record",
+                  L(
+                    language,
+                    "Target Record",
+                    "السجل المستهدف"
+                  ),
                   "BIO-000166",
                 ],
 
                 [
-                  "Field",
+                  L(
+                    language,
+                    "Field",
+                    "الحقل"
+                  ),
                   "linked_master_id",
                 ],
 
                 [
-                  "Before",
+                  t(
+                    "corrections.before"
+                  ),
                   "REF-002711",
                 ],
 
                 [
-                  "After",
+                  t(
+                    "corrections.after"
+                  ),
                   "REF-001009",
                 ],
               ].map(
@@ -936,6 +1226,7 @@ export default function CorrectionsVerificationPage() {
                 )
               )}
 
+
               <div
                 className="integrityInfo"
                 style={{
@@ -947,14 +1238,21 @@ export default function CorrectionsVerificationPage() {
 
                 <div>
                   <strong>
-                    Controlled Runtime Change
+                    {L(
+                      language,
+                      "Controlled Runtime Change",
+                      "تغيير تشغيل خاضع للتحكم"
+                    )}
                   </strong>
 
                   <span>
-                    The Master Reference was not
-                    modified and the original
-                    biometric source dataset
-                    remained preserved.
+                    {L(
+                      language,
+
+                      "The Master Reference was not modified and the original biometric source dataset remained preserved.",
+
+                      "لم يتم تعديل المرجع الرئيسي، كما ظلت مجموعة البيانات البيومترية الأصلية محفوظة دون تغيير."
+                    )}
                   </span>
                 </div>
               </div>
@@ -968,16 +1266,25 @@ export default function CorrectionsVerificationPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  VERIFICATION AGENT
+                  {L(
+                    language,
+                    "VERIFICATION AGENT",
+                    "وكيل التحقق"
+                  )}
                 </div>
 
                 <h2>
-                  Post-Correction Validation
+                  {L(
+                    language,
+                    "Post-Correction Validation",
+                    "التحقق بعد التصحيح"
+                  )}
                 </h2>
               </div>
 
               <ShieldCheck size={22} />
             </div>
+
 
             <div
               style={{
@@ -1010,7 +1317,11 @@ export default function CorrectionsVerificationPage() {
                         "8px",
                     }}
                   >
-                    VERIFICATION SCORE
+                    {L(
+                      language,
+                      "VERIFICATION SCORE",
+                      "درجة التحقق"
+                    )}
                   </span>
 
                   <strong
@@ -1038,35 +1349,62 @@ export default function CorrectionsVerificationPage() {
                 />
               </div>
 
+
               {[
                 [
-                  "Verification Status",
-                  "PASSED",
+                  t(
+                    "caseDetail.verificationStatus"
+                  ),
+                  t(
+                    "statuses.PASSED"
+                  ),
+                  "success",
                 ],
 
                 [
-                  "Biometric Match",
+                  L(
+                    language,
+                    "Biometric Match",
+                    "المطابقة البيومترية"
+                  ),
                   "99.9903%",
+                  "normal",
                 ],
 
                 [
-                  "Identity Mapping Valid",
-                  "TRUE",
+                  t(
+                    "caseDetail.mappingValid"
+                  ),
+                  t(
+                    "common.yes"
+                  ),
+                  "normal",
                 ],
 
                 [
-                  "Original Conflict Resolved",
-                  "TRUE",
+                  t(
+                    "caseDetail.conflictResolved"
+                  ),
+                  t(
+                    "common.yes"
+                  ),
+                  "normal",
                 ],
 
                 [
-                  "Secondary Conflict",
-                  "FALSE",
+                  t(
+                    "caseDetail.secondaryConflict"
+                  ),
+                  t(
+                    "common.no"
+                  ),
+                  "success",
                 ],
               ].map(
                 ([
                   label,
                   value,
+                  state,
                 ]) => (
                   <div
                     className="detailRow"
@@ -1079,13 +1417,9 @@ export default function CorrectionsVerificationPage() {
                     <strong
                       style={{
                         color:
-                          value === "FALSE"
-                          && label ===
-                          "Secondary Conflict"
+                          state === "success"
                             ? "#59cfa0"
-                            : value === "PASSED"
-                              ? "#59cfa0"
-                              : undefined,
+                            : undefined,
                       }}
                     >
                       {value}
@@ -1112,16 +1446,25 @@ export default function CorrectionsVerificationPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                CORRECTION REGISTER
+                {L(
+                  language,
+                  "CORRECTION REGISTER",
+                  "سجل التصحيحات"
+                )}
               </div>
 
               <h2>
-                Execution & Verification Status
+                {L(
+                  language,
+                  "Execution & Verification Status",
+                  "حالة التنفيذ والتحقق"
+                )}
               </h2>
             </div>
 
             <History size={22} />
           </div>
+
 
           <div className="tableWrap">
             <table
@@ -1132,20 +1475,88 @@ export default function CorrectionsVerificationPage() {
             >
               <thead>
                 <tr>
-                  <th>CASE</th>
-                  <th>BIOMETRIC</th>
-                  <th>BEFORE</th>
-                  <th>AFTER</th>
-                  <th>EXECUTION</th>
-                  <th>VERIFICATION</th>
-                  <th>SCORE</th>
-                  <th>IDENTITY VALID</th>
-                  <th>CONFLICT RESOLVED</th>
-                  <th>SECONDARY CONFLICT</th>
-                  <th>ROLLBACK</th>
-                  <th>FINAL STATUS</th>
+                  <th>
+                    {t("common.case")}
+                  </th>
+
+                  <th>
+                    {t("common.biometric")}
+                  </th>
+
+                  <th>
+                    {t(
+                      "corrections.before"
+                    )}
+                  </th>
+
+                  <th>
+                    {t(
+                      "corrections.after"
+                    )}
+                  </th>
+
+                  <th>
+                    {t(
+                      "corrections.execution"
+                    )}
+                  </th>
+
+                  <th>
+                    {t(
+                      "corrections.verification"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "SCORE",
+                      "الدرجة"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "IDENTITY VALID",
+                      "الهوية صحيحة"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "CONFLICT RESOLVED",
+                      "تم حل التعارض"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "SECONDARY CONFLICT",
+                      "تعارض ثانوي"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "ROLLBACK",
+                      "التراجع"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "FINAL STATUS",
+                      "الحالة النهائية"
+                    )}
+                  </th>
                 </tr>
               </thead>
+
 
               <tbody>
                 {
@@ -1168,9 +1579,11 @@ export default function CorrectionsVerificationPage() {
                           </Link>
                         </td>
 
+
                         <td className="mono">
                           {item.biometric}
                         </td>
+
 
                         <td>
                           <span className="oldIdentity">
@@ -1178,27 +1591,35 @@ export default function CorrectionsVerificationPage() {
                           </span>
                         </td>
 
+
                         <td>
                           <span className="newIdentity">
                             {item.after}
                           </span>
                         </td>
 
+
                         <td>
                           <StatusPill
                             value={
                               item.execution
                             }
+                            language={language}
+                            t={t}
                           />
                         </td>
+
 
                         <td>
                           <StatusPill
                             value={
                               item.verification
                             }
+                            language={language}
+                            t={t}
                           />
                         </td>
+
 
                         <td>
                           <span className="confidence">
@@ -1211,21 +1632,26 @@ export default function CorrectionsVerificationPage() {
                           </span>
                         </td>
 
+
                         <td>
                           <BooleanResult
                             value={
                               item.identityValid
                             }
+                            language={language}
                           />
                         </td>
+
 
                         <td>
                           <BooleanResult
                             value={
                               item.conflictResolved
                             }
+                            language={language}
                           />
                         </td>
+
 
                         <td>
                           {
@@ -1261,13 +1687,18 @@ export default function CorrectionsVerificationPage() {
                                 >
                                   {
                                     item.secondaryConflict
-                                      ? "TRUE"
-                                      : "FALSE"
+                                      ? t(
+                                          "common.yes"
+                                        )
+                                      : t(
+                                          "common.no"
+                                        )
                                   }
                                 </span>
                               )
                           }
                         </td>
+
 
                         <td>
                           <span
@@ -1279,15 +1710,24 @@ export default function CorrectionsVerificationPage() {
                                 "9px",
                             }}
                           >
-                            {item.rollback}
+                            {
+                              localizeStatus(
+                                item.rollback,
+                                language,
+                                t
+                              )
+                            }
                           </span>
                         </td>
+
 
                         <td>
                           <StatusPill
                             value={
                               item.finalStatus
                             }
+                            language={language}
+                            t={t}
                           />
                         </td>
                       </tr>
@@ -1315,16 +1755,25 @@ export default function CorrectionsVerificationPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  FAILURE HANDLING
+                  {L(
+                    language,
+                    "FAILURE HANDLING",
+                    "معالجة الفشل"
+                  )}
                 </div>
 
                 <h2>
-                  Verification Exception
+                  {L(
+                    language,
+                    "Verification Exception",
+                    "استثناء التحقق"
+                  )}
                 </h2>
               </div>
 
               <AlertTriangle size={22} />
             </div>
+
 
             <div
               style={{
@@ -1359,7 +1808,11 @@ export default function CorrectionsVerificationPage() {
                       "10px",
                   }}
                 >
-                  If Verification Fails
+                  {L(
+                    language,
+                    "If Verification Fails",
+                    "إذا فشل التحقق"
+                  )}
                 </strong>
 
                 <span
@@ -1380,13 +1833,13 @@ export default function CorrectionsVerificationPage() {
                       "6px",
                   }}
                 >
-                  The case cannot be closed.
-                  It moves to manual
-                  post-correction review and
-                  the system can initiate a
-                  controlled rollback if the
-                  approved correction is no
-                  longer considered safe.
+                  {L(
+                    language,
+
+                    "The case cannot be closed. It moves to manual post-correction review and the system can initiate a controlled rollback if the approved correction is no longer considered safe.",
+
+                    "لا يمكن إغلاق الحالة. تنتقل إلى مراجعة يدوية بعد التصحيح، ويمكن للنظام بدء تراجع خاضع للتحكم إذا لم يعد التصحيح المعتمد يعتبر آمنًا."
+                  )}
                 </span>
               </div>
             </div>
@@ -1397,16 +1850,25 @@ export default function CorrectionsVerificationPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CONTROLLED ROLLBACK
+                  {L(
+                    language,
+                    "CONTROLLED ROLLBACK",
+                    "التراجع الخاضع للتحكم"
+                  )}
                 </div>
 
                 <h2>
-                  Recovery Control
+                  {L(
+                    language,
+                    "Recovery Control",
+                    "التحكم في الاستعادة"
+                  )}
                 </h2>
               </div>
 
               <RotateCcw size={22} />
             </div>
+
 
             <div
               style={{
@@ -1419,18 +1881,25 @@ export default function CorrectionsVerificationPage() {
 
                 <div>
                   <strong>
-                    Restore Previous Mapping
+                    {L(
+                      language,
+                      "Restore Previous Mapping",
+                      "استعادة الربط السابق"
+                    )}
                   </strong>
 
                   <span>
-                    Rollback restores the
-                    pre-correction identity
-                    relationship only when the
-                    runtime state still matches
-                    the executed change.
+                    {L(
+                      language,
+
+                      "Rollback restores the pre-correction identity relationship only when the runtime state still matches the executed change.",
+
+                      "يعيد التراجع علاقة الهوية السابقة للتصحيح فقط عندما تظل حالة التشغيل مطابقة للتغيير الذي تم تنفيذه."
+                    )}
                   </span>
                 </div>
               </div>
+
 
               <div
                 className="integrityInfo"
@@ -1443,13 +1912,21 @@ export default function CorrectionsVerificationPage() {
 
                 <div>
                   <strong>
-                    Safety Lock
+                    {L(
+                      language,
+                      "Safety Lock",
+                      "قفل الأمان"
+                    )}
                   </strong>
 
                   <span>
-                    Automatic rollback is blocked
-                    if the record changed again
-                    after execution.
+                    {L(
+                      language,
+
+                      "Automatic rollback is blocked if the record changed again after execution.",
+
+                      "يتم منع التراجع التلقائي إذا تغير السجل مرة أخرى بعد التنفيذ."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1476,19 +1953,21 @@ export default function CorrectionsVerificationPage() {
 
           <div>
             <strong>
-              CASE-2026-00001 Successfully
-              Verified and Closed
+              {L(
+                language,
+                "CASE-2026-00001 Successfully Verified and Closed",
+                "تم التحقق من CASE-2026-00001 وإغلاقها بنجاح"
+              )}
             </strong>
 
             <span>
-              BIO-000166 was corrected from
-              REF-002711 to REF-001009 after
-              Officer and Manager approval.
-              Post-correction verification
-              passed with a score of 100,
-              the original conflict was
-              resolved and no secondary
-              conflict was detected.
+              {L(
+                language,
+
+                "BIO-000166 was corrected from REF-002711 to REF-001009 after Officer and Manager approval. Post-correction verification passed with a score of 100, the original conflict was resolved and no secondary conflict was detected.",
+
+                "تم تصحيح BIO-000166 من REF-002711 إلى REF-001009 بعد اعتماد الضابط والمدير. ونجح التحقق بعد التصحيح بدرجة 100، وتم حل التعارض الأصلي ولم يتم اكتشاف أي تعارض ثانوي."
+              )}
             </span>
           </div>
         </section>
@@ -1500,14 +1979,23 @@ export default function CorrectionsVerificationPage() {
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Correction & Verification Workspace
+            {t("footer.platform")}
+            {" · "}
+            {L(
+              language,
+              "Correction & Verification Workspace",
+              "مساحة التصحيح والتحقق"
+            )}
           </span>
 
           <div>
             <ShieldCheck size={15} />
 
-            Closed-Loop Verification Active
+            {L(
+              language,
+              "Closed-Loop Verification Active",
+              "التحقق المغلق للدورة نشط"
+            )}
           </div>
         </footer>
 

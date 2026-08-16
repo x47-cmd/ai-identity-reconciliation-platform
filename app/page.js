@@ -64,29 +64,31 @@ const stats = [
    CASE-2026-00001 is intentionally excluded because the
    verified E2E demonstration case is already VERIFIED_CLOSED.
 
+   Queue identities below are aligned with the Cases workspace.
+
    Only cases with implemented detail routes are linked.
    ========================================================= */
 
 const cases = [
   {
     id: "CASE-2026-00002",
-    type: "CRITICAL HARM CONFLICT",
-    biometric: "BIO-000492",
-    current: "REF-001547",
-    proposed: "REF-000621",
+    type: "HARM IMPACT",
+    biometric: "BIO-000341",
+    current: "REF-000882",
+    proposed: "REF-001704",
     confidence: "99.98%",
     priority: "IMMEDIATE",
-    status: "Awaiting Human Review",
+    status: "Officer Review",
     protective: "97.5",
     hasDetail: false,
   },
   {
     id: "CASE-2026-00003",
-    type: "HARM IMPACT",
-    biometric: "BIO-000714",
-    current: "REF-002905",
-    proposed: "REF-001337",
-    confidence: "99.97%",
+    type: "CRITICAL HARM CONFLICT",
+    biometric: "BIO-000492",
+    current: "REF-001547",
+    proposed: "REF-000621",
+    confidence: "99.98%",
     priority: "IMMEDIATE",
     status: "AI Investigated",
     protective: "97.0",

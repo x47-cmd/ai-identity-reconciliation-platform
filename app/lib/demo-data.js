@@ -2,16 +2,14 @@
    AI IDENTITY RECONCILIATION PLATFORM
    SHARED DEMO DATA
 
-   Purpose:
-   - Single frontend source of truth
-   - Prevent inconsistent metrics between pages
-   - Keep backend-confirmed demo values separate
-     from illustrative UI-only data
+   Synthetic demonstration data only.
 
-   IMPORTANT:
-   - Synthetic demonstration data only
+   Principles:
+   - Clear human-readable identity names in the UI
+   - Technical IDs remain available for audit/reference
    - Master Reference remains read-only
-   - Human approval is required before correction
+   - AI detects, analyzes and recommends
+   - Humans authorize sensitive corrections
    ========================================================= */
 
 
@@ -67,9 +65,53 @@ export const PLATFORM_METRICS = {
 
 
 /* =========================================================
-   TECHNICAL CASE TYPE BREAKDOWN
+   SYNTHETIC DEMO IDENTITIES
 
-   This reflects the actual aggregated case taxonomy.
+   Human-readable names are shown first in the interface.
+   Reference IDs remain available for technical traceability.
+   ========================================================= */
+
+export const DEMO_IDENTITIES = {
+  REF_001009: {
+    referenceId: "REF-001009",
+
+    name: {
+      en: "Salem Mohammed Al Kaabi",
+      ar: "سالم محمد الكعبي",
+    },
+  },
+
+  REF_002711: {
+    referenceId: "REF-002711",
+
+    name: {
+      en: "Khalid Abdullah Al Mansoori",
+      ar: "خالد عبدالله المنصوري",
+    },
+  },
+
+  REF_002343: {
+    referenceId: "REF-002343",
+
+    name: {
+      en: "Ali Saeed Al Dhaheri",
+      ar: "علي سعيد الظاهري",
+    },
+  },
+
+  REF_001183: {
+    referenceId: "REF-001183",
+
+    name: {
+      en: "Ahmed Rashid Al Nuaimi",
+      ar: "أحمد راشد النعيمي",
+    },
+  },
+};
+
+
+/* =========================================================
+   CASE TYPE BREAKDOWN
 
    Total:
    15 + 11 + 8 + 6 + 6 + 4 + 3 = 53
@@ -84,7 +126,7 @@ export const CASE_TYPE_BREAKDOWN = [
 
   {
     type: "WRONG_MAPPING",
-    label: "Wrong Mapping",
+    label: "Incorrect Identity Link",
     count: 11,
   },
 
@@ -102,19 +144,19 @@ export const CASE_TYPE_BREAKDOWN = [
 
   {
     type: "HARM_IMPACT",
-    label: "Harm Impact",
+    label: "Possible Wrong-Person Impact",
     count: 6,
   },
 
   {
     type: "ORPHAN_RECORD",
-    label: "Orphan Record",
+    label: "Missing Identity Link",
     count: 4,
   },
 
   {
     type: "CRITICAL_HARM_IDENTITY_CONFLICT",
-    label: "Critical Harm Identity Conflict",
+    label: "Critical Identity Conflict",
     count: 3,
   },
 ];
@@ -122,12 +164,6 @@ export const CASE_TYPE_BREAKDOWN = [
 
 /* =========================================================
    EXECUTIVE CASE GROUPING
-
-   Executive reporting combines:
-   HARM_IMPACT = 6
-   CRITICAL_HARM_IDENTITY_CONFLICT = 3
-
-   Total protective / wrong-person impact cases = 9
    ========================================================= */
 
 export const EXECUTIVE_CASE_BREAKDOWN = [
@@ -139,13 +175,13 @@ export const EXECUTIVE_CASE_BREAKDOWN = [
 
   {
     type: "WRONG_MAPPING",
-    label: "Wrong Mapping",
+    label: "Incorrect Identity Link",
     count: 11,
   },
 
   {
     type: "PROTECTIVE_HARM",
-    label: "Wrong-Person / Harm Impact",
+    label: "Possible Wrong-Person Impact",
     count: 9,
   },
 
@@ -163,31 +199,34 @@ export const EXECUTIVE_CASE_BREAKDOWN = [
 
   {
     type: "ORPHAN_RECORD",
-    label: "Orphan Record",
+    label: "Missing Identity Link",
     count: 4,
   },
 ];
 
 
 /* =========================================================
-   PRIMARY VERIFIED E2E DEMO CASE
+   PRIMARY VERIFIED DEMO CASE
 
-   Main full lifecycle demonstration:
-
-   AI Investigation
-   → Monitoring Officer Approval
-   → Supervising Manager Approval
-   → Controlled Execution
-   → Post-Correction Verification
-   → VERIFIED_CLOSED
+   AI Analysis
+   → Officer Approval
+   → Manager Approval
+   → Controlled Correction
+   → Verification
+   → Case Closed
    ========================================================= */
 
 export const VERIFIED_DEMO_CASE = {
   id: "CASE-2026-00001",
 
+  person: {
+    en: "Salem Mohammed Al Kaabi",
+    ar: "سالم محمد الكعبي",
+  },
+
   caseType: "HARM_IMPACT",
 
-  title: "Potential Wrong-Person Harm",
+  title: "Possible Wrong-Person Impact",
 
   priority: "IMMEDIATE",
 
@@ -197,17 +236,45 @@ export const VERIFIED_DEMO_CASE = {
 
   currentIdentity: "REF-002711",
 
+  currentIdentityName: {
+    en: "Khalid Abdullah Al Mansoori",
+    ar: "خالد عبدالله المنصوري",
+  },
+
   proposedIdentity: "REF-001009",
+
+  proposedIdentityName: {
+    en: "Salem Mohammed Al Kaabi",
+    ar: "سالم محمد الكعبي",
+  },
 
   canonicalIdentity: "REF-001009",
 
+  canonicalIdentityName: {
+    en: "Salem Mohammed Al Kaabi",
+    ar: "سالم محمد الكعبي",
+  },
+
   aiConfidence: 99.99,
 
+  /*
+   * Technical internal risk values.
+   * These remain available for AI analysis and audit,
+   * but the main employee interface uses simple labels.
+   */
   risk: 94.99,
 
   harm: 97.5,
 
   protectivePriority: 98.0,
+
+  aiSummary: {
+    en:
+      "AI detected that the biometric record was linked to the wrong identity and identified Salem Mohammed Al Kaabi as the strongest verified identity candidate.",
+
+    ar:
+      "اكتشف الذكاء الاصطناعي أن السجل البيومتري مرتبط بهوية غير صحيحة، وحدد سالم محمد الكعبي كأقوى مرشح للهوية الصحيحة.",
+  },
 
   officer: {
     role: "Monitoring Officer",
@@ -255,8 +322,18 @@ export const VERIFIED_DEMO_CASE = {
     before:
       "REF-002711",
 
+    beforeName: {
+      en: "Khalid Abdullah Al Mansoori",
+      ar: "خالد عبدالله المنصوري",
+    },
+
     after:
       "REF-001009",
+
+    afterName: {
+      en: "Salem Mohammed Al Kaabi",
+      ar: "سالم محمد الكعبي",
+    },
   },
 
   verification: {
@@ -267,16 +344,12 @@ export const VERIFIED_DEMO_CASE = {
       100,
 
     /*
-     Backend-confirmed raw similarity score.
-     Keep this value in raw 0..1 form.
-    */
+     * Backend-confirmed synthetic similarity score.
+     * Raw value remains in 0..1 format.
+     */
     biometricMatch:
       0.999903,
 
-    /*
-     Convenience value for UI percentage display.
-     0.999903 × 100 = 99.9903%
-    */
     biometricMatchPercent:
       99.9903,
 
@@ -313,18 +386,17 @@ export const VERIFIED_DEMO_CASE = {
 /* =========================================================
    COMPLEX IDENTITY DEMO CASE
 
-   IMPORTANT:
    BIO-000795 belongs to CASE-2026-00014.
-
-   Previous frontend versions incorrectly used:
-   CASE-2026-00010
-
-   CASE-2026-00010 must not be used for BIO-000795.
    ========================================================= */
 
 export const COMPLEX_DEMO_CASE = {
   id:
     "CASE-2026-00014",
+
+  person: {
+    en: "Ali Saeed Al Dhaheri",
+    ar: "علي سعيد الظاهري",
+  },
 
   caseType:
     "COMPLEX_IDENTITY_CONFLICT",
@@ -349,11 +421,26 @@ export const COMPLEX_DEMO_CASE = {
   currentIdentity:
     "REF-001183",
 
+  currentIdentityName: {
+    en: "Ahmed Rashid Al Nuaimi",
+    ar: "أحمد راشد النعيمي",
+  },
+
   proposedIdentity:
     "REF-002343",
 
+  proposedIdentityName: {
+    en: "Ali Saeed Al Dhaheri",
+    ar: "علي سعيد الظاهري",
+  },
+
   canonicalIdentity:
     "REF-002343",
+
+  canonicalIdentityName: {
+    en: "Ali Saeed Al Dhaheri",
+    ar: "علي سعيد الظاهري",
+  },
 
   currentMasterIdentities: [
     "REF-001183",
@@ -381,6 +468,14 @@ export const COMPLEX_DEMO_CASE = {
   unresolvedIdentity:
     false,
 
+  aiSummary: {
+    en:
+      "AI combined five related findings and identified Ali Saeed Al Dhaheri as the strongest identity candidate.",
+
+    ar:
+      "جمع الذكاء الاصطناعي خمس نتائج مترابطة وحدد علي سعيد الظاهري كأقوى مرشح للهوية.",
+  },
+
   finalStatus:
     "AI_INVESTIGATED",
 };
@@ -400,6 +495,11 @@ export const VERIFIED_DEMO_LIFECYCLE = [
     label:
       "AI Investigation",
 
+    userLabel: {
+      en: "AI Analysis",
+      ar: "تحليل الذكاء الاصطناعي",
+    },
+
     status:
       "COMPLETED",
   },
@@ -412,6 +512,11 @@ export const VERIFIED_DEMO_LIFECYCLE = [
 
     label:
       "Officer Approval",
+
+    userLabel: {
+      en: "Officer Review",
+      ar: "مراجعة الضابط",
+    },
 
     status:
       "APPROVED",
@@ -426,6 +531,11 @@ export const VERIFIED_DEMO_LIFECYCLE = [
     label:
       "Manager Approval",
 
+    userLabel: {
+      en: "Manager Approval",
+      ar: "اعتماد المدير",
+    },
+
     status:
       "APPROVED",
   },
@@ -438,6 +548,11 @@ export const VERIFIED_DEMO_LIFECYCLE = [
 
     label:
       "Controlled Correction",
+
+    userLabel: {
+      en: "Correction",
+      ar: "التصحيح",
+    },
 
     status:
       "COMPLETED",
@@ -452,6 +567,11 @@ export const VERIFIED_DEMO_LIFECYCLE = [
     label:
       "Post-Correction Verification",
 
+    userLabel: {
+      en: "Final Verification",
+      ar: "التحقق النهائي",
+    },
+
     status:
       "VERIFIED_CLOSED",
   },
@@ -459,7 +579,7 @@ export const VERIFIED_DEMO_LIFECYCLE = [
 
 
 /* =========================================================
-   GOVERNANCE CONSTANTS
+   GOVERNANCE
    ========================================================= */
 
 export const GOVERNANCE = {
@@ -497,6 +617,9 @@ export const GOVERNANCE = {
 
 /* =========================================================
    PLATFORM WORKFLOW
+
+   Technical workflow remains available for architecture.
+   User-facing pages use simplified wording.
    ========================================================= */
 
 export const PLATFORM_WORKFLOW = [
@@ -531,7 +654,68 @@ export const PLATFORM_WORKFLOW = [
 
 
 /* =========================================================
-   AGENT ARCHITECTURE
+   SIMPLE USER-FACING WORKFLOW
+   ========================================================= */
+
+export const SIMPLE_WORKFLOW = [
+  {
+    key: "AI_ANALYSIS",
+
+    en: "AI Analysis",
+
+    ar: "تحليل الذكاء الاصطناعي",
+  },
+
+  {
+    key: "OFFICER_REVIEW",
+
+    en: "Officer Review",
+
+    ar: "مراجعة الضابط",
+  },
+
+  {
+    key: "MANAGER_APPROVAL",
+
+    en: "Manager Approval",
+
+    ar: "اعتماد المدير",
+  },
+
+  {
+    key: "CORRECTION",
+
+    en: "Correction",
+
+    ar: "التصحيح",
+  },
+
+  {
+    key: "VERIFICATION",
+
+    en: "Verification",
+
+    ar: "التحقق",
+  },
+
+  {
+    key: "CLOSED",
+
+    en: "Case Closed",
+
+    ar: "إغلاق الحالة",
+  },
+];
+
+
+/* =========================================================
+   AI ARCHITECTURE
+
+   These components remain part of the technical architecture
+   and can be used in investigation / architecture views.
+
+   They are intentionally NOT required as main navigation
+   concepts for normal employees.
    ========================================================= */
 
 export const AI_AGENTS = [
@@ -541,6 +725,9 @@ export const AI_AGENTS = [
 
     name:
       "Monitoring Agent",
+
+    simpleName:
+      "Continuous Monitoring",
 
     role:
       "Detects new or changed operational records.",
@@ -553,6 +740,9 @@ export const AI_AGENTS = [
     name:
       "Reconciliation Agent",
 
+    simpleName:
+      "Identity Comparison",
+
     role:
       "Compares biometric records against the Master Reference.",
   },
@@ -563,6 +753,9 @@ export const AI_AGENTS = [
 
     name:
       "Biometric Correlation Agent",
+
+    simpleName:
+      "Biometric Correlation",
 
     role:
       "Evaluates synthetic biometric-vector similarity and relationships.",
@@ -575,6 +768,9 @@ export const AI_AGENTS = [
     name:
       "Identity Resolution Agent",
 
+    simpleName:
+      "Identity Resolution",
+
     role:
       "Determines the strongest canonical identity candidate.",
   },
@@ -586,8 +782,11 @@ export const AI_AGENTS = [
     name:
       "Anomaly Detection Agent",
 
+    simpleName:
+      "Anomaly Detection",
+
     role:
-      "Detects mismatches, duplicates, overlaps and other identity-integrity anomalies.",
+      "Detects mismatches, duplicates, overlaps and identity-integrity anomalies.",
   },
 
   {
@@ -596,6 +795,9 @@ export const AI_AGENTS = [
 
     name:
       "Investigation Agent",
+
+    simpleName:
+      "AI Investigation",
 
     role:
       "Combines evidence and prepares structured investigation results.",
@@ -608,6 +810,9 @@ export const AI_AGENTS = [
     name:
       "Remediation Agent",
 
+    simpleName:
+      "Correction Recommendation",
+
     role:
       "Prepares proposed Before / After corrections without independently authorizing them.",
   },
@@ -618,6 +823,9 @@ export const AI_AGENTS = [
 
     name:
       "Approval Workflow Agent",
+
+    simpleName:
+      "Approval Workflow",
 
     role:
       "Coordinates Monitoring Officer and Supervising Manager human approvals.",
@@ -630,6 +838,9 @@ export const AI_AGENTS = [
     name:
       "Execution Agent",
 
+    simpleName:
+      "Controlled Execution",
+
     role:
       "Executes only fully authorized corrections against permitted runtime targets.",
   },
@@ -640,6 +851,9 @@ export const AI_AGENTS = [
 
     name:
       "Verification Agent",
+
+    simpleName:
+      "Verification",
 
     role:
       "Revalidates identity integrity after correction and determines whether closure conditions are satisfied.",
@@ -652,6 +866,9 @@ export const AI_AGENTS = [
     name:
       "Audit Agent",
 
+    simpleName:
+      "Audit & History",
+
     role:
       "Maintains case lifecycle traceability and reporting data.",
   },
@@ -662,6 +879,9 @@ export const AI_AGENTS = [
 
     name:
       "Intelligence & Reporting Agent",
+
+    simpleName:
+      "Analytics & Reporting",
 
     role:
       "Produces operational and management intelligence.",

@@ -82,7 +82,7 @@ const cases = [
     protective: "97.0",
   },
   {
-    id: "CASE-2026-00010",
+    id: "CASE-2026-00014",
     type: "COMPLEX IDENTITY CONFLICT",
     biometric: "BIO-000795",
     current: "REF-001183",

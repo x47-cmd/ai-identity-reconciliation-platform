@@ -14,23 +14,19 @@ import {
   Activity,
   BarChart3,
   BrainCircuit,
+  CheckCircle2,
   ChevronRight,
   Database,
   FileSearch,
-  Fingerprint,
   Gauge,
-  PieChart,
-  Search,
   ShieldAlert,
   ShieldCheck,
-  Timer,
-  TrendingUp,
   UserCheck,
 } from "lucide-react";
 
 
 /* =========================================================
-   LANGUAGE HELPER
+   LANGUAGE
    ========================================================= */
 
 function L(
@@ -48,16 +44,7 @@ function L(
    HELPERS
    ========================================================= */
 
-function formatNumber(
-  value
-) {
-  return Number(
-    value
-  ).toLocaleString("en-US");
-}
-
-
-function percentageOfCases(
+function percentage(
   value
 ) {
   if (
@@ -68,188 +55,98 @@ function percentageOfCases(
 
   return Number(
     (
-      (
-        value
-        /
-        PLATFORM_METRICS.aggregatedCases
-      )
-      *
+      value /
+      PLATFORM_METRICS.aggregatedCases *
       100
     ).toFixed(1)
   );
 }
 
 
-/* =========================================================
-   EXECUTIVE ANALYTICS
-   ========================================================= */
+function caseTypeLabel(
+  type,
+  language
+) {
+  const labels = {
+    DATA_MISMATCH: {
+      en:
+        "Data Mismatch",
 
-const executiveMetrics = [
-  {
-    label:
-      "TOTAL_CASES",
+      ar:
+        "اختلاف في البيانات",
+    },
 
-    value:
-      PLATFORM_METRICS.aggregatedCases,
+    WRONG_MAPPING: {
+      en:
+        "Incorrect Identity Link",
 
-    description:
-      "Aggregated identity integrity cases",
+      ar:
+        "ربط هوية غير صحيح",
+    },
 
-    icon:
-      FileSearch,
+    HARM_IMPACT: {
+      en:
+        "Possible Wrong-Person Impact",
 
-    trend:
-      PLATFORM_METRICS.rawFindings,
+      ar:
+        "احتمال تأثير على شخص آخر",
+    },
 
-    trendLabel:
-      "raw findings",
+    CRITICAL_HARM_IDENTITY_CONFLICT: {
+      en:
+        "Critical Identity Conflict",
 
-    tone:
-      "blue",
-  },
+      ar:
+        "تعارض هوية حرج",
+    },
 
-  {
-    label:
-      "PROTECTIVE_CASES",
+    COMPLEX_IDENTITY_CONFLICT: {
+      en:
+        "Complex Identity Conflict",
 
-    value:
-      PLATFORM_METRICS.wronglyAffectedCases,
+      ar:
+        "تعارض هوية معقد",
+    },
 
-    description:
-      "Wrong-person / harm protection grouping",
+    DUPLICATE_IDENTITY: {
+      en:
+        "Duplicate Identity",
 
-    icon:
-      ShieldAlert,
+      ar:
+        "هوية مكررة",
+    },
 
-    trend:
-      `${percentageOfCases(
-        PLATFORM_METRICS.wronglyAffectedCases
-      )}%`,
+    ORPHAN_RECORD: {
+      en:
+        "Missing Identity Link",
 
-    trendLabel:
-      "of all cases",
+      ar:
+        "سجل بدون هوية مرتبطة",
+    },
+  };
 
-    tone:
-      "red",
-  },
 
-  {
-    label:
-      "DETECTION_RECALL",
-
-    value:
-      `${PLATFORM_METRICS.evaluation.recall}%`,
-
-    description:
-      "Seeded synthetic issues detected",
-
-    icon:
-      ShieldCheck,
-
-    trend:
-      `${PLATFORM_METRICS.evaluation.detectedIssues} / ${PLATFORM_METRICS.evaluation.expectedIssues}`,
-
-    trendLabel:
-      "expected issues",
-
-    tone:
-      "green",
-  },
-
-  {
-    label:
-      "DIAGNOSTIC_PRECISION",
-
-    value:
-      `${PLATFORM_METRICS.evaluation.diagnosticPrecision}%`,
-
-    description:
-      "After corroborating finding analysis",
-
-    icon:
-      Gauge,
-
-    trend:
-      PLATFORM_METRICS.evaluation.unexplainedFalsePositives,
-
-    trendLabel:
-      "unexplained false positives",
-
-    tone:
-      "green",
-  },
-
-  {
-    label:
-      "PROTECTIVE_DETECTION",
-
-    value:
-      `${PLATFORM_METRICS.evaluation.protectiveDetectionRecall}%`,
-
-    description:
-      "Protective synthetic cases detected",
-
-    icon:
-      UserCheck,
-
-    trend:
-      `${PLATFORM_METRICS.evaluation.protectivePriorityAccuracy}%`,
-
-    trendLabel:
-      "priority accuracy",
-
-    tone:
-      "green",
-  },
-
-  {
-    label:
-      "CANONICAL_RESOLUTION",
-
-    value:
-      (
-        PLATFORM_METRICS.aggregatedCases
-        -
-        PLATFORM_METRICS.unresolvedIdentityCases
-      ),
-
-    description:
-      "Cases with canonical identity candidates",
-
-    icon:
-      BrainCircuit,
-
-    trend:
-      PLATFORM_METRICS.unresolvedIdentityCases,
-
-    trendLabel:
-      "unresolved cases",
-
-    tone:
-      "blue",
-  },
-];
+  return (
+    labels[type]?.[
+      language
+    ] ||
+    labels[type]?.en ||
+    type
+  );
+}
 
 
 /* =========================================================
-   PRIORITY BREAKDOWN
+   PRIORITY DATA
    ========================================================= */
 
-const priorityBreakdown = [
+const priorityData = [
   {
     key:
       "IMMEDIATE",
 
     value:
       PLATFORM_METRICS.priority.immediate,
-
-    percentage:
-      percentageOfCases(
-        PLATFORM_METRICS.priority.immediate
-      ),
-
-    tone:
-      "red",
   },
 
   {
@@ -258,14 +155,6 @@ const priorityBreakdown = [
 
     value:
       PLATFORM_METRICS.priority.high,
-
-    percentage:
-      percentageOfCases(
-        PLATFORM_METRICS.priority.high
-      ),
-
-    tone:
-      "orange",
   },
 
   {
@@ -274,1441 +163,96 @@ const priorityBreakdown = [
 
     value:
       PLATFORM_METRICS.priority.medium,
-
-    percentage:
-      percentageOfCases(
-        PLATFORM_METRICS.priority.medium
-      ),
-
-    tone:
-      "blue",
   },
 ];
-
-
-/* =========================================================
-   CASE TYPE BREAKDOWN
-
-   Uses the authoritative aggregated taxonomy from
-   shared demo data.
-   ========================================================= */
-
-const caseTypeBreakdown =
-  CASE_TYPE_BREAKDOWN.map(
-    (item) => ({
-      ...item,
-
-      percentage:
-        percentageOfCases(
-          item.count
-        ),
-    })
-  );
-
-
-/* =========================================================
-   WORKFLOW SNAPSHOT
-
-   These queue values are frontend workflow snapshot values.
-   They are not mutually exclusive totals.
-   ========================================================= */
-
-const workflowBreakdown = [
-  {
-    key:
-      "CASES_GENERATED",
-
-    value:
-      PLATFORM_METRICS.aggregatedCases,
-
-    total:
-      PLATFORM_METRICS.aggregatedCases,
-  },
-
-  {
-    key:
-      "AWAITING_OFFICER",
-
-    value:
-      5,
-
-    total:
-      PLATFORM_METRICS.aggregatedCases,
-  },
-
-  {
-    key:
-      "AWAITING_MANAGER",
-
-    value:
-      3,
-
-    total:
-      PLATFORM_METRICS.aggregatedCases,
-  },
-
-  {
-    key:
-      "CORRECTION_EXECUTED",
-
-    value:
-      1,
-
-    total:
-      PLATFORM_METRICS.aggregatedCases,
-  },
-
-  {
-    key:
-      "VERIFIED_CLOSED",
-
-    value:
-      1,
-
-    total:
-      PLATFORM_METRICS.aggregatedCases,
-  },
-];
-
-
-/* =========================================================
-   PIPELINE
-   ========================================================= */
-
-const pipelineStages = [
-  {
-    key:
-      "BIOMETRIC_RECORDS",
-
-    value:
-      PLATFORM_METRICS.biometricRecords,
-
-    description:
-      "Synthetic source records monitored",
-  },
-
-  {
-    key:
-      "RAW_FINDINGS",
-
-    value:
-      PLATFORM_METRICS.rawFindings,
-
-    description:
-      "Reconciliation findings produced",
-  },
-
-  {
-    key:
-      "AGGREGATED_CASES",
-
-    value:
-      PLATFORM_METRICS.aggregatedCases,
-
-    description:
-      "Canonical investigation cases",
-  },
-
-  {
-    key:
-      "CORROBORATING_FINDINGS",
-
-    value:
-      PLATFORM_METRICS.corroboratingFindingsCollapsed,
-
-    description:
-      "Secondary evidence collapsed",
-  },
-
-  {
-    key:
-      "MULTI_FINDING_CASES",
-
-    value:
-      PLATFORM_METRICS.multiFindingCases,
-
-    description:
-      "Cases supported by multiple findings",
-  },
-
-  {
-    key:
-      "PROTECTIVE_CASES",
-
-    value:
-      PLATFORM_METRICS.wronglyAffectedCases,
-
-    description:
-      "Wrong-person / harm protection group",
-  },
-];
-
-
-/* =========================================================
-   AGENT / COMPONENT METRICS
-   ========================================================= */
-
-const agentMetrics = [
-  {
-    key:
-      "MONITORING_AGENT",
-
-    status:
-      "VALIDATED",
-
-    processed:
-      formatNumber(
-        PLATFORM_METRICS.biometricRecords
-      ),
-
-    output:
-      "Biometric records monitored",
-  },
-
-  {
-    key:
-      "RECONCILIATION_AGENT",
-
-    status:
-      "VALIDATED",
-
-    processed:
-      formatNumber(
-        PLATFORM_METRICS.biometricRecords
-      ),
-
-    output:
-      `${PLATFORM_METRICS.rawFindings} raw findings`,
-  },
-
-  {
-    key:
-      "CASE_AGGREGATION",
-
-    status:
-      "VALIDATED",
-
-    processed:
-      String(
-        PLATFORM_METRICS.rawFindings
-      ),
-
-    output:
-      `${PLATFORM_METRICS.aggregatedCases} aggregated cases`,
-  },
-
-  {
-    key:
-      "INVESTIGATION_WORKFLOW",
-
-    status:
-      "DEMO_READY",
-
-    processed:
-      `${PLATFORM_METRICS.aggregatedCases} cases`,
-
-    output:
-      "Investigation-ready case set",
-  },
-
-  {
-    key:
-      "APPROVAL_WORKFLOW",
-
-    status:
-      "VALIDATED",
-
-    processed:
-      "1 E2E case",
-
-    output:
-      "Officer + Manager approval passed",
-  },
-
-  {
-    key:
-      "VERIFICATION_AGENT",
-
-    status:
-      "VALIDATED",
-
-    processed:
-      "1 correction",
-
-    output:
-      "1 verified closed",
-  },
-];
-
-
-/* =========================================================
-   POWER BI DATASETS
-
-   Planned only. No live integration exists in this demo.
-   ========================================================= */
-
-const powerBiDatasets = [
-  {
-    key:
-      "CASE_PERFORMANCE",
-
-    source:
-      "Case and priority metrics",
-  },
-
-  {
-    key:
-      "AI_FINDINGS",
-
-    source:
-      "Reconciliation finding metrics",
-  },
-
-  {
-    key:
-      "INVESTIGATION_RESULTS",
-
-    source:
-      "AI investigation outputs",
-  },
-
-  {
-    key:
-      "APPROVAL_WORKFLOW",
-
-    source:
-      "Human decision and approval state",
-  },
-
-  {
-    key:
-      "VERIFICATION_RESULTS",
-
-    source:
-      "Post-correction verification data",
-  },
-];
-
-
-/* =========================================================
-   LOCALIZATION
-   ========================================================= */
-
-function executiveLabel(
-  key,
-  t
-) {
-  const keys = {
-    TOTAL_CASES:
-      "commandCenter.totalCases",
-
-    PROTECTIVE_CASES:
-      "analytics.protectiveCases",
-
-    DETECTION_RECALL:
-      "analytics.detectionRecall",
-
-    DIAGNOSTIC_PRECISION:
-      "analytics.diagnosticPrecision",
-
-    PROTECTIVE_DETECTION:
-      "analytics.protectiveDetection",
-
-    CANONICAL_RESOLUTION:
-      "dataIntegrity.canonicalResolution",
-  };
-
-  return keys[key]
-    ? t(
-        keys[key],
-        key
-      )
-    : key;
-}
-
-
-function executiveDescription(
-  text,
-  language
-) {
-  const labels = {
-    "Aggregated identity integrity cases":
-      "حالات سلامة الهوية المجمعة",
-
-    "Wrong-person / harm protection grouping":
-      "تجميع الحالات المرتبطة بحماية الشخص الخطأ والضرر",
-
-    "Seeded synthetic issues detected":
-      "المشكلات الاصطناعية المزروعة التي تم اكتشافها",
-
-    "After corroborating finding analysis":
-      "بعد تحليل النتائج الداعمة",
-
-    "Protective synthetic cases detected":
-      "الحالات الوقائية الاصطناعية المكتشفة",
-
-    "Cases with canonical identity candidates":
-      "حالات لديها مرشح للهوية المرجعية",
-  };
-
-  return language === "ar"
-    ? labels[text] || text
-    : text;
-}
-
-
-function executiveTrendLabel(
-  text,
-  language
-) {
-  const labels = {
-    "raw findings":
-      "نتائج أولية",
-
-    "of all cases":
-      "من إجمالي الحالات",
-
-    "expected issues":
-      "مشكلات متوقعة",
-
-    "unexplained false positives":
-      "تنبيهات خاطئة غير مفسرة",
-
-    "priority accuracy":
-      "دقة الأولوية",
-
-    "unresolved cases":
-      "حالات غير محسومة",
-  };
-
-  return language === "ar"
-    ? labels[text] || text
-    : text;
-}
 
 
 function priorityLabel(
   key,
-  t
-) {
-  return t(
-    `priorities.${key}`,
-    key
-  );
-}
-
-
-function caseTypeLabel(
-  type,
-  t
-) {
-  return t(
-    `caseTypes.${type}`,
-    type
-  );
-}
-
-
-function workflowLabel(
-  key,
   language
 ) {
   const labels = {
-    CASES_GENERATED: {
+    IMMEDIATE: {
       en:
-        "Cases Generated",
+        "Urgent",
 
       ar:
-        "الحالات المنشأة",
+        "فوري",
     },
 
-    AWAITING_OFFICER: {
+    HIGH: {
       en:
-        "Awaiting Officer",
+        "High",
 
       ar:
-        "بانتظار الضابط",
+        "مرتفع",
     },
 
-    AWAITING_MANAGER: {
+    MEDIUM: {
       en:
-        "Awaiting Manager",
+        "Medium",
 
       ar:
-        "بانتظار المدير",
-    },
-
-    CORRECTION_EXECUTED: {
-      en:
-        "Correction Executed",
-
-      ar:
-        "تم تنفيذ التصحيح",
-    },
-
-    VERIFIED_CLOSED: {
-      en:
-        "Verified Closed",
-
-      ar:
-        "تم التحقق والإغلاق",
+        "متوسط",
     },
   };
+
 
   return (
     labels[key]?.[
       language
     ] ||
-    labels[key]?.en ||
     key
   );
-}
-
-
-function pipelineLabel(
-  key,
-  t
-) {
-  const keys = {
-    BIOMETRIC_RECORDS:
-      "analytics.totalBiometricRecords",
-
-    RAW_FINDINGS:
-      "analytics.rawFindings",
-
-    AGGREGATED_CASES:
-      "analytics.aggregatedCases",
-
-    CORROBORATING_FINDINGS:
-      "analytics.corroboratingFindings",
-
-    MULTI_FINDING_CASES:
-      "analytics.multifindingCases",
-
-    PROTECTIVE_CASES:
-      "analytics.protectiveCases",
-  };
-
-  return keys[key]
-    ? t(
-        keys[key],
-        key
-      )
-    : key;
-}
-
-
-function pipelineDescription(
-  text,
-  language
-) {
-  const labels = {
-    "Synthetic source records monitored":
-      "سجلات المصدر الاصطناعية التي تمت مراقبتها",
-
-    "Reconciliation findings produced":
-      "نتائج المطابقة التي تم إنتاجها",
-
-    "Canonical investigation cases":
-      "حالات التحقيق المجمعة",
-
-    "Secondary evidence collapsed":
-      "تم دمج الأدلة الثانوية",
-
-    "Cases supported by multiple findings":
-      "حالات مدعومة بعدة نتائج",
-
-    "Wrong-person / harm protection group":
-      "مجموعة حماية الشخص الخطأ والضرر",
-  };
-
-  return language === "ar"
-    ? labels[text] || text
-    : text;
-}
-
-
-function agentName(
-  key,
-  language
-) {
-  const labels = {
-    MONITORING_AGENT: {
-      en:
-        "Monitoring Agent",
-
-      ar:
-        "وكيل المراقبة",
-    },
-
-    RECONCILIATION_AGENT: {
-      en:
-        "Reconciliation Agent",
-
-      ar:
-        "وكيل المطابقة",
-    },
-
-    CASE_AGGREGATION: {
-      en:
-        "Case Aggregation Engine",
-
-      ar:
-        "محرك تجميع الحالات",
-    },
-
-    INVESTIGATION_WORKFLOW: {
-      en:
-        "Investigation Workflow",
-
-      ar:
-        "مسار التحقيق",
-    },
-
-    APPROVAL_WORKFLOW: {
-      en:
-        "Approval Workflow",
-
-      ar:
-        "مسار الاعتماد",
-    },
-
-    VERIFICATION_AGENT: {
-      en:
-        "Verification Agent",
-
-      ar:
-        "وكيل التحقق",
-    },
-  };
-
-  return (
-    labels[key]?.[
-      language
-    ] ||
-    labels[key]?.en ||
-    key
-  );
-}
-
-
-function agentStatus(
-  status,
-  language
-) {
-  const labels = {
-    VALIDATED: {
-      en:
-        "VALIDATED",
-
-      ar:
-        "تم التحقق",
-    },
-
-    DEMO_READY: {
-      en:
-        "DEMO READY",
-
-      ar:
-        "جاهز للعرض",
-    },
-  };
-
-  return (
-    labels[status]?.[
-      language
-    ] ||
-    labels[status]?.en ||
-    status
-  );
-}
-
-
-function agentOutput(
-  output,
-  language
-) {
-  const labels = {
-    "Biometric records monitored":
-      "تمت مراقبة السجلات البيومترية",
-
-    [`${PLATFORM_METRICS.rawFindings} raw findings`]:
-      `${PLATFORM_METRICS.rawFindings} نتائج أولية`,
-
-    [`${PLATFORM_METRICS.aggregatedCases} aggregated cases`]:
-      `${PLATFORM_METRICS.aggregatedCases} حالة مجمعة`,
-
-    "Investigation-ready case set":
-      "مجموعة حالات جاهزة للتحقيق",
-
-    "Officer + Manager approval passed":
-      "نجح اعتماد الضابط والمدير",
-
-    "1 verified closed":
-      "حالة واحدة تم التحقق منها وإغلاقها",
-  };
-
-  return language === "ar"
-    ? labels[output] || output
-    : output;
-}
-
-
-function datasetName(
-  key,
-  language
-) {
-  const labels = {
-    CASE_PERFORMANCE: {
-      en:
-        "Case Performance",
-
-      ar:
-        "أداء الحالات",
-    },
-
-    AI_FINDINGS: {
-      en:
-        "AI Findings",
-
-      ar:
-        "نتائج الذكاء الاصطناعي",
-    },
-
-    INVESTIGATION_RESULTS: {
-      en:
-        "Investigation Results",
-
-      ar:
-        "نتائج التحقيق",
-    },
-
-    APPROVAL_WORKFLOW: {
-      en:
-        "Approval Workflow",
-
-      ar:
-        "مسار الاعتماد",
-    },
-
-    VERIFICATION_RESULTS: {
-      en:
-        "Verification Results",
-
-      ar:
-        "نتائج التحقق",
-    },
-  };
-
-  return (
-    labels[key]?.[
-      language
-    ] ||
-    labels[key]?.en ||
-    key
-  );
-}
-
-
-function datasetSource(
-  source,
-  language
-) {
-  const labels = {
-    "Case and priority metrics":
-      "مقاييس الحالات والأولوية",
-
-    "Reconciliation finding metrics":
-      "مقاييس نتائج المطابقة",
-
-    "AI investigation outputs":
-      "مخرجات تحقيق الذكاء الاصطناعي",
-
-    "Human decision and approval state":
-      "حالة القرارات والاعتمادات البشرية",
-
-    "Post-correction verification data":
-      "بيانات التحقق بعد التصحيح",
-  };
-
-  return language === "ar"
-    ? labels[source] || source
-    : source;
 }
 
 
 /* =========================================================
-   EXECUTIVE METRIC
+   KPI CARD
    ========================================================= */
 
-function ExecutiveMetric({
-  item,
-  language,
-  t,
+function Metric({
+  icon: Icon,
+  value,
+  title,
+  description,
+  success = false,
 }) {
-  const Icon =
-    item.icon;
-
-
-  const colors = {
-    red: {
-      icon:
-        "#ff7887",
-
-      background:
-        "rgba(255,80,100,0.08)",
-
-      trend:
-        "#ff8b97",
-    },
-
-    green: {
-      icon:
-        "#59cfa0",
-
-      background:
-        "rgba(52,211,153,0.08)",
-
-      trend:
-        "#60d5a6",
-    },
-
-    blue: {
-      icon:
-        "#69a2ff",
-
-      background:
-        "rgba(70,140,255,0.08)",
-
-      trend:
-        "#77aaff",
-    },
-  };
-
-
-  const tone =
-    colors[item.tone] ||
-    colors.blue;
-
-
   return (
     <div className="metricCard">
-      <div className="metricTop">
-        <div
-          className="metricIcon"
-          style={{
-            color:
-              tone.icon,
 
-            background:
-              tone.background,
-          }}
-        >
-          <Icon
-            size={20}
-            aria-hidden="true"
-          />
-        </div>
-
-        <span
-          style={{
-            color:
-              tone.trend,
-
-            fontSize:
-              "10px",
-
-            fontWeight:
-              800,
-          }}
-        >
-          {t(
-            "commandCenter.demoKpi"
-          )}
-        </span>
+      <div className="metricIcon">
+        <Icon
+          size={20}
+          aria-hidden="true"
+        />
       </div>
 
 
-      <div className="metricValue">
-        {item.value}
+      <div
+        className="metricValue"
+        style={
+          success
+            ? {
+                color:
+                  "#59cfa0",
+              }
+            : undefined
+        }
+      >
+        {value}
       </div>
 
 
       <div className="metricTitle">
-        {executiveLabel(
-          item.label,
-          t
-        )}
+        {title}
       </div>
 
 
       <div className="metricSubtitle">
-        {executiveDescription(
-          item.description,
-          language
-        )}
+        {description}
       </div>
 
-
-      <div
-        style={{
-          marginTop:
-            "12px",
-
-          paddingTop:
-            "11px",
-
-          borderTop:
-            "1px solid rgba(255,255,255,0.045)",
-
-          display:
-            "flex",
-
-          justifyContent:
-            "space-between",
-
-          alignItems:
-            "center",
-
-          gap:
-            "12px",
-        }}
-      >
-        <strong
-          style={{
-            color:
-              tone.trend,
-
-            fontSize:
-              "10px",
-          }}
-        >
-          {item.trend}
-        </strong>
-
-        <span
-          style={{
-            color:
-              "#6c7f97",
-
-            fontSize:
-              "10px",
-
-            textAlign:
-              language === "ar"
-                ? "left"
-                : "right",
-          }}
-        >
-          {executiveTrendLabel(
-            item.trendLabel,
-            language
-          )}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-
-/* =========================================================
-   PRIORITY BAR
-   ========================================================= */
-
-function PriorityBar({
-  item,
-  t,
-}) {
-  const tones = {
-    red:
-      "#ff697a",
-
-    orange:
-      "#ffb55d",
-
-    blue:
-      "#5f9cff",
-  };
-
-
-  return (
-    <div
-      style={{
-        padding:
-          "12px 0",
-      }}
-    >
-      <div
-        style={{
-          display:
-            "flex",
-
-          justifyContent:
-            "space-between",
-
-          alignItems:
-            "center",
-
-          marginBottom:
-            "8px",
-        }}
-      >
-        <div
-          style={{
-            display:
-              "flex",
-
-            alignItems:
-              "center",
-
-            gap:
-              "8px",
-          }}
-        >
-          <span
-            style={{
-              width:
-                "7px",
-
-              height:
-                "7px",
-
-              borderRadius:
-                "50%",
-
-              background:
-                tones[item.tone],
-            }}
-          />
-
-          <span
-            style={{
-              color:
-                "#8b9db3",
-
-              fontSize:
-                "11px",
-            }}
-          >
-            {priorityLabel(
-              item.key,
-              t
-            )}
-          </span>
-        </div>
-
-
-        <div>
-          <strong
-            style={{
-              color:
-                "#d1ddeb",
-
-              fontSize:
-                "11px",
-            }}
-          >
-            {item.value}
-          </strong>
-
-          <span
-            style={{
-              color:
-                "#71839a",
-
-              fontSize:
-                "10px",
-
-              marginInlineStart:
-                "7px",
-            }}
-          >
-            {item.percentage}%
-          </span>
-        </div>
-      </div>
-
-
-      <div className="progress">
-        <div
-          style={{
-            width:
-              `${item.percentage}%`,
-
-            height:
-              "100%",
-
-            borderRadius:
-              "inherit",
-
-            background:
-              tones[item.tone],
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
-
-/* =========================================================
-   CASE TYPE BAR
-   ========================================================= */
-
-function CaseTypeBar({
-  item,
-  maxValue,
-  language,
-  t,
-}) {
-  const width =
-    maxValue > 0
-      ? (
-          item.count
-          /
-          maxValue
-        )
-        *
-        100
-      : 0;
-
-
-  return (
-    <div
-      style={{
-        display:
-          "grid",
-
-        gridTemplateColumns:
-          "210px 1fr 50px",
-
-        gap:
-          "12px",
-
-        alignItems:
-          "center",
-
-        padding:
-          "11px 0",
-      }}
-    >
-      <div>
-        <span
-          style={{
-            display:
-              "block",
-
-            color:
-              "#8b9db3",
-
-            fontSize:
-              "11px",
-          }}
-        >
-          {caseTypeLabel(
-            item.type,
-            t
-          )}
-        </span>
-
-        <span
-          style={{
-            display:
-              "block",
-
-            color:
-              "#61738c",
-
-            fontSize:
-              "10px",
-
-            marginTop:
-              "3px",
-          }}
-        >
-          {L(
-            language,
-            `${item.percentage}% of cases`,
-            `${item.percentage}% من الحالات`
-          )}
-        </span>
-      </div>
-
-
-      <div
-        style={{
-          height:
-            "8px",
-
-          borderRadius:
-            "8px",
-
-          background:
-            "rgba(255,255,255,0.045)",
-
-          overflow:
-            "hidden",
-        }}
-      >
-        <div
-          style={{
-            width:
-              `${width}%`,
-
-            height:
-              "100%",
-
-            borderRadius:
-              "8px",
-
-            background:
-              "linear-gradient(90deg,#286fe6,#5e9cff)",
-          }}
-        />
-      </div>
-
-
-      <strong
-        style={{
-          color:
-            "#cbd7e7",
-
-          textAlign:
-            "center",
-
-          fontSize:
-            "11px",
-        }}
-      >
-        {item.count}
-      </strong>
-    </div>
-  );
-}
-
-
-/* =========================================================
-   PIPELINE
-   ========================================================= */
-
-function PipelineFlow({
-  language,
-  t,
-}) {
-  return (
-    <div
-      style={{
-        padding:
-          "20px",
-      }}
-    >
-      <div
-        style={{
-          display:
-            "grid",
-
-          gridTemplateColumns:
-            "repeat(3,minmax(0,1fr))",
-
-          gap:
-            "11px",
-        }}
-      >
-        {pipelineStages.map(
-          (
-            item,
-            index
-          ) => (
-            <div
-              key={
-                item.key
-              }
-              style={{
-                minHeight:
-                  "118px",
-
-                padding:
-                  "16px",
-
-                borderRadius:
-                  "12px",
-
-                background:
-                  "rgba(255,255,255,0.025)",
-
-                border:
-                  "1px solid rgba(255,255,255,0.055)",
-
-                position:
-                  "relative",
-              }}
-            >
-              <span
-                style={{
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  justifyContent:
-                    "space-between",
-
-                  color:
-                    "#6d8098",
-
-                  fontSize:
-                    "10px",
-
-                  fontWeight:
-                    800,
-                }}
-              >
-                {L(
-                  language,
-                  `STAGE ${index + 1}`,
-                  `المرحلة ${index + 1}`
-                )}
-
-                <span
-                  style={{
-                    width:
-                      "22px",
-
-                    height:
-                      "22px",
-
-                    borderRadius:
-                      "7px",
-
-                    display:
-                      "grid",
-
-                    placeItems:
-                      "center",
-
-                    background:
-                      "rgba(70,140,255,0.08)",
-
-                    color:
-                      "#74a8ff",
-                  }}
-                >
-                  {index + 1}
-                </span>
-              </span>
-
-
-              <strong
-                style={{
-                  display:
-                    "block",
-
-                  color:
-                    "#e1eaf6",
-
-                  fontSize:
-                    "22px",
-
-                  marginTop:
-                    "10px",
-                }}
-              >
-                {formatNumber(
-                  item.value
-                )}
-              </strong>
-
-
-              <span
-                style={{
-                  display:
-                    "block",
-
-                  color:
-                    "#91a2b7",
-
-                  fontSize:
-                    "11px",
-
-                  fontWeight:
-                    700,
-
-                  marginTop:
-                    "2px",
-                }}
-              >
-                {pipelineLabel(
-                  item.key,
-                  t
-                )}
-              </span>
-
-
-              <span
-                style={{
-                  display:
-                    "block",
-
-                  color:
-                    "#63768e",
-
-                  fontSize:
-                    "10px",
-
-                  lineHeight:
-                    1.5,
-
-                  marginTop:
-                    "5px",
-                }}
-              >
-                {pipelineDescription(
-                  item.description,
-                  language
-                )}
-              </span>
-            </div>
-          )
-        )}
-      </div>
-
-
-      <div
-        style={{
-          marginTop:
-            "14px",
-
-          padding:
-            "12px 14px",
-
-          borderRadius:
-            "10px",
-
-          background:
-            "rgba(70,140,255,0.035)",
-
-          border:
-            "1px solid rgba(70,140,255,0.07)",
-
-          color:
-            "#71849c",
-
-          fontSize:
-            "10px",
-
-          lineHeight:
-            1.6,
-        }}
-      >
-        {L(
-          language,
-
-          "Raw findings are reconciled and aggregated into case-level investigations. Corroborating findings strengthen existing cases rather than being counted as unexplained false positives.",
-
-          "تتم مطابقة النتائج الأولية وتجميعها داخل تحقيقات على مستوى الحالة. وتستخدم النتائج الداعمة لتعزيز الحالات الموجودة بدل احتسابها كتنبيهات إيجابية خاطئة غير مفسرة."
-        )}
-      </div>
     </div>
   );
 }
@@ -1721,7 +265,6 @@ function PipelineFlow({
 export default function AnalyticsPage() {
   const {
     language,
-    t,
   } = useLanguage();
 
 
@@ -1729,7 +272,7 @@ export default function AnalyticsPage() {
     language === "ar";
 
 
-  const navigationArrowStyle = {
+  const arrowStyle = {
     transform:
       isArabic
         ? "rotate(180deg)"
@@ -1737,9 +280,9 @@ export default function AnalyticsPage() {
   };
 
 
-  const maxCaseTypeValue =
+  const maxCaseType =
     Math.max(
-      ...caseTypeBreakdown.map(
+      ...CASE_TYPE_BREAKDOWN.map(
         (item) =>
           item.count
       )
@@ -1759,81 +302,47 @@ export default function AnalyticsPage() {
             ================================================ */}
 
         <header className="topbar">
+
           <div>
+
             <div className="eyebrow">
-              <Gauge
+              <BarChart3
                 size={15}
                 aria-hidden="true"
               />
 
-              {t(
-                "analytics.eyebrow"
+              {L(
+                language,
+                "AI PERFORMANCE & MANAGEMENT KPIs",
+                "أداء الذكاء الاصطناعي ومؤشرات الإدارة"
               )}
             </div>
 
+
             <h1>
-              {t(
-                "analytics.title"
+              {L(
+                language,
+                "Analytics",
+                "التحليلات"
               )}
             </h1>
 
+
             <p>
-              {t(
-                "analytics.subtitle"
+              {L(
+                language,
+                "Management view of identity cases, priorities, AI performance, approvals and resolution results.",
+                "عرض إداري لحالات الهوية والأولويات وأداء الذكاء الاصطناعي والموافقات ونتائج معالجة الحالات."
               )}
             </p>
+
           </div>
 
-
-          <div className="topbarActions">
-            <button
-              type="button"
-              className="searchButton"
-            >
-              <Search
-                size={18}
-                aria-hidden="true"
-              />
-
-              <span>
-                {L(
-                  language,
-                  "Search analytics",
-                  "البحث في التحليلات"
-                )}
-              </span>
-            </button>
-
-
-            <div className="profile">
-              <div className="avatar">
-                EX
-              </div>
-
-              <div className="profileText">
-                <strong>
-                  {L(
-                    language,
-                    "Executive View",
-                    "العرض التنفيذي"
-                  )}
-                </strong>
-
-                <span>
-                  {L(
-                    language,
-                    "Identity Intelligence",
-                    "ذكاء الهوية"
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
         </header>
 
 
         {/* ================================================
-            EXECUTIVE STATUS
+            DATA SCOPE
             ================================================ */}
 
         <section
@@ -1843,90 +352,338 @@ export default function AnalyticsPage() {
               "0 0 20px",
 
             padding:
-              "17px",
+              "18px",
           }}
         >
-          <ShieldCheck
-            size={24}
+
+          <Database
+            size={23}
             aria-hidden="true"
           />
 
           <div>
+
             <strong>
               {L(
                 language,
-                "Synthetic Demo Validation Passed",
-                "نجح التحقق من العرض الاصطناعي"
+                "Current monitoring scope",
+                "نطاق المراقبة الحالي"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
 
-                `All ${PLATFORM_METRICS.evaluation.expectedIssues} seeded synthetic identity issues were detected. Protective detection and protective priority accuracy both reached 100%, while unexplained false positives remained at ${PLATFORM_METRICS.evaluation.unexplainedFalsePositives} after corroborating evidence analysis.`,
+                `The synthetic demonstration compares ${PLATFORM_METRICS.biometricRecords.toLocaleString()} biometric records with ${PLATFORM_METRICS.masterIdentities.toLocaleString()} authoritative identities. The system detected ${PLATFORM_METRICS.aggregatedCases} identity cases.`,
 
-                `تم اكتشاف جميع مشكلات الهوية الاصطناعية الـ${PLATFORM_METRICS.evaluation.expectedIssues}. ووصل كل من الاكتشاف الوقائي ودقة الأولوية الوقائية إلى 100%، بينما بقي عدد التنبيهات الخاطئة غير المفسرة عند ${PLATFORM_METRICS.evaluation.unexplainedFalsePositives} بعد تحليل الأدلة الداعمة.`
+                `يقارن العرض التجريبي ${PLATFORM_METRICS.biometricRecords.toLocaleString()} سجل بيومتري مع ${PLATFORM_METRICS.masterIdentities.toLocaleString()} هوية معتمدة، واكتشف النظام ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى المتابعة.`
               )}
             </span>
+
           </div>
+
         </section>
 
 
         {/* ================================================
-            EXECUTIVE KPIs
+            MANAGEMENT KPIs
+            ================================================ */}
+
+        <section className="statsGrid">
+
+          <Metric
+            icon={FileSearch}
+            value={
+              PLATFORM_METRICS.aggregatedCases
+            }
+            title={
+              L(
+                language,
+                "Detected Cases",
+                "الحالات المكتشفة"
+              )
+            }
+            description={
+              L(
+                language,
+                "Identity cases requiring investigation or follow-up",
+                "حالات تحتاج إلى تحقيق أو متابعة"
+              )
+            }
+          />
+
+
+          <Metric
+            icon={ShieldAlert}
+            value={
+              PLATFORM_METRICS.priority.immediate
+            }
+            title={
+              L(
+                language,
+                "Urgent Cases",
+                "حالات فورية"
+              )
+            }
+            description={
+              L(
+                language,
+                "Require priority human attention",
+                "تحتاج إلى أولوية في المراجعة"
+              )
+            }
+          />
+
+
+          <Metric
+            icon={UserCheck}
+            value="5"
+            title={
+              L(
+                language,
+                "Awaiting Review",
+                "بانتظار المراجعة"
+              )
+            }
+            description={
+              L(
+                language,
+                "Cases currently waiting for a human decision",
+                "حالات تنتظر قرارًا بشريًا"
+              )
+            }
+          />
+
+
+          <Metric
+            icon={CheckCircle2}
+            value={
+              PLATFORM_METRICS.unresolvedIdentityCases
+            }
+            title={
+              L(
+                language,
+                "Unresolved Identity",
+                "هويات غير محسومة"
+              )
+            }
+            description={
+              L(
+                language,
+                "Cases without an identity candidate",
+                "حالات لم يتم تحديد هوية مرجحة لها"
+              )
+            }
+            success={
+              PLATFORM_METRICS.unresolvedIdentityCases ===
+              0
+            }
+          />
+
+        </section>
+
+
+        {/* ================================================
+            AI PERFORMANCE
             ================================================ */}
 
         <section
+          className="panel"
           style={{
-            display:
-              "grid",
-
-            gridTemplateColumns:
-              "repeat(3,minmax(0,1fr))",
-
-            gap:
-              "16px",
-
             marginBottom:
               "16px",
           }}
         >
-          {executiveMetrics.map(
-            (item) => (
-              <ExecutiveMetric
-                key={
-                  item.label
-                }
-                item={
-                  item
-                }
-                language={
-                  language
-                }
-                t={t}
-              />
-            )
-          )}
+
+          <div className="panelHeader">
+
+            <div>
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "AI QUALITY",
+                  "جودة الذكاء الاصطناعي"
+                )}
+              </div>
+
+              <h2>
+                {L(
+                  language,
+                  "AI Detection Performance",
+                  "أداء الاكتشاف بالذكاء الاصطناعي"
+                )}
+              </h2>
+            </div>
+
+
+            <BrainCircuit
+              size={22}
+              aria-hidden="true"
+            />
+
+          </div>
+
+
+          <div
+            style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "repeat(4,minmax(0,1fr))",
+
+              gap:
+                "10px",
+
+              padding:
+                "20px",
+            }}
+          >
+
+            <Metric
+              icon={Gauge}
+              value={
+                `${PLATFORM_METRICS.evaluation.recall}%`
+              }
+              title={
+                L(
+                  language,
+                  "Detection Recall",
+                  "نسبة اكتشاف الحالات"
+                )
+              }
+              description={
+                L(
+                  language,
+                  "Expected synthetic issues successfully detected",
+                  "المشكلات التجريبية المتوقعة التي تم اكتشافها"
+                )
+              }
+              success
+            />
+
+
+            <Metric
+              icon={BrainCircuit}
+              value={
+                `${PLATFORM_METRICS.evaluation.diagnosticPrecision}%`
+              }
+              title={
+                L(
+                  language,
+                  "Diagnostic Precision",
+                  "دقة التحليل النهائي"
+                )
+              }
+              description={
+                L(
+                  language,
+                  "Accuracy after related findings were analyzed",
+                  "الدقة بعد تحليل وتجميع النتائج المرتبطة"
+                )
+              }
+              success
+            />
+
+
+            <Metric
+              icon={ShieldCheck}
+              value={
+                `${PLATFORM_METRICS.evaluation.protectiveDetectionRecall}%`
+              }
+              title={
+                L(
+                  language,
+                  "Protective Detection",
+                  "اكتشاف الحالات الحساسة"
+                )
+              }
+              description={
+                L(
+                  language,
+                  "Wrong-person impact cases successfully identified",
+                  "الحالات التي قد تؤثر على شخص آخر وتم اكتشافها"
+                )
+              }
+              success
+            />
+
+
+            <Metric
+              icon={CheckCircle2}
+              value={
+                PLATFORM_METRICS.evaluation.unexplainedFalsePositives
+              }
+              title={
+                L(
+                  language,
+                  "Unexplained Alerts",
+                  "تنبيهات غير مفسرة"
+                )
+              }
+              description={
+                L(
+                  language,
+                  "Alerts remaining without supporting explanation",
+                  "تنبيهات بقيت دون تفسير أو دليل داعم"
+                )
+              }
+              success={
+                PLATFORM_METRICS.evaluation.unexplainedFalsePositives ===
+                0
+              }
+            />
+
+          </div>
+
+
+          <div
+            style={{
+              padding:
+                "0 20px 20px",
+
+              color:
+                "#70839b",
+
+              fontSize:
+                "10px",
+
+              lineHeight:
+                1.65,
+            }}
+          >
+            {L(
+              language,
+
+              "These values are based on the synthetic evaluation dataset. Related raw findings are combined and analyzed before the system presents the final case-level result.",
+
+              "تعتمد هذه المؤشرات على مجموعة البيانات التجريبية الاصطناعية. ويتم تجميع وتحليل النتائج الأولية المرتبطة قبل عرض النتيجة النهائية على مستوى الحالة."
+            )}
+          </div>
+
         </section>
 
 
         {/* ================================================
-            PRIORITY + PROTECTION
+            PRIORITIES + CASE TYPES
             ================================================ */}
 
         <section className="dashboardGrid">
 
-          {/* PRIORITY */}
+          {/* PRIORITY DISTRIBUTION */}
 
           <div className="panel">
+
             <div className="panelHeader">
+
               <div>
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "CASE SEVERITY",
-                    "شدة الحالات"
+                    "CASE PRIORITIES",
+                    "أولويات الحالات"
                   )}
                 </div>
 
@@ -1934,135 +691,7 @@ export default function AnalyticsPage() {
                   {L(
                     language,
                     "Priority Distribution",
-                    "توزيع الأولويات"
-                  )}
-                </h2>
-              </div>
-
-              <PieChart
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "12px 20px 20px",
-              }}
-            >
-              {priorityBreakdown.map(
-                (item) => (
-                  <PriorityBar
-                    key={
-                      item.key
-                    }
-                    item={
-                      item
-                    }
-                    t={t}
-                  />
-                )
-              )}
-
-
-              <div
-                style={{
-                  display:
-                    "grid",
-
-                  gridTemplateColumns:
-                    "repeat(3,1fr)",
-
-                  gap:
-                    "8px",
-
-                  marginTop:
-                    "13px",
-                }}
-              >
-                {priorityBreakdown.map(
-                  (item) => (
-                    <div
-                      key={
-                        item.key
-                      }
-                      style={{
-                        padding:
-                          "12px",
-
-                        borderRadius:
-                          "10px",
-
-                        background:
-                          "rgba(255,255,255,0.024)",
-
-                        border:
-                          "1px solid rgba(255,255,255,0.05)",
-                      }}
-                    >
-                      <span
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#71839a",
-
-                          fontSize:
-                            "10px",
-                        }}
-                      >
-                        {priorityLabel(
-                          item.key,
-                          t
-                        )}
-                      </span>
-
-                      <strong
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#d1ddec",
-
-                          fontSize:
-                            "18px",
-
-                          marginTop:
-                            "4px",
-                        }}
-                      >
-                        {item.value}
-                      </strong>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-          </div>
-
-
-          {/* PROTECTIVE INTELLIGENCE */}
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "PROTECTIVE INTELLIGENCE",
-                    "الذكاء الوقائي"
-                  )}
-                </div>
-
-                <h2>
-                  {L(
-                    language,
-                    "Wrong-Person Protection",
-                    "حماية الشخص الخطأ"
+                    "توزيع الحالات حسب الأولوية"
                   )}
                 </h2>
               </div>
@@ -2071,326 +700,25 @@ export default function AnalyticsPage() {
                 size={22}
                 aria-hidden="true"
               />
+
             </div>
 
 
             <div
               style={{
                 padding:
-                  "19px",
+                  "10px 20px 20px",
               }}
             >
-              <div
-                style={{
-                  width:
-                    "145px",
 
-                  height:
-                    "145px",
-
-                  borderRadius:
-                    "50%",
-
-                  margin:
-                    "0 auto",
-
-                  border:
-                    "13px solid rgba(255,85,105,0.10)",
-
-                  outline:
-                    "4px solid rgba(255,85,105,0.21)",
-
-                  display:
-                    "flex",
-
-                  flexDirection:
-                    "column",
-
-                  justifyContent:
-                    "center",
-
-                  alignItems:
-                    "center",
-                }}
-              >
-                <strong
-                  style={{
-                    color:
-                      "#ff7b89",
-
-                    fontSize:
-                      "34px",
-                  }}
-                >
-                  {
-                    PLATFORM_METRICS.wronglyAffectedCases
-                  }
-                </strong>
-
-                <span
-                  style={{
-                    color:
-                      "#a56d76",
-
-                    fontSize:
-                      "10px",
-
-                    fontWeight:
-                      750,
-                  }}
-                >
-                  {L(
-                    language,
-                    "PROTECTIVE CASES",
-                    "حالات وقائية"
-                  )}
-                </span>
-              </div>
-
-
-              <div
-                style={{
-                  marginTop:
-                    "22px",
-                }}
-              >
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "analytics.protectiveDetection"
-                    )}
-                  </span>
-
-                  <strong
-                    style={{
-                      color:
-                        "#59cfa0",
-                    }}
-                  >
-                    {
-                      PLATFORM_METRICS.evaluation.protectiveDetectionRecall
-                    }
-                    %
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "analytics.protectivePriorityAccuracy"
-                    )}
-                  </span>
-
-                  <strong
-                    style={{
-                      color:
-                        "#59cfa0",
-                    }}
-                  >
-                    {
-                      PLATFORM_METRICS.evaluation.protectivePriorityAccuracy
-                    }
-                    %
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "analytics.protectiveCases"
-                    )}
-                  </span>
-
-                  <strong>
-                    {
-                      PLATFORM_METRICS.wronglyAffectedCases
-                    }
-                  </strong>
-                </div>
-              </div>
-
-
-              <div
-                style={{
-                  marginTop:
-                    "13px",
-
-                  color:
-                    "#71839a",
-
-                  fontSize:
-                    "10px",
-
-                  lineHeight:
-                    1.6,
-                }}
-              >
-                {L(
-                  language,
-
-                  "Protective Cases is an executive grouping for wrong-person and harm-sensitive cases. It is not a single backend case type.",
-
-                  "الحالات الوقائية هي تجميع تنفيذي للحالات المرتبطة بالشخص الخطأ والحالات الحساسة للضرر، وليست نوع حالة منفردًا في النظام الخلفي."
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-        {/* ================================================
-            CASE TAXONOMY
-            ================================================ */}
-
-        <section
-          className="panel"
-          style={{
-            marginTop:
-              "16px",
-          }}
-        >
-          <div className="panelHeader">
-            <div>
-              <div className="panelEyebrow">
-                {L(
-                  language,
-                  "PRIMARY CASE TAXONOMY",
-                  "التصنيف الرئيسي للحالات"
-                )}
-              </div>
-
-              <h2>
-                {t(
-                  "analytics.caseTypeBreakdown"
-                )}
-              </h2>
-            </div>
-
-            <BarChart3
-              size={22}
-              aria-hidden="true"
-            />
-          </div>
-
-
-          <div
-            style={{
-              padding:
-                "12px 20px 20px",
-            }}
-          >
-            {caseTypeBreakdown.map(
-              (item) => (
-                <CaseTypeBar
-                  key={
-                    item.type
-                  }
-                  item={
-                    item
-                  }
-                  maxValue={
-                    maxCaseTypeValue
-                  }
-                  language={
-                    language
-                  }
-                  t={t}
-                />
-              )
-            )}
-          </div>
-        </section>
-
-
-        {/* ================================================
-            PIPELINE + WORKFLOW
-            ================================================ */}
-
-        <section
-          className="dashboardGrid"
-          style={{
-            marginTop:
-              "16px",
-          }}
-        >
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "RECONCILIATION PIPELINE",
-                    "مسار المطابقة"
-                  )}
-                </div>
-
-                <h2>
-                  {t(
-                    "analytics.evidenceFlow"
-                  )}
-                </h2>
-              </div>
-
-              <TrendingUp
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-            <PipelineFlow
-              language={
-                language
-              }
-              t={t}
-            />
-          </div>
-
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "CASE LIFECYCLE",
-                    "دورة حياة الحالة"
-                  )}
-                </div>
-
-                <h2>
-                  {t(
-                    "analytics.operationalSnapshot"
-                  )}
-                </h2>
-              </div>
-
-              <Activity
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "8px 18px 18px",
-              }}
-            >
-              {workflowBreakdown.map(
+              {priorityData.map(
                 (item) => {
-                  const percentage =
-                    item.total > 0
-                      ? (
-                          item.value
-                          /
-                          item.total
-                        )
-                        *
-                        100
-                      : 0;
+
+                  const width =
+                    percentage(
+                      item.value
+                    );
+
 
                   return (
                     <div
@@ -2399,9 +727,162 @@ export default function AnalyticsPage() {
                       }
                       style={{
                         padding:
-                          "11px 0",
+                          "12px 0",
                       }}
                     >
+
+                      <div
+                        style={{
+                          display:
+                            "flex",
+
+                          justifyContent:
+                            "space-between",
+
+                          alignItems:
+                            "center",
+
+                          gap:
+                            "12px",
+
+                          marginBottom:
+                            "8px",
+                        }}
+                      >
+
+                        <span
+                          style={{
+                            color:
+                              "#93a4b9",
+
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {priorityLabel(
+                            item.key,
+                            language
+                          )}
+                        </span>
+
+
+                        <div>
+                          <strong
+                            style={{
+                              color:
+                                "#d1ddeb",
+
+                              fontSize:
+                                "11px",
+                            }}
+                          >
+                            {item.value}
+                          </strong>
+
+                          <span
+                            style={{
+                              color:
+                                "#71839a",
+
+                              fontSize:
+                                "9px",
+
+                              marginInlineStart:
+                                "7px",
+                            }}
+                          >
+                            {width}%
+                          </span>
+                        </div>
+
+                      </div>
+
+
+                      <div className="progress">
+
+                        <div
+                          className="progressFill"
+                          style={{
+                            width:
+                              `${width}%`,
+                          }}
+                        />
+
+                      </div>
+
+                    </div>
+                  );
+                }
+              )}
+
+            </div>
+
+          </div>
+
+
+          {/* CASE TYPES */}
+
+          <div className="panel">
+
+            <div className="panelHeader">
+
+              <div>
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "IDENTITY ISSUES",
+                    "أنواع مشكلات الهوية"
+                  )}
+                </div>
+
+                <h2>
+                  {L(
+                    language,
+                    "Case Type Breakdown",
+                    "توزيع الحالات حسب المشكلة"
+                  )}
+                </h2>
+              </div>
+
+              <BarChart3
+                size={22}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "10px 20px 20px",
+              }}
+            >
+
+              {CASE_TYPE_BREAKDOWN.map(
+                (item) => {
+
+                  const width =
+                    maxCaseType > 0
+                      ? (
+                          item.count /
+                          maxCaseType
+                        ) *
+                        100
+                      : 0;
+
+
+                  return (
+                    <div
+                      key={
+                        item.type
+                      }
+                      style={{
+                        padding:
+                          "10px 0",
+                      }}
+                    >
+
                       <div
                         style={{
                           display:
@@ -2417,224 +898,64 @@ export default function AnalyticsPage() {
                             "7px",
                         }}
                       >
+
                         <span
                           style={{
                             color:
-                              "#8b9db3",
+                              "#92a4b9",
 
                             fontSize:
-                              "11px",
+                              "10px",
                           }}
                         >
-                          {workflowLabel(
-                            item.key,
+                          {caseTypeLabel(
+                            item.type,
                             language
                           )}
                         </span>
 
+
                         <strong
                           style={{
                             color:
-                              "#d0dbea",
+                              "#d0dceb",
 
                             fontSize:
-                              "11px",
+                              "10px",
                           }}
                         >
-                          {item.value}
+                          {item.count}
                         </strong>
+
                       </div>
 
 
                       <div className="progress">
+
                         <div
                           className="progressFill"
                           style={{
                             width:
-                              `${percentage}%`,
+                              `${width}%`,
                           }}
                         />
+
                       </div>
+
                     </div>
                   );
                 }
               )}
 
-
-              <div
-                style={{
-                  marginTop:
-                    "11px",
-
-                  color:
-                    "#687b93",
-
-                  fontSize:
-                    "10px",
-
-                  lineHeight:
-                    1.6,
-                }}
-              >
-                {L(
-                  language,
-
-                  "Queue and milestone values are a workflow snapshot and are not mutually exclusive totals.",
-
-                  "قيم القوائم والمراحل تمثل لقطة لحالة سير العمل وليست أرقامًا منفصلة حصريًا عن بعضها."
-                )}
-              </div>
             </div>
+
           </div>
+
         </section>
 
 
         {/* ================================================
-            OPERATIONAL DATA
-            ================================================ */}
-
-        <section
-          style={{
-            display:
-              "grid",
-
-            gridTemplateColumns:
-              "repeat(4,minmax(0,1fr))",
-
-            gap:
-              "16px",
-
-            marginTop:
-              "16px",
-          }}
-        >
-          <div className="metricCard">
-            <div className="metricIcon">
-              <ShieldCheck
-                size={20}
-                aria-hidden="true"
-              />
-            </div>
-
-            <div className="metricValue">
-              {t(
-                "statuses.PASSED"
-              )}
-            </div>
-
-            <div className="metricTitle">
-              {L(
-                language,
-                "E2E Demo Workflow",
-                "مسار العرض المتكامل"
-              )}
-            </div>
-
-            <div className="metricSubtitle">
-              {L(
-                language,
-                "Officer → Manager → Execution → Verification",
-                "الضابط ← المدير ← التنفيذ ← التحقق"
-              )}
-            </div>
-          </div>
-
-
-          <div className="metricCard">
-            <div className="metricIcon">
-              <Database
-                size={20}
-                aria-hidden="true"
-              />
-            </div>
-
-            <div className="metricValue">
-              {formatNumber(
-                PLATFORM_METRICS.masterIdentities
-              )}
-            </div>
-
-            <div className="metricTitle">
-              {t(
-                "analytics.masterIdentities"
-              )}
-            </div>
-
-            <div className="metricSubtitle">
-              {L(
-                language,
-                "Authoritative read-only reference",
-                "مرجع معتمد للقراءة فقط"
-              )}
-            </div>
-          </div>
-
-
-          <div className="metricCard">
-            <div className="metricIcon">
-              <Fingerprint
-                size={20}
-                aria-hidden="true"
-              />
-            </div>
-
-            <div className="metricValue">
-              {formatNumber(
-                PLATFORM_METRICS.biometricRecords
-              )}
-            </div>
-
-            <div className="metricTitle">
-              {t(
-                "analytics.totalBiometricRecords"
-              )}
-            </div>
-
-            <div className="metricSubtitle">
-              {L(
-                language,
-                "Synthetic reconciliation dataset",
-                "مجموعة بيانات مطابقة اصطناعية"
-              )}
-            </div>
-          </div>
-
-
-          <div className="metricCard">
-            <div className="metricIcon">
-              <BrainCircuit
-                size={20}
-                aria-hidden="true"
-              />
-            </div>
-
-            <div className="metricValue">
-              {
-                PLATFORM_METRICS.rawFindings
-              }
-            </div>
-
-            <div className="metricTitle">
-              {t(
-                "analytics.rawFindings"
-              )}
-            </div>
-
-            <div className="metricSubtitle">
-              {L(
-                language,
-
-                `Aggregated into ${PLATFORM_METRICS.aggregatedCases} cases`,
-
-                `تم تجميعها داخل ${PLATFORM_METRICS.aggregatedCases} حالة`
-              )}
-            </div>
-          </div>
-        </section>
-
-
-        {/* ================================================
-            AGENT ANALYTICS
+            WORKFLOW
             ================================================ */}
 
         <section
@@ -2644,171 +965,234 @@ export default function AnalyticsPage() {
               "16px",
           }}
         >
+
           <div className="panelHeader">
+
             <div>
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "AGENTIC AI OPERATIONS",
-                  "عمليات وكلاء الذكاء الاصطناعي"
+                  "CURRENT WORKFLOW",
+                  "حالة سير العمل"
                 )}
               </div>
 
               <h2>
                 {L(
                   language,
-                  "Validated Demo Components",
-                  "مكونات العرض التي تم التحقق منها"
+                  "Where are the cases now?",
+                  "وين وصلت الحالات؟"
                 )}
               </h2>
             </div>
 
-            <BrainCircuit
+            <Activity
               size={22}
               aria-hidden="true"
             />
+
           </div>
 
 
-          <div className="tableWrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>
+          <div
+            style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "repeat(5,minmax(0,1fr))",
+
+              gap:
+                "9px",
+
+              padding:
+                "20px",
+            }}
+          >
+
+            {[
+              {
+                value:
+                  PLATFORM_METRICS.aggregatedCases,
+
+                en:
+                  "Detected",
+
+                ar:
+                  "تم اكتشافها",
+              },
+
+              {
+                value:
+                  5,
+
+                en:
+                  "Waiting for Officer",
+
+                ar:
+                  "بانتظار الضابط",
+              },
+
+              {
+                value:
+                  3,
+
+                en:
+                  "Waiting for Manager",
+
+                ar:
+                  "بانتظار المدير",
+              },
+
+              {
+                value:
+                  1,
+
+                en:
+                  "Correction Completed",
+
+                ar:
+                  "تم التصحيح",
+              },
+
+              {
+                value:
+                  1,
+
+                en:
+                  "Verified & Closed",
+
+                ar:
+                  "تم التحقق والإغلاق",
+              },
+            ].map(
+              (
+                item,
+                index
+              ) => (
+                <div
+                  key={
+                    item.en
+                  }
+                  style={{
+                    padding:
+                      "15px",
+
+                    borderRadius:
+                      "11px",
+
+                    background:
+                      "rgba(255,255,255,0.024)",
+
+                    border:
+                      "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+
+                  <span
+                    style={{
+                      display:
+                        "block",
+
+                      color:
+                        "#5f8fce",
+
+                      fontSize:
+                        "9px",
+
+                      fontWeight:
+                        800,
+                    }}
+                  >
                     {L(
                       language,
-                      "COMPONENT",
-                      "المكون"
+                      `STEP ${index + 1}`,
+                      `المرحلة ${index + 1}`
                     )}
-                  </th>
+                  </span>
 
-                  <th>
+
+                  <strong
+                    style={{
+                      display:
+                        "block",
+
+                      color:
+                        index ===
+                        4
+                          ? "#59cfa0"
+                          : "#d8e3f0",
+
+                      fontSize:
+                        "23px",
+
+                      marginTop:
+                        "8px",
+                    }}
+                  >
+                    {item.value}
+                  </strong>
+
+
+                  <span
+                    style={{
+                      display:
+                        "block",
+
+                      color:
+                        "#71839a",
+
+                      fontSize:
+                        "10px",
+
+                      lineHeight:
+                        1.45,
+
+                      marginTop:
+                        "4px",
+                    }}
+                  >
                     {L(
                       language,
-                      "DEMO STATUS",
-                      "حالة العرض"
+                      item.en,
+                      item.ar
                     )}
-                  </th>
+                  </span>
 
-                  <th>
-                    {L(
-                      language,
-                      "INPUT / PROCESSED",
-                      "المدخلات / المعالجة"
-                    )}
-                  </th>
+                </div>
+              )
+            )}
 
-                  <th>
-                    {L(
-                      language,
-                      "RESULT",
-                      "النتيجة"
-                    )}
-                  </th>
-                </tr>
-              </thead>
-
-
-              <tbody>
-                {agentMetrics.map(
-                  (agent) => (
-                    <tr
-                      key={
-                        agent.key
-                      }
-                    >
-                      <td>
-                        <div
-                          style={{
-                            display:
-                              "flex",
-
-                            alignItems:
-                              "center",
-
-                            gap:
-                              "9px",
-                          }}
-                        >
-                          <div className="agentIcon">
-                            <BrainCircuit
-                              size={16}
-                              aria-hidden="true"
-                            />
-                          </div>
-
-                          <strong
-                            style={{
-                              color:
-                                "#cbd7e7",
-
-                              fontSize:
-                                "11px",
-                            }}
-                          >
-                            {agentName(
-                              agent.key,
-                              language
-                            )}
-                          </strong>
-                        </div>
-                      </td>
-
-
-                      <td>
-                        <span
-                          style={{
-                            display:
-                              "inline-flex",
-
-                            alignItems:
-                              "center",
-
-                            gap:
-                              "6px",
-
-                            color:
-                              "#59cfa0",
-
-                            fontSize:
-                              "10px",
-
-                            fontWeight:
-                              800,
-                          }}
-                        >
-                          <span className="greenDot" />
-
-                          {agentStatus(
-                            agent.status,
-                            language
-                          )}
-                        </span>
-                      </td>
-
-
-                      <td>
-                        {agent.processed}
-                      </td>
-
-
-                      <td>
-                        {agentOutput(
-                          agent.output,
-                          language
-                        )}
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
           </div>
+
+
+          <div
+            style={{
+              padding:
+                "0 20px 20px",
+
+              color:
+                "#687b93",
+
+              fontSize:
+                "9px",
+
+              lineHeight:
+                1.6,
+            }}
+          >
+            {L(
+              language,
+              "Workflow values are a demonstration snapshot and are not separate totals that must add up to the total number of cases.",
+              "تمثل أرقام سير العمل لقطة تجريبية للحالة الحالية، وليست أرقامًا منفصلة يجب أن يساوي مجموعها إجمالي الحالات."
+            )}
+          </div>
+
         </section>
 
 
         {/* ================================================
-            POWER BI — PLANNED
+            POWER BI
             ================================================ */}
 
         <section
@@ -2818,21 +1202,23 @@ export default function AnalyticsPage() {
               "16px",
           }}
         >
+
           <div className="panelHeader">
+
             <div>
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "ENTERPRISE REPORTING",
-                  "التقارير المؤسسية"
+                  "MANAGEMENT REPORTING",
+                  "تقارير الإدارة"
                 )}
               </div>
 
               <h2>
                 {L(
                   language,
-                  "Power BI Intelligence Center",
-                  "مركز ذكاء Power BI"
+                  "Power BI Dashboard",
+                  "لوحة Power BI"
                 )}
               </h2>
             </div>
@@ -2841,6 +1227,7 @@ export default function AnalyticsPage() {
               size={22}
               aria-hidden="true"
             />
+
           </div>
 
 
@@ -2853,348 +1240,176 @@ export default function AnalyticsPage() {
                 "1.15fr 0.85fr",
 
               gap:
-                "16px",
+                "15px",
 
               padding:
                 "20px",
             }}
           >
+
+            {/* POWER BI PREVIEW */}
+
             <div
               style={{
+                padding:
+                  "22px",
+
                 minHeight:
-                  "330px",
+                  "260px",
 
                 borderRadius:
                   "14px",
 
                 background:
-                  "linear-gradient(135deg,rgba(31,100,210,0.11),rgba(10,22,39,0.35))",
+                  "rgba(70,140,255,0.04)",
 
                 border:
-                  "1px solid rgba(90,150,255,0.11)",
-
-                padding:
-                  "22px",
-
-                display:
-                  "flex",
-
-                flexDirection:
-                  "column",
-
-                justifyContent:
-                  "space-between",
+                  "1px solid rgba(70,140,255,0.09)",
               }}
             >
-              <div>
-                <div
-                  style={{
-                    display:
-                      "flex",
 
-                    alignItems:
-                      "center",
+              <div
+                style={{
+                  display:
+                    "flex",
 
-                    gap:
-                      "10px",
-                  }}
-                >
-                  <div className="metricIcon">
-                    <BarChart3
-                      size={21}
-                      aria-hidden="true"
-                    />
-                  </div>
+                  alignItems:
+                    "center",
 
-                  <div>
-                    <strong
-                      style={{
-                        display:
-                          "block",
+                  gap:
+                    "10px",
+                }}
+              >
 
-                        color:
-                          "#d3dfed",
-
-                        fontSize:
-                          "12px",
-                      }}
-                    >
-                      {L(
-                        language,
-                        "Executive Power BI Report",
-                        "تقرير Power BI التنفيذي"
-                      )}
-                    </strong>
-
-                    <span
-                      style={{
-                        display:
-                          "block",
-
-                        color:
-                          "#71839a",
-
-                        fontSize:
-                          "10px",
-
-                        marginTop:
-                          "4px",
-                      }}
-                    >
-                      {L(
-                        language,
-                        "Planned reporting integration",
-                        "تكامل تقارير مخطط له"
-                      )}
-                    </span>
-                  </div>
+                <div className="metricIcon">
+                  <BarChart3
+                    size={21}
+                    aria-hidden="true"
+                  />
                 </div>
 
 
-                <div
-                  style={{
-                    display:
-                      "grid",
+                <div>
 
-                    gridTemplateColumns:
-                      "repeat(3,1fr)",
+                  <strong
+                    style={{
+                      display:
+                        "block",
 
-                    gap:
-                      "9px",
+                      color:
+                        "#d2dfed",
 
-                    marginTop:
-                      "25px",
-                  }}
-                >
-                  {[
-                    [
-                      L(
-                        language,
-                        "Cases",
-                        "الحالات"
-                      ),
-                      PLATFORM_METRICS.aggregatedCases,
-                    ],
+                      fontSize:
+                        "12px",
+                    }}
+                  >
+                    {L(
+                      language,
+                      "Executive Identity Dashboard",
+                      "لوحة مؤشرات الهوية التنفيذية"
+                    )}
+                  </strong>
 
-                    [
-                      L(
-                        language,
-                        "Protection",
-                        "الحماية"
-                      ),
-                      PLATFORM_METRICS.wronglyAffectedCases,
-                    ],
 
-                    [
-                      L(
-                        language,
-                        "Recall",
-                        "الاستدعاء"
-                      ),
-                      `${PLATFORM_METRICS.evaluation.recall}%`,
-                    ],
-                  ].map(
-                    ([
-                      label,
-                      value,
-                    ]) => (
-                      <div
-                        key={label}
-                        style={{
-                          padding:
-                            "15px",
+                  <span
+                    style={{
+                      display:
+                        "block",
 
-                          borderRadius:
-                            "11px",
+                      color:
+                        "#71839a",
 
-                          background:
-                            "rgba(255,255,255,0.025)",
+                      fontSize:
+                        "10px",
 
-                          border:
-                            "1px solid rgba(255,255,255,0.055)",
-                        }}
-                      >
-                        <span
-                          style={{
-                            display:
-                              "block",
+                      marginTop:
+                        "4px",
+                    }}
+                  >
+                    {L(
+                      language,
+                      "Power BI integration planned",
+                      "تكامل Power BI مخطط له"
+                    )}
+                  </span>
 
-                            color:
-                              "#71839a",
-
-                            fontSize:
-                              "10px",
-                          }}
-                        >
-                          {label}
-                        </span>
-
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            marginTop:
-                              "5px",
-
-                            fontSize:
-                              "20px",
-                          }}
-                        >
-                          {value}
-                        </strong>
-                      </div>
-                    )
-                  )}
                 </div>
+
               </div>
 
 
               <div
                 style={{
-                  padding:
-                    "16px",
+                  display:
+                    "grid",
 
-                  borderRadius:
-                    "11px",
+                  gridTemplateColumns:
+                    "repeat(3,minmax(0,1fr))",
 
-                  background:
-                    "rgba(255,185,65,0.045)",
+                  gap:
+                    "9px",
 
-                  border:
-                    "1px solid rgba(255,185,65,0.09)",
+                  marginTop:
+                    "22px",
                 }}
               >
-                <strong
-                  style={{
-                    display:
-                      "block",
 
-                    color:
-                      "#d4ac63",
+                {[
+                  {
+                    label:
+                      L(
+                        language,
+                        "Cases",
+                        "الحالات"
+                      ),
 
-                    fontSize:
-                      "11px",
-                  }}
-                >
-                  {t(
-                    "analytics.planned"
-                  )}
-                </strong>
+                    value:
+                      PLATFORM_METRICS.aggregatedCases,
+                  },
 
-                <span
-                  style={{
-                    display:
-                      "block",
+                  {
+                    label:
+                      L(
+                        language,
+                        "Urgent",
+                        "فورية"
+                      ),
 
-                    color:
-                      "#927b54",
+                    value:
+                      PLATFORM_METRICS.priority.immediate,
+                  },
 
-                    fontSize:
-                      "10px",
+                  {
+                    label:
+                      L(
+                        language,
+                        "AI Detection",
+                        "اكتشاف AI"
+                      ),
 
-                    lineHeight:
-                      1.6,
-
-                    marginTop:
-                      "5px",
-                  }}
-                >
-                  {t(
-                    "analytics.powerBiMessage"
-                  )}
-                </span>
-              </div>
-            </div>
-
-
-            <div>
-              <div className="panelEyebrow">
-                {L(
-                  language,
-                  "PLANNED REPORT DATASETS",
-                  "مجموعات بيانات التقارير المخطط لها"
-                )}
-              </div>
-
-              <h3
-                style={{
-                  margin:
-                    "6px 0 15px",
-
-                  fontSize:
-                    "13px",
-                }}
-              >
-                {L(
-                  language,
-                  "Analytics Data Pipeline",
-                  "مسار بيانات التحليلات"
-                )}
-              </h3>
-
-
-              {powerBiDatasets.map(
-                (dataset) => (
-                  <div
-                    key={
-                      dataset.key
-                    }
-                    style={{
-                      padding:
-                        "13px",
-
-                      borderRadius:
-                        "10px",
-
-                      background:
-                        "rgba(255,255,255,0.024)",
-
-                      border:
-                        "1px solid rgba(255,255,255,0.05)",
-
-                      marginBottom:
-                        "8px",
-
-                      display:
-                        "flex",
-
-                      alignItems:
-                        "center",
-
-                      gap:
-                        "10px",
-                    }}
-                  >
-                    <Database
-                      size={17}
-                      color="#659eff"
-                      aria-hidden="true"
-                    />
-
+                    value:
+                      `${PLATFORM_METRICS.evaluation.recall}%`,
+                  },
+                ].map(
+                  (item) => (
                     <div
+                      key={
+                        item.label
+                      }
                       style={{
-                        flex:
-                          1,
+                        padding:
+                          "14px",
+
+                        borderRadius:
+                          "10px",
+
+                        background:
+                          "rgba(255,255,255,0.025)",
+
+                        border:
+                          "1px solid rgba(255,255,255,0.05)",
                       }}
                     >
-                      <strong
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#c9d6e5",
-
-                          fontSize:
-                            "11px",
-                        }}
-                      >
-                        {datasetName(
-                          dataset.key,
-                          language
-                        )}
-                      </strong>
 
                       <span
                         style={{
@@ -3205,352 +1420,176 @@ export default function AnalyticsPage() {
                             "#71839a",
 
                           fontSize:
-                            "10px",
-
-                          marginTop:
-                            "3px",
+                            "9px",
                         }}
                       >
-                        {datasetSource(
-                          dataset.source,
-                          language
-                        )}
+                        {item.label}
                       </span>
+
+
+                      <strong
+                        style={{
+                          display:
+                            "block",
+
+                          color:
+                            "#d8e3ef",
+
+                          fontSize:
+                            "20px",
+
+                          marginTop:
+                            "5px",
+                        }}
+                      >
+                        {item.value}
+                      </strong>
+
                     </div>
+                  )
+                )}
 
-                    <span
-                      style={{
-                        color:
-                          "#d4ac63",
-
-                        fontSize:
-                          "10px",
-
-                        fontWeight:
-                          800,
-                      }}
-                    >
-                      {t(
-                        "analytics.planned"
-                      )}
-                    </span>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </section>
-
-
-        {/* ================================================
-            MANAGEMENT KPIs
-            ================================================ */}
-
-        <section
-          className="lowerGrid"
-          style={{
-            gridTemplateColumns:
-              "1fr 1fr",
-
-            marginTop:
-              "16px",
-          }}
-        >
-          {/* OPERATIONAL */}
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "OPERATIONAL KPIs",
-                    "مؤشرات الأداء التشغيلية"
-                  )}
-                </div>
-
-                <h2>
-                  {t(
-                    "analytics.operationalSnapshot"
-                  )}
-                </h2>
               </div>
 
-              <Timer
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
 
+              <div
+                style={{
+                  marginTop:
+                    "18px",
 
-            <div
-              style={{
-                padding:
-                  "8px 18px 18px",
-              }}
-            >
-              {[
-                [
-                  L(
-                    language,
-                    "Cases Awaiting Officer",
-                    "حالات بانتظار الضابط"
-                  ),
-                  5,
-                ],
+                  padding:
+                    "13px",
 
-                [
-                  L(
-                    language,
-                    "Cases Awaiting Manager",
-                    "حالات بانتظار المدير"
-                  ),
-                  3,
-                ],
+                  borderRadius:
+                    "10px",
 
-                [
-                  L(
-                    language,
-                    "Completed Demo Correction",
-                    "تصحيح تجريبي مكتمل"
-                  ),
-                  1,
-                ],
+                  background:
+                    "rgba(255,185,90,0.04)",
 
-                [
-                  t(
-                    "analytics.verifiedClosed"
-                  ),
-                  1,
-                ],
+                  border:
+                    "1px solid rgba(255,185,90,0.08)",
 
-                [
-                  L(
-                    language,
-                    "Verification Failure",
-                    "فشل التحقق"
-                  ),
-                  0,
-                ],
+                  color:
+                    "#a18a63",
 
-                [
-                  L(
-                    language,
-                    "Rollback Required",
-                    "تراجع مطلوب"
-                  ),
-                  0,
-                ],
-              ].map(
-                ([
-                  label,
-                  value,
-                ]) => (
-                  <div
-                    className="detailRow"
-                    key={
-                      label
-                    }
-                  >
-                    <span>
-                      {label}
-                    </span>
+                  fontSize:
+                    "10px",
 
-                    <strong>
-                      {value}
-                    </strong>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-
-
-          {/* QUALITY */}
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "AI QUALITY KPIs",
-                    "مؤشرات جودة الذكاء الاصطناعي"
-                  )}
-                </div>
-
-                <h2>
-                  {t(
-                    "analytics.qualityMetrics"
-                  )}
-                </h2>
+                  lineHeight:
+                    1.6,
+                }}
+              >
+                {L(
+                  language,
+                  "This is a frontend preview. Live Power BI embedding is planned and is not connected in the current demonstration.",
+                  "هذه معاينة داخل الواجهة فقط. ربط Power BI الفعلي مخطط له وغير متصل في النسخة التجريبية الحالية."
+                )}
               </div>
 
-              <ShieldCheck
-                size={22}
-                aria-hidden="true"
-              />
             </div>
 
 
-            <div
-              style={{
-                padding:
-                  "8px 18px 18px",
-              }}
-            >
-              {[
-                [
-                  t(
-                    "analytics.expectedAnomalies"
-                  ),
-                  PLATFORM_METRICS.evaluation.expectedIssues,
-                ],
+            {/* PLANNED CONTENT */}
 
-                [
-                  t(
-                    "analytics.detectedAnomalies"
-                  ),
-                  PLATFORM_METRICS.evaluation.detectedIssues,
-                ],
+            <div>
 
-                [
-                  t(
-                    "analytics.missedAnomalies"
-                  ),
-                  PLATFORM_METRICS.evaluation.missedIssues,
-                ],
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "PLANNED POWER BI CONTENT",
+                  "المحتوى المخطط له في Power BI"
+                )}
+              </div>
 
-                [
-                  t(
-                    "analytics.detectionRecall"
-                  ),
-                  `${PLATFORM_METRICS.evaluation.recall}%`,
-                ],
 
-                [
-                  t(
-                    "analytics.rawPrecision"
-                  ),
-                  `${PLATFORM_METRICS.evaluation.rawPrecision}%`,
-                ],
+              <div
+                style={{
+                  marginTop:
+                    "13px",
+                }}
+              >
 
-                [
-                  t(
-                    "analytics.f1Score"
-                  ),
-                  `${PLATFORM_METRICS.evaluation.f1}%`,
-                ],
+                {[
+                  {
+                    en:
+                      "Case volumes and trends",
 
-                [
-                  t(
-                    "analytics.diagnosticPrecision"
-                  ),
-                  `${PLATFORM_METRICS.evaluation.diagnosticPrecision}%`,
-                ],
+                    ar:
+                      "أعداد الحالات واتجاهاتها",
+                  },
 
-                [
-                  t(
-                    "analytics.unexplainedFalsePositives"
-                  ),
-                  PLATFORM_METRICS.evaluation.unexplainedFalsePositives,
-                ],
+                  {
+                    en:
+                      "Priority and risk distribution",
 
-                [
-                  t(
-                    "analytics.protectiveDetection"
-                  ),
-                  `${PLATFORM_METRICS.evaluation.protectiveDetectionRecall}%`,
-                ],
+                    ar:
+                      "توزيع الأولويات والمخاطر",
+                  },
 
-                [
-                  t(
-                    "analytics.protectivePriorityAccuracy"
-                  ),
-                  `${PLATFORM_METRICS.evaluation.protectivePriorityAccuracy}%`,
-                ],
-              ].map(
-                ([
-                  label,
-                  value,
-                ]) => {
-                  const success =
-                    value === 0
-                    ||
-                    value === "100%";
+                  {
+                    en:
+                      "AI detection performance",
 
-                  return (
+                    ar:
+                      "أداء اكتشاف الذكاء الاصطناعي",
+                  },
+
+                  {
+                    en:
+                      "Officer and Manager approvals",
+
+                    ar:
+                      "اعتمادات الضابط والمدير",
+                  },
+
+                  {
+                    en:
+                      "Correction and verification results",
+
+                    ar:
+                      "نتائج التصحيح والتحقق",
+                  },
+                ].map(
+                  (item) => (
                     <div
                       className="detailRow"
                       key={
-                        label
+                        item.en
                       }
                     >
+
                       <span>
-                        {label}
+                        {L(
+                          language,
+                          item.en,
+                          item.ar
+                        )}
                       </span>
+
 
                       <strong
                         style={{
                           color:
-                            success
-                              ? "#59cfa0"
-                              : undefined,
+                            "#d0a45f",
                         }}
                       >
-                        {value}
+                        {L(
+                          language,
+                          "Planned",
+                          "مخطط له"
+                        )}
                       </strong>
+
                     </div>
-                  );
-                }
-              )}
+                  )
+                )}
+
+              </div>
+
             </div>
+
           </div>
-        </section>
 
-
-        {/* ================================================
-            CANONICAL RESOLUTION NOTICE
-            ================================================ */}
-
-        <section
-          className="integrityInfo"
-          style={{
-            margin:
-              "16px 0 0",
-
-            padding:
-              "17px",
-          }}
-        >
-          <BrainCircuit
-            size={23}
-            aria-hidden="true"
-          />
-
-          <div>
-            <strong>
-              {t(
-                "dataIntegrity.canonicalResolution"
-              )}
-              {": "}
-              {
-                PLATFORM_METRICS.aggregatedCases
-                -
-                PLATFORM_METRICS.unresolvedIdentityCases
-              }
-              {" / "}
-              {
-                PLATFORM_METRICS.aggregatedCases
-              }
-            </strong>
-
-            <span>
-              {t(
-                "dataIntegrity.resolutionNotice"
-              )}
-            </span>
-          </div>
         </section>
 
 
@@ -3568,32 +1607,38 @@ export default function AnalyticsPage() {
               0,
           }}
         >
+
           <div className="alertIcon">
-            <TrendingUp
+            <BrainCircuit
               size={24}
               aria-hidden="true"
             />
           </div>
 
+
           <div className="alertText">
+
             <strong>
               {L(
                 language,
-                "Executive Insight",
-                "رؤية تنفيذية"
+                "AI Management Insight",
+                "ملخص الذكاء الاصطناعي للإدارة"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
 
-                `Data mismatch is the largest individual backend case type. Separately, the protective grouping contains ${PLATFORM_METRICS.wronglyAffectedCases} wrong-person and harm-sensitive cases requiring elevated human attention. Volume and protective harm should therefore be monitored as different management dimensions.`,
+                `The system detected ${PLATFORM_METRICS.aggregatedCases} identity cases. ${PLATFORM_METRICS.priority.immediate} require urgent attention, while ${PLATFORM_METRICS.wronglyAffectedCases} cases include potential wrong-person impact. No identity cases remain unresolved in the synthetic evaluation.`,
 
-                `يمثل اختلاف البيانات أكبر نوع منفرد من الحالات في النظام الخلفي. وبشكل منفصل، تضم المجموعة الوقائية ${PLATFORM_METRICS.wronglyAffectedCases} حالات مرتبطة بالشخص الخطأ أو الحساسة للضرر وتتطلب اهتمامًا بشريًا أعلى. لذلك يجب مراقبة حجم الحالات والضرر الوقائي كأبعاد إدارية مختلفة.`
+                `اكتشف النظام ${PLATFORM_METRICS.aggregatedCases} حالة هوية، منها ${PLATFORM_METRICS.priority.immediate} حالات تحتاج إلى متابعة فورية، و${PLATFORM_METRICS.wronglyAffectedCases} حالات قد تتضمن تأثيرًا على شخص آخر. ولا توجد حالات هوية غير محسومة في التقييم التجريبي.`
               )}
             </span>
+
           </div>
+
 
           <Link
             href="/cases"
@@ -3612,11 +1657,56 @@ export default function AnalyticsPage() {
             <ChevronRight
               size={17}
               style={
-                navigationArrowStyle
+                arrowStyle
               }
               aria-hidden="true"
             />
           </Link>
+
+        </section>
+
+
+        {/* ================================================
+            GOVERNANCE
+            ================================================ */}
+
+        <section
+          className="integrityInfo"
+          style={{
+            margin:
+              "16px 0 0",
+
+            padding:
+              "18px",
+          }}
+        >
+
+          <ShieldCheck
+            size={23}
+            aria-hidden="true"
+          />
+
+          <div>
+
+            <strong>
+              {L(
+                language,
+                "Management analytics do not replace human approval",
+                "التحليلات الإدارية لا تستبدل الاعتماد البشري"
+              )}
+            </strong>
+
+
+            <span>
+              {L(
+                language,
+                "AI analytics support monitoring and decision-making. Sensitive identity corrections still require the approved human review process.",
+                "تدعم تحليلات الذكاء الاصطناعي المراقبة واتخاذ القرار، بينما تظل تصحيحات الهوية الحساسة خاضعة لمسار الاعتماد البشري."
+              )}
+            </span>
+
+          </div>
+
         </section>
 
 
@@ -3625,19 +1715,15 @@ export default function AnalyticsPage() {
             ================================================ */}
 
         <footer className="footer">
+
           <span>
-            {t(
-              "footer.platform"
-            )}
-
-            {" · "}
-
             {L(
               language,
-              "Executive Analytics Center",
-              "مركز التحليلات التنفيذية"
+              "AI Identity Reconciliation Platform · Analytics",
+              "منصة مطابقة الهوية بالذكاء الاصطناعي · التحليلات"
             )}
           </span>
+
 
           <div>
             <Activity
@@ -3647,10 +1733,11 @@ export default function AnalyticsPage() {
 
             {L(
               language,
-              "Synthetic Intelligence View",
-              "عرض ذكاء اصطناعي تجريبي"
+              "Synthetic analytics view",
+              "عرض تحليلات تجريبي"
             )}
           </div>
+
         </footer>
 
       </main>

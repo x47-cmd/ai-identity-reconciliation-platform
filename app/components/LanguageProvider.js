@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -11,14 +12,55 @@ import {
 import translations from "../lib/translations";
 
 
+/* =========================================================
+   CONSTANTS
+   ========================================================= */
+
+const STORAGE_KEY =
+  "identity-ai-language";
+
+const DEFAULT_LANGUAGE =
+  "en";
+
+const SUPPORTED_LANGUAGES = [
+  "en",
+  "ar",
+];
+
+
+/* =========================================================
+   CONTEXT
+   ========================================================= */
+
 const LanguageContext =
   createContext(null);
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function isSupportedLanguage(
+  language
+) {
+  return SUPPORTED_LANGUAGES.includes(
+    language
+  );
+}
 
 
 function getValue(
   object,
   path
 ) {
+  if (
+    !object ||
+    !path ||
+    typeof path !== "string"
+  ) {
+    return undefined;
+  }
+
   return path
     .split(".")
     .reduce(
@@ -29,93 +71,210 @@ function getValue(
 }
 
 
+function applyDocumentLanguage(
+  language
+) {
+  if (
+    typeof document ===
+    "undefined"
+  ) {
+    return;
+  }
+
+  const isArabic =
+    language === "ar";
+
+  document.documentElement.lang =
+    language;
+
+  document.documentElement.dir =
+    isArabic
+      ? "rtl"
+      : "ltr";
+}
+
+
+function readStoredLanguage() {
+  if (
+    typeof window ===
+    "undefined"
+  ) {
+    return null;
+  }
+
+  try {
+    const savedLanguage =
+      window.localStorage.getItem(
+        STORAGE_KEY
+      );
+
+    return isSupportedLanguage(
+      savedLanguage
+    )
+      ? savedLanguage
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+
+function saveLanguage(
+  language
+) {
+  if (
+    typeof window ===
+    "undefined"
+  ) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      language
+    );
+  } catch {
+    // The interface must continue working
+    // even if browser storage is unavailable.
+  }
+}
+
+
+/* =========================================================
+   PROVIDER
+   ========================================================= */
+
 export function LanguageProvider({
   children,
 }) {
   const [
     language,
     setLanguage,
-  ] = useState("en");
+  ] = useState(
+    DEFAULT_LANGUAGE
+  );
 
+  const [
+    initialized,
+    setInitialized,
+  ] = useState(false);
+
+
+  /* -------------------------------------------------------
+     LOAD SAVED LANGUAGE
+     ------------------------------------------------------- */
 
   useEffect(() => {
     const savedLanguage =
-      localStorage.getItem(
-        "identity-ai-language"
-      );
+      readStoredLanguage();
 
-    if (
-      savedLanguage === "ar"
-      ||
-      savedLanguage === "en"
-    ) {
-      setLanguage(
-        savedLanguage
-      );
-    }
+    const initialLanguage =
+      savedLanguage ||
+      DEFAULT_LANGUAGE;
+
+    applyDocumentLanguage(
+      initialLanguage
+    );
+
+    setLanguage(
+      initialLanguage
+    );
+
+    setInitialized(true);
   }, []);
 
 
+  /* -------------------------------------------------------
+     APPLY LANGUAGE CHANGES
+     ------------------------------------------------------- */
+
   useEffect(() => {
-    document.documentElement.lang =
-      language;
-
-    document.documentElement.dir =
-      language === "ar"
-        ? "rtl"
-        : "ltr";
-
-    localStorage.setItem(
-      "identity-ai-language",
-      language
-    );
-  }, [language]);
-
-
-  function changeLanguage(
-    nextLanguage
-  ) {
-    if (
-      nextLanguage !== "en"
-      &&
-      nextLanguage !== "ar"
-    ) {
+    if (!initialized) {
       return;
     }
 
-    setLanguage(
-      nextLanguage
+    applyDocumentLanguage(
+      language
     );
-  }
 
-
-  function toggleLanguage() {
-    setLanguage(
-      (current) =>
-        current === "en"
-          ? "ar"
-          : "en"
+    saveLanguage(
+      language
     );
-  }
+  }, [
+    language,
+    initialized,
+  ]);
 
 
-  function t(
-    key,
-    fallback = key
-  ) {
-    const value =
-      getValue(
-        translations[language],
-        key
+  /* -------------------------------------------------------
+     CHANGE LANGUAGE
+     ------------------------------------------------------- */
+
+  const changeLanguage =
+    useCallback(
+      (nextLanguage) => {
+        if (
+          !isSupportedLanguage(
+            nextLanguage
+          )
+        ) {
+          return;
+        }
+
+        setLanguage(
+          nextLanguage
+        );
+      },
+      []
+    );
+
+
+  /* -------------------------------------------------------
+     TOGGLE LANGUAGE
+     ------------------------------------------------------- */
+
+  const toggleLanguage =
+    useCallback(() => {
+      setLanguage(
+        (current) =>
+          current === "en"
+            ? "ar"
+            : "en"
       );
+    }, []);
 
-    return (
-      value
-      ??
-      fallback
+
+  /* -------------------------------------------------------
+     TRANSLATION FUNCTION
+     ------------------------------------------------------- */
+
+  const t =
+    useCallback(
+      (
+        key,
+        fallback = key
+      ) => {
+        const value =
+          getValue(
+            translations?.[
+              language
+            ],
+            key
+          );
+
+        return (
+          value ??
+          fallback
+        );
+      },
+      [language]
     );
-  }
 
+
+  /* -------------------------------------------------------
+     CONTEXT VALUE
+     ------------------------------------------------------- */
 
   const value =
     useMemo(
@@ -131,10 +290,17 @@ export function LanguageProvider({
             : "ltr",
 
         changeLanguage,
+
         toggleLanguage,
+
         t,
       }),
-      [language]
+      [
+        language,
+        changeLanguage,
+        toggleLanguage,
+        t,
+      ]
     );
 
 
@@ -147,6 +313,10 @@ export function LanguageProvider({
   );
 }
 
+
+/* =========================================================
+   HOOK
+   ========================================================= */
 
 export function useLanguage() {
   const context =

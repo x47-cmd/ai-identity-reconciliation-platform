@@ -3,10 +3,13 @@
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
+import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  useLanguage,
-} from "../components/LanguageProvider";
+  CASE_TYPE_BREAKDOWN,
+  GOVERNANCE,
+  PLATFORM_METRICS,
+} from "../lib/demo-data";
 
 import {
   Activity,
@@ -47,120 +50,185 @@ function L(
 
 
 /* =========================================================
-   DATA INTEGRITY DEMO METRICS
+   FORMAT HELPERS
+   ========================================================= */
+
+function formatNumber(
+  value
+) {
+  return Number(
+    value
+  ).toLocaleString("en-US");
+}
+
+
+/* =========================================================
+   DATA INTEGRITY METRICS
+
+   Core values come from shared demo data.
    ========================================================= */
 
 const integrityMetrics = [
   {
-    label: "Master Identities",
-    value: "3,000",
+    key:
+      "MASTER_IDENTITIES",
+
+    value:
+      PLATFORM_METRICS.masterIdentities,
+
     description:
       "Authoritative reference identities",
-    icon: Database,
-    status: "READ_ONLY",
+
+    icon:
+      Database,
+
+    status:
+      "READ_ONLY",
   },
 
   {
-    label: "Biometric Records",
-    value: "1,000",
+    key:
+      "BIOMETRIC_RECORDS",
+
+    value:
+      PLATFORM_METRICS.biometricRecords,
+
     description:
       "Synthetic operational records reconciled",
-    icon: Fingerprint,
-    status: "MONITORED",
+
+    icon:
+      Fingerprint,
+
+    status:
+      "MONITORED",
   },
 
   {
-    label: "Raw AI Findings",
-    value: "103",
+    key:
+      "RAW_FINDINGS",
+
+    value:
+      PLATFORM_METRICS.rawFindings,
+
     description:
       "Reconciliation findings generated",
-    icon: BrainCircuit,
-    status: "ANALYZED",
+
+    icon:
+      BrainCircuit,
+
+    status:
+      "ANALYZED",
   },
 
   {
-    label: "Aggregated Cases",
-    value: "53",
+    key:
+      "AGGREGATED_CASES",
+
+    value:
+      PLATFORM_METRICS.aggregatedCases,
+
     description:
       "Distinct identity integrity cases",
-    icon: FileSearch,
-    status: "AGGREGATED",
+
+    icon:
+      FileSearch,
+
+    status:
+      "AGGREGATED",
   },
 ];
 
 
 /* =========================================================
-   PRIMARY CASE TAXONOMY
+   CASE TAXONOMY METADATA
+
+   Counts are taken from CASE_TYPE_BREAKDOWN.
    ========================================================= */
 
-const integrityIssues = [
-  {
-    label: "Data Mismatch",
-    count: 15,
-    severity: "MEDIUM",
+const issueMetadata = {
+  DATA_MISMATCH: {
+    severity:
+      "MEDIUM",
 
     description:
       "Identity or registration attributes are inconsistent across compared records.",
   },
 
-  {
-    label: "Wrong Mapping",
-    count: 11,
-    severity: "HIGH",
+  WRONG_MAPPING: {
+    severity:
+      "HIGH",
 
     description:
       "A biometric record appears associated with an incorrect Master identity.",
   },
 
-  {
-    label: "Complex Identity Conflict",
-    count: 8,
-    severity: "HIGH",
+  COMPLEX_IDENTITY_CONFLICT: {
+    severity:
+      "HIGH",
 
     description:
-      "Multiple related identity findings require combined investigation and resolution.",
+      "Multiple related identity findings require combined investigation and case-level resolution.",
   },
 
-  {
-    label: "Duplicate Identity",
-    count: 6,
-    severity: "HIGH",
+  DUPLICATE_IDENTITY: {
+    severity:
+      "HIGH",
 
     description:
       "Multiple registration relationships appear to reference the same identity.",
   },
 
-  {
-    label: "Harm Impact",
-    count: 6,
-    severity: "IMMEDIATE",
+  HARM_IMPACT: {
+    severity:
+      "IMMEDIATE",
 
     description:
       "An identity conflict creates elevated potential for wrong-person impact.",
   },
 
-  {
-    label: "Orphan Record",
-    count: 4,
-    severity: "MEDIUM",
+  ORPHAN_RECORD: {
+    severity:
+      "MEDIUM",
 
     description:
       "A biometric record has no valid authoritative Master relationship.",
   },
 
-  {
-    label:
-      "Critical Harm Identity Conflict",
-
-    count: 3,
-
+  CRITICAL_HARM_IDENTITY_CONFLICT: {
     severity:
       "IMMEDIATE",
 
     description:
-      "Critical cross-identity conflict requires immediate protective human attention.",
+      "A critical cross-identity conflict requires immediate protective human attention.",
   },
-];
+};
+
+
+const integrityIssues =
+  CASE_TYPE_BREAKDOWN.map(
+    (item) => ({
+      type:
+        item.type,
+
+      label:
+        item.label,
+
+      count:
+        item.count,
+
+      severity:
+        issueMetadata[
+          item.type
+        ]?.severity ||
+        "MEDIUM",
+
+      description:
+        issueMetadata[
+          item.type
+        ]?.description ||
+        "",
+    })
+  );
 
 
 /* =========================================================
@@ -169,17 +237,17 @@ const integrityIssues = [
 
 const systemHealth = [
   {
-    system:
-      "Master Reference System",
+    key:
+      "MASTER_REFERENCE",
 
     role:
       "Authoritative Identity Source",
 
     records:
-      "3,000",
+      PLATFORM_METRICS.masterIdentities,
 
     access:
-      "READ_ONLY",
+      GOVERNANCE.masterReferenceAccess,
 
     status:
       "PROTECTED",
@@ -189,14 +257,14 @@ const systemHealth = [
   },
 
   {
-    system:
-      "Biometric System",
+    key:
+      "BIOMETRIC_SYSTEM",
 
     role:
       "Operational Biometric Source",
 
     records:
-      "1,000",
+      PLATFORM_METRICS.biometricRecords,
 
     access:
       "CONTROLLED_TARGET",
@@ -209,14 +277,14 @@ const systemHealth = [
   },
 
   {
-    system:
-      "Reconciliation Engine",
+    key:
+      "RECONCILIATION_ENGINE",
 
     role:
       "Cross-System Comparison",
 
     records:
-      "1,000",
+      PLATFORM_METRICS.biometricRecords,
 
     access:
       "AI_PROCESSING",
@@ -229,14 +297,14 @@ const systemHealth = [
   },
 
   {
-    system:
-      "Case Engine",
+    key:
+      "CASE_ENGINE",
 
     role:
       "Finding Aggregation",
 
     records:
-      "53 cases",
+      `${PLATFORM_METRICS.aggregatedCases} cases`,
 
     access:
       "AI_PROCESSING",
@@ -256,23 +324,20 @@ const systemHealth = [
 
 const demoSnapshots = [
   {
-    name:
-      "Current Demo Reconciliation",
-
-    scope:
-      "Synthetic validation dataset",
+    key:
+      "CURRENT_RECONCILIATION",
 
     biometric:
-      "1,000",
+      PLATFORM_METRICS.biometricRecords,
 
     master:
-      "3,000",
+      PLATFORM_METRICS.masterIdentities,
 
     findings:
-      "103",
+      PLATFORM_METRICS.rawFindings,
 
     cases:
-      "53",
+      PLATFORM_METRICS.aggregatedCases,
 
     status:
       "VALIDATED",
@@ -284,72 +349,88 @@ const demoSnapshots = [
    VALIDATED QUALITY CHECKS
    ========================================================= */
 
+const resolvedCaseCount =
+  (
+    PLATFORM_METRICS.aggregatedCases
+    -
+    PLATFORM_METRICS.unresolvedIdentityCases
+  );
+
+
 const integrityChecks = [
   {
-    label:
-      "Detection Recall",
+    key:
+      "DETECTION_RECALL",
 
     value:
-      "100%",
+      `${PLATFORM_METRICS.evaluation.recall}%`,
 
     score:
-      100,
+      PLATFORM_METRICS.evaluation.recall,
 
     description:
-      "53 of 53 seeded synthetic issues detected",
+      `${PLATFORM_METRICS.evaluation.detectedIssues} of ${PLATFORM_METRICS.evaluation.expectedIssues} seeded synthetic issues detected`,
   },
 
   {
-    label:
-      "Canonical Case Resolution",
+    key:
+      "CANONICAL_RESOLUTION",
 
     value:
-      "53 / 53",
+      `${resolvedCaseCount} / ${PLATFORM_METRICS.aggregatedCases}`,
 
     score:
-      100,
+      PLATFORM_METRICS.aggregatedCases > 0
+        ? (
+            resolvedCaseCount
+            /
+            PLATFORM_METRICS.aggregatedCases
+          )
+          *
+          100
+        : 0,
 
     description:
       "No unresolved canonical identity cases",
   },
 
   {
-    label:
-      "Diagnostic Precision",
+    key:
+      "DIAGNOSTIC_PRECISION",
 
     value:
-      "100%",
+      `${PLATFORM_METRICS.evaluation.diagnosticPrecision}%`,
 
     score:
-      100,
+      PLATFORM_METRICS.evaluation.diagnosticPrecision,
 
     description:
       "After corroborating finding analysis",
   },
 
   {
-    label:
-      "Protective Detection",
+    key:
+      "PROTECTIVE_DETECTION",
 
     value:
-      "100%",
+      `${PLATFORM_METRICS.evaluation.protectiveDetectionRecall}%`,
 
     score:
-      100,
+      PLATFORM_METRICS.evaluation.protectiveDetectionRecall,
 
     description:
       "All protective synthetic cases detected",
   },
 
   {
-    label:
-      "Protective Priority Accuracy",
+    key:
+      "PROTECTIVE_PRIORITY",
 
     value:
-      "100%",
+      `${PLATFORM_METRICS.evaluation.protectivePriorityAccuracy}%`,
 
     score:
-      100,
+      PLATFORM_METRICS.evaluation.protectivePriorityAccuracy,
 
     description:
       "Protective priority classification validated",
@@ -358,38 +439,33 @@ const integrityChecks = [
 
 
 /* =========================================================
-   LOCALIZATION HELPERS
+   LOCALIZATION
    ========================================================= */
 
 function localizeMetricLabel(
-  label,
-  language,
+  key,
   t
 ) {
-  const labels = {
-    "Master Identities":
-      t("analytics.masterIdentities"),
+  const keys = {
+    MASTER_IDENTITIES:
+      "analytics.masterIdentities",
 
-    "Biometric Records":
-      t("analytics.totalBiometricRecords"),
+    BIOMETRIC_RECORDS:
+      "analytics.totalBiometricRecords",
 
-    "Raw AI Findings":
-      t("analytics.rawFindings"),
+    RAW_FINDINGS:
+      "analytics.rawFindings",
 
-    "Aggregated Cases":
-      t("dataIntegrity.aggregatedCases"),
+    AGGREGATED_CASES:
+      "dataIntegrity.aggregatedCases",
   };
 
-
-  return (
-    labels[label]
-    ||
-    L(
-      language,
-      label,
-      label
-    )
-  );
+  return keys[key]
+    ? t(
+        keys[key],
+        key
+      )
+    : key;
 }
 
 
@@ -411,9 +487,9 @@ function localizeMetricDescription(
       "حالات مستقلة لسلامة الهوية",
   };
 
-
   return language === "ar"
-    ? labels[description] || description
+    ? labels[description] ||
+        description
     : description;
 }
 
@@ -425,7 +501,10 @@ function localizeMetricStatus(
 ) {
   const labels = {
     READ_ONLY:
-      t("common.readOnly"),
+      t(
+        "common.readOnly",
+        "READ ONLY"
+      ),
 
     MONITORED:
       L(
@@ -449,55 +528,20 @@ function localizeMetricStatus(
       ),
   };
 
-
   return (
-    labels[status]
-    ||
+    labels[status] ||
     status
   );
 }
 
 
 function localizeIssueLabel(
-  label,
-  language,
+  issue,
   t
 ) {
-  const keys = {
-    "Data Mismatch":
-      "analytics.dataMismatch",
-
-    "Wrong Mapping":
-      "analytics.wrongMapping",
-
-    "Complex Identity Conflict":
-      "analytics.complexIdentityConflict",
-
-    "Duplicate Identity":
-      "analytics.duplicateIdentity",
-
-    "Harm Impact":
-      "analytics.harmImpact",
-
-    "Orphan Record":
-      "analytics.orphan",
-
-    "Critical Harm Identity Conflict":
-      "analytics.criticalHarmIdentityConflict",
-  };
-
-
-  if (keys[label]) {
-    return t(
-      keys[label]
-    );
-  }
-
-
-  return L(
-    language,
-    label,
-    label
+  return t(
+    `caseTypes.${issue.type}`,
+    issue.label
   );
 }
 
@@ -513,7 +557,7 @@ function localizeIssueDescription(
     "A biometric record appears associated with an incorrect Master identity.":
       "يبدو أن سجلًا بيومتريًا مرتبط بهوية غير صحيحة داخل المرجع الرئيسي.",
 
-    "Multiple related identity findings require combined investigation and resolution.":
+    "Multiple related identity findings require combined investigation and case-level resolution.":
       "تتطلب عدة نتائج مترابطة للهوية تحقيقًا موحدًا وحسمًا على مستوى الحالة.",
 
     "Multiple registration relationships appear to reference the same identity.":
@@ -525,39 +569,62 @@ function localizeIssueDescription(
     "A biometric record has no valid authoritative Master relationship.":
       "لا يملك السجل البيومتري علاقة صالحة مع هوية معتمدة في المرجع الرئيسي.",
 
-    "Critical cross-identity conflict requires immediate protective human attention.":
+    "A critical cross-identity conflict requires immediate protective human attention.":
       "يتطلب تعارض الهوية الحرج بين أشخاص مختلفين تدخلًا بشريًا وقائيًا فوريًا.",
   };
 
-
   return language === "ar"
-    ? labels[description] || description
+    ? labels[description] ||
+        description
     : description;
 }
 
 
 function localizeSystemName(
-  system,
+  key,
   language
 ) {
   const labels = {
-    "Master Reference System":
-      "نظام المرجع الرئيسي",
+    MASTER_REFERENCE: {
+      en:
+        "Master Reference System",
 
-    "Biometric System":
-      "النظام البيومتري",
+      ar:
+        "نظام المرجع الرئيسي",
+    },
 
-    "Reconciliation Engine":
-      "محرك المطابقة",
+    BIOMETRIC_SYSTEM: {
+      en:
+        "Biometric System",
 
-    "Case Engine":
-      "محرك الحالات",
+      ar:
+        "النظام البيومتري",
+    },
+
+    RECONCILIATION_ENGINE: {
+      en:
+        "Reconciliation Engine",
+
+      ar:
+        "محرك المطابقة",
+    },
+
+    CASE_ENGINE: {
+      en:
+        "Case Engine",
+
+      ar:
+        "محرك الحالات",
+    },
   };
 
-
-  return language === "ar"
-    ? labels[system] || system
-    : system;
+  return (
+    labels[key]?.[
+      language
+    ] ||
+    labels[key]?.en ||
+    key
+  );
 }
 
 
@@ -579,9 +646,9 @@ function localizeSystemRole(
       "تجميع النتائج",
   };
 
-
   return language === "ar"
-    ? labels[role] || role
+    ? labels[role] ||
+        role
     : role;
 }
 
@@ -593,7 +660,10 @@ function localizeAccess(
 ) {
   const labels = {
     READ_ONLY:
-      t("common.readOnly"),
+      t(
+        "common.readOnly",
+        "READ ONLY"
+      ),
 
     CONTROLLED_TARGET:
       L(
@@ -610,10 +680,8 @@ function localizeAccess(
       ),
   };
 
-
   return (
-    labels[access]
-    ||
+    labels[access] ||
     access
   );
 }
@@ -624,65 +692,68 @@ function localizeHealthStatus(
   language
 ) {
   const labels = {
-    PROTECTED:
-      "محمي",
+    PROTECTED: {
+      en:
+        "PROTECTED",
 
-    MONITORED:
-      "قيد المراقبة",
+      ar:
+        "محمي",
+    },
 
-    VALIDATED:
-      "تم التحقق",
+    MONITORED: {
+      en:
+        "MONITORED",
+
+      ar:
+        "قيد المراقبة",
+    },
+
+    VALIDATED: {
+      en:
+        "VALIDATED",
+
+      ar:
+        "تم التحقق",
+    },
   };
 
-
-  return language === "ar"
-    ? labels[status] || status
-    : status;
+  return (
+    labels[status]?.[
+      language
+    ] ||
+    labels[status]?.en ||
+    status
+  );
 }
 
 
 function localizeCheckLabel(
-  label,
-  language,
+  key,
   t
 ) {
-  const labels = {
-    "Detection Recall":
-      t(
-        "analytics.detectionRecall"
-      ),
+  const keys = {
+    DETECTION_RECALL:
+      "analytics.detectionRecall",
 
-    "Canonical Case Resolution":
-      t(
-        "dataIntegrity.canonicalResolution"
-      ),
+    CANONICAL_RESOLUTION:
+      "dataIntegrity.canonicalResolution",
 
-    "Diagnostic Precision":
-      t(
-        "dataIntegrity.diagnosticPrecision"
-      ),
+    DIAGNOSTIC_PRECISION:
+      "dataIntegrity.diagnosticPrecision",
 
-    "Protective Detection":
-      t(
-        "dataIntegrity.protectiveDetection"
-      ),
+    PROTECTIVE_DETECTION:
+      "dataIntegrity.protectiveDetection",
 
-    "Protective Priority Accuracy":
-      t(
-        "dataIntegrity.protectivePriorityAccuracy"
-      ),
+    PROTECTIVE_PRIORITY:
+      "dataIntegrity.protectivePriorityAccuracy",
   };
 
-
-  return (
-    labels[label]
-    ||
-    L(
-      language,
-      label,
-      label
-    )
-  );
+  return keys[key]
+    ? t(
+        keys[key],
+        key
+      )
+    : key;
 }
 
 
@@ -691,8 +762,8 @@ function localizeCheckDescription(
   language
 ) {
   const labels = {
-    "53 of 53 seeded synthetic issues detected":
-      "تم اكتشاف 53 من أصل 53 مشكلة اصطناعية مزروعة",
+    [`${PLATFORM_METRICS.evaluation.detectedIssues} of ${PLATFORM_METRICS.evaluation.expectedIssues} seeded synthetic issues detected`]:
+      `تم اكتشاف ${PLATFORM_METRICS.evaluation.detectedIssues} من أصل ${PLATFORM_METRICS.evaluation.expectedIssues} مشكلة اصطناعية مزروعة`,
 
     "No unresolved canonical identity cases":
       "لا توجد حالات هوية مرجعية غير محسومة",
@@ -707,9 +778,9 @@ function localizeCheckDescription(
       "تم التحقق من صحة تصنيف الأولوية الوقائية",
   };
 
-
   return language === "ar"
-    ? labels[description] || description
+    ? labels[description] ||
+        description
     : description;
 }
 
@@ -726,12 +797,14 @@ function IntegrityMetric({
   const Icon =
     item.icon;
 
-
   return (
     <div className="metricCard">
       <div className="metricTop">
         <div className="metricIcon">
-          <Icon size={20} />
+          <Icon
+            size={20}
+            aria-hidden="true"
+          />
         </div>
 
         <span
@@ -746,40 +819,35 @@ function IntegrityMetric({
               800,
           }}
         >
-          {
-            localizeMetricStatus(
-              item.status,
-              language,
-              t
-            )
-          }
+          {localizeMetricStatus(
+            item.status,
+            language,
+            t
+          )}
         </span>
       </div>
 
 
       <div className="metricValue">
-        {item.value}
+        {formatNumber(
+          item.value
+        )}
       </div>
 
 
       <div className="metricTitle">
-        {
-          localizeMetricLabel(
-            item.label,
-            language,
-            t
-          )
-        }
+        {localizeMetricLabel(
+          item.key,
+          t
+        )}
       </div>
 
 
       <div className="metricSubtitle">
-        {
-          localizeMetricDescription(
-            item.description,
-            language
-          )
-        }
+        {localizeMetricDescription(
+          item.description,
+          language
+        )}
       </div>
     </div>
   );
@@ -796,7 +864,8 @@ function SeverityBadge({
 }) {
   const styles = {
     IMMEDIATE: {
-      color: "#ff7c89",
+      color:
+        "#ff7c89",
 
       background:
         "rgba(255,80,100,0.08)",
@@ -806,7 +875,8 @@ function SeverityBadge({
     },
 
     HIGH: {
-      color: "#ffbd67",
+      color:
+        "#ffbd67",
 
       background:
         "rgba(255,185,90,0.07)",
@@ -816,7 +886,8 @@ function SeverityBadge({
     },
 
     MEDIUM: {
-      color: "#76a9ff",
+      color:
+        "#76a9ff",
 
       background:
         "rgba(70,135,255,0.07)",
@@ -828,8 +899,7 @@ function SeverityBadge({
 
 
   const style =
-    styles[severity]
-    ||
+    styles[severity] ||
     styles.MEDIUM;
 
 
@@ -873,11 +943,10 @@ function SeverityBadge({
           "nowrap",
       }}
     >
-      {
-        t(
-          `priorities.${severity}`
-        )
-      }
+      {t(
+        `priorities.${severity}`,
+        severity
+      )}
     </span>
   );
 }
@@ -927,7 +996,10 @@ function ReadOnlyBadge({
           800,
       }}
     >
-      {t("common.readOnly")}
+      {t(
+        "common.readOnly",
+        "READ ONLY"
+      )}
     </span>
   );
 }
@@ -968,12 +1040,10 @@ function HealthStatus({
     >
       <span className="greenDot" />
 
-      {
-        localizeHealthStatus(
-          status,
-          language
-        )
-      }
+      {localizeHealthStatus(
+        status,
+        language
+      )}
     </span>
   );
 }
@@ -988,6 +1058,22 @@ export default function DataIntegrityPage() {
     language,
     t,
   } = useLanguage();
+
+
+  const isArabic =
+    language === "ar";
+
+
+  const ForwardArrow =
+    isArabic
+      ? ChevronLeft
+      : ChevronRight;
+
+
+  const BackwardArrow =
+    isArabic
+      ? ChevronRight
+      : ChevronLeft;
 
 
   return (
@@ -1005,7 +1091,10 @@ export default function DataIntegrityPage() {
         <header className="topbar">
           <div>
             <div className="eyebrow">
-              <Database size={15} />
+              <Database
+                size={15}
+                aria-hidden="true"
+              />
 
               {t(
                 "dataIntegrity.eyebrow"
@@ -1027,8 +1116,14 @@ export default function DataIntegrityPage() {
 
 
           <div className="topbarActions">
-            <button className="searchButton">
-              <Search size={18} />
+            <button
+              type="button"
+              className="searchButton"
+            >
+              <Search
+                size={18}
+                aria-hidden="true"
+              />
 
               <span>
                 {L(
@@ -1081,7 +1176,10 @@ export default function DataIntegrityPage() {
               "18px",
           }}
         >
-          <LockKeyhole size={25} />
+          <LockKeyhole
+            size={25}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
@@ -1106,24 +1204,22 @@ export default function DataIntegrityPage() {
             ================================================ */}
 
         <section className="statsGrid">
-          {
-            integrityMetrics.map(
-              (item) => (
-                <IntegrityMetric
-                  key={
-                    item.label
-                  }
-                  item={
-                    item
-                  }
-                  language={
-                    language
-                  }
-                  t={t}
-                />
-              )
+          {integrityMetrics.map(
+            (item) => (
+              <IntegrityMetric
+                key={
+                  item.key
+                }
+                item={
+                  item
+                }
+                language={
+                  language
+                }
+                t={t}
+              />
             )
-          }
+          )}
         </section>
 
 
@@ -1157,7 +1253,10 @@ export default function DataIntegrityPage() {
               </h2>
             </div>
 
-            <GitCompareArrows size={22} />
+            <GitCompareArrows
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -1180,7 +1279,7 @@ export default function DataIntegrityPage() {
             }}
           >
 
-            {/* MASTER */}
+            {/* MASTER REFERENCE */}
 
             <div
               style={{
@@ -1221,7 +1320,10 @@ export default function DataIntegrityPage() {
                     "#59cfa0",
                 }}
               >
-                <Database size={22} />
+                <Database
+                  size={22}
+                  aria-hidden="true"
+                />
               </div>
 
 
@@ -1277,7 +1379,9 @@ export default function DataIntegrityPage() {
                     "#d4e3ee",
                 }}
               >
-                3,000
+                {formatNumber(
+                  PLATFORM_METRICS.masterIdentities
+                )}
               </strong>
 
 
@@ -1334,7 +1438,7 @@ export default function DataIntegrityPage() {
             </div>
 
 
-            {/* MASTER → AI */}
+            {/* MASTER TO AI */}
 
             <div
               style={{
@@ -1345,25 +1449,15 @@ export default function DataIntegrityPage() {
                   "center",
               }}
             >
-              {
-                language === "ar"
-                  ? (
-                    <ChevronLeft
-                      size={25}
-                      color="#557391"
-                    />
-                  )
-                  : (
-                    <ChevronRight
-                      size={25}
-                      color="#557391"
-                    />
-                  )
-              }
+              <ForwardArrow
+                size={25}
+                color="#557391"
+                aria-hidden="true"
+              />
             </div>
 
 
-            {/* AI LAYER */}
+            {/* AI RECONCILIATION */}
 
             <div
               style={{
@@ -1404,7 +1498,10 @@ export default function DataIntegrityPage() {
                     "#69a2ff",
                 }}
               >
-                <BrainCircuit size={22} />
+                <BrainCircuit
+                  size={22}
+                  aria-hidden="true"
+                />
               </div>
 
 
@@ -1457,7 +1554,9 @@ export default function DataIntegrityPage() {
                     "25px",
                 }}
               >
-                103
+                {
+                  PLATFORM_METRICS.rawFindings
+                }
               </strong>
 
 
@@ -1518,14 +1617,14 @@ export default function DataIntegrityPage() {
               >
                 {L(
                   language,
-                  "Reads both source systems and evaluates identity relationships.",
-                  "يقرأ النظام كلا المصدرين ويقيّم علاقات الهوية بينهما."
+                  "Reads both source systems and evaluates identity relationships without autonomously approving corrections.",
+                  "يقرأ النظام كلا المصدرين ويقيّم علاقات الهوية بينهما دون اعتماد التصحيحات بشكل ذاتي."
                 )}
               </div>
             </div>
 
 
-            {/* BIOMETRIC → AI */}
+            {/* BIOMETRIC TO AI */}
 
             <div
               style={{
@@ -1536,25 +1635,15 @@ export default function DataIntegrityPage() {
                   "center",
               }}
             >
-              {
-                language === "ar"
-                  ? (
-                    <ChevronRight
-                      size={25}
-                      color="#557391"
-                    />
-                  )
-                  : (
-                    <ChevronLeft
-                      size={25}
-                      color="#557391"
-                    />
-                  )
-              }
+              <BackwardArrow
+                size={25}
+                color="#557391"
+                aria-hidden="true"
+              />
             </div>
 
 
-            {/* BIOMETRIC */}
+            {/* BIOMETRIC SYSTEM */}
 
             <div
               style={{
@@ -1595,7 +1684,10 @@ export default function DataIntegrityPage() {
                     "#ffbd67",
                 }}
               >
-                <Fingerprint size={22} />
+                <Fingerprint
+                  size={22}
+                  aria-hidden="true"
+                />
               </div>
 
 
@@ -1648,7 +1740,9 @@ export default function DataIntegrityPage() {
                     "25px",
                 }}
               >
-                1,000
+                {formatNumber(
+                  PLATFORM_METRICS.biometricRecords
+                )}
               </strong>
 
 
@@ -1748,10 +1842,51 @@ export default function DataIntegrityPage() {
             {L(
               language,
 
-              "Master Reference → AI Reconciliation ← Biometric System. The AI compares both sources; it does not treat the Master Reference as an automated correction target.",
+              "System C reads and compares both source systems. The Master Reference is authoritative and read-only; only the permitted Biometric System target can receive an approved controlled correction.",
 
-              "المرجع الرئيسي ← مطابقة الذكاء الاصطناعي → النظام البيومتري. يقارن الذكاء الاصطناعي بين المصدرين، ولا يتعامل مع المرجع الرئيسي كهدف للتصحيح التلقائي."
+              "يقرأ النظام C المصدرين ويقارن بينهما. المرجع الرئيسي هو المصدر المعتمد ويظل للقراءة فقط، بينما يمكن تطبيق التصحيح الخاضع للتحكم بعد اعتماده على النظام البيومتري المسموح فقط."
             )}
+          </div>
+        </section>
+
+
+        {/* ================================================
+            SYNTHETIC EVIDENCE NOTICE
+            ================================================ */}
+
+        <section
+          className="integrityInfo"
+          style={{
+            margin:
+              "0 0 16px",
+
+            padding:
+              "17px",
+          }}
+        >
+          <Fingerprint
+            size={23}
+            aria-hidden="true"
+          />
+
+          <div>
+            <strong>
+              {L(
+                language,
+                "Synthetic Biometric Evidence Only",
+                "أدلة بيومترية اصطناعية فقط"
+              )}
+            </strong>
+
+            <span>
+              {L(
+                language,
+
+                "The demonstration uses synthetic 32-dimensional vector evidence for reconciliation testing. It does not contain real face, fingerprint or iris biometric templates or modality-specific production scores.",
+
+                "يستخدم العرض أدلة متجهات اصطناعية من 32 بُعدًا لاختبار المطابقة. ولا يحتوي على قوالب بيومترية حقيقية للوجه أو بصمة الإصبع أو قزحية العين، ولا على درجات تشغيلية خاصة بأي نوع بيومتري."
+              )}
+            </span>
           </div>
         </section>
 
@@ -1782,7 +1917,10 @@ export default function DataIntegrityPage() {
                 </h2>
               </div>
 
-              <Gauge size={22} />
+              <Gauge
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1792,118 +1930,114 @@ export default function DataIntegrityPage() {
                   "9px 20px 20px",
               }}
             >
-              {
-                integrityChecks.map(
-                  (check) => (
+              {integrityChecks.map(
+                (check) => (
+                  <div
+                    key={
+                      check.key
+                    }
+                    style={{
+                      padding:
+                        "12px 0",
+                    }}
+                  >
                     <div
-                      key={
-                        check.label
-                      }
                       style={{
-                        padding:
-                          "12px 0",
+                        display:
+                          "flex",
+
+                        justifyContent:
+                          "space-between",
+
+                        alignItems:
+                          "flex-start",
+
+                        gap:
+                          "14px",
+
+                        marginBottom:
+                          "8px",
                       }}
                     >
-                      <div
-                        style={{
-                          display:
-                            "flex",
-
-                          justifyContent:
-                            "space-between",
-
-                          alignItems:
-                            "flex-start",
-
-                          gap:
-                            "14px",
-
-                          marginBottom:
-                            "8px",
-                        }}
-                      >
-                        <div>
-                          <span
-                            style={{
-                              display:
-                                "block",
-
-                              color:
-                                "#8b9db3",
-
-                              fontSize:
-                                "11px",
-
-                              fontWeight:
-                                650,
-                            }}
-                          >
-                            {
-                              localizeCheckLabel(
-                                check.label,
-                                language,
-                                t
-                              )
-                            }
-                          </span>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-
-                              color:
-                                "#657890",
-
-                              fontSize:
-                                "10px",
-
-                              lineHeight:
-                                1.45,
-
-                              marginTop:
-                                "3px",
-                            }}
-                          >
-                            {
-                              localizeCheckDescription(
-                                check.description,
-                                language
-                              )
-                            }
-                          </span>
-                        </div>
-
-                        <strong
+                      <div>
+                        <span
                           style={{
+                            display:
+                              "block",
+
                             color:
-                              "#59cfa0",
+                              "#8b9db3",
 
                             fontSize:
                               "11px",
 
-                            whiteSpace:
-                              "nowrap",
+                            fontWeight:
+                              650,
                           }}
                         >
-                          {check.value}
-                        </strong>
-                      </div>
+                          {localizeCheckLabel(
+                            check.key,
+                            t
+                          )}
+                        </span>
 
-
-                      <div className="progress">
-                        <div
-                          className="progressFill"
+                        <span
                           style={{
-                            width:
-                              `${check.score}%`,
+                            display:
+                              "block",
+
+                            color:
+                              "#657890",
+
+                            fontSize:
+                              "10px",
+
+                            lineHeight:
+                              1.45,
+
+                            marginTop:
+                              "3px",
                           }}
-                        />
+                        >
+                          {localizeCheckDescription(
+                            check.description,
+                            language
+                          )}
+                        </span>
                       </div>
+
+                      <strong
+                        style={{
+                          color:
+                            "#59cfa0",
+
+                          fontSize:
+                            "11px",
+
+                          whiteSpace:
+                            "nowrap",
+                        }}
+                      >
+                        {check.value}
+                      </strong>
                     </div>
-                  )
+
+
+                    <div className="progress">
+                      <div
+                        className="progressFill"
+                        style={{
+                          width:
+                            `${Math.min(
+                              check.score,
+                              100
+                            )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
                 )
-              }
+              )}
             </div>
           </div>
 
@@ -1930,7 +2064,10 @@ export default function DataIntegrityPage() {
                 </h2>
               </div>
 
-              <ShieldCheck size={22} />
+              <ShieldCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1982,7 +2119,11 @@ export default function DataIntegrityPage() {
                       "#59cfa0",
                   }}
                 >
-                  53/53
+                  {resolvedCaseCount}
+                  /
+                  {
+                    PLATFORM_METRICS.aggregatedCases
+                  }
                 </strong>
 
                 <span
@@ -2003,23 +2144,19 @@ export default function DataIntegrityPage() {
                       "3px",
                   }}
                 >
-                  {
-                    language === "ar"
-                      ? (
-                        <>
-                          الحسم
-                          <br />
-                          المرجعي
-                        </>
-                      )
-                      : (
-                        <>
-                          CANONICAL
-                          <br />
-                          RESOLUTION
-                        </>
-                      )
-                  }
+                  {isArabic ? (
+                    <>
+                      الحسم
+                      <br />
+                      المرجعي
+                    </>
+                  ) : (
+                    <>
+                      CANONICAL
+                      <br />
+                      RESOLUTION
+                    </>
+                  )}
                 </span>
               </div>
 
@@ -2045,7 +2182,9 @@ export default function DataIntegrityPage() {
                         "#59cfa0",
                     }}
                   >
-                    0
+                    {
+                      PLATFORM_METRICS.evaluation.missedIssues
+                    }
                   </strong>
                 </div>
 
@@ -2065,7 +2204,9 @@ export default function DataIntegrityPage() {
                         "#59cfa0",
                     }}
                   >
-                    0
+                    {
+                      PLATFORM_METRICS.unresolvedIdentityCases
+                    }
                   </strong>
                 </div>
 
@@ -2083,7 +2224,9 @@ export default function DataIntegrityPage() {
                         "#59cfa0",
                     }}
                   >
-                    0
+                    {
+                      PLATFORM_METRICS.evaluation.unexplainedFalsePositives
+                    }
                   </strong>
                 </div>
 
@@ -2096,7 +2239,9 @@ export default function DataIntegrityPage() {
                   </span>
 
                   <strong>
-                    9
+                    {
+                      PLATFORM_METRICS.wronglyAffectedCases
+                    }
                   </strong>
                 </div>
               </div>
@@ -2119,6 +2264,31 @@ export default function DataIntegrityPage() {
               >
                 {t(
                   "dataIntegrity.resolutionNotice"
+                )}
+              </div>
+
+
+              <div
+                style={{
+                  marginTop:
+                    "10px",
+
+                  color:
+                    "#61738c",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.6,
+                }}
+              >
+                {L(
+                  language,
+
+                  "Canonical resolution means a strongest identity candidate was resolved for each aggregated case. It does not mean that every case has been human-approved, corrected, verified or closed.",
+
+                  "يعني الحسم المرجعي أنه تم تحديد أقوى مرشح للهوية لكل حالة مجمعة. ولا يعني أن جميع الحالات تم اعتمادها بشريًا أو تصحيحها أو التحقق منها أو إغلاقها."
                 )}
               </div>
             </div>
@@ -2156,7 +2326,10 @@ export default function DataIntegrityPage() {
               </h2>
             </div>
 
-            <AlertTriangle size={22} />
+            <AlertTriangle
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -2196,172 +2369,166 @@ export default function DataIntegrityPage() {
                     )}
                   </th>
 
-                  <th></th>
+                  <th
+                    aria-label={
+                      L(
+                        language,
+                        "View cases",
+                        "عرض الحالات"
+                      )
+                    }
+                  />
                 </tr>
               </thead>
 
 
               <tbody>
-                {
-                  integrityIssues.map(
-                    (issue) => (
-                      <tr
-                        key={
-                          issue.label
-                        }
-                      >
-                        <td>
-                          <div
-                            style={{
-                              display:
-                                "flex",
+                {integrityIssues.map(
+                  (issue) => (
+                    <tr
+                      key={
+                        issue.type
+                      }
+                    >
+                      <td>
+                        <div
+                          style={{
+                            display:
+                              "flex",
 
-                              alignItems:
-                                "center",
+                            alignItems:
+                              "center",
 
-                              gap:
-                                "9px",
-                            }}
-                          >
-                            {
-                              issue.severity
-                              ===
-                              "IMMEDIATE"
-                                ? (
-                                  <ShieldAlert
-                                    size={16}
-                                    color="#ff7887"
-                                  />
-                                )
-                                : (
-                                  <CircleAlert
-                                    size={16}
-                                    color="#69a2ff"
-                                  />
-                                )
-                            }
+                            gap:
+                              "9px",
+                          }}
+                        >
+                          {issue.severity ===
+                          "IMMEDIATE" ? (
+                            <ShieldAlert
+                              size={16}
+                              color="#ff7887"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <CircleAlert
+                              size={16}
+                              color="#69a2ff"
+                              aria-hidden="true"
+                            />
+                          )}
 
-                            <strong
-                              style={{
-                                color:
-                                  "#ccd8e7",
-
-                                fontSize:
-                                  "11px",
-                              }}
-                            >
-                              {
-                                localizeIssueLabel(
-                                  issue.label,
-                                  language,
-                                  t
-                                )
-                              }
-                            </strong>
-                          </div>
-                        </td>
-
-
-                        <td>
                           <strong
                             style={{
-                              fontSize:
-                                "12px",
-                            }}
-                          >
-                            {issue.count}
-                          </strong>
-                        </td>
-
-
-                        <td>
-                          <SeverityBadge
-                            severity={
-                              issue.severity
-                            }
-                            t={t}
-                          />
-                        </td>
-
-
-                        <td>
-                          <span
-                            style={{
                               color:
-                                "#788ba2",
+                                "#ccd8e7",
 
                               fontSize:
                                 "11px",
-
-                              lineHeight:
-                                1.55,
                             }}
                           >
-                            {
-                              localizeIssueDescription(
-                                issue.description,
-                                language
-                              )
-                            }
-                          </span>
-                        </td>
+                            {localizeIssueLabel(
+                              issue,
+                              t
+                            )}
+                          </strong>
+                        </div>
+                      </td>
 
 
-                        <td>
-                          <Link
-                            href="/cases"
-                            style={{
-                              width:
-                                "30px",
+                      <td>
+                        <strong
+                          style={{
+                            fontSize:
+                              "12px",
+                          }}
+                        >
+                          {issue.count}
+                        </strong>
+                      </td>
 
-                              height:
-                                "30px",
 
-                              borderRadius:
-                                "8px",
+                      <td>
+                        <SeverityBadge
+                          severity={
+                            issue.severity
+                          }
+                          t={t}
+                        />
+                      </td>
 
-                              display:
-                                "grid",
 
-                              placeItems:
-                                "center",
+                      <td>
+                        <span
+                          style={{
+                            color:
+                              "#788ba2",
 
-                              border:
-                                "1px solid rgba(255,255,255,0.06)",
+                            fontSize:
+                              "11px",
 
-                              color:
-                                "#69a2ff",
+                            lineHeight:
+                              1.55,
+                          }}
+                        >
+                          {localizeIssueDescription(
+                            issue.description,
+                            language
+                          )}
+                        </span>
+                      </td>
 
-                              textDecoration:
-                                "none",
-                            }}
-                            aria-label={
-                              L(
-                                language,
-                                `View ${issue.label} cases`,
-                                `عرض حالات ${localizeIssueLabel(
-                                  issue.label,
-                                  language,
-                                  t
-                                )}`
-                              )
-                            }
-                          >
-                            {
-                              language === "ar"
-                                ? (
-                                  <ChevronLeft size={15} />
-                                )
-                                : (
-                                  <ChevronRight size={15} />
-                                )
-                            }
-                          </Link>
-                        </td>
-                      </tr>
-                    )
+
+                      <td>
+                        <Link
+                          href="/cases"
+                          style={{
+                            width:
+                              "30px",
+
+                            height:
+                              "30px",
+
+                            borderRadius:
+                              "8px",
+
+                            display:
+                              "grid",
+
+                            placeItems:
+                              "center",
+
+                            border:
+                              "1px solid rgba(255,255,255,0.06)",
+
+                            color:
+                              "#69a2ff",
+
+                            textDecoration:
+                              "none",
+                          }}
+                          aria-label={
+                            L(
+                              language,
+
+                              `View ${issue.label} cases`,
+
+                              `عرض حالات ${localizeIssueLabel(
+                                issue,
+                                t
+                              )}`
+                            )
+                          }
+                        >
+                          <ForwardArrow
+                            size={15}
+                            aria-hidden="true"
+                          />
+                        </Link>
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -2388,9 +2555,9 @@ export default function DataIntegrityPage() {
             {L(
               language,
 
-              "The primary backend taxonomy totals 53 cases. The separate 9-case protective grouping combines HARM_IMPACT and CRITICAL_HARM_IDENTITY_CONFLICT cases for executive protection reporting.",
+              `The primary aggregated taxonomy totals ${PLATFORM_METRICS.aggregatedCases} cases. The separate ${PLATFORM_METRICS.wronglyAffectedCases}-case protective grouping combines harm-impact and critical wrong-person identity conflicts for executive protection reporting.`,
 
-              "يبلغ إجمالي التصنيف الرئيسي في النظام الخلفي 53 حالة. أما التجميع الوقائي المنفصل البالغ 9 حالات فيجمع حالات تأثير الضرر وتعارضات الهوية الحرجة لأغراض تقارير الحماية التنفيذية."
+              `يبلغ إجمالي التصنيف الرئيسي المجمع ${PLATFORM_METRICS.aggregatedCases} حالة. أما التجميع الوقائي المنفصل البالغ ${PLATFORM_METRICS.wronglyAffectedCases} حالات فيجمع حالات تأثير الضرر وتعارضات الهوية الحرجة المرتبطة بالشخص الخطأ لأغراض تقارير الحماية التنفيذية.`
             )}
           </div>
         </section>
@@ -2426,7 +2593,10 @@ export default function DataIntegrityPage() {
               </h2>
             </div>
 
-            <Server size={22} />
+            <Server
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -2453,8 +2623,8 @@ export default function DataIntegrityPage() {
                   <th>
                     {L(
                       language,
-                      "RECORDS",
-                      "السجلات"
+                      "RECORDS / SCOPE",
+                      "السجلات / النطاق"
                     )}
                   </th>
 
@@ -2478,122 +2648,117 @@ export default function DataIntegrityPage() {
 
 
               <tbody>
-                {
-                  systemHealth.map(
-                    (system) => {
-                      const Icon =
-                        system.icon;
+                {systemHealth.map(
+                  (system) => {
+                    const Icon =
+                      system.icon;
 
+                    return (
+                      <tr
+                        key={
+                          system.key
+                        }
+                      >
+                        <td>
+                          <div
+                            style={{
+                              display:
+                                "flex",
 
-                      return (
-                        <tr
-                          key={
-                            system.system
-                          }
-                        >
-                          <td>
-                            <div
-                              style={{
-                                display:
-                                  "flex",
+                              alignItems:
+                                "center",
 
-                                alignItems:
-                                  "center",
-
-                                gap:
-                                  "9px",
-                              }}
-                            >
-                              <div className="agentIcon">
-                                <Icon size={16} />
-                              </div>
-
-                              <strong
-                                style={{
-                                  color:
-                                    "#ccd8e7",
-
-                                  fontSize:
-                                    "11px",
-                                }}
-                              >
-                                {
-                                  localizeSystemName(
-                                    system.system,
-                                    language
-                                  )
-                                }
-                              </strong>
+                              gap:
+                                "9px",
+                            }}
+                          >
+                            <div className="agentIcon">
+                              <Icon
+                                size={16}
+                                aria-hidden="true"
+                              />
                             </div>
-                          </td>
 
-
-                          <td>
-                            {
-                              localizeSystemRole(
-                                system.role,
-                                language
-                              )
-                            }
-                          </td>
-
-
-                          <td>
-                            <strong>
-                              {
-                                system.records
-                              }
-                            </strong>
-                          </td>
-
-
-                          <td>
-                            <span
+                            <strong
                               style={{
                                 color:
-                                  system.access
-                                  ===
-                                  "READ_ONLY"
-                                    ? "#59cfa0"
-                                    : system.access
-                                      ===
-                                      "CONTROLLED_TARGET"
-                                      ? "#ffbd67"
-                                      : "#73a7ff",
+                                  "#ccd8e7",
 
                                 fontSize:
-                                  "10px",
-
-                                fontWeight:
-                                  800,
+                                  "11px",
                               }}
                             >
-                              {
-                                localizeAccess(
-                                  system.access,
-                                  language,
-                                  t
-                                )
-                              }
-                            </span>
-                          </td>
-
-
-                          <td>
-                            <HealthStatus
-                              status={
-                                system.status
-                              }
-                              language={
+                              {localizeSystemName(
+                                system.key,
                                 language
-                              }
-                            />
-                          </td>
-                        </tr>
-                      );
-                    }
-                  )
-                }
+                              )}
+                            </strong>
+                          </div>
+                        </td>
+
+
+                        <td>
+                          {localizeSystemRole(
+                            system.role,
+                            language
+                          )}
+                        </td>
+
+
+                        <td>
+                          <strong>
+                            {typeof system.records ===
+                            "number"
+                              ? formatNumber(
+                                  system.records
+                                )
+                              : system.records}
+                          </strong>
+                        </td>
+
+
+                        <td>
+                          <span
+                            style={{
+                              color:
+                                system.access ===
+                                "READ_ONLY"
+                                  ? "#59cfa0"
+                                  : system.access ===
+                                      "CONTROLLED_TARGET"
+                                    ? "#ffbd67"
+                                    : "#73a7ff",
+
+                              fontSize:
+                                "10px",
+
+                              fontWeight:
+                                800,
+                            }}
+                          >
+                            {localizeAccess(
+                              system.access,
+                              language,
+                              t
+                            )}
+                          </span>
+                        </td>
+
+
+                        <td>
+                          <HealthStatus
+                            status={
+                              system.status
+                            }
+                            language={
+                              language
+                            }
+                          />
+                        </td>
+                      </tr>
+                    );
+                  }
+                )}
               </tbody>
             </table>
           </div>
@@ -2632,7 +2797,10 @@ export default function DataIntegrityPage() {
                 </h2>
               </div>
 
-              <RefreshCcw size={22} />
+              <RefreshCcw
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -2696,76 +2864,78 @@ export default function DataIntegrityPage() {
 
 
                 <tbody>
-                  {
-                    demoSnapshots.map(
-                      (run) => (
-                        <tr
-                          key={
-                            run.name
-                          }
-                        >
-                          <td>
-                            <strong
-                              style={{
-                                color:
-                                  "#d0dbea",
+                  {demoSnapshots.map(
+                    (run) => (
+                      <tr
+                        key={
+                          run.key
+                        }
+                      >
+                        <td>
+                          <strong
+                            style={{
+                              color:
+                                "#d0dbea",
 
-                                fontSize:
-                                  "11px",
-                              }}
-                            >
-                              {L(
-                                language,
-                                run.name,
-                                "مطابقة العرض الحالية"
-                              )}
-                            </strong>
-                          </td>
-
-
-                          <td>
+                              fontSize:
+                                "11px",
+                            }}
+                          >
                             {L(
                               language,
-                              run.scope,
-                              "مجموعة بيانات التحقق الاصطناعية"
+                              "Current Demo Reconciliation",
+                              "مطابقة العرض الحالية"
                             )}
-                          </td>
+                          </strong>
+                        </td>
 
 
-                          <td>
-                            {run.biometric}
-                          </td>
+                        <td>
+                          {L(
+                            language,
+                            "Synthetic validation dataset",
+                            "مجموعة بيانات التحقق الاصطناعية"
+                          )}
+                        </td>
 
 
-                          <td>
-                            {run.master}
-                          </td>
+                        <td>
+                          {formatNumber(
+                            run.biometric
+                          )}
+                        </td>
 
 
-                          <td>
-                            {run.findings}
-                          </td>
+                        <td>
+                          {formatNumber(
+                            run.master
+                          )}
+                        </td>
 
 
-                          <td>
-                            {run.cases}
-                          </td>
+                        <td>
+                          {run.findings}
+                        </td>
 
 
-                          <td>
-                            <HealthStatus
-                              status={
-                                run.status
-                              }
-                              language={
-                                language
-                              }
-                            />
-                          </td>
-                        </tr>
-                      )
+                        <td>
+                          {run.cases}
+                        </td>
+
+
+                        <td>
+                          <HealthStatus
+                            status={
+                              run.status
+                            }
+                            language={
+                              language
+                            }
+                          />
+                        </td>
+                      </tr>
                     )
-                  }
+                  )}
                 </tbody>
               </table>
             </div>
@@ -2822,7 +2992,10 @@ export default function DataIntegrityPage() {
                 </h2>
               </div>
 
-              <LockKeyhole size={22} />
+              <LockKeyhole
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -2833,7 +3006,10 @@ export default function DataIntegrityPage() {
               }}
             >
               <div className="integrityInfo">
-                <LockKeyhole size={21} />
+                <LockKeyhole
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -2847,8 +3023,8 @@ export default function DataIntegrityPage() {
                   <span>
                     {L(
                       language,
-                      "Automated AI correction workflows do not modify the Master Reference System.",
-                      "مسارات التصحيح التلقائية بالذكاء الاصطناعي لا تعدل نظام المرجع الرئيسي."
+                      "AI-assisted correction workflows do not modify the Master Reference System.",
+                      "مسارات التصحيح المدعومة بالذكاء الاصطناعي لا تعدل نظام المرجع الرئيسي."
                     )}
                   </span>
                 </div>
@@ -2856,22 +3032,25 @@ export default function DataIntegrityPage() {
 
 
               <div className="integrityInfo">
-                <ShieldCheck size={21} />
+                <ShieldCheck
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
                     {L(
                       language,
-                      "Source-of-Truth Validation",
-                      "التحقق من مصدر الحقيقة"
+                      "Authoritative Reference Validation",
+                      "التحقق من المرجع المعتمد"
                     )}
                   </strong>
 
                   <span>
                     {L(
                       language,
-                      "Master identities are read as authoritative candidates during reconciliation.",
-                      "تتم قراءة هويات المرجع الرئيسي كمرشحين معتمدين أثناء عملية المطابقة."
+                      "Master records are read as the authoritative identity reference during reconciliation.",
+                      "تتم قراءة سجلات المرجع الرئيسي باعتبارها المرجع المعتمد للهوية أثناء عملية المطابقة."
                     )}
                   </span>
                 </div>
@@ -2891,6 +3070,7 @@ export default function DataIntegrityPage() {
                 <AlertTriangle
                   size={21}
                   color="#ffbd67"
+                  aria-hidden="true"
                 />
 
                 <div>
@@ -2924,7 +3104,7 @@ export default function DataIntegrityPage() {
 
 
         {/* ================================================
-            INTEGRITY FLOW
+            INTEGRITY CONTROL FLOW
             ================================================ */}
 
         <section
@@ -2953,7 +3133,10 @@ export default function DataIntegrityPage() {
               </h2>
             </div>
 
-            <Link2 size={22} />
+            <Link2
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -3094,25 +3277,13 @@ export default function DataIntegrityPage() {
                     )}
                   </div>
 
-                  {
-                    index < 9
-                    &&
-                    (
-                      language === "ar"
-                        ? (
-                          <ChevronLeft
-                            size={14}
-                            color="#52647b"
-                          />
-                        )
-                        : (
-                          <ChevronRight
-                            size={14}
-                            color="#52647b"
-                          />
-                        )
-                    )
-                  }
+                  {index < 9 && (
+                    <ForwardArrow
+                      size={14}
+                      color="#52647b"
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
               )
             )}
@@ -3134,7 +3305,10 @@ export default function DataIntegrityPage() {
               "18px",
           }}
         >
-          <CheckCircle2 size={25} />
+          <CheckCircle2
+            size={25}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
@@ -3164,15 +3338,22 @@ export default function DataIntegrityPage() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
+
             {t(
               "dataIntegrity.title"
             )}
           </span>
 
           <div>
-            <Activity size={15} />
+            <Activity
+              size={15}
+              aria-hidden="true"
+            />
 
             {L(
               language,

@@ -2,6 +2,7 @@ name: Frontend Build & Smoke Test
 
 on:
   workflow_dispatch:
+
   push:
     branches:
       - main
@@ -14,7 +15,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build & Test Next.js Frontend
+    name: Build & Test Static Next.js Frontend
     runs-on: ubuntu-latest
 
     steps:
@@ -25,23 +26,41 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Build frontend
+      - name: Build static frontend
         run: npm run build
 
-      - name: Start production server
+      - name: Verify static export
         run: |
-          npm run start -- -p 3000 > /tmp/next.log 2>&1 &
-          echo $! > /tmp/next.pid
+          test -d out
+
+          test -f out/index.html
+          test -f out/cases/index.html
+          test -f out/cases/CASE-2026-00001/index.html
+          test -f out/cases/CASE-2026-00014/index.html
+          test -f out/officer-review/index.html
+          test -f out/manager-approval/index.html
+          test -f out/corrections-verification/index.html
+          test -f out/analytics/index.html
+          test -f out/data-integrity/index.html
+          test -f out/reports-audit/index.html
+
+          echo "Static export files verified"
+
+      - name: Start static test server
+        run: |
+          python3 -m http.server 3000 --directory out > /tmp/frontend.log 2>&1 &
+          echo $! > /tmp/frontend.pid
 
       - name: Wait for frontend
         run: |
           for i in {1..30}; do
-            if curl -fsS http://localhost:3000 > /dev/null; then
-              echo "Frontend is ready"
+            if curl -fsS http://localhost:3000/ > /dev/null; then
+              echo "Static frontend is ready"
               exit 0
             fi
 
@@ -50,7 +69,7 @@ jobs:
           done
 
           echo "Frontend failed to start"
-          cat /tmp/next.log
+          cat /tmp/frontend.log
           exit 1
 
       - name: Smoke test routes
@@ -59,21 +78,22 @@ jobs:
 
           routes=(
             "/"
-            "/cases"
-            "/cases/CASE-2026-00001"
-            "/cases/CASE-2026-00014"
-            "/officer-review"
-            "/manager-approval"
-            "/corrections-verification"
-            "/analytics"
-            "/data-integrity"
-            "/reports-audit"
+            "/cases/"
+            "/cases/CASE-2026-00001/"
+            "/cases/CASE-2026-00014/"
+            "/officer-review/"
+            "/manager-approval/"
+            "/corrections-verification/"
+            "/analytics/"
+            "/data-integrity/"
+            "/reports-audit/"
           )
 
           for route in "${routes[@]}"; do
             echo "Testing $route"
 
             curl \
+              --location \
               --fail \
               --silent \
               --show-error \
@@ -83,15 +103,15 @@ jobs:
             echo "PASS $route"
           done
 
-      - name: Show server log on failure
+      - name: Show static server log on failure
         if: failure()
         run: |
-          echo "===== NEXT.JS SERVER LOG ====="
-          cat /tmp/next.log || true
+          echo "===== STATIC FRONTEND SERVER LOG ====="
+          cat /tmp/frontend.log || true
 
-      - name: Stop production server
+      - name: Stop static test server
         if: always()
         run: |
-          if [ -f /tmp/next.pid ]; then
-            kill "$(cat /tmp/next.pid)" || true
+          if [ -f /tmp/frontend.pid ]; then
+            kill "$(cat /tmp/frontend.pid)" || true
           fi

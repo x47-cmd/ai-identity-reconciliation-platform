@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
   Activity,
   BadgeCheck,
@@ -7,16 +9,11 @@ import {
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
-  Clock3,
   Database,
-  Download,
   FileCheck2,
   FileSearch,
   FileText,
-  Fingerprint,
-  Gauge,
   History,
-  LayoutDashboard,
   LockKeyhole,
   Search,
   ShieldAlert,
@@ -28,98 +25,71 @@ import {
 
 /* =========================================================
    REPORTS & AUDIT TRAIL CENTER
+
    Synthetic Demo Only
+
+   Notes:
+   - Selected E2E case: CASE-2026-00001
+   - Known demo audit trail count: 5 lifecycle events
+   - PDF generation is planned and not yet implemented
    ========================================================= */
 
 
 const auditEvents = [
   {
-    id: "AUD-000001",
+    id: "AUD-SEQ-01",
     caseId: "CASE-2026-00001",
-    time: "11:56:01",
-    actor: "Monitoring Agent",
-    actorType: "AI_AGENT",
-    action: "CHANGE_DETECTED",
-    status: "COMPLETED",
-    detail:
-      "Biometric identity relationship selected for reconciliation.",
-  },
-  {
-    id: "AUD-000002",
-    caseId: "CASE-2026-00001",
-    time: "11:56:02",
-    actor: "Reconciliation Agent",
-    actorType: "AI_AGENT",
-    action: "IDENTITY_CONFLICT_DETECTED",
-    status: "COMPLETED",
-    detail:
-      "BIO-000166 mapping to REF-002711 conflicted with authoritative identity evidence.",
-  },
-  {
-    id: "AUD-000003",
-    caseId: "CASE-2026-00001",
-    time: "11:56:03",
+    sequence: "01",
     actor: "Investigation Agent",
     actorType: "AI_AGENT",
-    action: "CANONICAL_IDENTITY_RESOLVED",
+    action: "AI_INVESTIGATION_COMPLETED",
     status: "COMPLETED",
     detail:
-      "REF-001009 identified as canonical identity candidate with 99.99% AI confidence.",
+      "AI investigation completed and the proposed identity correction package was prepared for human review.",
   },
   {
-    id: "AUD-000004",
+    id: "AUD-SEQ-02",
     caseId: "CASE-2026-00001",
-    time: "11:57:10",
+    sequence: "02",
     actor: "Demo Monitoring Officer",
     actorType: "HUMAN",
-    action: "OFFICER_APPROVAL",
+    action: "OFFICER_APPROVAL_RECORDED",
     status: "APPROVED",
     detail:
-      "Monitoring Officer reviewed AI evidence and approved the proposed correction.",
+      "Monitoring Officer reviewed the evidence and approved the proposed correction.",
   },
   {
-    id: "AUD-000005",
+    id: "AUD-SEQ-03",
     caseId: "CASE-2026-00001",
-    time: "11:58:02",
+    sequence: "03",
     actor: "Demo Supervising Manager",
     actorType: "HUMAN",
-    action: "MANAGER_APPROVAL",
+    action: "MANAGER_APPROVAL_RECORDED",
     status: "APPROVED",
     detail:
-      "Manager completed final review and authorized controlled correction execution.",
+      "Manager completed the second-level review and authorized controlled correction execution.",
   },
   {
-    id: "AUD-000006",
+    id: "AUD-SEQ-04",
     caseId: "CASE-2026-00001",
-    time: "11:58:04",
+    sequence: "04",
     actor: "Execution Agent",
     actorType: "AI_AGENT",
-    action: "AUTHORIZED_CORRECTION",
+    action: "CONTROLLED_CORRECTION_EXECUTED",
     status: "COMPLETED",
     detail:
-      "BIO-000166 linked_master_id changed from REF-002711 to REF-001009 in the controlled runtime dataset.",
+      "BIO-000166 was changed from REF-002711 to REF-001009 in the isolated controlled runtime dataset.",
   },
   {
-    id: "AUD-000007",
+    id: "AUD-SEQ-05",
     caseId: "CASE-2026-00001",
-    time: "11:58:05",
+    sequence: "05",
     actor: "Verification Agent",
     actorType: "AI_AGENT",
-    action: "POST_CORRECTION_VERIFICATION",
-    status: "PASSED",
-    detail:
-      "Verification score 100. Identity mapping valid, original conflict resolved and no secondary conflict detected.",
-  },
-  {
-    id: "AUD-000008",
-    caseId: "CASE-2026-00001",
-    time: "11:58:05",
-    actor: "Audit Agent",
-    actorType: "AI_AGENT",
-    action: "CASE_CLOSED",
+    action: "POST_CORRECTION_VERIFICATION_PASSED",
     status: "VERIFIED_CLOSED",
     detail:
-      "Case lifecycle completed and immutable audit history finalized.",
+      "Post-correction verification passed with score 100. Mapping was validated, the original conflict was resolved and the case reached VERIFIED_CLOSED.",
   },
 ];
 
@@ -128,7 +98,7 @@ const reports = [
   {
     title: "Case Investigation Report",
     description:
-      "Complete AI investigation, evidence, risk analysis, identity resolution and proposed correction.",
+      "AI investigation, evidence, risk analysis, identity resolution and proposed correction.",
     type: "CASE REPORT",
     icon: BrainCircuit,
   },
@@ -142,21 +112,21 @@ const reports = [
   {
     title: "Full Audit Report",
     description:
-      "Chronological record of AI and human actions across the complete case lifecycle.",
+      "Chronological lifecycle record covering AI actions, human decisions, execution and verification.",
     type: "AUDIT REPORT",
     icon: History,
   },
   {
     title: "Harm Impact Report",
     description:
-      "Protective cases where identity errors may affect an unrelated person.",
+      "Protective cases where identity errors may negatively affect an unrelated person.",
     type: "PROTECTIVE REPORT",
     icon: ShieldAlert,
   },
   {
     title: "Executive Monthly Report",
     description:
-      "Management KPIs, trends, case volumes, priorities, performance and resolution outcomes.",
+      "Management KPIs, case volumes, priorities, AI performance and resolution outcomes.",
     type: "EXECUTIVE REPORT",
     icon: BarChart3,
   },
@@ -172,183 +142,45 @@ const reports = [
 
 const caseSummary = {
   caseId: "CASE-2026-00001",
+
   type: "HARM_IMPACT",
+
   priority: "IMMEDIATE",
 
   biometric: "BIO-000166",
 
   before: "REF-002711",
+
   after: "REF-001009",
 
   confidence: "99.99%",
+
   risk: "94.99",
+
   harm: "97.5",
+
   protective: "98.0",
 
   officer: "Demo Monitoring Officer",
+
   officerDecision: "APPROVED",
 
   manager: "Demo Supervising Manager",
+
   managerDecision: "APPROVED",
 
   execution: "COMPLETED",
+
   verification: "PASSED",
+
   verificationScore: "100",
+
+  masterModified: "FALSE",
+
+  sourceModified: "FALSE",
 
   finalStatus: "VERIFIED_CLOSED",
 };
-
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-
-          <span>
-            Cases
-          </span>
-
-          <span className="navCount">
-            53
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <BrainCircuit size={19} />
-
-          <span>
-            AI Investigations
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/officer-review"
-        >
-          <UserCheck size={19} />
-
-          <span>
-            Officer Review
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/manager-approval"
-        >
-          <BadgeCheck size={19} />
-
-          <span>
-            Manager Approval
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/corrections-verification"
-        >
-          <FileCheck2 size={19} />
-
-          <span>
-            Corrections & Verification
-          </span>
-        </Link>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/analytics"
-        >
-          <Gauge size={19} />
-
-          <span>
-            Analytics
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/data-integrity"
-        >
-          <Database size={19} />
-
-          <span>
-            Data Integrity
-          </span>
-        </Link>
-
-        <Link
-          className="navItem active"
-          href="/reports-audit"
-        >
-          <Activity size={19} />
-
-          <span>
-            Reports & Audit
-          </span>
-        </Link>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 
 /* =========================================================
@@ -376,7 +208,7 @@ function Metric({
             fontWeight: 800,
           }}
         >
-          AUDITED
+          AUDIT READY
         </span>
       </div>
 
@@ -406,6 +238,7 @@ function StatusBadge({
     "VERIFIED_CLOSED",
   ];
 
+
   const success =
     successValues.includes(
       value
@@ -416,14 +249,18 @@ function StatusBadge({
     <span
       style={{
         display: "inline-flex",
+
         alignItems: "center",
+
         justifyContent: "center",
 
         minHeight: "24px",
 
-        padding: "0 9px",
+        padding:
+          "0 9px",
 
-        borderRadius: "7px",
+        borderRadius:
+          "7px",
 
         color:
           success
@@ -441,6 +278,7 @@ function StatusBadge({
             : "1px solid rgba(70,140,255,0.12)",
 
         fontSize: "8px",
+
         fontWeight: 800,
       }}
     >
@@ -458,7 +296,13 @@ function StatusBadge({
 export default function ReportsAuditPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
+
 
       <main className="mainContent">
 
@@ -486,6 +330,7 @@ export default function ReportsAuditPage() {
             </p>
           </div>
 
+
           <div className="topbarActions">
             <button className="searchButton">
               <Search size={18} />
@@ -494,6 +339,7 @@ export default function ReportsAuditPage() {
                 Search audit history
               </span>
             </button>
+
 
             <div className="profile">
               <div className="avatar">
@@ -521,8 +367,11 @@ export default function ReportsAuditPage() {
         <section
           className="integrityInfo"
           style={{
-            margin: "0 0 20px",
-            padding: "18px",
+            margin:
+              "0 0 20px",
+
+            padding:
+              "18px",
           }}
         >
           <LockKeyhole size={25} />
@@ -533,12 +382,12 @@ export default function ReportsAuditPage() {
             </strong>
 
             <span>
-              Every AI action, human decision,
-              correction, verification result and
-              final case status is recorded as part
-              of the case audit history. Sensitive
-              identity changes remain attributable
-              to the approving human reviewers.
+              AI actions, human decisions,
+              correction execution,
+              verification outcomes and final
+              case state can be reconstructed
+              through the recorded case
+              lifecycle.
             </span>
           </div>
         </section>
@@ -552,8 +401,8 @@ export default function ReportsAuditPage() {
           <Metric
             icon={History}
             label="Audit Events"
-            value="8"
-            description="Events in selected case lifecycle"
+            value="5"
+            description="Selected E2E lifecycle events"
           />
 
           <Metric
@@ -565,16 +414,16 @@ export default function ReportsAuditPage() {
 
           <Metric
             icon={BrainCircuit}
-            label="AI Actions"
-            value="6"
-            description="Automated monitored lifecycle events"
+            label="Controlled AI Stages"
+            value="3"
+            description="Investigation, execution and verification"
           />
 
           <Metric
             icon={CheckCircle2}
             label="Verified Closed"
             value="1"
-            description="Completed end-to-end correction case"
+            description="Completed end-to-end demo case"
           />
         </section>
 
@@ -605,15 +454,19 @@ export default function ReportsAuditPage() {
 
           <div
             style={{
-              padding: "21px",
+              padding:
+                "21px",
             }}
           >
             <div
               style={{
                 display: "grid",
+
                 gridTemplateColumns:
                   "repeat(4,1fr)",
-                gap: "10px",
+
+                gap:
+                  "10px",
               }}
             >
               {[
@@ -634,11 +487,15 @@ export default function ReportsAuditPage() {
                   caseSummary.protective,
                 ],
               ].map(
-                ([label, value]) => (
+                ([
+                  label,
+                  value,
+                ]) => (
                   <div
                     key={label}
                     style={{
-                      padding: "14px",
+                      padding:
+                        "14px",
 
                       borderRadius:
                         "11px",
@@ -652,9 +509,14 @@ export default function ReportsAuditPage() {
                   >
                     <span
                       style={{
-                        display: "block",
-                        color: "#596c84",
-                        fontSize: "8px",
+                        display:
+                          "block",
+
+                        color:
+                          "#596c84",
+
+                        fontSize:
+                          "8px",
                       }}
                     >
                       {label}
@@ -662,10 +524,17 @@ export default function ReportsAuditPage() {
 
                     <strong
                       style={{
-                        display: "block",
-                        marginTop: "5px",
-                        color: "#d0dceb",
-                        fontSize: "12px",
+                        display:
+                          "block",
+
+                        marginTop:
+                          "5px",
+
+                        color:
+                          "#d0dceb",
+
+                        fontSize:
+                          "12px",
                       }}
                     >
                       {value}
@@ -676,21 +545,34 @@ export default function ReportsAuditPage() {
             </div>
 
 
-            {/* BEFORE AFTER */}
+            {/* ============================================
+                BEFORE / AFTER
+                ============================================ */}
 
             <div
               style={{
                 display: "grid",
+
                 gridTemplateColumns:
                   "1fr auto 1fr",
-                alignItems: "center",
-                gap: "14px",
-                marginTop: "16px",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "14px",
+
+                marginTop:
+                  "16px",
               }}
             >
+
+              {/* BEFORE */}
+
               <div
                 style={{
-                  padding: "18px",
+                  padding:
+                    "18px",
 
                   borderRadius:
                     "12px",
@@ -704,10 +586,17 @@ export default function ReportsAuditPage() {
               >
                 <span
                   style={{
-                    display: "block",
-                    color: "#9b626a",
-                    fontSize: "8px",
-                    fontWeight: 800,
+                    display:
+                      "block",
+
+                    color:
+                      "#9b626a",
+
+                    fontSize:
+                      "8px",
+
+                    fontWeight:
+                      800,
                   }}
                 >
                   BEFORE
@@ -715,10 +604,17 @@ export default function ReportsAuditPage() {
 
                 <span
                   style={{
-                    display: "block",
-                    color: "#61738b",
-                    fontSize: "8px",
-                    marginTop: "10px",
+                    display:
+                      "block",
+
+                    color:
+                      "#61738b",
+
+                    fontSize:
+                      "8px",
+
+                    marginTop:
+                      "10px",
                   }}
                 >
                   {caseSummary.biometric}
@@ -726,10 +622,17 @@ export default function ReportsAuditPage() {
 
                 <strong
                   style={{
-                    display: "block",
-                    color: "#ff7b89",
-                    fontSize: "21px",
-                    marginTop: "4px",
+                    display:
+                      "block",
+
+                    color:
+                      "#ff7b89",
+
+                    fontSize:
+                      "21px",
+
+                    marginTop:
+                      "4px",
                   }}
                 >
                   {caseSummary.before}
@@ -743,9 +646,12 @@ export default function ReportsAuditPage() {
               />
 
 
+              {/* AFTER */}
+
               <div
                 style={{
-                  padding: "18px",
+                  padding:
+                    "18px",
 
                   borderRadius:
                     "12px",
@@ -759,10 +665,17 @@ export default function ReportsAuditPage() {
               >
                 <span
                   style={{
-                    display: "block",
-                    color: "#56806f",
-                    fontSize: "8px",
-                    fontWeight: 800,
+                    display:
+                      "block",
+
+                    color:
+                      "#56806f",
+
+                    fontSize:
+                      "8px",
+
+                    fontWeight:
+                      800,
                   }}
                 >
                   VERIFIED AFTER
@@ -770,10 +683,17 @@ export default function ReportsAuditPage() {
 
                 <span
                   style={{
-                    display: "block",
-                    color: "#61738b",
-                    fontSize: "8px",
-                    marginTop: "10px",
+                    display:
+                      "block",
+
+                    color:
+                      "#61738b",
+
+                    fontSize:
+                      "8px",
+
+                    marginTop:
+                      "10px",
                   }}
                 >
                   {caseSummary.biometric}
@@ -781,10 +701,17 @@ export default function ReportsAuditPage() {
 
                 <strong
                   style={{
-                    display: "block",
-                    color: "#59cfa0",
-                    fontSize: "21px",
-                    marginTop: "4px",
+                    display:
+                      "block",
+
+                    color:
+                      "#59cfa0",
+
+                    fontSize:
+                      "21px",
+
+                    marginTop:
+                      "4px",
                   }}
                 >
                   {caseSummary.after}
@@ -793,15 +720,23 @@ export default function ReportsAuditPage() {
             </div>
 
 
-            {/* DECISIONS */}
+            {/* ============================================
+                DECISIONS
+                ============================================ */}
 
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
+
                 gridTemplateColumns:
                   "1fr 1fr 1fr",
-                gap: "10px",
-                marginTop: "14px",
+
+                gap:
+                  "10px",
+
+                marginTop:
+                  "14px",
               }}
             >
               <div className="integrityInfo">
@@ -824,6 +759,7 @@ export default function ReportsAuditPage() {
                 </div>
               </div>
 
+
               <div className="integrityInfo">
                 <BadgeCheck size={20} />
 
@@ -843,6 +779,7 @@ export default function ReportsAuditPage() {
                   </span>
                 </div>
               </div>
+
 
               <div className="integrityInfo">
                 <ShieldCheck size={20} />
@@ -864,6 +801,58 @@ export default function ReportsAuditPage() {
                 </div>
               </div>
             </div>
+
+
+            {/* ============================================
+                SOURCE PROTECTION
+                ============================================ */}
+
+            <div
+              style={{
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "1fr 1fr",
+
+                gap:
+                  "10px",
+
+                marginTop:
+                  "10px",
+              }}
+            >
+              <div className="integrityInfo">
+                <Database size={20} />
+
+                <div>
+                  <strong>
+                    Master Modified
+                  </strong>
+
+                  <span>
+                    {caseSummary.masterModified}
+                    {" · READ ONLY"}
+                  </span>
+                </div>
+              </div>
+
+
+              <div className="integrityInfo">
+                <LockKeyhole size={20} />
+
+                <div>
+                  <strong>
+                    Original Source Modified
+                  </strong>
+
+                  <span>
+                    {caseSummary.sourceModified}
+                    {" · SOURCE PRESERVED"}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -875,17 +864,18 @@ export default function ReportsAuditPage() {
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop:
+              "14px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                IMMUTABLE CASE HISTORY
+                TRACEABLE CASE HISTORY
               </div>
 
               <h2>
-                End-to-End Audit Timeline
+                End-to-End Audit Sequence
               </h2>
             </div>
 
@@ -906,17 +896,21 @@ export default function ReportsAuditPage() {
                   index
                 ) => (
                   <div
-                    key={event.id}
+                    key={
+                      event.id
+                    }
                     style={{
-                      display: "grid",
+                      display:
+                        "grid",
 
                       gridTemplateColumns:
-                        "80px 28px 175px 1fr 120px",
+                        "65px 28px 175px 1fr 120px",
 
                       alignItems:
                         "start",
 
-                      gap: "11px",
+                      gap:
+                        "11px",
 
                       padding:
                         "16px 0",
@@ -931,24 +925,36 @@ export default function ReportsAuditPage() {
                   >
                     <div
                       style={{
-                        color: "#52647b",
-                        fontSize: "9px",
-                        paddingTop: "5px",
+                        color:
+                          "#52647b",
+
+                        fontSize:
+                          "9px",
+
+                        paddingTop:
+                          "5px",
                       }}
                     >
-                      {event.time}
+                      STEP {event.sequence}
                     </div>
 
 
                     <div
                       style={{
-                        width: "24px",
-                        height: "24px",
+                        width:
+                          "24px",
 
-                        borderRadius: "50%",
+                        height:
+                          "24px",
 
-                        display: "grid",
-                        placeItems: "center",
+                        borderRadius:
+                          "50%",
+
+                        display:
+                          "grid",
+
+                        placeItems:
+                          "center",
 
                         background:
                           event.actorType
@@ -982,9 +988,14 @@ export default function ReportsAuditPage() {
                     <div>
                       <strong
                         style={{
-                          display: "block",
-                          color: "#cbd7e7",
-                          fontSize: "9px",
+                          display:
+                            "block",
+
+                          color:
+                            "#cbd7e7",
+
+                          fontSize:
+                            "9px",
                         }}
                       >
                         {event.actor}
@@ -992,10 +1003,17 @@ export default function ReportsAuditPage() {
 
                       <span
                         style={{
-                          display: "block",
-                          color: "#566980",
-                          fontSize: "8px",
-                          marginTop: "4px",
+                          display:
+                            "block",
+
+                          color:
+                            "#566980",
+
+                          fontSize:
+                            "8px",
+
+                          marginTop:
+                            "4px",
                         }}
                       >
                         {event.actorType}
@@ -1006,9 +1024,14 @@ export default function ReportsAuditPage() {
                     <div>
                       <strong
                         style={{
-                          display: "block",
-                          color: "#9eb0c5",
-                          fontSize: "9px",
+                          display:
+                            "block",
+
+                          color:
+                            "#9eb0c5",
+
+                          fontSize:
+                            "9px",
                         }}
                       >
                         {event.action}
@@ -1016,11 +1039,20 @@ export default function ReportsAuditPage() {
 
                       <span
                         style={{
-                          display: "block",
-                          color: "#63758d",
-                          fontSize: "9px",
-                          lineHeight: 1.6,
-                          marginTop: "5px",
+                          display:
+                            "block",
+
+                          color:
+                            "#63758d",
+
+                          fontSize:
+                            "9px",
+
+                          lineHeight:
+                            1.6,
+
+                          marginTop:
+                            "5px",
                         }}
                       >
                         {event.detail}
@@ -1048,36 +1080,38 @@ export default function ReportsAuditPage() {
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop:
+              "14px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                AUDIT REGISTER
+                DEMO AUDIT REGISTER
               </div>
 
               <h2>
-                Recorded Governance Events
+                Recorded Lifecycle Sequence
               </h2>
             </div>
 
             <Activity size={22} />
           </div>
 
+
           <div className="tableWrap">
             <table
               style={{
-                minWidth: "1100px",
+                minWidth:
+                  "1100px",
               }}
             >
               <thead>
                 <tr>
-                  <th>EVENT ID</th>
+                  <th>SEQUENCE</th>
                   <th>CASE</th>
-                  <th>TIME</th>
                   <th>ACTOR</th>
-                  <th>TYPE</th>
+                  <th>ACTOR TYPE</th>
                   <th>ACTION</th>
                   <th>STATUS</th>
                 </tr>
@@ -1093,7 +1127,7 @@ export default function ReportsAuditPage() {
                         }
                       >
                         <td className="mono">
-                          {event.id}
+                          {event.sequence}
                         </td>
 
                         <td>
@@ -1109,10 +1143,6 @@ export default function ReportsAuditPage() {
                           >
                             {event.caseId}
                           </Link>
-                        </td>
-
-                        <td>
-                          {event.time}
                         </td>
 
                         <td>
@@ -1168,7 +1198,8 @@ export default function ReportsAuditPage() {
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop:
+              "14px",
           }}
         >
           <div className="panelHeader">
@@ -1188,14 +1219,17 @@ export default function ReportsAuditPage() {
 
           <div
             style={{
-              display: "grid",
+              display:
+                "grid",
 
               gridTemplateColumns:
                 "repeat(3,1fr)",
 
-              gap: "12px",
+              gap:
+                "12px",
 
-              padding: "20px",
+              padding:
+                "20px",
             }}
           >
             {
@@ -1204,13 +1238,15 @@ export default function ReportsAuditPage() {
                   const Icon =
                     report.icon;
 
+
                   return (
                     <div
                       key={
                         report.title
                       }
                       style={{
-                        padding: "18px",
+                        padding:
+                          "18px",
 
                         borderRadius:
                           "13px",
@@ -1221,27 +1257,33 @@ export default function ReportsAuditPage() {
                         background:
                           "rgba(255,255,255,0.022)",
 
-                        display: "flex",
+                        display:
+                          "flex",
 
                         flexDirection:
                           "column",
 
                         minHeight:
-                          "205px",
+                          "215px",
                       }}
                     >
-                      <div
-                        className="metricIcon"
-                      >
+                      <div className="metricIcon">
                         <Icon size={20} />
                       </div>
 
                       <span
                         style={{
-                          color: "#5f91dd",
-                          fontSize: "8px",
-                          fontWeight: 800,
-                          marginTop: "16px",
+                          color:
+                            "#5f91dd",
+
+                          fontSize:
+                            "8px",
+
+                          fontWeight:
+                            800,
+
+                          marginTop:
+                            "16px",
                         }}
                       >
                         {report.type}
@@ -1249,9 +1291,14 @@ export default function ReportsAuditPage() {
 
                       <strong
                         style={{
-                          color: "#d1ddea",
-                          fontSize: "11px",
-                          marginTop: "5px",
+                          color:
+                            "#d1ddea",
+
+                          fontSize:
+                            "11px",
+
+                          marginTop:
+                            "5px",
                         }}
                       >
                         {report.title}
@@ -1259,9 +1306,15 @@ export default function ReportsAuditPage() {
 
                       <p
                         style={{
-                          color: "#63758d",
-                          fontSize: "9px",
-                          lineHeight: 1.6,
+                          color:
+                            "#63758d",
+
+                          fontSize:
+                            "9px",
+
+                          lineHeight:
+                            1.6,
+
                           margin:
                             "8px 0 16px",
                         }}
@@ -1269,18 +1322,30 @@ export default function ReportsAuditPage() {
                         {report.description}
                       </p>
 
+
                       <button
                         className="searchButton"
+                        disabled
                         style={{
-                          marginTop: "auto",
-                          width: "100%",
+                          marginTop:
+                            "auto",
+
+                          width:
+                            "100%",
+
                           justifyContent:
                             "center",
+
+                          cursor:
+                            "not-allowed",
+
+                          opacity:
+                            0.62,
                         }}
                       >
-                        <Download size={15} />
+                        <FileText size={15} />
 
-                        Generate Report
+                        PDF Generator Planned
                       </button>
                     </div>
                   );
@@ -1298,9 +1363,12 @@ export default function ReportsAuditPage() {
         <section
           className="dashboardGrid"
           style={{
-            marginTop: "14px",
+            marginTop:
+              "14px",
           }}
         >
+
+          {/* FORMAL EVIDENCE PACKAGE */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -1325,7 +1393,7 @@ export default function ReportsAuditPage() {
               }}
             >
               {[
-                "Case ID & timestamps",
+                "Case ID & lifecycle metadata",
                 "Case type & priority",
                 "AI investigation conclusion",
                 "Identity resolution evidence",
@@ -1333,12 +1401,12 @@ export default function ReportsAuditPage() {
                 "Risk & harm assessment",
                 "Wrong-person impact analysis",
                 "Before / After correction",
-                "Officer decision & comments",
-                "Manager decision & comments",
+                "Officer decision",
+                "Manager decision",
                 "Execution result",
                 "Post-correction verification",
                 "Final case status",
-                "Complete audit timeline",
+                "Audit sequence",
               ].map(
                 (item) => (
                   <div
@@ -1360,6 +1428,8 @@ export default function ReportsAuditPage() {
           </div>
 
 
+          {/* TRACEABILITY CONTROLS */}
+
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -1378,7 +1448,8 @@ export default function ReportsAuditPage() {
 
             <div
               style={{
-                padding: "17px",
+                padding:
+                  "17px",
               }}
             >
               <div className="integrityInfo">
@@ -1391,8 +1462,8 @@ export default function ReportsAuditPage() {
 
                   <span>
                     Officer and Manager decisions
-                    are tied to the reviewing
-                    user and decision timestamp.
+                    remain attributable to the
+                    relevant human review stage.
                   </span>
                 </div>
               </div>
@@ -1407,9 +1478,10 @@ export default function ReportsAuditPage() {
                   </strong>
 
                   <span>
-                    AI findings and recommendations
-                    identify the responsible agent,
-                    confidence and supporting evidence.
+                    AI findings, recommendations
+                    and lifecycle actions identify
+                    the responsible processing
+                    component.
                   </span>
                 </div>
               </div>
@@ -1420,13 +1492,14 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Chronological Audit
+                    Chronological Traceability
                   </strong>
 
                   <span>
-                    Every lifecycle event can be
-                    reconstructed from detection
-                    through verified closure.
+                    The case lifecycle can be
+                    reconstructed from AI
+                    investigation through verified
+                    closure.
                   </span>
                 </div>
               </div>
@@ -1441,9 +1514,10 @@ export default function ReportsAuditPage() {
                   </strong>
 
                   <span>
-                    Audit reporting records that
-                    the Master Reference remained
-                    read only during correction.
+                    The selected demo confirms
+                    that the Master Reference
+                    remained unchanged during
+                    controlled correction.
                   </span>
                 </div>
               </div>
@@ -1459,7 +1533,8 @@ export default function ReportsAuditPage() {
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop:
+              "14px",
           }}
         >
           <div className="panelHeader">
@@ -1479,14 +1554,17 @@ export default function ReportsAuditPage() {
 
           <div
             style={{
-              display: "grid",
+              display:
+                "grid",
 
               gridTemplateColumns:
                 "repeat(4,1fr)",
 
-              gap: "10px",
+              gap:
+                "10px",
 
-              padding: "20px",
+              padding:
+                "20px",
             }}
           >
             {[
@@ -1495,18 +1573,21 @@ export default function ReportsAuditPage() {
                 "53",
                 FileSearch,
               ],
+
               [
                 "Protective Cases",
                 "9",
                 ShieldAlert,
               ],
+
               [
-                "Verification Success",
-                "100%",
+                "Demo Verification",
+                "PASSED",
                 ShieldCheck,
               ],
+
               [
-                "Unresolved Cases",
+                "Unresolved Identity",
                 "0",
                 CheckCircle2,
               ],
@@ -1521,7 +1602,8 @@ export default function ReportsAuditPage() {
                 <div
                   key={label}
                   style={{
-                    padding: "16px",
+                    padding:
+                      "16px",
 
                     borderRadius:
                       "11px",
@@ -1540,10 +1622,17 @@ export default function ReportsAuditPage() {
 
                   <strong
                     style={{
-                      display: "block",
-                      color: "#d2deeb",
-                      fontSize: "21px",
-                      marginTop: "12px",
+                      display:
+                        "block",
+
+                      color:
+                        "#d2deeb",
+
+                      fontSize:
+                        "21px",
+
+                      marginTop:
+                        "12px",
                     }}
                   >
                     {value}
@@ -1551,10 +1640,17 @@ export default function ReportsAuditPage() {
 
                   <span
                     style={{
-                      display: "block",
-                      color: "#61738b",
-                      fontSize: "8px",
-                      marginTop: "4px",
+                      display:
+                        "block",
+
+                      color:
+                        "#61738b",
+
+                      fontSize:
+                        "8px",
+
+                      marginTop:
+                        "4px",
                     }}
                   >
                     {label}
@@ -1567,14 +1663,178 @@ export default function ReportsAuditPage() {
 
 
         {/* ================================================
+            EXPORT READINESS
+            ================================================ */}
+
+        <section
+          className="dashboardGrid"
+          style={{
+            marginTop:
+              "14px",
+          }}
+        >
+
+          <div className="panel">
+            <div className="panelHeader">
+              <div>
+                <div className="panelEyebrow">
+                  CURRENT ARTIFACTS
+                </div>
+
+                <h2>
+                  Machine-Readable Outputs
+                </h2>
+              </div>
+
+              <Database size={22} />
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "8px 18px 18px",
+              }}
+            >
+              {[
+                [
+                  "Case data",
+                  "CSV / JSON",
+                ],
+                [
+                  "AI findings",
+                  "CSV / JSON",
+                ],
+                [
+                  "Investigations",
+                  "CSV / JSON",
+                ],
+                [
+                  "Approval state",
+                  "JSON",
+                ],
+                [
+                  "Execution results",
+                  "CSV / JSON",
+                ],
+                [
+                  "Verification results",
+                  "CSV / JSON",
+                ],
+              ].map(
+                ([
+                  label,
+                  value,
+                ]) => (
+                  <div
+                    className="detailRow"
+                    key={label}
+                  >
+                    <span>
+                      {label}
+                    </span>
+
+                    <strong>
+                      {value}
+                    </strong>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+
+
+          <div className="panel">
+            <div className="panelHeader">
+              <div>
+                <div className="panelEyebrow">
+                  FUTURE EXPORT
+                </div>
+
+                <h2>
+                  Formal PDF Reporting
+                </h2>
+              </div>
+
+              <FileText size={22} />
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "17px",
+              }}
+            >
+              <div className="integrityInfo">
+                <CheckCircle2 size={21} />
+
+                <div>
+                  <strong>
+                    Report Model Ready
+                  </strong>
+
+                  <span>
+                    Required case, AI,
+                    approval, correction and
+                    verification information is
+                    already represented in the
+                    reporting design.
+                  </span>
+                </div>
+              </div>
+
+
+              <div
+                className="integrityInfo"
+                style={{
+                  borderColor:
+                    "rgba(255,185,90,0.09)",
+
+                  background:
+                    "rgba(255,185,90,0.04)",
+                }}
+              >
+                <FileText
+                  size={21}
+                  color="#ffbd67"
+                />
+
+                <div>
+                  <strong
+                    style={{
+                      color:
+                        "#d0a35f",
+                    }}
+                  >
+                    PDF Generator Planned
+                  </strong>
+
+                  <span>
+                    A formal downloadable PDF
+                    generator has not yet been
+                    connected to this frontend
+                    workspace.
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
+        {/* ================================================
             FINAL AUDIT STATUS
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
-            margin: "14px 0 0",
-            padding: "18px",
+            margin:
+              "14px 0 0",
+
+            padding:
+              "18px",
           }}
         >
           <CheckCircle2 size={25} />
@@ -1585,16 +1845,21 @@ export default function ReportsAuditPage() {
             </strong>
 
             <span>
-              CASE-2026-00001 can be traced from
-              automated detection through AI
-              investigation, two human approvals,
-              authorized correction,
-              post-correction verification and
+              CASE-2026-00001 demonstrates a
+              traceable lifecycle from AI
+              investigation through Officer and
+              Manager approvals, controlled
+              correction, post-correction
+              verification and
               VERIFIED_CLOSED status.
             </span>
           </div>
         </section>
 
+
+        {/* ================================================
+            FOOTER
+            ================================================ */}
 
         <footer className="footer">
           <span>
@@ -1604,9 +1869,11 @@ export default function ReportsAuditPage() {
 
           <div>
             <Activity size={15} />
+
             Audit Monitoring Active
           </div>
         </footer>
+
       </main>
     </div>
   );

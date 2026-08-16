@@ -1126,3 +1126,73 @@ input:focus-visible {
     gap: 8px;
   }
 }
+
+/* =========================================================
+   LANGUAGE / RTL SUPPORT
+   ========================================================= */
+
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] .appShell,
+html[dir="rtl"] .mainContent,
+html[dir="rtl"] .sidebar,
+html[dir="rtl"] .panel,
+html[dir="rtl"] table {
+  direction: rtl;
+}
+
+html[dir="rtl"] .topbar,
+html[dir="rtl"] .panelHeader,
+html[dir="rtl"] .caseHeroHeader,
+html[dir="rtl"] .detailRow,
+html[dir="rtl"] .agentItem,
+html[dir="rtl"] .agentLeft,
+html[dir="rtl"] .healthScore > div:first-child {
+  direction: rtl;
+}
+
+html[dir="rtl"] .identityChange svg,
+html[dir="rtl"] .textButton svg,
+html[dir="rtl"] .bannerButton svg,
+html[dir="rtl"] .primaryButton svg {
+  transform: rotate(180deg);
+}
+
+.languageSwitcher {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border-radius: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.languageButton {
+  min-height: 28px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.languageButton.active {
+  background: rgba(59, 130, 246, 0.12);
+  color: #93c5fd;
+}
+
+html[dir="rtl"] input,
+html[dir="rtl"] textarea {
+  text-align: right;
+}

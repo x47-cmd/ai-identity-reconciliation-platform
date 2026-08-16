@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
+
+import {
+  useLanguage,
+} from "../components/LanguageProvider";
 
 import {
   Activity,
@@ -24,16 +30,23 @@ import {
 
 
 /* =========================================================
-   REPORTS & AUDIT TRAIL CENTER
-
-   Synthetic Demo Only
-
-   Notes:
-   - Selected E2E case: CASE-2026-00001
-   - Known demo audit trail count: 5 lifecycle events
-   - PDF generation is planned and not yet implemented
+   LANGUAGE HELPER
    ========================================================= */
 
+function L(
+  language,
+  english,
+  arabic
+) {
+  return language === "ar"
+    ? arabic
+    : english;
+}
+
+
+/* =========================================================
+   AUDIT EVENTS
+   ========================================================= */
 
 const auditEvents = [
   {
@@ -47,6 +60,7 @@ const auditEvents = [
     detail:
       "AI investigation completed and the proposed identity correction package was prepared for human review.",
   },
+
   {
     id: "AUD-SEQ-02",
     caseId: "CASE-2026-00001",
@@ -58,6 +72,7 @@ const auditEvents = [
     detail:
       "Monitoring Officer reviewed the evidence and approved the proposed correction.",
   },
+
   {
     id: "AUD-SEQ-03",
     caseId: "CASE-2026-00001",
@@ -69,6 +84,7 @@ const auditEvents = [
     detail:
       "Manager completed the second-level review and authorized controlled correction execution.",
   },
+
   {
     id: "AUD-SEQ-04",
     caseId: "CASE-2026-00001",
@@ -80,6 +96,7 @@ const auditEvents = [
     detail:
       "BIO-000166 was changed from REF-002711 to REF-001009 in the isolated controlled runtime dataset.",
   },
+
   {
     id: "AUD-SEQ-05",
     caseId: "CASE-2026-00001",
@@ -94,105 +111,465 @@ const auditEvents = [
 ];
 
 
+/* =========================================================
+   REPORT TYPES
+   ========================================================= */
+
 const reports = [
   {
-    title: "Case Investigation Report",
+    title:
+      "Case Investigation Report",
+
     description:
       "AI investigation, evidence, risk analysis, identity resolution and proposed correction.",
-    type: "CASE REPORT",
-    icon: BrainCircuit,
+
+    type:
+      "CASE REPORT",
+
+    icon:
+      BrainCircuit,
   },
+
   {
-    title: "Correction & Verification Report",
+    title:
+      "Correction & Verification Report",
+
     description:
       "Before/After correction, approvals, execution result and post-correction verification.",
-    type: "CORRECTION REPORT",
-    icon: FileCheck2,
+
+    type:
+      "CORRECTION REPORT",
+
+    icon:
+      FileCheck2,
   },
+
   {
-    title: "Full Audit Report",
+    title:
+      "Full Audit Report",
+
     description:
       "Chronological lifecycle record covering AI actions, human decisions, execution and verification.",
-    type: "AUDIT REPORT",
-    icon: History,
+
+    type:
+      "AUDIT REPORT",
+
+    icon:
+      History,
   },
+
   {
-    title: "Harm Impact Report",
+    title:
+      "Harm Impact Report",
+
     description:
       "Protective cases where identity errors may negatively affect an unrelated person.",
-    type: "PROTECTIVE REPORT",
-    icon: ShieldAlert,
+
+    type:
+      "PROTECTIVE REPORT",
+
+    icon:
+      ShieldAlert,
   },
+
   {
-    title: "Executive Monthly Report",
+    title:
+      "Executive Monthly Report",
+
     description:
       "Management KPIs, case volumes, priorities, AI performance and resolution outcomes.",
-    type: "EXECUTIVE REPORT",
-    icon: BarChart3,
+
+    type:
+      "EXECUTIVE REPORT",
+
+    icon:
+      BarChart3,
   },
+
   {
-    title: "Data Integrity Report",
+    title:
+      "Data Integrity Report",
+
     description:
       "Cross-system mismatches, duplicates, orphan records, source health and reconciliation results.",
-    type: "DATA REPORT",
-    icon: Database,
+
+    type:
+      "DATA REPORT",
+
+    icon:
+      Database,
   },
 ];
 
 
+/* =========================================================
+   SELECTED CASE
+   ========================================================= */
+
 const caseSummary = {
-  caseId: "CASE-2026-00001",
+  caseId:
+    "CASE-2026-00001",
 
-  type: "HARM_IMPACT",
+  type:
+    "HARM_IMPACT",
 
-  priority: "IMMEDIATE",
+  priority:
+    "IMMEDIATE",
 
-  biometric: "BIO-000166",
+  biometric:
+    "BIO-000166",
 
-  before: "REF-002711",
+  before:
+    "REF-002711",
 
-  after: "REF-001009",
+  after:
+    "REF-001009",
 
-  confidence: "99.99%",
+  confidence:
+    "99.99%",
 
-  risk: "94.99",
+  risk:
+    "94.99",
 
-  harm: "97.5",
+  harm:
+    "97.5",
 
-  protective: "98.0",
+  protective:
+    "98.0",
 
-  officer: "Demo Monitoring Officer",
+  officer:
+    "Demo Monitoring Officer",
 
-  officerDecision: "APPROVED",
+  officerDecision:
+    "APPROVED",
 
-  manager: "Demo Supervising Manager",
+  manager:
+    "Demo Supervising Manager",
 
-  managerDecision: "APPROVED",
+  managerDecision:
+    "APPROVED",
 
-  execution: "COMPLETED",
+  execution:
+    "COMPLETED",
 
-  verification: "PASSED",
+  verification:
+    "PASSED",
 
-  verificationScore: "100",
+  verificationScore:
+    "100",
 
-  masterModified: "FALSE",
+  masterModified:
+    "FALSE",
 
-  sourceModified: "FALSE",
+  sourceModified:
+    "FALSE",
 
-  finalStatus: "VERIFIED_CLOSED",
+  finalStatus:
+    "VERIFIED_CLOSED",
 };
 
 
 /* =========================================================
-   SMALL COMPONENTS
+   LOCALIZATION HELPERS
    ========================================================= */
 
+function localizeStatus(
+  value,
+  language,
+  t
+) {
+  const keys = {
+    COMPLETED:
+      "statuses.COMPLETED",
+
+    APPROVED:
+      "statuses.APPROVED",
+
+    PASSED:
+      "statuses.PASSED",
+
+    VERIFIED_CLOSED:
+      "statuses.VERIFIED_CLOSED",
+  };
+
+
+  if (keys[value]) {
+    return t(
+      keys[value]
+    );
+  }
+
+
+  return L(
+    language,
+    value,
+    value
+  );
+}
+
+
+function localizePriority(
+  value,
+  t
+) {
+  const keys = {
+    IMMEDIATE:
+      "priorities.IMMEDIATE",
+
+    HIGH:
+      "priorities.HIGH",
+
+    MEDIUM:
+      "priorities.MEDIUM",
+  };
+
+
+  return keys[value]
+    ? t(keys[value])
+    : value;
+}
+
+
+function localizeCaseType(
+  value,
+  t
+) {
+  const keys = {
+    HARM_IMPACT:
+      "caseTypes.HARM_IMPACT",
+
+    WRONG_MAPPING:
+      "caseTypes.WRONG_MAPPING",
+
+    DATA_MISMATCH:
+      "caseTypes.DATA_MISMATCH",
+
+    DUPLICATE_IDENTITY:
+      "caseTypes.DUPLICATE_IDENTITY",
+
+    COMPLEX_IDENTITY_CONFLICT:
+      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
+
+    CRITICAL_HARM_IDENTITY_CONFLICT:
+      "caseTypes.CRITICAL_HARM_CONFLICT",
+
+    ORPHAN_RECORD:
+      "caseTypes.ORPHAN",
+  };
+
+
+  return keys[value]
+    ? t(keys[value])
+    : value;
+}
+
+
+function localizeActor(
+  actor,
+  language
+) {
+  const labels = {
+    "Investigation Agent":
+      "وكيل التحقيق",
+
+    "Demo Monitoring Officer":
+      "ضابط المراقبة التجريبي",
+
+    "Demo Supervising Manager":
+      "المدير المشرف التجريبي",
+
+    "Execution Agent":
+      "وكيل التنفيذ",
+
+    "Verification Agent":
+      "وكيل التحقق",
+  };
+
+
+  return language === "ar"
+    ? labels[actor] || actor
+    : actor;
+}
+
+
+function localizeActorType(
+  actorType,
+  language
+) {
+  const labels = {
+    HUMAN:
+      "بشري",
+
+    AI_AGENT:
+      "وكيل ذكاء اصطناعي",
+  };
+
+
+  return language === "ar"
+    ? labels[actorType] || actorType
+    : actorType;
+}
+
+
+function localizeAction(
+  action,
+  language
+) {
+  const labels = {
+    AI_INVESTIGATION_COMPLETED:
+      "اكتمل تحقيق الذكاء الاصطناعي",
+
+    OFFICER_APPROVAL_RECORDED:
+      "تم تسجيل اعتماد الضابط",
+
+    MANAGER_APPROVAL_RECORDED:
+      "تم تسجيل اعتماد المدير",
+
+    CONTROLLED_CORRECTION_EXECUTED:
+      "تم تنفيذ التصحيح الخاضع للتحكم",
+
+    POST_CORRECTION_VERIFICATION_PASSED:
+      "نجح التحقق بعد التصحيح",
+  };
+
+
+  return language === "ar"
+    ? labels[action] || action
+    : action;
+}
+
+
+function localizeEventDetail(
+  detail,
+  language
+) {
+  const labels = {
+    "AI investigation completed and the proposed identity correction package was prepared for human review.":
+      "اكتمل تحقيق الذكاء الاصطناعي وتم إعداد حزمة تصحيح الهوية المقترحة للمراجعة البشرية.",
+
+    "Monitoring Officer reviewed the evidence and approved the proposed correction.":
+      "راجع ضابط المراقبة الأدلة واعتمد التصحيح المقترح.",
+
+    "Manager completed the second-level review and authorized controlled correction execution.":
+      "أكمل المدير المراجعة من المستوى الثاني وصرح بتنفيذ التصحيح الخاضع للتحكم.",
+
+    "BIO-000166 was changed from REF-002711 to REF-001009 in the isolated controlled runtime dataset.":
+      "تم تغيير BIO-000166 من REF-002711 إلى REF-001009 داخل مجموعة بيانات التشغيل المعزولة والخاضعة للتحكم.",
+
+    "Post-correction verification passed with score 100. Mapping was validated, the original conflict was resolved and the case reached VERIFIED_CLOSED.":
+      "نجح التحقق بعد التصحيح بدرجة 100، وتم التحقق من صحة الربط وحل التعارض الأصلي ووصلت الحالة إلى مرحلة التحقق والإغلاق.",
+  };
+
+
+  return language === "ar"
+    ? labels[detail] || detail
+    : detail;
+}
+
+
+function localizeReportTitle(
+  title,
+  language
+) {
+  const labels = {
+    "Case Investigation Report":
+      "تقرير تحقيق الحالة",
+
+    "Correction & Verification Report":
+      "تقرير التصحيح والتحقق",
+
+    "Full Audit Report":
+      "تقرير التدقيق الكامل",
+
+    "Harm Impact Report":
+      "تقرير تأثير الضرر",
+
+    "Executive Monthly Report":
+      "التقرير التنفيذي الشهري",
+
+    "Data Integrity Report":
+      "تقرير سلامة البيانات",
+  };
+
+
+  return language === "ar"
+    ? labels[title] || title
+    : title;
+}
+
+
+function localizeReportType(
+  type,
+  language
+) {
+  const labels = {
+    "CASE REPORT":
+      "تقرير حالة",
+
+    "CORRECTION REPORT":
+      "تقرير تصحيح",
+
+    "AUDIT REPORT":
+      "تقرير تدقيق",
+
+    "PROTECTIVE REPORT":
+      "تقرير وقائي",
+
+    "EXECUTIVE REPORT":
+      "تقرير تنفيذي",
+
+    "DATA REPORT":
+      "تقرير بيانات",
+  };
+
+
+  return language === "ar"
+    ? labels[type] || type
+    : type;
+}
+
+
+function localizeReportDescription(
+  description,
+  language
+) {
+  const labels = {
+    "AI investigation, evidence, risk analysis, identity resolution and proposed correction.":
+      "تحقيق الذكاء الاصطناعي والأدلة وتحليل المخاطر وحسم الهوية والتصحيح المقترح.",
+
+    "Before/After correction, approvals, execution result and post-correction verification.":
+      "حالة ما قبل وبعد التصحيح والاعتمادات ونتيجة التنفيذ والتحقق بعد التصحيح.",
+
+    "Chronological lifecycle record covering AI actions, human decisions, execution and verification.":
+      "سجل زمني لدورة الحياة يشمل إجراءات الذكاء الاصطناعي والقرارات البشرية والتنفيذ والتحقق.",
+
+    "Protective cases where identity errors may negatively affect an unrelated person.":
+      "الحالات الوقائية التي قد تؤثر فيها أخطاء الهوية سلبًا على شخص غير مرتبط بالحالة.",
+
+    "Management KPIs, case volumes, priorities, AI performance and resolution outcomes.":
+      "مؤشرات الإدارة وحجم الحالات والأولويات وأداء الذكاء الاصطناعي ونتائج الحسم.",
+
+    "Cross-system mismatches, duplicates, orphan records, source health and reconciliation results.":
+      "الاختلافات بين الأنظمة والسجلات المكررة والمعزولة وسلامة المصادر ونتائج المطابقة.",
+  };
+
+
+  return language === "ar"
+    ? labels[description] || description
+    : description;
+}
+
+
+/* =========================================================
+   METRIC
+   ========================================================= */
 
 function Metric({
   icon: Icon,
   label,
   value,
   description,
+  language,
 }) {
   return (
     <div className="metricCard">
@@ -203,22 +580,34 @@ function Metric({
 
         <span
           style={{
-            color: "#59cfa0",
-            fontSize: "8px",
-            fontWeight: 800,
+            color:
+              "#59cfa0",
+
+            fontSize:
+              "8px",
+
+            fontWeight:
+              800,
           }}
         >
-          AUDIT READY
+          {L(
+            language,
+            "AUDIT READY",
+            "جاهز للتدقيق"
+          )}
         </span>
       </div>
+
 
       <div className="metricValue">
         {value}
       </div>
 
+
       <div className="metricTitle">
         {label}
       </div>
+
 
       <div className="metricSubtitle">
         {description}
@@ -228,8 +617,14 @@ function Metric({
 }
 
 
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
+
 function StatusBadge({
   value,
+  language,
+  t,
 }) {
   const successValues = [
     "COMPLETED",
@@ -248,13 +643,17 @@ function StatusBadge({
   return (
     <span
       style={{
-        display: "inline-flex",
+        display:
+          "inline-flex",
 
-        alignItems: "center",
+        alignItems:
+          "center",
 
-        justifyContent: "center",
+        justifyContent:
+          "center",
 
-        minHeight: "24px",
+        minHeight:
+          "24px",
 
         padding:
           "0 9px",
@@ -277,12 +676,23 @@ function StatusBadge({
             ? "1px solid rgba(52,211,153,0.12)"
             : "1px solid rgba(70,140,255,0.12)",
 
-        fontSize: "8px",
+        fontSize:
+          "8px",
 
-        fontWeight: 800,
+        fontWeight:
+          800,
+
+        whiteSpace:
+          "nowrap",
       }}
     >
-      {value}
+      {
+        localizeStatus(
+          value,
+          language,
+          t
+        )
+      }
     </span>
   );
 }
@@ -292,14 +702,15 @@ function StatusBadge({
    PAGE
    ========================================================= */
 
-
 export default function ReportsAuditPage() {
+  const {
+    language,
+    t,
+  } = useLanguage();
+
+
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -315,18 +726,21 @@ export default function ReportsAuditPage() {
             <div className="eyebrow">
               <History size={15} />
 
-              GOVERNANCE · TRACEABILITY · REPORTING
+              {t(
+                "reportsAudit.eyebrow"
+              )}
             </div>
 
             <h1>
-              Reports & Audit Trail
+              {t(
+                "reportsAudit.title"
+              )}
             </h1>
 
             <p>
-              Complete traceability of AI findings,
-              human decisions, approved corrections,
-              verification outcomes and executive
-              reporting.
+              {t(
+                "reportsAudit.subtitle"
+              )}
             </p>
           </div>
 
@@ -336,7 +750,11 @@ export default function ReportsAuditPage() {
               <Search size={18} />
 
               <span>
-                Search audit history
+                {L(
+                  language,
+                  "Search audit history",
+                  "البحث في سجل التدقيق"
+                )}
               </span>
             </button>
 
@@ -348,11 +766,19 @@ export default function ReportsAuditPage() {
 
               <div className="profileText">
                 <strong>
-                  Audit & Governance
+                  {L(
+                    language,
+                    "Audit & Governance",
+                    "التدقيق والحوكمة"
+                  )}
                 </strong>
 
                 <span>
-                  Reporting Center
+                  {L(
+                    language,
+                    "Reporting Center",
+                    "مركز التقارير"
+                  )}
                 </span>
               </div>
             </div>
@@ -378,16 +804,17 @@ export default function ReportsAuditPage() {
 
           <div>
             <strong>
-              Full Case Traceability Active
+              {L(
+                language,
+                "Full Case Traceability Active",
+                "التتبع الكامل للحالة نشط"
+              )}
             </strong>
 
             <span>
-              AI actions, human decisions,
-              correction execution,
-              verification outcomes and final
-              case state can be reconstructed
-              through the recorded case
-              lifecycle.
+              {t(
+                "reportsAudit.governanceMessage"
+              )}
             </span>
           </div>
         </section>
@@ -400,30 +827,74 @@ export default function ReportsAuditPage() {
         <section className="statsGrid">
           <Metric
             icon={History}
-            label="Audit Events"
+            label={
+              t(
+                "reportsAudit.auditEvents"
+              )
+            }
             value="5"
-            description="Selected E2E lifecycle events"
+            description={
+              L(
+                language,
+                "Selected E2E lifecycle events",
+                "أحداث دورة الحياة للحالة التجريبية المحددة"
+              )
+            }
+            language={language}
           />
 
           <Metric
             icon={Users}
-            label="Human Decisions"
+            label={
+              t(
+                "reportsAudit.humanDecisions"
+              )
+            }
             value="2"
-            description="Officer and Manager approvals"
+            description={
+              L(
+                language,
+                "Officer and Manager approvals",
+                "اعتماد الضابط والمدير"
+              )
+            }
+            language={language}
           />
 
           <Metric
             icon={BrainCircuit}
-            label="Controlled AI Stages"
+            label={
+              t(
+                "reportsAudit.controlledAiStages"
+              )
+            }
             value="3"
-            description="Investigation, execution and verification"
+            description={
+              L(
+                language,
+                "Investigation, execution and verification",
+                "التحقيق والتنفيذ والتحقق"
+              )
+            }
+            language={language}
           />
 
           <Metric
             icon={CheckCircle2}
-            label="Verified Closed"
+            label={
+              t(
+                "reportsAudit.verifiedClosed"
+              )
+            }
             value="1"
-            description="Completed end-to-end demo case"
+            description={
+              L(
+                language,
+                "Completed end-to-end demo case",
+                "حالة عرض متكاملة مكتملة"
+              )
+            }
+            language={language}
           />
         </section>
 
@@ -436,7 +907,9 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                SELECTED AUDIT CASE
+                {t(
+                  "reportsAudit.selectedAuditCase"
+                )}
               </div>
 
               <h2>
@@ -448,6 +921,8 @@ export default function ReportsAuditPage() {
               value={
                 caseSummary.finalStatus
               }
+              language={language}
+              t={t}
             />
           </div>
 
@@ -460,7 +935,8 @@ export default function ReportsAuditPage() {
           >
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
 
                 gridTemplateColumns:
                   "repeat(4,1fr)",
@@ -471,19 +947,42 @@ export default function ReportsAuditPage() {
             >
               {[
                 [
-                  "Case Type",
-                  caseSummary.type,
+                  t(
+                    "common.type"
+                  ),
+
+                  localizeCaseType(
+                    caseSummary.type,
+                    t
+                  ),
                 ],
+
                 [
-                  "Priority",
-                  caseSummary.priority,
+                  t(
+                    "common.priority"
+                  ),
+
+                  localizePriority(
+                    caseSummary.priority,
+                    t
+                  ),
                 ],
+
                 [
-                  "AI Confidence",
+                  L(
+                    language,
+                    "AI Confidence",
+                    "ثقة الذكاء الاصطناعي"
+                  ),
+
                   caseSummary.confidence,
                 ],
+
                 [
-                  "Protective Priority",
+                  t(
+                    "common.protectivePriority"
+                  ),
+
                   caseSummary.protective,
                 ],
               ].map(
@@ -551,7 +1050,8 @@ export default function ReportsAuditPage() {
 
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
 
                 gridTemplateColumns:
                   "1fr auto 1fr",
@@ -566,9 +1066,6 @@ export default function ReportsAuditPage() {
                   "16px",
               }}
             >
-
-              {/* BEFORE */}
-
               <div
                 style={{
                   padding:
@@ -599,7 +1096,11 @@ export default function ReportsAuditPage() {
                       800,
                   }}
                 >
-                  BEFORE
+                  {L(
+                    language,
+                    "BEFORE",
+                    "قبل"
+                  )}
                 </span>
 
                 <span
@@ -646,8 +1147,6 @@ export default function ReportsAuditPage() {
               />
 
 
-              {/* AFTER */}
-
               <div
                 style={{
                   padding:
@@ -678,7 +1177,11 @@ export default function ReportsAuditPage() {
                       800,
                   }}
                 >
-                  VERIFIED AFTER
+                  {L(
+                    language,
+                    "VERIFIED AFTER",
+                    "بعد التحقق"
+                  )}
                 </span>
 
                 <span
@@ -744,16 +1247,27 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Officer Approval
+                    {t(
+                      "reportsAudit.officerApproval"
+                    )}
                   </strong>
 
                   <span>
                     {
-                      caseSummary.officer
+                      localizeActor(
+                        caseSummary.officer,
+                        language
+                      )
                     }
+
                     {" · "}
+
                     {
-                      caseSummary.officerDecision
+                      localizeStatus(
+                        caseSummary.officerDecision,
+                        language,
+                        t
+                      )
                     }
                   </span>
                 </div>
@@ -765,16 +1279,27 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Manager Approval
+                    {t(
+                      "reportsAudit.managerApproval"
+                    )}
                   </strong>
 
                   <span>
                     {
-                      caseSummary.manager
+                      localizeActor(
+                        caseSummary.manager,
+                        language
+                      )
                     }
+
                     {" · "}
+
                     {
-                      caseSummary.managerDecision
+                      localizeStatus(
+                        caseSummary.managerDecision,
+                        language,
+                        t
+                      )
                     }
                   </span>
                 </div>
@@ -786,14 +1311,30 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Verification
+                    {t(
+                      "reportsAudit.postCorrectionVerification"
+                    )}
                   </strong>
 
                   <span>
                     {
-                      caseSummary.verification
+                      localizeStatus(
+                        caseSummary.verification,
+                        language,
+                        t
+                      )
                     }
-                    {" · Score "}
+
+                    {" · "}
+
+                    {L(
+                      language,
+                      "Score",
+                      "الدرجة"
+                    )}
+
+                    {" "}
+
                     {
                       caseSummary.verificationScore
                     }
@@ -827,12 +1368,17 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Master Modified
+                    {t(
+                      "reportsAudit.masterModified"
+                    )}
                   </strong>
 
                   <span>
-                    {caseSummary.masterModified}
-                    {" · READ ONLY"}
+                    {L(
+                      language,
+                      "FALSE · READ ONLY",
+                      "لا · للقراءة فقط"
+                    )}
                   </span>
                 </div>
               </div>
@@ -843,12 +1389,17 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Original Source Modified
+                    {t(
+                      "reportsAudit.originalBiometricModified"
+                    )}
                   </strong>
 
                   <span>
-                    {caseSummary.sourceModified}
-                    {" · SOURCE PRESERVED"}
+                    {L(
+                      language,
+                      "FALSE · SOURCE PRESERVED",
+                      "لا · المصدر محفوظ"
+                    )}
                   </span>
                 </div>
               </div>
@@ -871,11 +1422,15 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                TRACEABLE CASE HISTORY
+                {t(
+                  "reportsAudit.auditHistory"
+                )}
               </div>
 
               <h2>
-                End-to-End Audit Sequence
+                {t(
+                  "reportsAudit.endToEndAuditTrail"
+                )}
               </h2>
             </div>
 
@@ -935,7 +1490,11 @@ export default function ReportsAuditPage() {
                           "5px",
                       }}
                     >
-                      STEP {event.sequence}
+                      {L(
+                        language,
+                        `STEP ${event.sequence}`,
+                        `الخطوة ${event.sequence}`
+                      )}
                     </div>
 
 
@@ -998,7 +1557,12 @@ export default function ReportsAuditPage() {
                             "9px",
                         }}
                       >
-                        {event.actor}
+                        {
+                          localizeActor(
+                            event.actor,
+                            language
+                          )
+                        }
                       </strong>
 
                       <span
@@ -1016,7 +1580,12 @@ export default function ReportsAuditPage() {
                             "4px",
                         }}
                       >
-                        {event.actorType}
+                        {
+                          localizeActorType(
+                            event.actorType,
+                            language
+                          )
+                        }
                       </span>
                     </div>
 
@@ -1034,7 +1603,12 @@ export default function ReportsAuditPage() {
                             "9px",
                         }}
                       >
-                        {event.action}
+                        {
+                          localizeAction(
+                            event.action,
+                            language
+                          )
+                        }
                       </strong>
 
                       <span
@@ -1055,7 +1629,12 @@ export default function ReportsAuditPage() {
                             "5px",
                         }}
                       >
-                        {event.detail}
+                        {
+                          localizeEventDetail(
+                            event.detail,
+                            language
+                          )
+                        }
                       </span>
                     </div>
 
@@ -1064,6 +1643,10 @@ export default function ReportsAuditPage() {
                       value={
                         event.status
                       }
+                      language={
+                        language
+                      }
+                      t={t}
                     />
                   </div>
                 )
@@ -1087,11 +1670,19 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                DEMO AUDIT REGISTER
+                {L(
+                  language,
+                  "DEMO AUDIT REGISTER",
+                  "سجل التدقيق التجريبي"
+                )}
               </div>
 
               <h2>
-                Recorded Lifecycle Sequence
+                {L(
+                  language,
+                  "Recorded Lifecycle Sequence",
+                  "تسلسل دورة الحياة المسجل"
+                )}
               </h2>
             </div>
 
@@ -1108,14 +1699,52 @@ export default function ReportsAuditPage() {
             >
               <thead>
                 <tr>
-                  <th>SEQUENCE</th>
-                  <th>CASE</th>
-                  <th>ACTOR</th>
-                  <th>ACTOR TYPE</th>
-                  <th>ACTION</th>
-                  <th>STATUS</th>
+                  <th>
+                    {L(
+                      language,
+                      "SEQUENCE",
+                      "التسلسل"
+                    )}
+                  </th>
+
+                  <th>
+                    {t(
+                      "common.case"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "ACTOR",
+                      "المنفذ"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "ACTOR TYPE",
+                      "نوع المنفذ"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "ACTION",
+                      "الإجراء"
+                    )}
+                  </th>
+
+                  <th>
+                    {t(
+                      "common.status"
+                    )}
+                  </th>
                 </tr>
               </thead>
+
 
               <tbody>
                 {
@@ -1129,6 +1758,7 @@ export default function ReportsAuditPage() {
                         <td className="mono">
                           {event.sequence}
                         </td>
+
 
                         <td>
                           <Link
@@ -1145,9 +1775,16 @@ export default function ReportsAuditPage() {
                           </Link>
                         </td>
 
+
                         <td>
-                          {event.actor}
+                          {
+                            localizeActor(
+                              event.actor,
+                              language
+                            )
+                          }
                         </td>
+
 
                         <td>
                           <span
@@ -1166,19 +1803,35 @@ export default function ReportsAuditPage() {
                                 800,
                             }}
                           >
-                            {event.actorType}
+                            {
+                              localizeActorType(
+                                event.actorType,
+                                language
+                              )
+                            }
                           </span>
                         </td>
 
+
                         <td>
-                          {event.action}
+                          {
+                            localizeAction(
+                              event.action,
+                              language
+                            )
+                          }
                         </td>
+
 
                         <td>
                           <StatusBadge
                             value={
                               event.status
                             }
+                            language={
+                              language
+                            }
+                            t={t}
                           />
                         </td>
                       </tr>
@@ -1205,11 +1858,19 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                FORMAL REPORTING
+                {L(
+                  language,
+                  "FORMAL REPORTING",
+                  "التقارير الرسمية"
+                )}
               </div>
 
               <h2>
-                Report Center
+                {L(
+                  language,
+                  "Report Center",
+                  "مركز التقارير"
+                )}
               </h2>
             </div>
 
@@ -1271,6 +1932,7 @@ export default function ReportsAuditPage() {
                         <Icon size={20} />
                       </div>
 
+
                       <span
                         style={{
                           color:
@@ -1286,8 +1948,14 @@ export default function ReportsAuditPage() {
                             "16px",
                         }}
                       >
-                        {report.type}
+                        {
+                          localizeReportType(
+                            report.type,
+                            language
+                          )
+                        }
                       </span>
+
 
                       <strong
                         style={{
@@ -1301,8 +1969,14 @@ export default function ReportsAuditPage() {
                             "5px",
                         }}
                       >
-                        {report.title}
+                        {
+                          localizeReportTitle(
+                            report.title,
+                            language
+                          )
+                        }
                       </strong>
+
 
                       <p
                         style={{
@@ -1319,7 +1993,12 @@ export default function ReportsAuditPage() {
                             "8px 0 16px",
                         }}
                       >
-                        {report.description}
+                        {
+                          localizeReportDescription(
+                            report.description,
+                            language
+                          )
+                        }
                       </p>
 
 
@@ -1345,7 +2024,15 @@ export default function ReportsAuditPage() {
                       >
                         <FileText size={15} />
 
-                        PDF Generator Planned
+                        {t(
+                          "reportsAudit.pdfAuditReport"
+                        )}
+
+                        {" · "}
+
+                        {t(
+                          "reportsAudit.planned"
+                        )}
                       </button>
                     </div>
                   );
@@ -1367,18 +2054,23 @@ export default function ReportsAuditPage() {
               "14px",
           }}
         >
-
-          {/* FORMAL EVIDENCE PACKAGE */}
-
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CASE REPORT CONTENT
+                  {L(
+                    language,
+                    "CASE REPORT CONTENT",
+                    "محتوى تقرير الحالة"
+                  )}
                 </div>
 
                 <h2>
-                  Formal Evidence Package
+                  {L(
+                    language,
+                    "Formal Evidence Package",
+                    "حزمة الأدلة الرسمية"
+                  )}
                 </h2>
               </div>
 
@@ -1393,28 +2085,90 @@ export default function ReportsAuditPage() {
               }}
             >
               {[
-                "Case ID & lifecycle metadata",
-                "Case type & priority",
-                "AI investigation conclusion",
-                "Identity resolution evidence",
-                "Biometric correlation scores",
-                "Risk & harm assessment",
-                "Wrong-person impact analysis",
-                "Before / After correction",
-                "Officer decision",
-                "Manager decision",
-                "Execution result",
-                "Post-correction verification",
-                "Final case status",
-                "Audit sequence",
+                [
+                  "Case ID & lifecycle metadata",
+                  "معرف الحالة وبيانات دورة الحياة",
+                ],
+
+                [
+                  "Case type & priority",
+                  "نوع الحالة والأولوية",
+                ],
+
+                [
+                  "AI investigation conclusion",
+                  "خلاصة تحقيق الذكاء الاصطناعي",
+                ],
+
+                [
+                  "Identity resolution evidence",
+                  "أدلة حسم الهوية",
+                ],
+
+                [
+                  "Synthetic correlation evidence",
+                  "أدلة المطابقة الاصطناعية",
+                ],
+
+                [
+                  "Risk & harm assessment",
+                  "تقييم المخاطر والضرر",
+                ],
+
+                [
+                  "Wrong-person impact analysis",
+                  "تحليل تأثير الشخص الخطأ",
+                ],
+
+                [
+                  "Before / After correction",
+                  "ما قبل / بعد التصحيح",
+                ],
+
+                [
+                  "Officer decision",
+                  "قرار الضابط",
+                ],
+
+                [
+                  "Manager decision",
+                  "قرار المدير",
+                ],
+
+                [
+                  "Execution result",
+                  "نتيجة التنفيذ",
+                ],
+
+                [
+                  "Post-correction verification",
+                  "التحقق بعد التصحيح",
+                ],
+
+                [
+                  "Final case status",
+                  "الحالة النهائية",
+                ],
+
+                [
+                  "Audit sequence",
+                  "تسلسل التدقيق",
+                ],
               ].map(
-                (item) => (
+                ([
+                  english,
+                  arabic,
+                ]) => (
                   <div
-                    key={item}
+                    key={english}
                     className="detailRow"
                   >
                     <span>
-                      {item}
+                      {L(
+                        language,
+                        english,
+                        arabic
+                      )}
                     </span>
 
                     <CheckCircle2
@@ -1434,11 +2188,19 @@ export default function ReportsAuditPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  REPORT GOVERNANCE
+                  {L(
+                    language,
+                    "REPORT GOVERNANCE",
+                    "حوكمة التقارير"
+                  )}
                 </div>
 
                 <h2>
-                  Traceability Controls
+                  {L(
+                    language,
+                    "Traceability Controls",
+                    "ضوابط التتبع"
+                  )}
                 </h2>
               </div>
 
@@ -1457,13 +2219,19 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Human Attribution
+                    {L(
+                      language,
+                      "Human Attribution",
+                      "إسناد القرارات البشرية"
+                    )}
                   </strong>
 
                   <span>
-                    Officer and Manager decisions
-                    remain attributable to the
-                    relevant human review stage.
+                    {L(
+                      language,
+                      "Officer and Manager decisions remain attributable to the relevant human review stage.",
+                      "تبقى قرارات الضابط والمدير مرتبطة بمرحلة المراجعة البشرية ذات الصلة."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1474,14 +2242,19 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    AI Attribution
+                    {L(
+                      language,
+                      "AI Attribution",
+                      "إسناد إجراءات الذكاء الاصطناعي"
+                    )}
                   </strong>
 
                   <span>
-                    AI findings, recommendations
-                    and lifecycle actions identify
-                    the responsible processing
-                    component.
+                    {L(
+                      language,
+                      "AI findings, recommendations and lifecycle actions identify the responsible processing component.",
+                      "تحدد نتائج وتوصيات وإجراءات الذكاء الاصطناعي المكون المسؤول عن المعالجة."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1492,14 +2265,17 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Chronological Traceability
+                    {t(
+                      "reportsAudit.traceable"
+                    )}
                   </strong>
 
                   <span>
-                    The case lifecycle can be
-                    reconstructed from AI
-                    investigation through verified
-                    closure.
+                    {L(
+                      language,
+                      "The case lifecycle can be reconstructed from AI investigation through verified closure.",
+                      "يمكن إعادة بناء دورة حياة الحالة من تحقيق الذكاء الاصطناعي وحتى الإغلاق بعد التحقق."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1510,14 +2286,17 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Master Reference Protection
+                    {t(
+                      "reportsAudit.dataProtection"
+                    )}
                   </strong>
 
                   <span>
-                    The selected demo confirms
-                    that the Master Reference
-                    remained unchanged during
-                    controlled correction.
+                    {L(
+                      language,
+                      "The selected demo confirms that the Master Reference remained unchanged during controlled correction.",
+                      "يؤكد العرض المحدد أن المرجع الرئيسي ظل دون تغيير أثناء التصحيح الخاضع للتحكم."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1540,11 +2319,19 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                MANAGEMENT REPORTING
+                {L(
+                  language,
+                  "MANAGEMENT REPORTING",
+                  "تقارير الإدارة"
+                )}
               </div>
 
               <h2>
-                Executive Reporting Coverage
+                {L(
+                  language,
+                  "Executive Reporting Coverage",
+                  "تغطية التقارير التنفيذية"
+                )}
               </h2>
             </div>
 
@@ -1569,25 +2356,43 @@ export default function ReportsAuditPage() {
           >
             {[
               [
-                "Case Volume",
+                L(
+                  language,
+                  "Case Volume",
+                  "حجم الحالات"
+                ),
                 "53",
                 FileSearch,
               ],
 
               [
-                "Protective Cases",
+                L(
+                  language,
+                  "Protective Cases",
+                  "الحالات الوقائية"
+                ),
                 "9",
                 ShieldAlert,
               ],
 
               [
-                "Demo Verification",
-                "PASSED",
+                L(
+                  language,
+                  "Demo Verification",
+                  "التحقق التجريبي"
+                ),
+                t(
+                  "statuses.PASSED"
+                ),
                 ShieldCheck,
               ],
 
               [
-                "Unresolved Identity",
+                L(
+                  language,
+                  "Unresolved Identity",
+                  "هويات غير محسومة"
+                ),
                 "0",
                 CheckCircle2,
               ],
@@ -1673,16 +2478,23 @@ export default function ReportsAuditPage() {
               "14px",
           }}
         >
-
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CURRENT ARTIFACTS
+                  {L(
+                    language,
+                    "CURRENT ARTIFACTS",
+                    "المخرجات الحالية"
+                  )}
                 </div>
 
                 <h2>
-                  Machine-Readable Outputs
+                  {L(
+                    language,
+                    "Machine-Readable Outputs",
+                    "مخرجات قابلة للقراءة آليًا"
+                  )}
                 </h2>
               </div>
 
@@ -1699,39 +2511,55 @@ export default function ReportsAuditPage() {
               {[
                 [
                   "Case data",
+                  "بيانات الحالات",
                   "CSV / JSON",
                 ],
+
                 [
                   "AI findings",
+                  "نتائج الذكاء الاصطناعي",
                   "CSV / JSON",
                 ],
+
                 [
                   "Investigations",
+                  "التحقيقات",
                   "CSV / JSON",
                 ],
+
                 [
                   "Approval state",
+                  "حالة الاعتماد",
                   "JSON",
                 ],
+
                 [
                   "Execution results",
+                  "نتائج التنفيذ",
                   "CSV / JSON",
                 ],
+
                 [
                   "Verification results",
+                  "نتائج التحقق",
                   "CSV / JSON",
                 ],
               ].map(
                 ([
-                  label,
+                  english,
+                  arabic,
                   value,
                 ]) => (
                   <div
                     className="detailRow"
-                    key={label}
+                    key={english}
                   >
                     <span>
-                      {label}
+                      {L(
+                        language,
+                        english,
+                        arabic
+                      )}
                     </span>
 
                     <strong>
@@ -1748,11 +2576,19 @@ export default function ReportsAuditPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  FUTURE EXPORT
+                  {L(
+                    language,
+                    "FUTURE EXPORT",
+                    "التصدير المستقبلي"
+                  )}
                 </div>
 
                 <h2>
-                  Formal PDF Reporting
+                  {L(
+                    language,
+                    "Formal PDF Reporting",
+                    "تقارير PDF الرسمية"
+                  )}
                 </h2>
               </div>
 
@@ -1771,15 +2607,19 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    Report Model Ready
+                    {L(
+                      language,
+                      "Report Model Ready",
+                      "نموذج التقرير جاهز"
+                    )}
                   </strong>
 
                   <span>
-                    Required case, AI,
-                    approval, correction and
-                    verification information is
-                    already represented in the
-                    reporting design.
+                    {L(
+                      language,
+                      "Required case, AI, approval, correction and verification information is already represented in the reporting design.",
+                      "تم تمثيل معلومات الحالة والذكاء الاصطناعي والاعتماد والتصحيح والتحقق المطلوبة بالفعل داخل تصميم التقارير."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1807,14 +2647,21 @@ export default function ReportsAuditPage() {
                         "#d0a35f",
                     }}
                   >
-                    PDF Generator Planned
+                    {t(
+                      "reportsAudit.pdfAuditReport"
+                    )}
+
+                    {" · "}
+
+                    {t(
+                      "reportsAudit.planned"
+                    )}
                   </strong>
 
                   <span>
-                    A formal downloadable PDF
-                    generator has not yet been
-                    connected to this frontend
-                    workspace.
+                    {t(
+                      "reportsAudit.pdfMessage"
+                    )}
                   </span>
                 </div>
               </div>
@@ -1841,17 +2688,21 @@ export default function ReportsAuditPage() {
 
           <div>
             <strong>
-              Auditable End-to-End Case Lifecycle
+              {L(
+                language,
+                "Auditable End-to-End Case Lifecycle",
+                "دورة حياة متكاملة وقابلة للتدقيق"
+              )}
             </strong>
 
             <span>
-              CASE-2026-00001 demonstrates a
-              traceable lifecycle from AI
-              investigation through Officer and
-              Manager approvals, controlled
-              correction, post-correction
-              verification and
-              VERIFIED_CLOSED status.
+              {L(
+                language,
+
+                "CASE-2026-00001 demonstrates a traceable lifecycle from AI investigation through Officer and Manager approvals, controlled correction, post-correction verification and VERIFIED_CLOSED status.",
+
+                "توضح CASE-2026-00001 دورة حياة قابلة للتتبع تبدأ من تحقيق الذكاء الاصطناعي مرورًا باعتماد الضابط والمدير والتصحيح الخاضع للتحكم والتحقق بعد التصحيح وحتى الوصول إلى حالة التحقق والإغلاق."
+              )}
             </span>
           </div>
         </section>
@@ -1863,14 +2714,25 @@ export default function ReportsAuditPage() {
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Reports & Audit Trail Center
+            {t(
+              "footer.platform"
+            )}
+
+            {" · "}
+
+            {t(
+              "reportsAudit.title"
+            )}
           </span>
 
           <div>
             <Activity size={15} />
 
-            Audit Monitoring Active
+            {L(
+              language,
+              "Audit Monitoring Active",
+              "مراقبة التدقيق نشطة"
+            )}
           </div>
         </footer>
 

@@ -8,7 +8,7 @@ permissions:
 
 jobs:
   visual-qa:
-    name: Capture Frontend Screenshots
+    name: Capture Static Frontend Screenshots
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: |
@@ -34,19 +35,35 @@ jobs:
           npm install --no-save playwright
           npx playwright install --with-deps chromium
 
-      - name: Build frontend
+      - name: Build static frontend
         run: npm run build
 
-      - name: Start production server
+      - name: Verify static export
         run: |
-          npm run start -- -p 3000 > /tmp/next.log 2>&1 &
-          echo $! > /tmp/next.pid
+          test -d out
+          test -f out/index.html
+          test -f out/cases/index.html
+          test -f out/cases/CASE-2026-00001/index.html
+          test -f out/cases/CASE-2026-00014/index.html
+          test -f out/officer-review/index.html
+          test -f out/manager-approval/index.html
+          test -f out/corrections-verification/index.html
+          test -f out/analytics/index.html
+          test -f out/data-integrity/index.html
+          test -f out/reports-audit/index.html
+
+          echo "Static export verified"
+
+      - name: Start static test server
+        run: |
+          python3 -m http.server 3000 --directory out > /tmp/frontend.log 2>&1 &
+          echo $! > /tmp/frontend.pid
 
       - name: Wait for frontend
         run: |
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:3000 > /dev/null; then
-              echo "Frontend is ready"
+            if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
+              echo "Static frontend is ready"
               exit 0
             fi
 
@@ -55,7 +72,7 @@ jobs:
           done
 
           echo "Frontend failed to start"
-          cat /tmp/next.log
+          cat /tmp/frontend.log
           exit 1
 
       - name: Capture screenshots
@@ -84,39 +101,39 @@ jobs:
             },
             {
               name: "02-cases",
-              route: "/cases",
+              route: "/cases/",
             },
             {
               name: "03-case-00001",
-              route: "/cases/CASE-2026-00001",
+              route: "/cases/CASE-2026-00001/",
             },
             {
               name: "04-case-00014",
-              route: "/cases/CASE-2026-00014",
+              route: "/cases/CASE-2026-00014/",
             },
             {
               name: "05-officer-review",
-              route: "/officer-review",
+              route: "/officer-review/",
             },
             {
               name: "06-manager-approval",
-              route: "/manager-approval",
+              route: "/manager-approval/",
             },
             {
               name: "07-corrections-verification",
-              route: "/corrections-verification",
+              route: "/corrections-verification/",
             },
             {
               name: "08-analytics",
-              route: "/analytics",
+              route: "/analytics/",
             },
             {
               name: "09-data-integrity",
-              route: "/data-integrity",
+              route: "/data-integrity/",
             },
             {
               name: "10-reports-audit",
-              route: "/reports-audit",
+              route: "/reports-audit/",
             },
           ];
 
@@ -205,15 +222,15 @@ jobs:
           path: visual-qa/
           retention-days: 14
 
-      - name: Show server log on failure
+      - name: Show static server log on failure
         if: failure()
         run: |
-          echo "===== NEXT.JS SERVER LOG ====="
-          cat /tmp/next.log || true
+          echo "===== STATIC FRONTEND SERVER LOG ====="
+          cat /tmp/frontend.log || true
 
-      - name: Stop production server
+      - name: Stop static test server
         if: always()
         run: |
-          if [ -f /tmp/next.pid ]; then
-            kill "$(cat /tmp/next.pid)" || true
+          if [ -f /tmp/frontend.pid ]; then
+            kill "$(cat /tmp/frontend.pid)" || true
           fi

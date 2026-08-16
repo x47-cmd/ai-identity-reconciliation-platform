@@ -1,4 +1,10 @@
+"use client";
+
 import Sidebar from "../components/Sidebar";
+
+import {
+  useLanguage,
+} from "../components/LanguageProvider";
 
 import {
   Activity,
@@ -18,16 +24,22 @@ import {
 
 
 /* =========================================================
+   LANGUAGE HELPER
+   ========================================================= */
+
+function L(
+  language,
+  english,
+  arabic
+) {
+  return language === "ar"
+    ? arabic
+    : english;
+}
+
+
+/* =========================================================
    MANAGER APPROVAL QUEUE
-
-   Synthetic Demo Only
-
-   These cases represent Officer-approved packages that have
-   reached the Level 2 management authorization stage.
-
-   Detailed frontend case pages are not currently implemented
-   for these representative queue records, so no deep links
-   are exposed from this workspace.
    ========================================================= */
 
 const managerCases = [
@@ -89,8 +101,6 @@ const managerCases = [
 
 /* =========================================================
    QUEUE METRICS
-
-   Derived from managerCases to prevent count drift.
    ========================================================= */
 
 const queueMetrics = {
@@ -131,11 +141,75 @@ const recommendedCase =
 
 
 /* =========================================================
+   HELPERS
+   ========================================================= */
+
+function getCaseTitle(
+  item,
+  language
+) {
+  const titles = {
+    CRITICAL_HARM_IDENTITY_CONFLICT: {
+      en:
+        "Critical Cross-Identity Harm Conflict",
+
+      ar:
+        "تعارض هوية حرج ذو تأثير ضار",
+    },
+
+    WRONG_MAPPING: {
+      en:
+        "Incorrect Biometric Identity Mapping",
+
+      ar:
+        "ربط بيومتري خاطئ بالهوية",
+    },
+
+    DATA_MISMATCH: {
+      en:
+        "Identity Data Mismatch",
+
+      ar:
+        "اختلاف في بيانات الهوية",
+    },
+  };
+
+  return (
+    titles[item.type]?.[language]
+    ||
+    item.title
+  );
+}
+
+
+function getCaseType(
+  item,
+  t
+) {
+  const keys = {
+    CRITICAL_HARM_IDENTITY_CONFLICT:
+      "caseTypes.CRITICAL_HARM_CONFLICT",
+
+    WRONG_MAPPING:
+      "caseTypes.WRONG_MAPPING",
+
+    DATA_MISMATCH:
+      "caseTypes.DATA_MISMATCH",
+  };
+
+  return keys[item.type]
+    ? t(keys[item.type])
+    : item.type;
+}
+
+
+/* =========================================================
    SMALL COMPONENTS
    ========================================================= */
 
 function PriorityBadge({
   priority,
+  t,
 }) {
   const className =
     priority === "IMMEDIATE"
@@ -146,7 +220,7 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {priority}
+      {t(`priorities.${priority}`)}
     </span>
   );
 }
@@ -157,6 +231,7 @@ function Metric({
   label,
   value,
   description,
+  t,
 }) {
   return (
     <div className="metricCard">
@@ -166,7 +241,7 @@ function Metric({
         </div>
 
         <span className="metricStatus">
-          DEMO KPI
+          {t("commandCenter.demoKpi")}
         </span>
       </div>
 
@@ -191,6 +266,12 @@ function Metric({
    ========================================================= */
 
 export default function ManagerApprovalPage() {
+  const {
+    language,
+    t,
+  } = useLanguage();
+
+
   return (
     <div className="appShell">
 
@@ -208,18 +289,21 @@ export default function ManagerApprovalPage() {
             <div className="eyebrow">
               <BadgeCheck size={15} />
 
-              HUMAN-IN-THE-LOOP · LEVEL 2
+              {t(
+                "managerApproval.eyebrow"
+              )}
             </div>
 
             <h1>
-              Manager Approval
+              {t(
+                "managerApproval.title"
+              )}
             </h1>
 
             <p>
-              Final management review of
-              Officer-approved AI correction
-              packages before controlled
-              execution is authorized.
+              {t(
+                "managerApproval.subtitle"
+              )}
             </p>
           </div>
 
@@ -229,7 +313,11 @@ export default function ManagerApprovalPage() {
               <Search size={18} />
 
               <span>
-                Search approval queue
+                {L(
+                  language,
+                  "Search approval queue",
+                  "البحث في قائمة الاعتماد"
+                )}
               </span>
             </button>
 
@@ -241,11 +329,19 @@ export default function ManagerApprovalPage() {
 
               <div className="profileText">
                 <strong>
-                  Supervising Manager
+                  {L(
+                    language,
+                    "Supervising Manager",
+                    "المدير المشرف"
+                  )}
                 </strong>
 
                 <span>
-                  Final Approver
+                  {L(
+                    language,
+                    "Final Approver",
+                    "المعتمد النهائي"
+                  )}
                 </span>
               </div>
             </div>
@@ -264,15 +360,19 @@ export default function ManagerApprovalPage() {
 
           <div className="alertText">
             <strong>
-              Final Human Authorization Gate
+              {L(
+                language,
+                "Final Human Authorization Gate",
+                "بوابة الاعتماد البشري النهائي"
+              )}
             </strong>
 
             <span>
-              No sensitive identity correction can
-              enter controlled execution until both
-              the Monitoring Officer and Supervising
-              Manager have independently approved
-              the correction package.
+              {L(
+                language,
+                "No sensitive identity correction can enter controlled execution until both the Monitoring Officer and Supervising Manager have independently approved the correction package.",
+                "لا يمكن لأي تصحيح حساس للهوية الانتقال إلى التنفيذ الخاضع للتحكم قبل اعتماد حزمة التصحيح بشكل مستقل من ضابط المراقبة والمدير المشرف."
+              )}
             </span>
           </div>
 
@@ -283,8 +383,11 @@ export default function ManagerApprovalPage() {
               padding: "0 12px",
             }}
           >
-            {queueMetrics.total}
-            {" PENDING"}
+            {
+              language === "ar"
+                ? `${queueMetrics.total} قيد الانتظار`
+                : `${queueMetrics.total} PENDING`
+            }
           </div>
         </section>
 
@@ -296,30 +399,82 @@ export default function ManagerApprovalPage() {
         <section className="statsGrid">
           <Metric
             icon={BadgeCheck}
-            label="Awaiting Manager"
-            value={queueMetrics.total}
-            description="Officer-approved packages at Level 2"
+            label={
+              t(
+                "managerApproval.awaitingManager"
+              )
+            }
+            value={
+              queueMetrics.total
+            }
+            description={
+              L(
+                language,
+                "Officer-approved packages at Level 2",
+                "حزم معتمدة من الضابط في المستوى الثاني"
+              )
+            }
+            t={t}
           />
 
           <Metric
             icon={CircleAlert}
-            label="Immediate"
-            value={queueMetrics.immediate}
-            description="Highest protective priority"
+            label={
+              t(
+                "managerApproval.immediateCases"
+              )
+            }
+            value={
+              queueMetrics.immediate
+            }
+            description={
+              L(
+                language,
+                "Highest protective priority",
+                "أعلى أولوية وقائية"
+              )
+            }
+            t={t}
           />
 
           <Metric
             icon={UserCheck}
-            label="Officer Approved"
-            value={queueMetrics.officerApproved}
-            description="Level 1 human control completed"
+            label={
+              t(
+                "managerApproval.officerApproved"
+              )
+            }
+            value={
+              queueMetrics.officerApproved
+            }
+            description={
+              L(
+                language,
+                "Level 1 human control completed",
+                "اكتملت المراجعة البشرية من المستوى الأول"
+              )
+            }
+            t={t}
           />
 
           <Metric
             icon={LockKeyhole}
-            label="Execution Authorized"
-            value={queueMetrics.executionAuthorized}
-            description="No pending package authorized yet"
+            label={
+              t(
+                "managerApproval.executionAuthorized"
+              )
+            }
+            value={
+              queueMetrics.executionAuthorized
+            }
+            description={
+              L(
+                language,
+                "No pending package authorized yet",
+                "لم يتم التصريح بأي حزمة معلقة حتى الآن"
+              )
+            }
+            t={t}
           />
         </section>
 
@@ -336,7 +491,11 @@ export default function ManagerApprovalPage() {
           }}
         >
           <div className="panelEyebrow">
-            APPROVAL GOVERNANCE
+            {L(
+              language,
+              "APPROVAL GOVERNANCE",
+              "حوكمة الاعتماد"
+            )}
           </div>
 
           <div
@@ -374,7 +533,11 @@ export default function ManagerApprovalPage() {
                   fontSize: "11px",
                 }}
               >
-                AI Investigation
+                {L(
+                  language,
+                  "AI Investigation",
+                  "تحقيق الذكاء الاصطناعي"
+                )}
               </strong>
 
               <span
@@ -386,7 +549,9 @@ export default function ManagerApprovalPage() {
                   marginTop: "4px",
                 }}
               >
-                COMPLETED
+                {t(
+                  "statuses.COMPLETED"
+                )}
               </span>
             </div>
 
@@ -421,7 +586,9 @@ export default function ManagerApprovalPage() {
                   fontSize: "11px",
                 }}
               >
-                Officer Review
+                {t(
+                  "common.officerReview"
+                )}
               </strong>
 
               <span
@@ -433,7 +600,9 @@ export default function ManagerApprovalPage() {
                   marginTop: "4px",
                 }}
               >
-                APPROVED
+                {t(
+                  "statuses.APPROVED"
+                )}
               </span>
             </div>
 
@@ -468,7 +637,9 @@ export default function ManagerApprovalPage() {
                   fontSize: "11px",
                 }}
               >
-                Manager Approval
+                {t(
+                  "common.managerApproval"
+                )}
               </strong>
 
               <span
@@ -480,7 +651,11 @@ export default function ManagerApprovalPage() {
                   marginTop: "4px",
                 }}
               >
-                CURRENT STAGE
+                {L(
+                  language,
+                  "CURRENT STAGE",
+                  "المرحلة الحالية"
+                )}
               </span>
             </div>
           </div>
@@ -495,11 +670,19 @@ export default function ManagerApprovalPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                FINAL APPROVAL QUEUE
+                {L(
+                  language,
+                  "FINAL APPROVAL QUEUE",
+                  "قائمة الاعتماد النهائي"
+                )}
               </div>
 
               <h2>
-                Officer-Approved Cases
+                {L(
+                  language,
+                  "Officer-Approved Cases",
+                  "الحالات المعتمدة من الضابط"
+                )}
               </h2>
             </div>
 
@@ -514,7 +697,11 @@ export default function ManagerApprovalPage() {
             >
               <Activity size={15} />
 
-              Synthetic Manager Queue
+              {L(
+                language,
+                "Synthetic Manager Queue",
+                "قائمة المدير الاصطناعية"
+              )}
             </div>
           </div>
 
@@ -527,16 +714,66 @@ export default function ManagerApprovalPage() {
             >
               <thead>
                 <tr>
-                  <th>CASE</th>
-                  <th>INVESTIGATION</th>
-                  <th>PROPOSED CORRECTION</th>
-                  <th>OFFICER APPROVAL</th>
-                  <th>AI CONFIDENCE</th>
-                  <th>RISK</th>
-                  <th>HARM</th>
-                  <th>PROTECTIVE</th>
-                  <th>PRIORITY</th>
-                  <th>QUEUE</th>
+                  <th>
+                    {t("common.case")}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "INVESTIGATION",
+                      "التحقيق"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "PROPOSED CORRECTION",
+                      "التصحيح المقترح"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "OFFICER APPROVAL",
+                      "اعتماد الضابط"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "AI CONFIDENCE",
+                      "ثقة الذكاء الاصطناعي"
+                    )}
+                  </th>
+
+                  <th>
+                    {t("common.risk")}
+                  </th>
+
+                  <th>
+                    {t("common.harm")}
+                  </th>
+
+                  <th>
+                    {t(
+                      "common.protectivePriority"
+                    )}
+                  </th>
+
+                  <th>
+                    {t("common.priority")}
+                  </th>
+
+                  <th>
+                    {t(
+                      "managerApproval.queueOrder"
+                    )}
+                  </th>
+
                   <th></th>
                 </tr>
               </thead>
@@ -548,13 +785,12 @@ export default function ManagerApprovalPage() {
                     (item) => (
                       <tr key={item.id}>
 
-                        {/* CASE */}
-
                         <td>
                           <span
                             className="caseId"
                             style={{
-                              display: "inline-block",
+                              display:
+                                "inline-block",
                             }}
                           >
                             {item.id}
@@ -565,8 +801,6 @@ export default function ManagerApprovalPage() {
                           </div>
                         </td>
 
-
-                        {/* INVESTIGATION */}
 
                         <td>
                           <div
@@ -601,7 +835,12 @@ export default function ManagerApprovalPage() {
                                   lineHeight: 1.45,
                                 }}
                               >
-                                {item.title}
+                                {
+                                  getCaseTitle(
+                                    item,
+                                    language
+                                  )
+                                }
                               </strong>
 
                               <span
@@ -613,14 +852,17 @@ export default function ManagerApprovalPage() {
                                   marginTop: "4px",
                                 }}
                               >
-                                {item.type}
+                                {
+                                  getCaseType(
+                                    item,
+                                    t
+                                  )
+                                }
                               </span>
                             </div>
                           </div>
                         </td>
 
-
-                        {/* PROPOSED CORRECTION */}
 
                         <td>
                           <div className="identityChange">
@@ -636,8 +878,6 @@ export default function ManagerApprovalPage() {
                           </div>
                         </td>
 
-
-                        {/* OFFICER APPROVAL */}
 
                         <td>
                           <div
@@ -660,7 +900,9 @@ export default function ManagerApprovalPage() {
                                   fontSize: "10px",
                                 }}
                               >
-                                {item.officerDecision}
+                                {t(
+                                  "statuses.APPROVED"
+                                )}
                               </strong>
 
                               <span
@@ -672,14 +914,16 @@ export default function ManagerApprovalPage() {
                                   marginTop: "3px",
                                 }}
                               >
-                                {item.officer}
+                                {L(
+                                  language,
+                                  item.officer,
+                                  "ضابط المراقبة التجريبي"
+                                )}
                               </span>
                             </div>
                           </div>
                         </td>
 
-
-                        {/* AI CONFIDENCE */}
 
                         <td>
                           <span className="confidence">
@@ -687,8 +931,6 @@ export default function ManagerApprovalPage() {
                           </span>
                         </td>
 
-
-                        {/* RISK */}
 
                         <td>
                           <strong
@@ -708,8 +950,6 @@ export default function ManagerApprovalPage() {
                         </td>
 
 
-                        {/* HARM */}
-
                         <td>
                           <strong
                             style={{
@@ -725,8 +965,6 @@ export default function ManagerApprovalPage() {
                           </strong>
                         </td>
 
-
-                        {/* PROTECTIVE */}
 
                         <td>
                           <strong
@@ -744,18 +982,15 @@ export default function ManagerApprovalPage() {
                         </td>
 
 
-                        {/* PRIORITY */}
-
                         <td>
                           <PriorityBadge
                             priority={
                               item.priority
                             }
+                            t={t}
                           />
                         </td>
 
-
-                        {/* QUEUE ORDER */}
 
                         <td>
                           <div
@@ -785,25 +1020,31 @@ export default function ManagerApprovalPage() {
                               {item.queueOrder}
                             </span>
 
-                            Priority
+                            {t(
+                              "common.priority"
+                            )}
                           </div>
                         </td>
 
-
-                        {/* FINAL REVIEW */}
 
                         <td>
                           <button
                             className="searchButton"
                             disabled
-                            title="Detailed case package is not included in the current frontend demo"
+                            title={
+                              t(
+                                "cases.detailUnavailable"
+                              )
+                            }
                             style={{
                               minWidth: "112px",
                               minHeight: "36px",
                               padding: "0 12px",
                             }}
                           >
-                            Final Review
+                            {t(
+                              "managerApproval.finalReview"
+                            )}
 
                             <ChevronRight size={14} />
                           </button>
@@ -824,7 +1065,8 @@ export default function ManagerApprovalPage() {
               borderTop:
                 "1px solid rgba(255,255,255,0.05)",
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent:
+                "space-between",
               alignItems: "center",
               gap: "16px",
               color: "#687b93",
@@ -833,13 +1075,19 @@ export default function ManagerApprovalPage() {
             }}
           >
             <span>
-              {queueMetrics.total}
-              {" "}
-              cases awaiting final management approval
+              {
+                language === "ar"
+                  ? `${queueMetrics.total} حالات بانتظار الاعتماد الإداري النهائي`
+                  : `${queueMetrics.total} cases awaiting final management approval`
+              }
             </span>
 
             <span>
-              Protective Priority → Harm → Risk
+              {L(
+                language,
+                "Protective Priority → Harm → Risk",
+                "الأولوية الوقائية ← الضرر ← المخاطر"
+              )}
             </span>
           </div>
         </section>
@@ -857,10 +1105,6 @@ export default function ManagerApprovalPage() {
           }}
         >
 
-          {/* ==============================================
-              RECOMMENDED NEXT APPROVAL
-              ============================================== */}
-
           <div
             className="panel"
             style={{
@@ -870,14 +1114,18 @@ export default function ManagerApprovalPage() {
             <div
               style={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
+                justifyContent:
+                  "space-between",
+                alignItems:
+                  "flex-start",
                 gap: "20px",
               }}
             >
               <div>
                 <div className="panelEyebrow">
-                  RECOMMENDED NEXT APPROVAL
+                  {t(
+                    "managerApproval.recommendedCase"
+                  )}
                 </div>
 
                 <h2
@@ -898,23 +1146,11 @@ export default function ManagerApprovalPage() {
                     marginTop: "9px",
                   }}
                 >
-                  The Monitoring Officer has
-                  approved the proposed reassignment
-                  of
-                  {" "}
-                  {recommendedCase.biometric}
-                  {" "}
-                  from
-                  {" "}
-                  {recommendedCase.current}
-                  {" "}
-                  to
-                  {" "}
-                  {recommendedCase.proposed}.
-                  {" "}
-                  This package currently has the
-                  highest protective priority in
-                  the synthetic Manager queue.
+                  {
+                    language === "ar"
+                      ? `اعتمد ضابط المراقبة إعادة الربط المقترحة للسجل ${recommendedCase.biometric} من ${recommendedCase.current} إلى ${recommendedCase.proposed}. وتمثل هذه الحزمة أعلى أولوية وقائية حاليًا في قائمة المدير الاصطناعية.`
+                      : `The Monitoring Officer has approved the proposed reassignment of ${recommendedCase.biometric} from ${recommendedCase.current} to ${recommendedCase.proposed}. This package currently has the highest protective priority in the synthetic Manager queue.`
+                  }
                 </p>
               </div>
 
@@ -922,6 +1158,7 @@ export default function ManagerApprovalPage() {
                 priority={
                   recommendedCase.priority
                 }
+                t={t}
               />
             </div>
 
@@ -956,7 +1193,11 @@ export default function ManagerApprovalPage() {
                     fontWeight: 750,
                   }}
                 >
-                  CURRENT IDENTITY
+                  {L(
+                    language,
+                    "CURRENT IDENTITY",
+                    "الهوية الحالية"
+                  )}
                 </span>
 
                 <strong
@@ -996,7 +1237,11 @@ export default function ManagerApprovalPage() {
                     fontWeight: 750,
                   }}
                 >
-                  AI PROPOSED IDENTITY
+                  {L(
+                    language,
+                    "AI PROPOSED IDENTITY",
+                    "الهوية المقترحة بالذكاء الاصطناعي"
+                  )}
                 </span>
 
                 <strong
@@ -1026,23 +1271,35 @@ export default function ManagerApprovalPage() {
             >
               {[
                 [
-                  "AI Confidence",
+                  L(
+                    language,
+                    "AI Confidence",
+                    "ثقة الذكاء الاصطناعي"
+                  ),
                   `${recommendedCase.confidence}%`,
                 ],
+
                 [
-                  "Risk",
+                  t("common.risk"),
                   recommendedCase.risk,
                 ],
+
                 [
-                  "Harm",
+                  t("common.harm"),
                   recommendedCase.harm,
                 ],
+
                 [
-                  "Protective",
+                  t(
+                    "common.protectivePriority"
+                  ),
                   recommendedCase.protective,
                 ],
               ].map(
-                ([label, value]) => (
+                ([
+                  label,
+                  value,
+                ]) => (
                   <div
                     key={label}
                     style={{
@@ -1083,12 +1340,20 @@ export default function ManagerApprovalPage() {
             <button
               className="primaryButton"
               disabled
-              title="Detailed approval package is not included in the current frontend demo"
+              title={
+                t(
+                  "cases.detailUnavailable"
+                )
+              }
               style={{
                 marginTop: "17px",
               }}
             >
-              Detailed Approval Package Planned
+              {L(
+                language,
+                "Detailed Approval Package Planned",
+                "حزمة الاعتماد التفصيلية مخطط لها"
+              )}
 
               <ChevronRight size={17} />
             </button>
@@ -1103,11 +1368,19 @@ export default function ManagerApprovalPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  MANAGER DECISION
+                  {L(
+                    language,
+                    "MANAGER DECISION",
+                    "قرار المدير"
+                  )}
                 </div>
 
                 <h2>
-                  Available Actions
+                  {L(
+                    language,
+                    "Available Actions",
+                    "الإجراءات المتاحة"
+                  )}
                 </h2>
               </div>
 
@@ -1134,33 +1407,36 @@ export default function ManagerApprovalPage() {
                   lineHeight: 1.55,
                 }}
               >
-                These actions apply after the
-                Manager opens and validates the
-                selected Officer-approved
-                correction package.
+                {L(
+                  language,
+                  "These actions apply after the Manager opens and validates the selected Officer-approved correction package.",
+                  "تطبق هذه الإجراءات بعد أن يفتح المدير حزمة التصحيح المعتمدة من الضابط ويتحقق منها."
+                )}
               </div>
 
-
-              {/* APPROVE */}
 
               <div className="integrityInfo">
                 <CheckCircle2 size={21} />
 
                 <div>
                   <strong>
-                    Approve
+                    {L(
+                      language,
+                      "Approve",
+                      "اعتماد"
+                    )}
                   </strong>
 
                   <span>
-                    Authorizes the reviewed
-                    correction package for
-                    controlled execution.
+                    {L(
+                      language,
+                      "Authorizes the reviewed correction package for controlled execution.",
+                      "يصرح لحزمة التصحيح التي تمت مراجعتها بالانتقال إلى التنفيذ الخاضع للتحكم."
+                    )}
                   </span>
                 </div>
               </div>
 
-
-              {/* RETURN TO OFFICER */}
 
               <div
                 className="integrityInfo"
@@ -1182,18 +1458,23 @@ export default function ManagerApprovalPage() {
                       color: "#e0ad5f",
                     }}
                   >
-                    Return to Officer
+                    {L(
+                      language,
+                      "Return to Officer",
+                      "إعادة إلى الضابط"
+                    )}
                   </strong>
 
                   <span>
-                    Sends the package back for
-                    revised Level 1 human review.
+                    {L(
+                      language,
+                      "Sends the package back for revised Level 1 human review.",
+                      "يعيد الحزمة إلى المراجعة البشرية من المستوى الأول لإعادة التقييم."
+                    )}
                   </span>
                 </div>
               </div>
 
-
-              {/* MORE INVESTIGATION */}
 
               <div
                 className="integrityInfo"
@@ -1215,19 +1496,23 @@ export default function ManagerApprovalPage() {
                       color: "#86b0ff",
                     }}
                   >
-                    More Investigation
+                    {L(
+                      language,
+                      "More Investigation",
+                      "مزيد من التحقيق"
+                    )}
                   </strong>
 
                   <span>
-                    Requests additional AI-assisted
-                    or manual evidence before a
-                    final decision.
+                    {L(
+                      language,
+                      "Requests additional AI-assisted or manual evidence before a final decision.",
+                      "يطلب أدلة إضافية مدعومة بالذكاء الاصطناعي أو تحقيقًا يدويًا قبل اتخاذ القرار النهائي."
+                    )}
                   </span>
                 </div>
               </div>
 
-
-              {/* REJECT */}
 
               <div
                 className="integrityInfo"
@@ -1249,13 +1534,19 @@ export default function ManagerApprovalPage() {
                       color: "#df7884",
                     }}
                   >
-                    Reject
+                    {L(
+                      language,
+                      "Reject",
+                      "رفض"
+                    )}
                   </strong>
 
                   <span>
-                    Stops authorization and
-                    records the management
-                    decision.
+                    {L(
+                      language,
+                      "Stops authorization and records the management decision.",
+                      "يوقف التصريح ويسجل قرار الإدارة."
+                    )}
                   </span>
                 </div>
               </div>
@@ -1279,17 +1570,19 @@ export default function ManagerApprovalPage() {
 
           <div>
             <strong>
-              Execution Remains Locked Until
-              Manager Approval
+              {L(
+                language,
+                "Execution Remains Locked Until Manager Approval",
+                "يظل التنفيذ مقفلًا حتى اعتماد المدير"
+              )}
             </strong>
 
             <span>
-              Officer approval alone cannot
-              authorize execution. The controlled
-              Execution Agent remains locked until
-              the second human authorization is
-              recorded. The Master Reference
-              remains read only.
+              {L(
+                language,
+                "Officer approval alone cannot authorize execution. The controlled Execution Agent remains locked until the second human authorization is recorded. The Master Reference remains read only.",
+                "اعتماد الضابط وحده لا يصرح بالتنفيذ. يظل وكيل التنفيذ الخاضع للتحكم مقفلًا حتى يتم تسجيل الاعتماد البشري الثاني. ويبقى المرجع الرئيسي للقراءة فقط."
+              )}
             </span>
           </div>
         </section>
@@ -1301,14 +1594,23 @@ export default function ManagerApprovalPage() {
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Manager Approval Workspace
+            {t("footer.platform")}
+            {" · "}
+            {L(
+              language,
+              "Manager Approval Workspace",
+              "مساحة اعتماد المدير"
+            )}
           </span>
 
           <div>
             <ShieldCheck size={15} />
 
-            Two-Level Governance Active
+            {L(
+              language,
+              "Two-Level Governance Active",
+              "حوكمة المستويين نشطة"
+            )}
           </div>
         </footer>
 

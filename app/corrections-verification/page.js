@@ -3,10 +3,12 @@
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
+import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  useLanguage,
-} from "../components/LanguageProvider";
+  COMPLEX_DEMO_CASE,
+  VERIFIED_DEMO_CASE,
+} from "../lib/demo-data";
 
 import {
   AlertTriangle,
@@ -42,12 +44,16 @@ function L(
 }
 
 
+/* =========================================================
+   STATUS LOCALIZATION
+   ========================================================= */
+
 function localizeStatus(
   value,
   language,
   t
 ) {
-  const keys = {
+  const translationKeys = {
     COMPLETED:
       "statuses.COMPLETED",
 
@@ -56,6 +62,9 @@ function localizeStatus(
 
     VERIFIED_CLOSED:
       "statuses.VERIFIED_CLOSED",
+
+    AI_INVESTIGATED:
+      "statuses.AI_INVESTIGATED",
 
     NOT_STARTED:
       "statuses.NOT_STARTED",
@@ -71,108 +80,221 @@ function localizeStatus(
 
     NOT_READY:
       "statuses.NOT_READY",
+
+    FAILED:
+      "statuses.FAILED",
   };
 
 
-  if (keys[value]) {
-    return t(keys[value]);
+  if (translationKeys[value]) {
+    return t(
+      translationKeys[value],
+      value
+    );
   }
 
 
   const labels = {
     AWAITING_APPROVAL: {
-      en: "AWAITING APPROVAL",
-      ar: "بانتظار الاعتماد",
+      en:
+        "AWAITING APPROVAL",
+
+      ar:
+        "بانتظار الاعتماد",
     },
 
     NOT_REQUIRED: {
-      en: "NOT REQUIRED",
-      ar: "غير مطلوب",
-    },
+      en:
+        "NOT REQUIRED",
 
-    FAILED: {
-      en: "FAILED",
-      ar: "فشل",
+      ar:
+        "غير مطلوب",
     },
 
     VERIFICATION_FAILED: {
-      en: "VERIFICATION FAILED",
-      ar: "فشل التحقق",
+      en:
+        "VERIFICATION FAILED",
+
+      ar:
+        "فشل التحقق",
     },
   };
 
 
   return (
-    labels[value]?.[language]
-    ||
+    labels[value]?.[
+      language
+    ] ||
+    labels[value]?.en ||
     value
   );
 }
 
 
 /* =========================================================
-   CORRECTION CASES
+   CORRECTION REGISTER
+
+   CASE-2026-00001:
+   Fully approved, executed, verified and closed.
+
+   CASE-2026-00014:
+   AI-investigated only. Officer approval remains pending,
+   therefore execution is not authorized and verification
+   has not started.
    ========================================================= */
 
 const correctionCases = [
   {
-    id: "CASE-2026-00001",
-    biometric: "BIO-000166",
+    id:
+      VERIFIED_DEMO_CASE.id,
 
-    before: "REF-002711",
-    after: "REF-001009",
+    biometric:
+      VERIFIED_DEMO_CASE.biometricId,
 
-    execution: "COMPLETED",
-    verification: "PASSED",
-    verificationScore: 100,
+    before:
+      VERIFIED_DEMO_CASE.execution.before,
 
-    biometricMatch: 99.9903,
+    after:
+      VERIFIED_DEMO_CASE.execution.after,
 
-    identityValid: true,
-    conflictResolved: true,
-    secondaryConflict: false,
+    execution:
+      VERIFIED_DEMO_CASE.execution.status,
 
-    rollback: "NOT_REQUIRED",
+    verification:
+      VERIFIED_DEMO_CASE.verification.status,
 
-    finalStatus: "VERIFIED_CLOSED",
+    verificationScore:
+      VERIFIED_DEMO_CASE.verification.score,
 
-    officer: "APPROVED",
-    manager: "APPROVED",
+    biometricMatchRaw:
+      VERIFIED_DEMO_CASE.verification.biometricMatch,
 
-    priority: "IMMEDIATE",
+    biometricMatchPercent:
+      VERIFIED_DEMO_CASE.verification.biometricMatchPercent,
+
+    identityValid:
+      VERIFIED_DEMO_CASE.verification.identityMappingValid,
+
+    conflictResolved:
+      VERIFIED_DEMO_CASE.verification.originalConflictResolved,
+
+    secondaryConflict:
+      VERIFIED_DEMO_CASE.verification.secondaryConflict,
+
+    rollback:
+      VERIFIED_DEMO_CASE.verification.rollbackRequired
+        ? "REQUIRED"
+        : "NOT_REQUIRED",
+
+    finalStatus:
+      VERIFIED_DEMO_CASE.finalStatus,
+
+    officer:
+      VERIFIED_DEMO_CASE.officer.decision,
+
+    manager:
+      VERIFIED_DEMO_CASE.manager.decision,
+
+    priority:
+      VERIFIED_DEMO_CASE.priority,
   },
 
   {
-    id: "CASE-2026-00014",
-    biometric: "BIO-000795",
+    id:
+      COMPLEX_DEMO_CASE.id,
 
-    before: "REF-001183",
-    after: "REF-002343",
+    biometric:
+      COMPLEX_DEMO_CASE.primaryBiometricId,
 
-    execution: "NOT_AUTHORIZED",
-    verification: "NOT_STARTED",
-    verificationScore: null,
+    before:
+      COMPLEX_DEMO_CASE.currentIdentity,
 
-    biometricMatch: 99.99,
+    after:
+      COMPLEX_DEMO_CASE.proposedIdentity,
 
-    identityValid: null,
-    conflictResolved: null,
-    secondaryConflict: null,
+    execution:
+      "NOT_AUTHORIZED",
 
-    rollback: "NOT_REQUIRED",
+    verification:
+      "NOT_STARTED",
 
-    finalStatus: "AWAITING_APPROVAL",
+    verificationScore:
+      null,
 
-    officer: "PENDING",
-    manager: "NOT_READY",
+    biometricMatchRaw:
+      null,
 
-    priority: "HIGH",
+    biometricMatchPercent:
+      null,
+
+    identityValid:
+      null,
+
+    conflictResolved:
+      null,
+
+    secondaryConflict:
+      null,
+
+    rollback:
+      "NOT_REQUIRED",
+
+    finalStatus:
+      COMPLEX_DEMO_CASE.finalStatus,
+
+    officer:
+      "PENDING",
+
+    manager:
+      "NOT_READY",
+
+    priority:
+      COMPLEX_DEMO_CASE.priority,
   },
 ];
 
 
 /* =========================================================
-   SMALL COMPONENTS
+   VERIFIED CASE METRICS
+   ========================================================= */
+
+const completedCorrections =
+  correctionCases.filter(
+    (item) =>
+      item.execution ===
+      "COMPLETED"
+  ).length;
+
+
+const verifiedCorrections =
+  correctionCases.filter(
+    (item) =>
+      item.verification ===
+      "PASSED"
+  ).length;
+
+
+const verifiedClosedCases =
+  correctionCases.filter(
+    (item) =>
+      item.finalStatus ===
+      "VERIFIED_CLOSED"
+  ).length;
+
+
+const fullyAuthorizedCases =
+  correctionCases.filter(
+    (item) =>
+      item.officer ===
+        "APPROVED"
+      &&
+      item.manager ===
+        "APPROVED"
+  ).length;
+
+
+/* =========================================================
+   METRIC
    ========================================================= */
 
 function Metric({
@@ -185,7 +307,10 @@ function Metric({
     <div className="metricCard">
       <div className="metricTop">
         <div className="metricIcon">
-          <Icon size={20} />
+          <Icon
+            size={20}
+            aria-hidden="true"
+          />
         </div>
       </div>
 
@@ -204,6 +329,10 @@ function Metric({
   );
 }
 
+
+/* =========================================================
+   STATUS PILL
+   ========================================================= */
 
 function StatusPill({
   value,
@@ -226,6 +355,8 @@ function StatusPill({
     value === "COMPLETED"
     ||
     value === "VERIFIED_CLOSED"
+    ||
+    value === "APPROVED"
   ) {
     color =
       "#59cfa0";
@@ -260,6 +391,10 @@ function StatusPill({
     value === "NOT_AUTHORIZED"
     ||
     value === "AWAITING_APPROVAL"
+    ||
+    value === "PENDING"
+    ||
+    value === "NOT_READY"
   ) {
     color =
       "#ffbd67";
@@ -275,11 +410,17 @@ function StatusPill({
   return (
     <span
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
+        display:
+          "inline-flex",
 
-        minHeight: "25px",
+        alignItems:
+          "center",
+
+        justifyContent:
+          "center",
+
+        minHeight:
+          "25px",
 
         padding:
           "0 9px",
@@ -307,17 +448,19 @@ function StatusPill({
           "nowrap",
       }}
     >
-      {
-        localizeStatus(
-          value,
-          language,
-          t
-        )
-      }
+      {localizeStatus(
+        value,
+        language,
+        t
+      )}
     </span>
   );
 }
 
+
+/* =========================================================
+   BOOLEAN RESULT
+   ========================================================= */
 
 function BooleanResult({
   value,
@@ -327,8 +470,11 @@ function BooleanResult({
     return (
       <span
         style={{
-          color: "#62758e",
-          fontSize: "9px",
+          color:
+            "#62758e",
+
+          fontSize:
+            "9px",
         }}
       >
         —
@@ -352,19 +498,17 @@ function BooleanResult({
           750,
       }}
     >
-      {
-        value
-          ? L(
-              language,
-              "TRUE",
-              "نعم"
-            )
-          : L(
-              language,
-              "FALSE",
-              "لا"
-            )
-      }
+      {value
+        ? L(
+            language,
+            "TRUE",
+            "نعم"
+          )
+        : L(
+            language,
+            "FALSE",
+            "لا"
+          )}
     </span>
   );
 }
@@ -379,6 +523,18 @@ export default function CorrectionsVerificationPage() {
     language,
     t,
   } = useLanguage();
+
+
+  const isArabic =
+    language === "ar";
+
+
+  const navigationArrowStyle = {
+    transform:
+      isArabic
+        ? "rotate(180deg)"
+        : "none",
+  };
 
 
   return (
@@ -396,7 +552,10 @@ export default function CorrectionsVerificationPage() {
         <header className="topbar">
           <div>
             <div className="eyebrow">
-              <CircleCheckBig size={15} />
+              <CircleCheckBig
+                size={15}
+                aria-hidden="true"
+              />
 
               {t(
                 "corrections.eyebrow"
@@ -418,8 +577,14 @@ export default function CorrectionsVerificationPage() {
 
 
           <div className="topbarActions">
-            <button className="searchButton">
-              <Search size={18} />
+            <button
+              type="button"
+              className="searchButton"
+            >
+              <Search
+                size={18}
+                aria-hidden="true"
+              />
 
               <span>
                 {L(
@@ -472,7 +637,10 @@ export default function CorrectionsVerificationPage() {
               "17px",
           }}
         >
-          <ShieldCheck size={24} />
+          <ShieldCheck
+            size={24}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
@@ -510,7 +678,9 @@ export default function CorrectionsVerificationPage() {
                 "مصرح به"
               )
             }
-            value="1"
+            value={
+              fullyAuthorizedCases
+            }
             description={
               L(
                 language,
@@ -523,13 +693,13 @@ export default function CorrectionsVerificationPage() {
           <Metric
             icon={CircleCheckBig}
             label={
-              L(
-                language,
-                "Executed",
-                "تم التنفيذ"
+              t(
+                "corrections.completedCorrections"
               )
             }
-            value="1"
+            value={
+              completedCorrections
+            }
             description={
               L(
                 language,
@@ -542,13 +712,13 @@ export default function CorrectionsVerificationPage() {
           <Metric
             icon={ShieldCheck}
             label={
-              L(
-                language,
-                "Verified",
-                "تم التحقق"
+              t(
+                "corrections.verificationPassed"
               )
             }
-            value="1"
+            value={
+              verifiedCorrections
+            }
             description={
               L(
                 language,
@@ -561,13 +731,13 @@ export default function CorrectionsVerificationPage() {
           <Metric
             icon={FileCheck2}
             label={
-              L(
-                language,
-                "Closed",
-                "مغلقة"
+              t(
+                "corrections.verifiedClosed"
               )
             }
-            value="1"
+            value={
+              verifiedClosedCases
+            }
             description={
               L(
                 language,
@@ -580,7 +750,7 @@ export default function CorrectionsVerificationPage() {
 
 
         {/* ================================================
-            CORRECTION LIFECYCLE
+            VERIFIED CASE LIFECYCLE
             ================================================ */}
 
         <section
@@ -594,20 +764,33 @@ export default function CorrectionsVerificationPage() {
           }}
         >
           <div className="panelEyebrow">
-            {t(
-              "corrections.correctionLifecycle"
+            {L(
+              language,
+              "VERIFIED CASE LIFECYCLE",
+              "دورة حياة الحالة المتحقق منها"
             )}
           </div>
 
 
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "17px",
-              overflowX: "auto",
-              paddingBottom: "4px",
+              display:
+                "flex",
+
+              alignItems:
+                "center",
+
+              gap:
+                "8px",
+
+              marginTop:
+                "17px",
+
+              overflowX:
+                "auto",
+
+              paddingBottom:
+                "4px",
             }}
           >
             {[
@@ -618,7 +801,6 @@ export default function CorrectionsVerificationPage() {
                   "اعتماد الضابط"
                 ),
                 UserCheck,
-                true,
               ],
 
               [
@@ -628,7 +810,6 @@ export default function CorrectionsVerificationPage() {
                   "اعتماد المدير"
                 ),
                 BadgeCheck,
-                true,
               ],
 
               [
@@ -638,7 +819,6 @@ export default function CorrectionsVerificationPage() {
                   "مصرح به"
                 ),
                 LockKeyhole,
-                true,
               ],
 
               [
@@ -648,7 +828,6 @@ export default function CorrectionsVerificationPage() {
                   "تم التنفيذ"
                 ),
                 CircleCheckBig,
-                true,
               ],
 
               [
@@ -658,7 +837,6 @@ export default function CorrectionsVerificationPage() {
                   "تم التحقق"
                 ),
                 ShieldCheck,
-                true,
               ],
 
               [
@@ -668,29 +846,35 @@ export default function CorrectionsVerificationPage() {
                   "تم إغلاق الحالة"
                 ),
                 FileCheck2,
-                true,
               ],
             ].map(
               (
                 [
                   label,
                   Icon,
-                  complete,
                 ],
                 index
               ) => (
                 <div
                   key={label}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    flexShrink: 0,
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    gap:
+                      "8px",
+
+                    flexShrink:
+                      0,
                   }}
                 >
                   <div
                     style={{
-                      minWidth: "135px",
+                      minWidth:
+                        "135px",
 
                       padding:
                         "12px",
@@ -699,14 +883,10 @@ export default function CorrectionsVerificationPage() {
                         "10px",
 
                       border:
-                        complete
-                          ? "1px solid rgba(52,211,153,0.12)"
-                          : "1px solid rgba(255,255,255,0.06)",
+                        "1px solid rgba(52,211,153,0.12)",
 
                       background:
-                        complete
-                          ? "rgba(52,211,153,0.05)"
-                          : "rgba(255,255,255,0.025)",
+                        "rgba(52,211,153,0.05)",
 
                       display:
                         "flex",
@@ -718,9 +898,7 @@ export default function CorrectionsVerificationPage() {
                         "8px",
 
                       color:
-                        complete
-                          ? "#5dcca2"
-                          : "#697c94",
+                        "#5dcca2",
 
                       fontSize:
                         "9px",
@@ -729,21 +907,24 @@ export default function CorrectionsVerificationPage() {
                         700,
                     }}
                   >
-                    <Icon size={15} />
+                    <Icon
+                      size={15}
+                      aria-hidden="true"
+                    />
 
                     {label}
                   </div>
 
-                  {
-                    index < 5
-                    &&
-                    (
-                      <ChevronRight
-                        size={14}
-                        color="#43556c"
-                      />
-                    )
-                  }
+                  {index < 5 && (
+                    <ChevronRight
+                      size={14}
+                      color="#43556c"
+                      style={
+                        navigationArrowStyle
+                      }
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
               )
             )}
@@ -752,7 +933,7 @@ export default function CorrectionsVerificationPage() {
 
 
         {/* ================================================
-            SUCCESSFUL CASE
+            SUCCESSFUL VERIFIED CASE
             ================================================ */}
 
         <section className="panel">
@@ -766,14 +947,18 @@ export default function CorrectionsVerificationPage() {
                 )}
               </div>
 
-              <h2>
-                CASE-2026-00001
+              <h2 dir="ltr">
+                {VERIFIED_DEMO_CASE.id}
               </h2>
             </div>
 
             <StatusPill
-              value="VERIFIED_CLOSED"
-              language={language}
+              value={
+                VERIFIED_DEMO_CASE.finalStatus
+              }
+              language={
+                language
+              }
               t={t}
             />
           </div>
@@ -792,13 +977,21 @@ export default function CorrectionsVerificationPage() {
 
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
+
                 gridTemplateColumns:
                   "1fr auto 1fr",
-                gap: "17px",
-                alignItems: "center",
+
+                gap:
+                  "17px",
+
+                alignItems:
+                  "center",
               }}
             >
+
+              {/* BEFORE */}
 
               <div
                 style={{
@@ -838,6 +1031,7 @@ export default function CorrectionsVerificationPage() {
                 </div>
 
                 <div
+                  dir="ltr"
                   style={{
                     color:
                       "#64758d",
@@ -849,12 +1043,16 @@ export default function CorrectionsVerificationPage() {
                       "15px",
                   }}
                 >
-                  BIO-000166
+                  {
+                    VERIFIED_DEMO_CASE.biometricId
+                  }
                 </div>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display: "block",
+                    display:
+                      "block",
 
                     fontSize:
                       "23px",
@@ -866,12 +1064,15 @@ export default function CorrectionsVerificationPage() {
                       "5px",
                   }}
                 >
-                  REF-002711
+                  {
+                    VERIFIED_DEMO_CASE.execution.before
+                  }
                 </strong>
 
                 <span
                   style={{
-                    display: "block",
+                    display:
+                      "block",
 
                     color:
                       "#805c63",
@@ -919,9 +1120,14 @@ export default function CorrectionsVerificationPage() {
                     "#65a0ff",
                 }}
               >
-                <GitCompareArrows size={21} />
+                <GitCompareArrows
+                  size={21}
+                  aria-hidden="true"
+                />
               </div>
 
+
+              {/* AFTER */}
 
               <div
                 style={{
@@ -961,6 +1167,7 @@ export default function CorrectionsVerificationPage() {
                 </div>
 
                 <div
+                  dir="ltr"
                   style={{
                     color:
                       "#64758d",
@@ -972,12 +1179,16 @@ export default function CorrectionsVerificationPage() {
                       "15px",
                   }}
                 >
-                  BIO-000166
+                  {
+                    VERIFIED_DEMO_CASE.biometricId
+                  }
                 </div>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display: "block",
+                    display:
+                      "block",
 
                     fontSize:
                       "23px",
@@ -989,12 +1200,15 @@ export default function CorrectionsVerificationPage() {
                       "5px",
                   }}
                 >
-                  REF-001009
+                  {
+                    VERIFIED_DEMO_CASE.execution.after
+                  }
                 </strong>
 
                 <span
                   style={{
-                    display: "block",
+                    display:
+                      "block",
 
                     color:
                       "#547c6d",
@@ -1036,50 +1250,82 @@ export default function CorrectionsVerificationPage() {
               }}
             >
               <div className="integrityInfo">
-                <UserCheck size={21} />
+                <UserCheck
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
-                    {L(
-                      language,
-                      "Officer Approval",
-                      "اعتماد الضابط"
+                    {t(
+                      "reportsAudit.officerApproval"
                     )}
                   </strong>
 
                   <span>
-                    {
-                      language === "ar"
-                        ? "معتمد · ضابط المراقبة التجريبي"
-                        : "APPROVED · Demo Monitoring Officer"
-                    }
+                    {L(
+                      language,
+                      `APPROVED · ${VERIFIED_DEMO_CASE.officer.actor}`,
+                      "معتمد · ضابط المراقبة التجريبي"
+                    )}
                   </span>
                 </div>
               </div>
 
 
               <div className="integrityInfo">
-                <BadgeCheck size={21} />
+                <BadgeCheck
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
-                    {L(
-                      language,
-                      "Manager Approval",
-                      "اعتماد المدير"
+                    {t(
+                      "reportsAudit.managerApproval"
                     )}
                   </strong>
 
                   <span>
-                    {
-                      language === "ar"
-                        ? "معتمد · المدير المشرف التجريبي"
-                        : "APPROVED · Demo Supervising Manager"
-                    }
+                    {L(
+                      language,
+                      `APPROVED · ${VERIFIED_DEMO_CASE.manager.actor}`,
+                      "معتمد · المدير المشرف التجريبي"
+                    )}
                   </span>
                 </div>
               </div>
             </div>
+
+
+            <Link
+              href={
+                `/cases/${VERIFIED_DEMO_CASE.id}`
+              }
+              className="textButton"
+              style={{
+                textDecoration:
+                  "none",
+
+                marginTop:
+                  "15px",
+
+                width:
+                  "fit-content",
+              }}
+            >
+              {t(
+                "common.viewDetails"
+              )}
+
+              <ChevronRight
+                size={16}
+                style={
+                  navigationArrowStyle
+                }
+                aria-hidden="true"
+              />
+            </Link>
           </div>
         </section>
 
@@ -1118,6 +1364,7 @@ export default function CorrectionsVerificationPage() {
 
               <CircleCheckBig
                 size={22}
+                aria-hidden="true"
               />
             </div>
 
@@ -1158,8 +1405,12 @@ export default function CorrectionsVerificationPage() {
                 </span>
 
                 <StatusPill
-                  value="COMPLETED"
-                  language={language}
+                  value={
+                    VERIFIED_DEMO_CASE.execution.status
+                  }
+                  language={
+                    language
+                  }
                   t={t}
                 />
               </div>
@@ -1172,7 +1423,7 @@ export default function CorrectionsVerificationPage() {
                     "Target System",
                     "النظام المستهدف"
                   ),
-                  "BIOMETRIC_SYSTEM",
+                  VERIFIED_DEMO_CASE.execution.targetSystem,
                 ],
 
                 [
@@ -1181,7 +1432,7 @@ export default function CorrectionsVerificationPage() {
                     "Target Record",
                     "السجل المستهدف"
                   ),
-                  "BIO-000166",
+                  VERIFIED_DEMO_CASE.execution.targetRecord,
                 ],
 
                 [
@@ -1190,21 +1441,21 @@ export default function CorrectionsVerificationPage() {
                     "Field",
                     "الحقل"
                   ),
-                  "linked_master_id",
+                  VERIFIED_DEMO_CASE.execution.field,
                 ],
 
                 [
                   t(
                     "corrections.before"
                   ),
-                  "REF-002711",
+                  VERIFIED_DEMO_CASE.execution.before,
                 ],
 
                 [
                   t(
                     "corrections.after"
                   ),
-                  "REF-001009",
+                  VERIFIED_DEMO_CASE.execution.after,
                 ],
               ].map(
                 ([
@@ -1219,7 +1470,7 @@ export default function CorrectionsVerificationPage() {
                       {label}
                     </span>
 
-                    <strong>
+                    <strong dir="ltr">
                       {value}
                     </strong>
                   </div>
@@ -1234,7 +1485,10 @@ export default function CorrectionsVerificationPage() {
                     "15px 0 0",
                 }}
               >
-                <Database size={21} />
+                <Database
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -1246,12 +1500,8 @@ export default function CorrectionsVerificationPage() {
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-
-                      "The Master Reference was not modified and the original biometric source dataset remained preserved.",
-
-                      "لم يتم تعديل المرجع الرئيسي، كما ظلت مجموعة البيانات البيومترية الأصلية محفوظة دون تغيير."
+                    {t(
+                      "corrections.protectedSourceMessage"
                     )}
                   </span>
                 </div>
@@ -1282,7 +1532,10 @@ export default function CorrectionsVerificationPage() {
                 </h2>
               </div>
 
-              <ShieldCheck size={22} />
+              <ShieldCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1339,13 +1592,16 @@ export default function CorrectionsVerificationPage() {
                         "3px",
                     }}
                   >
-                    100
+                    {
+                      VERIFIED_DEMO_CASE.verification.score
+                    }
                   </strong>
                 </div>
 
                 <CheckCircle2
                   size={35}
                   color="#59cfa0"
+                  aria-hidden="true"
                 />
               </div>
 
@@ -1355,10 +1611,15 @@ export default function CorrectionsVerificationPage() {
                   t(
                     "caseDetail.verificationStatus"
                   ),
+
                   t(
-                    "statuses.PASSED"
+                    `statuses.${VERIFIED_DEMO_CASE.verification.status}`,
+                    VERIFIED_DEMO_CASE.verification.status
                   ),
+
                   "success",
+
+                  false,
                 ],
 
                 [
@@ -1367,44 +1628,61 @@ export default function CorrectionsVerificationPage() {
                     "Biometric Match",
                     "المطابقة البيومترية"
                   ),
-                  "99.9903%",
+
+                  `${VERIFIED_DEMO_CASE.verification.biometricMatch} (${VERIFIED_DEMO_CASE.verification.biometricMatchPercent}%)`,
+
                   "normal",
+
+                  true,
                 ],
 
                 [
                   t(
                     "caseDetail.mappingValid"
                   ),
-                  t(
-                    "common.yes"
-                  ),
+
+                  VERIFIED_DEMO_CASE.verification.identityMappingValid
+                    ? t("common.yes")
+                    : t("common.no"),
+
                   "normal",
+
+                  false,
                 ],
 
                 [
                   t(
                     "caseDetail.conflictResolved"
                   ),
-                  t(
-                    "common.yes"
-                  ),
+
+                  VERIFIED_DEMO_CASE.verification.originalConflictResolved
+                    ? t("common.yes")
+                    : t("common.no"),
+
                   "normal",
+
+                  false,
                 ],
 
                 [
                   t(
                     "caseDetail.secondaryConflict"
                   ),
-                  t(
-                    "common.no"
-                  ),
+
+                  VERIFIED_DEMO_CASE.verification.secondaryConflict
+                    ? t("common.yes")
+                    : t("common.no"),
+
                   "success",
+
+                  false,
                 ],
               ].map(
                 ([
                   label,
                   value,
                   state,
+                  forceLtr,
                 ]) => (
                   <div
                     className="detailRow"
@@ -1415,9 +1693,15 @@ export default function CorrectionsVerificationPage() {
                     </span>
 
                     <strong
+                      dir={
+                        forceLtr
+                          ? "ltr"
+                          : undefined
+                      }
                       style={{
                         color:
-                          state === "success"
+                          state ===
+                          "success"
                             ? "#59cfa0"
                             : undefined,
                       }}
@@ -1462,7 +1746,10 @@ export default function CorrectionsVerificationPage() {
               </h2>
             </div>
 
-            <History size={22} />
+            <History
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -1476,11 +1763,15 @@ export default function CorrectionsVerificationPage() {
               <thead>
                 <tr>
                   <th>
-                    {t("common.case")}
+                    {t(
+                      "common.case"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.biometric")}
+                    {t(
+                      "common.biometric"
+                    )}
                   </th>
 
                   <th>
@@ -1512,6 +1803,14 @@ export default function CorrectionsVerificationPage() {
                       language,
                       "SCORE",
                       "الدرجة"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "BIOMETRIC MATCH",
+                      "المطابقة البيومترية"
                     )}
                   </th>
 
@@ -1559,181 +1858,222 @@ export default function CorrectionsVerificationPage() {
 
 
               <tbody>
-                {
-                  correctionCases.map(
-                    (item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <Link
-                            href={`/cases/${item.id}`}
-                            className="caseId"
-                            style={{
-                              textDecoration:
-                                "none",
-
-                              display:
-                                "inline-block",
-                            }}
-                          >
-                            {item.id}
-                          </Link>
-                        </td>
-
-
-                        <td className="mono">
-                          {item.biometric}
-                        </td>
-
-
-                        <td>
-                          <span className="oldIdentity">
-                            {item.before}
-                          </span>
-                        </td>
-
-
-                        <td>
-                          <span className="newIdentity">
-                            {item.after}
-                          </span>
-                        </td>
-
-
-                        <td>
-                          <StatusPill
-                            value={
-                              item.execution
-                            }
-                            language={language}
-                            t={t}
-                          />
-                        </td>
-
-
-                        <td>
-                          <StatusPill
-                            value={
-                              item.verification
-                            }
-                            language={language}
-                            t={t}
-                          />
-                        </td>
-
-
-                        <td>
-                          <span className="confidence">
-                            {
-                              item.verificationScore
-                              === null
-                                ? "—"
-                                : item.verificationScore
-                            }
-                          </span>
-                        </td>
-
-
-                        <td>
-                          <BooleanResult
-                            value={
-                              item.identityValid
-                            }
-                            language={language}
-                          />
-                        </td>
-
-
-                        <td>
-                          <BooleanResult
-                            value={
-                              item.conflictResolved
-                            }
-                            language={language}
-                          />
-                        </td>
-
-
-                        <td>
-                          {
-                            item.secondaryConflict
-                            === null
-                              ? (
-                                <span
-                                  style={{
-                                    color:
-                                      "#62758e",
-
-                                    fontSize:
-                                      "9px",
-                                  }}
-                                >
-                                  —
-                                </span>
-                              )
-                              : (
-                                <span
-                                  style={{
-                                    color:
-                                      item.secondaryConflict
-                                        ? "#ff7d8b"
-                                        : "#59cfa0",
-
-                                    fontSize:
-                                      "9px",
-
-                                    fontWeight:
-                                      750,
-                                  }}
-                                >
-                                  {
-                                    item.secondaryConflict
-                                      ? t(
-                                          "common.yes"
-                                        )
-                                      : t(
-                                          "common.no"
-                                        )
-                                  }
-                                </span>
-                              )
+                {correctionCases.map(
+                  (item) => (
+                    <tr
+                      key={item.id}
+                    >
+                      <td>
+                        <Link
+                          href={
+                            `/cases/${item.id}`
                           }
-                        </td>
+                          className="caseId"
+                          style={{
+                            textDecoration:
+                              "none",
+
+                            display:
+                              "inline-block",
+                          }}
+                        >
+                          <span dir="ltr">
+                            {item.id}
+                          </span>
+                        </Link>
+                      </td>
 
 
-                        <td>
+                      <td
+                        className="mono"
+                        dir="ltr"
+                      >
+                        {item.biometric}
+                      </td>
+
+
+                      <td>
+                        <span
+                          className="oldIdentity"
+                          dir="ltr"
+                        >
+                          {item.before}
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <span
+                          className="newIdentity"
+                          dir="ltr"
+                        >
+                          {item.after}
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <StatusPill
+                          value={
+                            item.execution
+                          }
+                          language={
+                            language
+                          }
+                          t={t}
+                        />
+                      </td>
+
+
+                      <td>
+                        <StatusPill
+                          value={
+                            item.verification
+                          }
+                          language={
+                            language
+                          }
+                          t={t}
+                        />
+                      </td>
+
+
+                      <td>
+                        <span className="confidence">
+                          {item.verificationScore ===
+                          null
+                            ? "—"
+                            : item.verificationScore}
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <span
+                          dir="ltr"
+                          style={{
+                            color:
+                              item.biometricMatchPercent ===
+                              null
+                                ? "#62758e"
+                                : "#aab9ca",
+
+                            fontSize:
+                              "9px",
+
+                            fontWeight:
+                              item.biometricMatchPercent ===
+                              null
+                                ? 400
+                                : 700,
+                          }}
+                        >
+                          {item.biometricMatchPercent ===
+                          null
+                            ? "—"
+                            : `${item.biometricMatchRaw} (${item.biometricMatchPercent}%)`}
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <BooleanResult
+                          value={
+                            item.identityValid
+                          }
+                          language={
+                            language
+                          }
+                        />
+                      </td>
+
+
+                      <td>
+                        <BooleanResult
+                          value={
+                            item.conflictResolved
+                          }
+                          language={
+                            language
+                          }
+                        />
+                      </td>
+
+
+                      <td>
+                        {item.secondaryConflict ===
+                        null ? (
                           <span
                             style={{
                               color:
-                                "#687b93",
+                                "#62758e",
 
                               fontSize:
                                 "9px",
                             }}
                           >
-                            {
-                              localizeStatus(
-                                item.rollback,
-                                language,
-                                t
-                              )
-                            }
+                            —
                           </span>
-                        </td>
+                        ) : (
+                          <span
+                            style={{
+                              color:
+                                item.secondaryConflict
+                                  ? "#ff7d8b"
+                                  : "#59cfa0",
+
+                              fontSize:
+                                "9px",
+
+                              fontWeight:
+                                750,
+                            }}
+                          >
+                            {item.secondaryConflict
+                              ? t(
+                                  "common.yes"
+                                )
+                              : t(
+                                  "common.no"
+                                )}
+                          </span>
+                        )}
+                      </td>
 
 
-                        <td>
-                          <StatusPill
-                            value={
-                              item.finalStatus
-                            }
-                            language={language}
-                            t={t}
-                          />
-                        </td>
-                      </tr>
-                    )
+                      <td>
+                        <span
+                          style={{
+                            color:
+                              "#687b93",
+
+                            fontSize:
+                              "9px",
+                          }}
+                        >
+                          {localizeStatus(
+                            item.rollback,
+                            language,
+                            t
+                          )}
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <StatusPill
+                          value={
+                            item.finalStatus
+                          }
+                          language={
+                            language
+                          }
+                          t={t}
+                        />
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -1771,7 +2111,10 @@ export default function CorrectionsVerificationPage() {
                 </h2>
               </div>
 
-              <AlertTriangle size={22} />
+              <AlertTriangle
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1866,7 +2209,10 @@ export default function CorrectionsVerificationPage() {
                 </h2>
               </div>
 
-              <RotateCcw size={22} />
+              <RotateCcw
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1877,7 +2223,10 @@ export default function CorrectionsVerificationPage() {
               }}
             >
               <div className="integrityInfo">
-                <RefreshCcw size={21} />
+                <RefreshCcw
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -1908,7 +2257,10 @@ export default function CorrectionsVerificationPage() {
                     "10px",
                 }}
               >
-                <LockKeyhole size={21} />
+                <LockKeyhole
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -1949,14 +2301,17 @@ export default function CorrectionsVerificationPage() {
               "18px",
           }}
         >
-          <CheckCircle2 size={26} />
+          <CheckCircle2
+            size={26}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
               {L(
                 language,
-                "CASE-2026-00001 Successfully Verified and Closed",
-                "تم التحقق من CASE-2026-00001 وإغلاقها بنجاح"
+                `${VERIFIED_DEMO_CASE.id} Successfully Verified and Closed`,
+                `تم التحقق من ${VERIFIED_DEMO_CASE.id} وإغلاقها بنجاح`
               )}
             </strong>
 
@@ -1964,9 +2319,9 @@ export default function CorrectionsVerificationPage() {
               {L(
                 language,
 
-                "BIO-000166 was corrected from REF-002711 to REF-001009 after Officer and Manager approval. Post-correction verification passed with a score of 100, the original conflict was resolved and no secondary conflict was detected.",
+                `${VERIFIED_DEMO_CASE.biometricId} was corrected from ${VERIFIED_DEMO_CASE.execution.before} to ${VERIFIED_DEMO_CASE.execution.after} after Officer and Manager approval. Post-correction verification passed with a score of ${VERIFIED_DEMO_CASE.verification.score}, the original conflict was resolved and no secondary conflict was detected.`,
 
-                "تم تصحيح BIO-000166 من REF-002711 إلى REF-001009 بعد اعتماد الضابط والمدير. ونجح التحقق بعد التصحيح بدرجة 100، وتم حل التعارض الأصلي ولم يتم اكتشاف أي تعارض ثانوي."
+                `تم تصحيح ${VERIFIED_DEMO_CASE.biometricId} من ${VERIFIED_DEMO_CASE.execution.before} إلى ${VERIFIED_DEMO_CASE.execution.after} بعد اعتماد الضابط والمدير. ونجح التحقق بعد التصحيح بدرجة ${VERIFIED_DEMO_CASE.verification.score}، وتم حل التعارض الأصلي ولم يتم اكتشاف أي تعارض ثانوي.`
               )}
             </span>
           </div>
@@ -1979,8 +2334,12 @@ export default function CorrectionsVerificationPage() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
+
             {L(
               language,
               "Correction & Verification Workspace",
@@ -1989,7 +2348,10 @@ export default function CorrectionsVerificationPage() {
           </span>
 
           <div>
-            <ShieldCheck size={15} />
+            <ShieldCheck
+              size={15}
+              aria-hidden="true"
+            />
 
             {L(
               language,

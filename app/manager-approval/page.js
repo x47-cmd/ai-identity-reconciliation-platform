@@ -1,10 +1,7 @@
 "use client";
 
 import Sidebar from "../components/Sidebar";
-
-import {
-  useLanguage,
-} from "../components/LanguageProvider";
+import { useLanguage } from "../components/LanguageProvider";
 
 import {
   Activity,
@@ -40,61 +37,146 @@ function L(
 
 /* =========================================================
    MANAGER APPROVAL QUEUE
+
+   IMPORTANT:
+   - These are representative frontend-only Manager queue
+     records for the synthetic demonstration.
+   - All records shown here have already completed
+     Monitoring Officer approval.
+   - No real approval transaction is executed by this page.
    ========================================================= */
 
 const managerCases = [
   {
-    id: "CASE-2026-00005",
-    title: "Critical Cross-Identity Harm Conflict",
-    type: "CRITICAL_HARM_IDENTITY_CONFLICT",
-    biometric: "BIO-000621",
-    current: "REF-001912",
-    proposed: "REF-002448",
-    confidence: 99.96,
-    risk: 95.0,
-    harm: 94.5,
-    protective: 96.0,
-    priority: "IMMEDIATE",
-    affected: true,
-    officer: "Demo Monitoring Officer",
-    officerDecision: "APPROVED",
-    queueOrder: 1,
+    id:
+      "CASE-2026-00005",
+
+    type:
+      "CRITICAL_HARM_IDENTITY_CONFLICT",
+
+    biometric:
+      "BIO-000621",
+
+    current:
+      "REF-001912",
+
+    proposed:
+      "REF-002448",
+
+    confidence:
+      99.96,
+
+    risk:
+      95.0,
+
+    harm:
+      94.5,
+
+    protective:
+      96.0,
+
+    priority:
+      "IMMEDIATE",
+
+    affected:
+      true,
+
+    officer:
+      "Demo Monitoring Officer",
+
+    officerDecision:
+      "APPROVED",
+
+    queueOrder:
+      1,
   },
 
   {
-    id: "CASE-2026-00013",
-    title: "Incorrect Biometric Identity Mapping",
-    type: "WRONG_MAPPING",
-    biometric: "BIO-000487",
-    current: "REF-001452",
-    proposed: "REF-000834",
-    confidence: 99.95,
-    risk: 88.0,
-    harm: 68.0,
-    protective: 86.0,
-    priority: "HIGH",
-    affected: false,
-    officer: "Demo Monitoring Officer",
-    officerDecision: "APPROVED",
-    queueOrder: 2,
+    id:
+      "CASE-2026-00013",
+
+    type:
+      "WRONG_MAPPING",
+
+    biometric:
+      "BIO-000487",
+
+    current:
+      "REF-001452",
+
+    proposed:
+      "REF-000834",
+
+    confidence:
+      99.95,
+
+    risk:
+      88.0,
+
+    harm:
+      68.0,
+
+    protective:
+      86.0,
+
+    priority:
+      "HIGH",
+
+    affected:
+      false,
+
+    officer:
+      "Demo Monitoring Officer",
+
+    officerDecision:
+      "APPROVED",
+
+    queueOrder:
+      2,
   },
 
   {
-    id: "CASE-2026-00019",
-    title: "Identity Data Mismatch",
-    type: "DATA_MISMATCH",
-    biometric: "BIO-000733",
-    current: "REF-002081",
-    proposed: "REF-002081",
-    confidence: 99.91,
-    risk: 63.0,
-    harm: 38.0,
-    protective: 59.0,
-    priority: "MEDIUM",
-    affected: false,
-    officer: "Demo Monitoring Officer",
-    officerDecision: "APPROVED",
-    queueOrder: 3,
+    id:
+      "CASE-2026-00019",
+
+    type:
+      "DATA_MISMATCH",
+
+    biometric:
+      "BIO-000733",
+
+    current:
+      "REF-002081",
+
+    proposed:
+      "REF-002081",
+
+    confidence:
+      99.91,
+
+    risk:
+      63.0,
+
+    harm:
+      38.0,
+
+    protective:
+      59.0,
+
+    priority:
+      "MEDIUM",
+
+    affected:
+      false,
+
+    officer:
+      "Demo Monitoring Officer",
+
+    officerDecision:
+      "APPROVED",
+
+    queueOrder:
+      3,
   },
 ];
 
@@ -110,25 +192,29 @@ const queueMetrics = {
   immediate:
     managerCases.filter(
       (item) =>
-        item.priority === "IMMEDIATE"
+        item.priority ===
+        "IMMEDIATE"
     ).length,
 
   high:
     managerCases.filter(
       (item) =>
-        item.priority === "HIGH"
+        item.priority ===
+        "HIGH"
     ).length,
 
   medium:
     managerCases.filter(
       (item) =>
-        item.priority === "MEDIUM"
+        item.priority ===
+        "MEDIUM"
     ).length,
 
   officerApproved:
     managerCases.filter(
       (item) =>
-        item.officerDecision === "APPROVED"
+        item.officerDecision ===
+        "APPROVED"
     ).length,
 
   executionAuthorized:
@@ -141,6 +227,37 @@ const recommendedCase =
 
 
 /* =========================================================
+   CASE TITLES
+   ========================================================= */
+
+const caseTitles = {
+  CRITICAL_HARM_IDENTITY_CONFLICT: {
+    en:
+      "Critical Cross-Identity Harm Conflict",
+
+    ar:
+      "تعارض هوية حرج ذو تأثير ضار",
+  },
+
+  WRONG_MAPPING: {
+    en:
+      "Incorrect Biometric Identity Mapping",
+
+    ar:
+      "ربط بيومتري خاطئ بالهوية",
+  },
+
+  DATA_MISMATCH: {
+    en:
+      "Identity Data Mismatch",
+
+    ar:
+      "اختلاف في بيانات الهوية",
+  },
+};
+
+
+/* =========================================================
    HELPERS
    ========================================================= */
 
@@ -148,36 +265,12 @@ function getCaseTitle(
   item,
   language
 ) {
-  const titles = {
-    CRITICAL_HARM_IDENTITY_CONFLICT: {
-      en:
-        "Critical Cross-Identity Harm Conflict",
-
-      ar:
-        "تعارض هوية حرج ذو تأثير ضار",
-    },
-
-    WRONG_MAPPING: {
-      en:
-        "Incorrect Biometric Identity Mapping",
-
-      ar:
-        "ربط بيومتري خاطئ بالهوية",
-    },
-
-    DATA_MISMATCH: {
-      en:
-        "Identity Data Mismatch",
-
-      ar:
-        "اختلاف في بيانات الهوية",
-    },
-  };
-
   return (
-    titles[item.type]?.[language]
-    ||
-    item.title
+    caseTitles[item.type]?.[
+      language
+    ] ||
+    caseTitles[item.type]?.en ||
+    item.type
   );
 }
 
@@ -186,25 +279,15 @@ function getCaseType(
   item,
   t
 ) {
-  const keys = {
-    CRITICAL_HARM_IDENTITY_CONFLICT:
-      "caseTypes.CRITICAL_HARM_CONFLICT",
-
-    WRONG_MAPPING:
-      "caseTypes.WRONG_MAPPING",
-
-    DATA_MISMATCH:
-      "caseTypes.DATA_MISMATCH",
-  };
-
-  return keys[item.type]
-    ? t(keys[item.type])
-    : item.type;
+  return t(
+    `caseTypes.${item.type}`,
+    item.type
+  );
 }
 
 
 /* =========================================================
-   SMALL COMPONENTS
+   PRIORITY BADGE
    ========================================================= */
 
 function PriorityBadge({
@@ -220,11 +303,18 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {t(`priorities.${priority}`)}
+      {t(
+        `priorities.${priority}`,
+        priority
+      )}
     </span>
   );
 }
 
+
+/* =========================================================
+   METRIC
+   ========================================================= */
 
 function Metric({
   icon: Icon,
@@ -237,11 +327,16 @@ function Metric({
     <div className="metricCard">
       <div className="metricTop">
         <div className="metricIcon">
-          <Icon size={20} />
+          <Icon
+            size={20}
+            aria-hidden="true"
+          />
         </div>
 
         <span className="metricStatus">
-          {t("commandCenter.demoKpi")}
+          {t(
+            "commandCenter.demoKpi"
+          )}
         </span>
       </div>
 
@@ -272,6 +367,18 @@ export default function ManagerApprovalPage() {
   } = useLanguage();
 
 
+  const isArabic =
+    language === "ar";
+
+
+  const navigationArrowStyle = {
+    transform:
+      isArabic
+        ? "rotate(180deg)"
+        : "none",
+  };
+
+
   return (
     <div className="appShell">
 
@@ -287,7 +394,10 @@ export default function ManagerApprovalPage() {
         <header className="topbar">
           <div>
             <div className="eyebrow">
-              <BadgeCheck size={15} />
+              <BadgeCheck
+                size={15}
+                aria-hidden="true"
+              />
 
               {t(
                 "managerApproval.eyebrow"
@@ -309,8 +419,14 @@ export default function ManagerApprovalPage() {
 
 
           <div className="topbarActions">
-            <button className="searchButton">
-              <Search size={18} />
+            <button
+              type="button"
+              className="searchButton"
+            >
+              <Search
+                size={18}
+                aria-hidden="true"
+              />
 
               <span>
                 {L(
@@ -355,7 +471,10 @@ export default function ManagerApprovalPage() {
 
         <section className="alertBanner">
           <div className="alertIcon">
-            <ShieldCheck size={24} />
+            <ShieldCheck
+              size={24}
+              aria-hidden="true"
+            />
           </div>
 
           <div className="alertText">
@@ -379,15 +498,18 @@ export default function ManagerApprovalPage() {
           <div
             className="priority high"
             style={{
-              height: "31px",
-              padding: "0 12px",
+              height:
+                "31px",
+
+              padding:
+                "0 12px",
             }}
           >
-            {
-              language === "ar"
-                ? `${queueMetrics.total} قيد الانتظار`
-                : `${queueMetrics.total} PENDING`
-            }
+            {L(
+              language,
+              `${queueMetrics.total} PENDING`,
+              `${queueMetrics.total} قيد الانتظار`
+            )}
           </div>
         </section>
 
@@ -486,8 +608,11 @@ export default function ManagerApprovalPage() {
         <section
           className="panel"
           style={{
-            marginBottom: "16px",
-            padding: "18px",
+            marginBottom:
+              "16px",
+
+            padding:
+              "18px",
           }}
         >
           <div className="panelEyebrow">
@@ -498,14 +623,23 @@ export default function ManagerApprovalPage() {
             )}
           </div>
 
+
           <div
             style={{
-              display: "grid",
+              display:
+                "grid",
+
               gridTemplateColumns:
                 "1fr auto 1fr auto 1fr",
-              alignItems: "center",
-              gap: "11px",
-              marginTop: "17px",
+
+              alignItems:
+                "center",
+
+              gap:
+                "11px",
+
+              marginTop:
+                "17px",
             }}
           >
 
@@ -513,10 +647,15 @@ export default function ManagerApprovalPage() {
 
             <div
               style={{
-                padding: "16px",
-                borderRadius: "12px",
+                padding:
+                  "16px",
+
+                borderRadius:
+                  "12px",
+
                 background:
                   "rgba(52,211,153,0.05)",
+
                 border:
                   "1px solid rgba(52,211,153,0.1)",
               }}
@@ -524,13 +663,19 @@ export default function ManagerApprovalPage() {
               <BrainCircuit
                 size={20}
                 color="#59c99d"
+                aria-hidden="true"
               />
 
               <strong
                 style={{
-                  display: "block",
-                  marginTop: "10px",
-                  fontSize: "11px",
+                  display:
+                    "block",
+
+                  marginTop:
+                    "10px",
+
+                  fontSize:
+                    "11px",
                 }}
               >
                 {L(
@@ -542,11 +687,20 @@ export default function ManagerApprovalPage() {
 
               <span
                 style={{
-                  display: "block",
-                  color: "#6f9586",
-                  fontSize: "10px",
-                  lineHeight: 1.4,
-                  marginTop: "4px",
+                  display:
+                    "block",
+
+                  color:
+                    "#6f9586",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.4,
+
+                  marginTop:
+                    "4px",
                 }}
               >
                 {t(
@@ -559,6 +713,10 @@ export default function ManagerApprovalPage() {
             <ChevronRight
               size={17}
               color="#52647b"
+              style={
+                navigationArrowStyle
+              }
+              aria-hidden="true"
             />
 
 
@@ -566,10 +724,15 @@ export default function ManagerApprovalPage() {
 
             <div
               style={{
-                padding: "16px",
-                borderRadius: "12px",
+                padding:
+                  "16px",
+
+                borderRadius:
+                  "12px",
+
                 background:
                   "rgba(52,211,153,0.05)",
+
                 border:
                   "1px solid rgba(52,211,153,0.1)",
               }}
@@ -577,13 +740,19 @@ export default function ManagerApprovalPage() {
               <UserCheck
                 size={20}
                 color="#59c99d"
+                aria-hidden="true"
               />
 
               <strong
                 style={{
-                  display: "block",
-                  marginTop: "10px",
-                  fontSize: "11px",
+                  display:
+                    "block",
+
+                  marginTop:
+                    "10px",
+
+                  fontSize:
+                    "11px",
                 }}
               >
                 {t(
@@ -593,11 +762,20 @@ export default function ManagerApprovalPage() {
 
               <span
                 style={{
-                  display: "block",
-                  color: "#6f9586",
-                  fontSize: "10px",
-                  lineHeight: 1.4,
-                  marginTop: "4px",
+                  display:
+                    "block",
+
+                  color:
+                    "#6f9586",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.4,
+
+                  marginTop:
+                    "4px",
                 }}
               >
                 {t(
@@ -610,6 +788,10 @@ export default function ManagerApprovalPage() {
             <ChevronRight
               size={17}
               color="#52647b"
+              style={
+                navigationArrowStyle
+              }
+              aria-hidden="true"
             />
 
 
@@ -617,10 +799,15 @@ export default function ManagerApprovalPage() {
 
             <div
               style={{
-                padding: "16px",
-                borderRadius: "12px",
+                padding:
+                  "16px",
+
+                borderRadius:
+                  "12px",
+
                 background:
                   "rgba(255,185,90,0.055)",
+
                 border:
                   "1px solid rgba(255,185,90,0.12)",
               }}
@@ -628,13 +815,19 @@ export default function ManagerApprovalPage() {
               <BadgeCheck
                 size={20}
                 color="#ffbd67"
+                aria-hidden="true"
               />
 
               <strong
                 style={{
-                  display: "block",
-                  marginTop: "10px",
-                  fontSize: "11px",
+                  display:
+                    "block",
+
+                  marginTop:
+                    "10px",
+
+                  fontSize:
+                    "11px",
                 }}
               >
                 {t(
@@ -644,11 +837,20 @@ export default function ManagerApprovalPage() {
 
               <span
                 style={{
-                  display: "block",
-                  color: "#b18b55",
-                  fontSize: "10px",
-                  lineHeight: 1.4,
-                  marginTop: "4px",
+                  display:
+                    "block",
+
+                  color:
+                    "#b18b55",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.4,
+
+                  marginTop:
+                    "4px",
                 }}
               >
                 {L(
@@ -688,14 +890,26 @@ export default function ManagerApprovalPage() {
 
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "7px",
-                color: "#71839a",
-                fontSize: "10px",
+                display:
+                  "flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "7px",
+
+                color:
+                  "#71839a",
+
+                fontSize:
+                  "10px",
               }}
             >
-              <Activity size={15} />
+              <Activity
+                size={15}
+                aria-hidden="true"
+              />
 
               {L(
                 language,
@@ -709,13 +923,16 @@ export default function ManagerApprovalPage() {
           <div className="tableWrap">
             <table
               style={{
-                minWidth: "1320px",
+                minWidth:
+                  "1320px",
               }}
             >
               <thead>
                 <tr>
                   <th>
-                    {t("common.case")}
+                    {t(
+                      "common.case"
+                    )}
                   </th>
 
                   <th>
@@ -751,11 +968,15 @@ export default function ManagerApprovalPage() {
                   </th>
 
                   <th>
-                    {t("common.risk")}
+                    {t(
+                      "common.risk"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.harm")}
+                    {t(
+                      "common.harm"
+                    )}
                   </th>
 
                   <th>
@@ -765,7 +986,9 @@ export default function ManagerApprovalPage() {
                   </th>
 
                   <th>
-                    {t("common.priority")}
+                    {t(
+                      "common.priority"
+                    )}
                   </th>
 
                   <th>
@@ -774,286 +997,410 @@ export default function ManagerApprovalPage() {
                     )}
                   </th>
 
-                  <th></th>
+                  <th
+                    aria-label={
+                      t(
+                        "managerApproval.finalReview"
+                      )
+                    }
+                  />
                 </tr>
               </thead>
 
 
               <tbody>
-                {
-                  managerCases.map(
-                    (item) => (
-                      <tr key={item.id}>
+                {managerCases.map(
+                  (item) => (
+                    <tr
+                      key={item.id}
+                    >
 
-                        <td>
-                          <span
-                            className="caseId"
-                            style={{
-                              display:
-                                "inline-block",
-                            }}
-                          >
-                            {item.id}
+                      {/* CASE */}
+
+                      <td>
+                        <span
+                          className="caseId"
+                          dir="ltr"
+                          style={{
+                            display:
+                              "inline-block",
+                          }}
+                        >
+                          {item.id}
+                        </span>
+
+                        <div
+                          className="caseStatus"
+                          dir="ltr"
+                        >
+                          {item.biometric}
+                        </div>
+                      </td>
+
+
+                      {/* INVESTIGATION */}
+
+                      <td>
+                        <div
+                          style={{
+                            display:
+                              "flex",
+
+                            gap:
+                              "9px",
+
+                            alignItems:
+                              "center",
+                          }}
+                        >
+                          {item.affected ? (
+                            <ShieldAlert
+                              size={16}
+                              color="#ff7584"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <BrainCircuit
+                              size={16}
+                              color="#669fff"
+                              aria-hidden="true"
+                            />
+                          )}
+
+                          <div>
+                            <strong
+                              style={{
+                                display:
+                                  "block",
+
+                                color:
+                                  "#cbd8e7",
+
+                                fontSize:
+                                  "11px",
+
+                                lineHeight:
+                                  1.45,
+                              }}
+                            >
+                              {getCaseTitle(
+                                item,
+                                language
+                              )}
+                            </strong>
+
+                            <span
+                              style={{
+                                display:
+                                  "block",
+
+                                color:
+                                  "#71839a",
+
+                                fontSize:
+                                  "10px",
+
+                                lineHeight:
+                                  1.4,
+
+                                marginTop:
+                                  "4px",
+                              }}
+                            >
+                              {getCaseType(
+                                item,
+                                t
+                              )}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+
+
+                      {/* PROPOSED CORRECTION */}
+
+                      <td>
+                        <div
+                          className="identityChange"
+                          dir="ltr"
+                        >
+                          <span className="oldIdentity">
+                            {item.current}
                           </span>
 
-                          <div className="caseStatus">
-                            {item.biometric}
+                          <ChevronRight
+                            size={14}
+                            aria-hidden="true"
+                          />
+
+                          <span className="newIdentity">
+                            {item.proposed}
+                          </span>
+                        </div>
+                      </td>
+
+
+                      {/* OFFICER APPROVAL */}
+
+                      <td>
+                        <div
+                          style={{
+                            display:
+                              "flex",
+
+                            alignItems:
+                              "center",
+
+                            gap:
+                              "7px",
+                          }}
+                        >
+                          <CheckCircle2
+                            size={15}
+                            color="#55c99b"
+                            aria-hidden="true"
+                          />
+
+                          <div>
+                            <strong
+                              style={{
+                                display:
+                                  "block",
+
+                                color:
+                                  "#67cba6",
+
+                                fontSize:
+                                  "10px",
+                              }}
+                            >
+                              {t(
+                                "statuses.APPROVED"
+                              )}
+                            </strong>
+
+                            <span
+                              style={{
+                                display:
+                                  "block",
+
+                                color:
+                                  "#71839a",
+
+                                fontSize:
+                                  "10px",
+
+                                lineHeight:
+                                  1.4,
+
+                                marginTop:
+                                  "3px",
+                              }}
+                            >
+                              {L(
+                                language,
+                                item.officer,
+                                "ضابط المراقبة التجريبي"
+                              )}
+                            </span>
                           </div>
-                        </td>
+                        </div>
+                      </td>
 
 
-                        <td>
-                          <div
+                      {/* CONFIDENCE */}
+
+                      <td>
+                        <span className="confidence">
+                          {
+                            item.confidence
+                          }
+                          %
+                        </span>
+                      </td>
+
+
+                      {/* RISK */}
+
+                      <td>
+                        <strong
+                          style={{
+                            color:
+                              item.risk >= 90
+                                ? "#ff7d8b"
+                                : item.risk >= 80
+                                  ? "#ffbd67"
+                                  : "#aab9ca",
+
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {item.risk}
+                        </strong>
+                      </td>
+
+
+                      {/* HARM */}
+
+                      <td>
+                        <strong
+                          style={{
+                            color:
+                              item.harm >= 90
+                                ? "#ff7d8b"
+                                : "#aab9ca",
+
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {item.harm}
+                        </strong>
+                      </td>
+
+
+                      {/* PROTECTIVE */}
+
+                      <td>
+                        <strong
+                          style={{
+                            color:
+                              item.protective >=
+                              95
+                                ? "#ff7d8b"
+                                : "#82aeff",
+
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {item.protective}
+                        </strong>
+                      </td>
+
+
+                      {/* PRIORITY */}
+
+                      <td>
+                        <PriorityBadge
+                          priority={
+                            item.priority
+                          }
+                          t={t}
+                        />
+                      </td>
+
+
+                      {/* QUEUE ORDER */}
+
+                      <td>
+                        <div
+                          style={{
+                            display:
+                              "flex",
+
+                            alignItems:
+                              "center",
+
+                            gap:
+                              "7px",
+
+                            color:
+                              "#7b8da4",
+
+                            fontSize:
+                              "10px",
+
+                            fontWeight:
+                              700,
+                          }}
+                        >
+                          <span
                             style={{
-                              display: "flex",
-                              gap: "9px",
-                              alignItems: "center",
+                              width:
+                                "24px",
+
+                              height:
+                                "24px",
+
+                              borderRadius:
+                                "7px",
+
+                              display:
+                                "grid",
+
+                              placeItems:
+                                "center",
+
+                              background:
+                                "rgba(70,140,255,0.07)",
+
+                              border:
+                                "1px solid rgba(70,140,255,0.1)",
+
+                              color:
+                                "#78a9ff",
                             }}
                           >
                             {
-                              item.affected
-                                ? (
-                                  <ShieldAlert
-                                    size={16}
-                                    color="#ff7584"
-                                  />
-                                )
-                                : (
-                                  <BrainCircuit
-                                    size={16}
-                                    color="#669fff"
-                                  />
-                                )
+                              item.queueOrder
                             }
-
-                            <div>
-                              <strong
-                                style={{
-                                  display: "block",
-                                  color: "#cbd8e7",
-                                  fontSize: "11px",
-                                  lineHeight: 1.45,
-                                }}
-                              >
-                                {
-                                  getCaseTitle(
-                                    item,
-                                    language
-                                  )
-                                }
-                              </strong>
-
-                              <span
-                                style={{
-                                  display: "block",
-                                  color: "#71839a",
-                                  fontSize: "10px",
-                                  lineHeight: 1.4,
-                                  marginTop: "4px",
-                                }}
-                              >
-                                {
-                                  getCaseType(
-                                    item,
-                                    t
-                                  )
-                                }
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-
-
-                        <td>
-                          <div className="identityChange">
-                            <span className="oldIdentity">
-                              {item.current}
-                            </span>
-
-                            <ChevronRight size={14} />
-
-                            <span className="newIdentity">
-                              {item.proposed}
-                            </span>
-                          </div>
-                        </td>
-
-
-                        <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "7px",
-                            }}
-                          >
-                            <CheckCircle2
-                              size={15}
-                              color="#55c99b"
-                            />
-
-                            <div>
-                              <strong
-                                style={{
-                                  display: "block",
-                                  color: "#67cba6",
-                                  fontSize: "10px",
-                                }}
-                              >
-                                {t(
-                                  "statuses.APPROVED"
-                                )}
-                              </strong>
-
-                              <span
-                                style={{
-                                  display: "block",
-                                  color: "#71839a",
-                                  fontSize: "10px",
-                                  lineHeight: 1.4,
-                                  marginTop: "3px",
-                                }}
-                              >
-                                {L(
-                                  language,
-                                  item.officer,
-                                  "ضابط المراقبة التجريبي"
-                                )}
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-
-
-                        <td>
-                          <span className="confidence">
-                            {item.confidence}%
                           </span>
-                        </td>
+
+                          {t(
+                            "common.priority"
+                          )}
+                        </div>
+                      </td>
 
 
-                        <td>
-                          <strong
-                            style={{
-                              color:
-                                item.risk >= 90
-                                  ? "#ff7d8b"
-                                  : item.risk >= 80
-                                    ? "#ffbd67"
-                                    : "#aab9ca",
+                      {/* FINAL REVIEW */}
 
-                              fontSize: "11px",
-                            }}
-                          >
-                            {item.risk}
-                          </strong>
-                        </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="searchButton"
+                          disabled
+                          title={
+                            t(
+                              "cases.detailUnavailable"
+                            )
+                          }
+                          style={{
+                            minWidth:
+                              "112px",
 
+                            minHeight:
+                              "36px",
 
-                        <td>
-                          <strong
-                            style={{
-                              color:
-                                item.harm >= 90
-                                  ? "#ff7d8b"
-                                  : "#aab9ca",
+                            padding:
+                              "0 12px",
 
-                              fontSize: "11px",
-                            }}
-                          >
-                            {item.harm}
-                          </strong>
-                        </td>
+                            cursor:
+                              "not-allowed",
 
+                            opacity:
+                              0.62,
+                          }}
+                        >
+                          {t(
+                            "managerApproval.finalReview"
+                          )}
 
-                        <td>
-                          <strong
-                            style={{
-                              color:
-                                item.protective >= 95
-                                  ? "#ff7d8b"
-                                  : "#82aeff",
-
-                              fontSize: "11px",
-                            }}
-                          >
-                            {item.protective}
-                          </strong>
-                        </td>
-
-
-                        <td>
-                          <PriorityBadge
-                            priority={
-                              item.priority
+                          <ChevronRight
+                            size={14}
+                            style={
+                              navigationArrowStyle
                             }
-                            t={t}
+                            aria-hidden="true"
                           />
-                        </td>
+                        </button>
+                      </td>
 
-
-                        <td>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "7px",
-                              color: "#7b8da4",
-                              fontSize: "10px",
-                              fontWeight: 700,
-                            }}
-                          >
-                            <span
-                              style={{
-                                width: "24px",
-                                height: "24px",
-                                borderRadius: "7px",
-                                display: "grid",
-                                placeItems: "center",
-                                background:
-                                  "rgba(70,140,255,0.07)",
-                                border:
-                                  "1px solid rgba(70,140,255,0.1)",
-                                color: "#78a9ff",
-                              }}
-                            >
-                              {item.queueOrder}
-                            </span>
-
-                            {t(
-                              "common.priority"
-                            )}
-                          </div>
-                        </td>
-
-
-                        <td>
-                          <button
-                            className="searchButton"
-                            disabled
-                            title={
-                              t(
-                                "cases.detailUnavailable"
-                              )
-                            }
-                            style={{
-                              minWidth: "112px",
-                              minHeight: "36px",
-                              padding: "0 12px",
-                            }}
-                          >
-                            {t(
-                              "managerApproval.finalReview"
-                            )}
-
-                            <ChevronRight size={14} />
-                          </button>
-                        </td>
-
-                      </tr>
-                    )
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -1061,25 +1408,42 @@ export default function ManagerApprovalPage() {
 
           <div
             style={{
-              padding: "14px 18px",
+              padding:
+                "14px 18px",
+
               borderTop:
                 "1px solid rgba(255,255,255,0.05)",
-              display: "flex",
+
+              display:
+                "flex",
+
               justifyContent:
                 "space-between",
-              alignItems: "center",
-              gap: "16px",
-              color: "#687b93",
-              fontSize: "10px",
-              lineHeight: 1.5,
+
+              alignItems:
+                "center",
+
+              gap:
+                "16px",
+
+              color:
+                "#687b93",
+
+              fontSize:
+                "10px",
+
+              lineHeight:
+                1.5,
             }}
           >
             <span>
-              {
-                language === "ar"
-                  ? `${queueMetrics.total} حالات بانتظار الاعتماد الإداري النهائي`
-                  : `${queueMetrics.total} cases awaiting final management approval`
-              }
+              {L(
+                language,
+
+                `${queueMetrics.total} cases awaiting final management approval`,
+
+                `${queueMetrics.total} حالات بانتظار الاعتماد الإداري النهائي`
+              )}
             </span>
 
             <span>
@@ -1105,20 +1469,28 @@ export default function ManagerApprovalPage() {
           }}
         >
 
+          {/* RECOMMENDED APPROVAL */}
+
           <div
             className="panel"
             style={{
-              padding: "20px",
+              padding:
+                "20px",
             }}
           >
             <div
               style={{
-                display: "flex",
+                display:
+                  "flex",
+
                 justifyContent:
                   "space-between",
+
                 alignItems:
                   "flex-start",
-                gap: "20px",
+
+                gap:
+                  "20px",
               }}
             >
               <div>
@@ -1129,9 +1501,13 @@ export default function ManagerApprovalPage() {
                 </div>
 
                 <h2
+                  dir="ltr"
                   style={{
-                    margin: "6px 0 0",
-                    fontSize: "17px",
+                    margin:
+                      "6px 0 0",
+
+                    fontSize:
+                      "17px",
                   }}
                 >
                   {recommendedCase.id}
@@ -1139,18 +1515,29 @@ export default function ManagerApprovalPage() {
 
                 <p
                   style={{
-                    color: "#7b8da4",
-                    fontSize: "11px",
-                    lineHeight: 1.7,
-                    maxWidth: "650px",
-                    marginTop: "9px",
+                    color:
+                      "#7b8da4",
+
+                    fontSize:
+                      "11px",
+
+                    lineHeight:
+                      1.7,
+
+                    maxWidth:
+                      "650px",
+
+                    marginTop:
+                      "9px",
                   }}
                 >
-                  {
-                    language === "ar"
-                      ? `اعتمد ضابط المراقبة إعادة الربط المقترحة للسجل ${recommendedCase.biometric} من ${recommendedCase.current} إلى ${recommendedCase.proposed}. وتمثل هذه الحزمة أعلى أولوية وقائية حاليًا في قائمة المدير الاصطناعية.`
-                      : `The Monitoring Officer has approved the proposed reassignment of ${recommendedCase.biometric} from ${recommendedCase.current} to ${recommendedCase.proposed}. This package currently has the highest protective priority in the synthetic Manager queue.`
-                  }
+                  {L(
+                    language,
+
+                    `The Monitoring Officer has approved the proposed reassignment of ${recommendedCase.biometric} from ${recommendedCase.current} to ${recommendedCase.proposed}. This package currently has the highest protective priority in the synthetic Manager queue.`,
+
+                    `اعتمد ضابط المراقبة إعادة الربط المقترحة للسجل ${recommendedCase.biometric} من ${recommendedCase.current} إلى ${recommendedCase.proposed}. وتمثل هذه الحزمة أعلى أولوية وقائية حاليًا في قائمة المدير الاصطناعية.`
+                  )}
                 </p>
               </div>
 
@@ -1167,30 +1554,50 @@ export default function ManagerApprovalPage() {
 
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
+
                 gridTemplateColumns:
                   "1fr auto 1fr",
-                alignItems: "center",
-                gap: "12px",
-                marginTop: "19px",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "12px",
+
+                marginTop:
+                  "19px",
               }}
             >
               <div
                 style={{
-                  padding: "17px",
-                  borderRadius: "12px",
+                  padding:
+                    "17px",
+
+                  borderRadius:
+                    "12px",
+
                   background:
                     "rgba(255,80,100,0.045)",
+
                   border:
                     "1px solid rgba(255,80,100,0.1)",
                 }}
               >
                 <span
                   style={{
-                    display: "block",
-                    color: "#a36d76",
-                    fontSize: "10px",
-                    fontWeight: 750,
+                    display:
+                      "block",
+
+                    color:
+                      "#a36d76",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      750,
                   }}
                 >
                   {L(
@@ -1201,14 +1608,24 @@ export default function ManagerApprovalPage() {
                 </span>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display: "block",
-                    color: "#ff7c89",
-                    fontSize: "19px",
-                    marginTop: "5px",
+                    display:
+                      "block",
+
+                    color:
+                      "#ff7c89",
+
+                    fontSize:
+                      "19px",
+
+                    marginTop:
+                      "5px",
                   }}
                 >
-                  {recommendedCase.current}
+                  {
+                    recommendedCase.current
+                  }
                 </strong>
               </div>
 
@@ -1216,25 +1633,38 @@ export default function ManagerApprovalPage() {
               <GitCompareArrows
                 size={21}
                 color="#609cff"
+                aria-hidden="true"
               />
 
 
               <div
                 style={{
-                  padding: "17px",
-                  borderRadius: "12px",
+                  padding:
+                    "17px",
+
+                  borderRadius:
+                    "12px",
+
                   background:
                     "rgba(52,211,153,0.045)",
+
                   border:
                     "1px solid rgba(52,211,153,0.1)",
                 }}
               >
                 <span
                   style={{
-                    display: "block",
-                    color: "#679585",
-                    fontSize: "10px",
-                    fontWeight: 750,
+                    display:
+                      "block",
+
+                    color:
+                      "#679585",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      750,
                   }}
                 >
                   {L(
@@ -1245,14 +1675,24 @@ export default function ManagerApprovalPage() {
                 </span>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display: "block",
-                    color: "#59cea0",
-                    fontSize: "19px",
-                    marginTop: "5px",
+                    display:
+                      "block",
+
+                    color:
+                      "#59cea0",
+
+                    fontSize:
+                      "19px",
+
+                    marginTop:
+                      "5px",
                   }}
                 >
-                  {recommendedCase.proposed}
+                  {
+                    recommendedCase.proposed
+                  }
                 </strong>
               </div>
             </div>
@@ -1262,11 +1702,17 @@ export default function ManagerApprovalPage() {
 
             <div
               style={{
-                display: "grid",
+                display:
+                  "grid",
+
                 gridTemplateColumns:
                   "repeat(4,1fr)",
-                gap: "9px",
-                marginTop: "13px",
+
+                gap:
+                  "9px",
+
+                marginTop:
+                  "13px",
               }}
             >
               {[
@@ -1280,12 +1726,16 @@ export default function ManagerApprovalPage() {
                 ],
 
                 [
-                  t("common.risk"),
+                  t(
+                    "common.risk"
+                  ),
                   recommendedCase.risk,
                 ],
 
                 [
-                  t("common.harm"),
+                  t(
+                    "common.harm"
+                  ),
                   recommendedCase.harm,
                 ],
 
@@ -1303,19 +1753,29 @@ export default function ManagerApprovalPage() {
                   <div
                     key={label}
                     style={{
-                      padding: "12px",
-                      borderRadius: "10px",
+                      padding:
+                        "12px",
+
+                      borderRadius:
+                        "10px",
+
                       background:
                         "rgba(255,255,255,0.025)",
+
                       border:
                         "1px solid rgba(255,255,255,0.05)",
                     }}
                   >
                     <span
                       style={{
-                        display: "block",
-                        color: "#71839a",
-                        fontSize: "10px",
+                        display:
+                          "block",
+
+                        color:
+                          "#71839a",
+
+                        fontSize:
+                          "10px",
                       }}
                     >
                       {label}
@@ -1323,10 +1783,17 @@ export default function ManagerApprovalPage() {
 
                     <strong
                       style={{
-                        display: "block",
-                        marginTop: "5px",
-                        color: "#d0dceb",
-                        fontSize: "13px",
+                        display:
+                          "block",
+
+                        marginTop:
+                          "5px",
+
+                        color:
+                          "#d0dceb",
+
+                        fontSize:
+                          "13px",
                       }}
                     >
                       {value}
@@ -1338,6 +1805,7 @@ export default function ManagerApprovalPage() {
 
 
             <button
+              type="button"
               className="primaryButton"
               disabled
               title={
@@ -1346,7 +1814,14 @@ export default function ManagerApprovalPage() {
                 )
               }
               style={{
-                marginTop: "17px",
+                marginTop:
+                  "17px",
+
+                cursor:
+                  "not-allowed",
+
+                opacity:
+                  0.62,
               }}
             >
               {L(
@@ -1355,13 +1830,19 @@ export default function ManagerApprovalPage() {
                 "حزمة الاعتماد التفصيلية مخطط لها"
               )}
 
-              <ChevronRight size={17} />
+              <ChevronRight
+                size={17}
+                style={
+                  navigationArrowStyle
+                }
+                aria-hidden="true"
+              />
             </button>
           </div>
 
 
           {/* ==============================================
-              MANAGER ACTIONS
+              MANAGER ACTION MODEL
               ============================================== */}
 
           <div className="panel">
@@ -1384,39 +1865,59 @@ export default function ManagerApprovalPage() {
                 </h2>
               </div>
 
-              <BadgeCheck size={22} />
+              <BadgeCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div
               style={{
-                padding: "17px",
+                padding:
+                  "17px",
               }}
             >
               <div
                 style={{
-                  marginBottom: "13px",
-                  padding: "11px 12px",
-                  borderRadius: "9px",
+                  marginBottom:
+                    "13px",
+
+                  padding:
+                    "11px 12px",
+
+                  borderRadius:
+                    "9px",
+
                   background:
                     "rgba(70,140,255,0.045)",
+
                   border:
                     "1px solid rgba(70,140,255,0.08)",
-                  color: "#8194ad",
-                  fontSize: "10px",
-                  lineHeight: 1.55,
+
+                  color:
+                    "#8194ad",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.55,
                 }}
               >
                 {L(
                   language,
-                  "These actions apply after the Manager opens and validates the selected Officer-approved correction package.",
-                  "تطبق هذه الإجراءات بعد أن يفتح المدير حزمة التصحيح المعتمدة من الضابط ويتحقق منها."
+                  "The controls below describe the Manager decision model. This static frontend does not execute real authorization transactions.",
+                  "توضح العناصر أدناه نموذج قرار المدير. هذه الواجهة التجريبية الثابتة لا تنفذ معاملات تصريح فعلية."
                 )}
               </div>
 
 
               <div className="integrityInfo">
-                <CheckCircle2 size={21} />
+                <CheckCircle2
+                  size={21}
+                  aria-hidden="true"
+                />
 
                 <div>
                   <strong>
@@ -1443,6 +1944,7 @@ export default function ManagerApprovalPage() {
                 style={{
                   borderColor:
                     "rgba(255,180,80,0.12)",
+
                   background:
                     "rgba(255,180,80,0.055)",
                 }}
@@ -1450,12 +1952,14 @@ export default function ManagerApprovalPage() {
                 <UserCheck
                   size={21}
                   color="#ffbd67"
+                  aria-hidden="true"
                 />
 
                 <div>
                   <strong
                     style={{
-                      color: "#e0ad5f",
+                      color:
+                        "#e0ad5f",
                     }}
                   >
                     {L(
@@ -1481,6 +1985,7 @@ export default function ManagerApprovalPage() {
                 style={{
                   borderColor:
                     "rgba(87,145,255,0.12)",
+
                   background:
                     "rgba(87,145,255,0.05)",
                 }}
@@ -1488,12 +1993,14 @@ export default function ManagerApprovalPage() {
                 <BrainCircuit
                   size={21}
                   color="#6da4ff"
+                  aria-hidden="true"
                 />
 
                 <div>
                   <strong
                     style={{
-                      color: "#86b0ff",
+                      color:
+                        "#86b0ff",
                     }}
                   >
                     {L(
@@ -1519,6 +2026,7 @@ export default function ManagerApprovalPage() {
                 style={{
                   borderColor:
                     "rgba(255,90,105,0.11)",
+
                   background:
                     "rgba(255,90,105,0.05)",
                 }}
@@ -1526,12 +2034,14 @@ export default function ManagerApprovalPage() {
                 <AlertTriangle
                   size={21}
                   color="#ff7887"
+                  aria-hidden="true"
                 />
 
                 <div>
                   <strong
                     style={{
-                      color: "#df7884",
+                      color:
+                        "#df7884",
                     }}
                   >
                     {L(
@@ -1562,11 +2072,17 @@ export default function ManagerApprovalPage() {
         <section
           className="integrityInfo"
           style={{
-            margin: "16px 0 0",
-            padding: "17px",
+            margin:
+              "16px 0 0",
+
+            padding:
+              "17px",
           }}
         >
-          <LockKeyhole size={24} />
+          <LockKeyhole
+            size={24}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
@@ -1580,7 +2096,7 @@ export default function ManagerApprovalPage() {
             <span>
               {L(
                 language,
-                "Officer approval alone cannot authorize execution. The controlled Execution Agent remains locked until the second human authorization is recorded. The Master Reference remains read only.",
+                "Officer approval alone cannot authorize execution. The controlled Execution Agent remains locked until the second human authorization is recorded. The Master Reference remains read-only.",
                 "اعتماد الضابط وحده لا يصرح بالتنفيذ. يظل وكيل التنفيذ الخاضع للتحكم مقفلًا حتى يتم تسجيل الاعتماد البشري الثاني. ويبقى المرجع الرئيسي للقراءة فقط."
               )}
             </span>
@@ -1594,8 +2110,12 @@ export default function ManagerApprovalPage() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
+
             {L(
               language,
               "Manager Approval Workspace",
@@ -1604,7 +2124,10 @@ export default function ManagerApprovalPage() {
           </span>
 
           <div>
-            <ShieldCheck size={15} />
+            <ShieldCheck
+              size={15}
+              aria-hidden="true"
+            />
 
             {L(
               language,

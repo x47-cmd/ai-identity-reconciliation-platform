@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   BrainCircuit,
   CheckCircle2,
+  ChevronLeft,
   ChevronRight,
   CircleAlert,
   Database,
@@ -26,7 +27,15 @@ import {
 
 /* =========================================================
    DATA INTEGRITY DEMO METRICS
+
    Synthetic Demo Only
+
+   Validated reconciliation dataset:
+   - Master Reference identities: 3,000
+   - Biometric records: 1,000
+   - Raw findings: 103
+   - Aggregated cases: 53
+   - Unresolved canonical cases: 0
    ========================================================= */
 
 const integrityMetrics = [
@@ -42,15 +51,15 @@ const integrityMetrics = [
     label: "Biometric Records",
     value: "1,000",
     description:
-      "Records under continuous reconciliation",
+      "Synthetic operational records reconciled",
     icon: Fingerprint,
     status: "MONITORED",
   },
   {
-    label: "AI Findings",
+    label: "Raw AI Findings",
     value: "103",
     description:
-      "Raw reconciliation findings generated",
+      "Reconciliation findings generated",
     icon: BrainCircuit,
     status: "ANALYZED",
   },
@@ -60,10 +69,20 @@ const integrityMetrics = [
     description:
       "Distinct identity integrity cases",
     icon: FileSearch,
-    status: "RESOLVED",
+    status: "AGGREGATED",
   },
 ];
 
+
+/* =========================================================
+   PRIMARY BACKEND CASE TAXONOMY
+
+   Total = 53
+
+   Protective / Wrong-Person grouping = 9
+   - HARM_IMPACT = 6
+   - CRITICAL_HARM_IDENTITY_CONFLICT = 3
+   ========================================================= */
 
 const integrityIssues = [
   {
@@ -71,28 +90,21 @@ const integrityIssues = [
     count: 15,
     severity: "MEDIUM",
     description:
-      "Personal or identity attributes are inconsistent across systems.",
+      "Identity or registration attributes are inconsistent across compared records.",
   },
   {
     label: "Wrong Mapping",
     count: 11,
     severity: "HIGH",
     description:
-      "Biometric record appears linked to the wrong Master identity.",
-  },
-  {
-    label: "Harm Impact",
-    count: 9,
-    severity: "IMMEDIATE",
-    description:
-      "Identity conflict may negatively affect an unrelated person.",
+      "A biometric record appears associated with an incorrect Master identity.",
   },
   {
     label: "Complex Identity Conflict",
     count: 8,
     severity: "HIGH",
     description:
-      "Multiple related identity and biometric findings require aggregation.",
+      "Multiple related identity findings require combined investigation and resolution.",
   },
   {
     label: "Duplicate Identity",
@@ -102,14 +114,32 @@ const integrityIssues = [
       "Multiple registration relationships appear to reference the same identity.",
   },
   {
+    label: "Harm Impact",
+    count: 6,
+    severity: "IMMEDIATE",
+    description:
+      "An identity conflict creates elevated potential for wrong-person impact.",
+  },
+  {
     label: "Orphan Record",
     count: 4,
     severity: "MEDIUM",
     description:
-      "Biometric record has no valid authoritative Master relationship.",
+      "A biometric record has no valid authoritative Master relationship.",
+  },
+  {
+    label: "Critical Harm Identity Conflict",
+    count: 3,
+    severity: "IMMEDIATE",
+    description:
+      "Critical cross-identity conflict requires immediate protective human attention.",
   },
 ];
 
+
+/* =========================================================
+   SYSTEM STATE
+   ========================================================= */
 
 const systemHealth = [
   {
@@ -117,15 +147,15 @@ const systemHealth = [
     role: "Authoritative Identity Source",
     records: "3,000",
     access: "READ ONLY",
-    status: "HEALTHY",
+    status: "PROTECTED",
     icon: Database,
   },
   {
     system: "Biometric System",
     role: "Operational Biometric Source",
     records: "1,000",
-    access: "CONTROLLED",
-    status: "HEALTHY",
+    access: "CONTROLLED TARGET",
+    status: "MONITORED",
     icon: Fingerprint,
   },
   {
@@ -133,7 +163,7 @@ const systemHealth = [
     role: "Cross-System Comparison",
     records: "1,000",
     access: "AI PROCESSING",
-    status: "ACTIVE",
+    status: "VALIDATED",
     icon: GitCompareArrows,
   },
   {
@@ -141,63 +171,74 @@ const systemHealth = [
     role: "Finding Aggregation",
     records: "53 cases",
     access: "AI PROCESSING",
-    status: "ACTIVE",
+    status: "VALIDATED",
     icon: FileSearch,
   },
 ];
 
 
-const monitoringRuns = [
+/* =========================================================
+   VALIDATED DEMO SNAPSHOT
+
+   Fabricated monitoring IDs and timestamps are intentionally
+   not displayed.
+   ========================================================= */
+
+const demoSnapshots = [
   {
-    id: "MON-2026-00004",
-    time: "12:00",
+    name: "Current Demo Reconciliation",
+    scope: "Synthetic validation dataset",
     biometric: "1,000",
     master: "3,000",
     findings: "103",
     cases: "53",
-    status: "COMPLETED",
-  },
-  {
-    id: "MON-2026-00003",
-    time: "11:00",
-    biometric: "1,000",
-    master: "3,000",
-    findings: "103",
-    cases: "53",
-    status: "COMPLETED",
-  },
-  {
-    id: "MON-2026-00002",
-    time: "10:00",
-    biometric: "1,000",
-    master: "3,000",
-    findings: "103",
-    cases: "53",
-    status: "COMPLETED",
+    status: "VALIDATED",
   },
 ];
 
 
+/* =========================================================
+   VALIDATED QUALITY CHECKS
+
+   These checks correspond to metrics actually produced
+   by the current synthetic evaluation.
+   ========================================================= */
+
 const integrityChecks = [
   {
-    label: "Master Reference Availability",
+    label: "Detection Recall",
+    value: "100%",
     score: 100,
+    description:
+      "53 of 53 seeded synthetic issues detected",
   },
   {
-    label: "Biometric Record Coverage",
+    label: "Canonical Case Resolution",
+    value: "53 / 53",
     score: 100,
+    description:
+      "No unresolved canonical identity cases",
   },
   {
-    label: "Canonical Identity Resolution",
+    label: "Diagnostic Precision",
+    value: "100%",
     score: 100,
+    description:
+      "After corroborating finding analysis",
   },
   {
-    label: "Protective Harm Detection",
+    label: "Protective Detection",
+    value: "100%",
     score: 100,
+    description:
+      "All protective synthetic cases detected",
   },
   {
-    label: "Post-Correction Verification",
+    label: "Protective Priority Accuracy",
+    value: "100%",
     score: 100,
+    description:
+      "Protective priority classification validated",
   },
 ];
 
@@ -209,7 +250,8 @@ const integrityChecks = [
 function IntegrityMetric({
   item,
 }) {
-  const Icon = item.icon;
+  const Icon =
+    item.icon;
 
   return (
     <div className="metricCard">
@@ -221,7 +263,7 @@ function IntegrityMetric({
         <span
           style={{
             color: "#59cfa0",
-            fontSize: "8px",
+            fontSize: "10px",
             fontWeight: 800,
           }}
         >
@@ -291,29 +333,16 @@ function SeverityBadge({
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-
-        minHeight: "24px",
-
-        padding:
-          "0 9px",
-
-        borderRadius:
-          "7px",
-
-        color:
-          style.color,
-
-        background:
-          style.background,
-
+        minHeight: "25px",
+        padding: "0 10px",
+        borderRadius: "7px",
+        color: style.color,
+        background: style.background,
         border:
           `1px solid ${style.border}`,
-
-        fontSize:
-          "8px",
-
-        fontWeight:
-          800,
+        fontSize: "10px",
+        fontWeight: 800,
+        whiteSpace: "nowrap",
       }}
     >
       {severity}
@@ -333,29 +362,16 @@ function ReadOnlyBadge() {
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-
-        minHeight: "24px",
-
-        padding:
-          "0 9px",
-
-        borderRadius:
-          "7px",
-
-        color:
-          "#59cfa0",
-
+        minHeight: "25px",
+        padding: "0 10px",
+        borderRadius: "7px",
+        color: "#59cfa0",
         background:
           "rgba(52,211,153,0.07)",
-
         border:
           "1px solid rgba(52,211,153,0.13)",
-
-        fontSize:
-          "8px",
-
-        fontWeight:
-          800,
+        fontSize: "10px",
+        fontWeight: 800,
       }}
     >
       READ ONLY
@@ -377,11 +393,10 @@ function HealthStatus({
         display: "inline-flex",
         alignItems: "center",
         gap: "6px",
-
         color: "#59cfa0",
-
-        fontSize: "8px",
+        fontSize: "10px",
         fontWeight: 800,
+        whiteSpace: "nowrap",
       }}
     >
       <span className="greenDot" />
@@ -399,10 +414,6 @@ function HealthStatus({
 export default function DataIntegrityPage() {
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -433,6 +444,7 @@ export default function DataIntegrityPage() {
               and Master Reference protection.
             </p>
           </div>
+
 
           <div className="topbarActions">
             <button className="searchButton">
@@ -469,11 +481,8 @@ export default function DataIntegrityPage() {
         <section
           className="integrityInfo"
           style={{
-            margin:
-              "0 0 20px",
-
-            padding:
-              "18px",
+            margin: "0 0 20px",
+            padding: "18px",
           }}
         >
           <LockKeyhole size={25} />
@@ -489,8 +498,8 @@ export default function DataIntegrityPage() {
               of truth. AI agents cannot
               automatically modify Master identity
               records. Suspected Master data issues
-              must be escalated for dedicated
-              human review.
+              are escalated for dedicated human
+              review.
             </span>
           </div>
         </section>
@@ -521,7 +530,7 @@ export default function DataIntegrityPage() {
         <section
           className="panel"
           style={{
-            marginBottom: "14px",
+            marginBottom: "16px",
           }}
         >
           <div className="panelHeader">
@@ -538,17 +547,14 @@ export default function DataIntegrityPage() {
             <GitCompareArrows size={22} />
           </div>
 
+
           <div
             style={{
               display: "grid",
-
               gridTemplateColumns:
                 "1fr auto 1.1fr auto 1fr",
-
               alignItems: "stretch",
-
               gap: "14px",
-
               padding: "24px",
             }}
           >
@@ -558,12 +564,9 @@ export default function DataIntegrityPage() {
             <div
               style={{
                 padding: "22px",
-
                 borderRadius: "15px",
-
                 background:
                   "rgba(52,211,153,0.045)",
-
                 border:
                   "1px solid rgba(52,211,153,0.11)",
               }}
@@ -572,15 +575,11 @@ export default function DataIntegrityPage() {
                 style={{
                   width: "44px",
                   height: "44px",
-
                   borderRadius: "12px",
-
                   display: "grid",
                   placeItems: "center",
-
                   background:
                     "rgba(52,211,153,0.08)",
-
                   color: "#59cfa0",
                 }}
               >
@@ -590,13 +589,9 @@ export default function DataIntegrityPage() {
               <div
                 style={{
                   color: "#58ad8c",
-
-                  fontSize: "9px",
-
+                  fontSize: "10px",
                   fontWeight: 800,
-
                   letterSpacing: "1px",
-
                   marginTop: "16px",
                 }}
               >
@@ -605,11 +600,8 @@ export default function DataIntegrityPage() {
 
               <h3
                 style={{
-                  margin:
-                    "5px 0 0",
-
-                  fontSize:
-                    "14px",
+                  margin: "5px 0 0",
+                  fontSize: "14px",
                 }}
               >
                 Master Reference
@@ -618,11 +610,8 @@ export default function DataIntegrityPage() {
               <strong
                 style={{
                   display: "block",
-
                   marginTop: "13px",
-
                   fontSize: "25px",
-
                   color: "#d4e3ee",
                 }}
               >
@@ -631,8 +620,8 @@ export default function DataIntegrityPage() {
 
               <span
                 style={{
-                  color: "#62798a",
-                  fontSize: "8px",
+                  color: "#71859b",
+                  fontSize: "10px",
                 }}
               >
                 authoritative identities
@@ -649,11 +638,8 @@ export default function DataIntegrityPage() {
               <div
                 style={{
                   color: "#58ad8c",
-
-                  fontSize: "8px",
-
+                  fontSize: "10px",
                   fontWeight: 800,
-
                   marginTop: "9px",
                 }}
               >
@@ -662,7 +648,7 @@ export default function DataIntegrityPage() {
             </div>
 
 
-            {/* ARROW */}
+            {/* MASTER → AI */}
 
             <div
               style={{
@@ -671,8 +657,8 @@ export default function DataIntegrityPage() {
               }}
             >
               <ChevronRight
-                size={23}
-                color="#47627f"
+                size={25}
+                color="#557391"
               />
             </div>
 
@@ -682,12 +668,9 @@ export default function DataIntegrityPage() {
             <div
               style={{
                 padding: "22px",
-
                 borderRadius: "15px",
-
                 background:
                   "rgba(66,136,255,0.055)",
-
                 border:
                   "1px solid rgba(70,140,255,0.12)",
               }}
@@ -696,15 +679,11 @@ export default function DataIntegrityPage() {
                 style={{
                   width: "44px",
                   height: "44px",
-
                   borderRadius: "12px",
-
                   display: "grid",
                   placeItems: "center",
-
                   background:
                     "rgba(70,140,255,0.09)",
-
                   color: "#69a2ff",
                 }}
               >
@@ -714,13 +693,9 @@ export default function DataIntegrityPage() {
               <div
                 style={{
                   color: "#6598e9",
-
-                  fontSize: "9px",
-
+                  fontSize: "10px",
                   fontWeight: 800,
-
                   letterSpacing: "1px",
-
                   marginTop: "16px",
                 }}
               >
@@ -729,11 +704,8 @@ export default function DataIntegrityPage() {
 
               <h3
                 style={{
-                  margin:
-                    "5px 0 0",
-
-                  fontSize:
-                    "14px",
+                  margin: "5px 0 0",
+                  fontSize: "14px",
                 }}
               >
                 AI Reconciliation Layer
@@ -742,9 +714,7 @@ export default function DataIntegrityPage() {
               <strong
                 style={{
                   display: "block",
-
                   marginTop: "13px",
-
                   fontSize: "25px",
                 }}
               >
@@ -753,30 +723,39 @@ export default function DataIntegrityPage() {
 
               <span
                 style={{
-                  color: "#62798a",
-                  fontSize: "8px",
+                  color: "#71859b",
+                  fontSize: "10px",
                 }}
               >
-                AI findings analyzed
+                raw reconciliation findings
               </span>
 
               <div
                 style={{
                   marginTop: "16px",
-
                   color: "#69a2ff",
-
-                  fontSize: "8px",
-
+                  fontSize: "10px",
                   fontWeight: 800,
                 }}
               >
-                DETECT · ANALYZE · RESOLVE
+                COMPARE · DETECT · INVESTIGATE
+              </div>
+
+              <div
+                style={{
+                  marginTop: "8px",
+                  color: "#657990",
+                  fontSize: "10px",
+                  lineHeight: 1.5,
+                }}
+              >
+                Reads both source systems and
+                evaluates identity relationships.
               </div>
             </div>
 
 
-            {/* ARROW */}
+            {/* BIOMETRIC → AI */}
 
             <div
               style={{
@@ -784,9 +763,9 @@ export default function DataIntegrityPage() {
                 placeItems: "center",
               }}
             >
-              <ChevronRight
-                size={23}
-                color="#47627f"
+              <ChevronLeft
+                size={25}
+                color="#557391"
               />
             </div>
 
@@ -796,12 +775,9 @@ export default function DataIntegrityPage() {
             <div
               style={{
                 padding: "22px",
-
                 borderRadius: "15px",
-
                 background:
                   "rgba(255,185,90,0.045)",
-
                 border:
                   "1px solid rgba(255,185,90,0.10)",
               }}
@@ -810,15 +786,11 @@ export default function DataIntegrityPage() {
                 style={{
                   width: "44px",
                   height: "44px",
-
                   borderRadius: "12px",
-
                   display: "grid",
                   placeItems: "center",
-
                   background:
                     "rgba(255,185,90,0.08)",
-
                   color: "#ffbd67",
                 }}
               >
@@ -828,13 +800,9 @@ export default function DataIntegrityPage() {
               <div
                 style={{
                   color: "#c69554",
-
-                  fontSize: "9px",
-
+                  fontSize: "10px",
                   fontWeight: 800,
-
                   letterSpacing: "1px",
-
                   marginTop: "16px",
                 }}
               >
@@ -843,11 +811,8 @@ export default function DataIntegrityPage() {
 
               <h3
                 style={{
-                  margin:
-                    "5px 0 0",
-
-                  fontSize:
-                    "14px",
+                  margin: "5px 0 0",
+                  fontSize: "14px",
                 }}
               >
                 Biometric System
@@ -856,9 +821,7 @@ export default function DataIntegrityPage() {
               <strong
                 style={{
                   display: "block",
-
                   marginTop: "13px",
-
                   fontSize: "25px",
                 }}
               >
@@ -867,8 +830,8 @@ export default function DataIntegrityPage() {
 
               <span
                 style={{
-                  color: "#62798a",
-                  fontSize: "8px",
+                  color: "#71859b",
+                  fontSize: "10px",
                 }}
               >
                 biometric records
@@ -877,23 +840,54 @@ export default function DataIntegrityPage() {
               <div
                 style={{
                   marginTop: "16px",
-
                   color: "#d59d52",
-
-                  fontSize: "8px",
-
+                  fontSize: "10px",
                   fontWeight: 800,
                 }}
               >
                 CONTROLLED CORRECTION TARGET
               </div>
+
+              <div
+                style={{
+                  marginTop: "8px",
+                  color: "#7e725d",
+                  fontSize: "10px",
+                  lineHeight: 1.5,
+                }}
+              >
+                Corrections require Officer and
+                Manager approval before execution.
+              </div>
             </div>
+          </div>
+
+
+          <div
+            style={{
+              margin: "0 24px 22px",
+              padding: "12px 14px",
+              borderRadius: "10px",
+              background:
+                "rgba(70,140,255,0.035)",
+              border:
+                "1px solid rgba(70,140,255,0.07)",
+              color: "#71849c",
+              fontSize: "10px",
+              lineHeight: 1.6,
+              textAlign: "center",
+            }}
+          >
+            Master Reference → AI Reconciliation ← Biometric System.
+            The AI compares both sources; it does
+            not treat the Master Reference as an
+            automated correction target.
           </div>
         </section>
 
 
         {/* ================================================
-            QUALITY + ISSUE CLASSIFICATION
+            QUALITY + SUMMARY
             ================================================ */}
 
         <section className="dashboardGrid">
@@ -904,11 +898,11 @@ export default function DataIntegrityPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  DATA QUALITY
+                  VALIDATED DATA QUALITY
                 </div>
 
                 <h2>
-                  Integrity Check Performance
+                  Reconciliation Quality Metrics
                 </h2>
               </div>
 
@@ -917,8 +911,7 @@ export default function DataIntegrityPage() {
 
             <div
               style={{
-                padding:
-                  "9px 20px 20px",
+                padding: "9px 20px 20px",
               }}
             >
               {
@@ -927,47 +920,51 @@ export default function DataIntegrityPage() {
                     <div
                       key={check.label}
                       style={{
-                        padding:
-                          "12px 0",
+                        padding: "12px 0",
                       }}
                     >
                       <div
                         style={{
-                          display:
-                            "flex",
-
-                          justifyContent:
-                            "space-between",
-
-                          alignItems:
-                            "center",
-
-                          marginBottom:
-                            "8px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "flex-start",
+                          gap: "14px",
+                          marginBottom: "8px",
                         }}
                       >
-                        <span
-                          style={{
-                            color:
-                              "#8194aa",
+                        <div>
+                          <span
+                            style={{
+                              display: "block",
+                              color: "#8b9db3",
+                              fontSize: "11px",
+                              fontWeight: 650,
+                            }}
+                          >
+                            {check.label}
+                          </span>
 
-                            fontSize:
-                              "9px",
-                          }}
-                        >
-                          {check.label}
-                        </span>
+                          <span
+                            style={{
+                              display: "block",
+                              color: "#657890",
+                              fontSize: "10px",
+                              lineHeight: 1.45,
+                              marginTop: "3px",
+                            }}
+                          >
+                            {check.description}
+                          </span>
+                        </div>
 
                         <strong
                           style={{
-                            color:
-                              "#59cfa0",
-
-                            fontSize:
-                              "10px",
+                            color: "#59cfa0",
+                            fontSize: "11px",
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {check.score}%
+                          {check.value}
                         </strong>
                       </div>
 
@@ -994,7 +991,7 @@ export default function DataIntegrityPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CURRENT STATE
+                  CURRENT DEMO STATE
                 </div>
 
                 <h2>
@@ -1007,60 +1004,46 @@ export default function DataIntegrityPage() {
 
             <div
               style={{
-                padding:
-                  "18px",
+                padding: "18px",
               }}
             >
               <div
                 style={{
                   width: "145px",
                   height: "145px",
-
                   borderRadius: "50%",
-
-                  margin:
-                    "0 auto",
-
+                  margin: "0 auto",
                   border:
                     "13px solid rgba(52,211,153,0.10)",
-
                   outline:
                     "4px solid rgba(52,211,153,0.20)",
-
                   display: "flex",
-
-                  flexDirection:
-                    "column",
-
-                  alignItems:
-                    "center",
-
-                  justifyContent:
-                    "center",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <strong
                   style={{
-                    fontSize:
-                      "33px",
-
-                    color:
-                      "#59cfa0",
+                    fontSize: "27px",
+                    color: "#59cfa0",
                   }}
                 >
-                  100
+                  53/53
                 </strong>
 
                 <span
                   style={{
-                    color:
-                      "#598071",
-
-                    fontSize:
-                      "8px",
+                    color: "#6b9384",
+                    fontSize: "10px",
+                    fontWeight: 750,
+                    textAlign: "center",
+                    marginTop: "3px",
                   }}
                 >
-                  MONITORING SCORE
+                  CANONICAL
+                  <br />
+                  RESOLUTION
                 </span>
               </div>
 
@@ -1076,8 +1059,7 @@ export default function DataIntegrityPage() {
 
                   <strong
                     style={{
-                      color:
-                        "#59cfa0",
+                      color: "#59cfa0",
                     }}
                   >
                     0
@@ -1086,13 +1068,12 @@ export default function DataIntegrityPage() {
 
                 <div className="detailRow">
                   <span>
-                    Unresolved Identity Cases
+                    Unresolved Canonical Cases
                   </span>
 
                   <strong
                     style={{
-                      color:
-                        "#59cfa0",
+                      color: "#59cfa0",
                     }}
                   >
                     0
@@ -1106,13 +1087,38 @@ export default function DataIntegrityPage() {
 
                   <strong
                     style={{
-                      color:
-                        "#59cfa0",
+                      color: "#59cfa0",
                     }}
                   >
                     0
                   </strong>
                 </div>
+
+                <div className="detailRow">
+                  <span>
+                    Protective Cases
+                  </span>
+
+                  <strong>
+                    9
+                  </strong>
+                </div>
+              </div>
+
+
+              <div
+                style={{
+                  marginTop: "13px",
+                  color: "#71839a",
+                  fontSize: "10px",
+                  lineHeight: 1.6,
+                }}
+              >
+                Canonical resolution means each
+                aggregated case has an identified
+                canonical identity candidate. It
+                does not mean all 53 workflow
+                cases are closed.
               </div>
             </div>
           </div>
@@ -1126,13 +1132,13 @@ export default function DataIntegrityPage() {
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                INTEGRITY EXCEPTIONS
+                PRIMARY CASE TAXONOMY
               </div>
 
               <h2>
@@ -1142,6 +1148,7 @@ export default function DataIntegrityPage() {
 
             <AlertTriangle size={22} />
           </div>
+
 
           <div className="tableWrap">
             <table>
@@ -1163,14 +1170,9 @@ export default function DataIntegrityPage() {
                         <td>
                           <div
                             style={{
-                              display:
-                                "flex",
-
-                              alignItems:
-                                "center",
-
-                              gap:
-                                "9px",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "9px",
                             }}
                           >
                             {
@@ -1193,11 +1195,8 @@ export default function DataIntegrityPage() {
 
                             <strong
                               style={{
-                                color:
-                                  "#ccd8e7",
-
-                                fontSize:
-                                  "9px",
+                                color: "#ccd8e7",
+                                fontSize: "11px",
                               }}
                             >
                               {issue.label}
@@ -1208,8 +1207,7 @@ export default function DataIntegrityPage() {
                         <td>
                           <strong
                             style={{
-                              fontSize:
-                                "12px",
+                              fontSize: "12px",
                             }}
                           >
                             {issue.count}
@@ -1227,14 +1225,9 @@ export default function DataIntegrityPage() {
                         <td>
                           <span
                             style={{
-                              color:
-                                "#687a91",
-
-                              fontSize:
-                                "9px",
-
-                              lineHeight:
-                                1.5,
+                              color: "#788ba2",
+                              fontSize: "11px",
+                              lineHeight: 1.55,
                             }}
                           >
                             {issue.description}
@@ -1247,26 +1240,17 @@ export default function DataIntegrityPage() {
                             style={{
                               width: "30px",
                               height: "30px",
-
-                              borderRadius:
-                                "8px",
-
-                              display:
-                                "grid",
-
-                              placeItems:
-                                "center",
-
+                              borderRadius: "8px",
+                              display: "grid",
+                              placeItems: "center",
                               border:
                                 "1px solid rgba(255,255,255,0.06)",
-
-                              color:
-                                "#69a2ff",
-
-                              textDecoration:
-                                "none",
+                              color: "#69a2ff",
+                              textDecoration: "none",
                             }}
-                            aria-label={`View ${issue.label} cases`}
+                            aria-label={
+                              `View ${issue.label} cases`
+                            }
                           >
                             <ChevronRight size={15} />
                           </Link>
@@ -1278,17 +1262,37 @@ export default function DataIntegrityPage() {
               </tbody>
             </table>
           </div>
+
+
+          <div
+            style={{
+              padding: "14px 18px",
+              borderTop:
+                "1px solid rgba(255,255,255,0.05)",
+              color: "#687b93",
+              fontSize: "10px",
+              lineHeight: 1.55,
+            }}
+          >
+            The primary backend taxonomy totals
+            53 cases. The separate 9-case
+            protective grouping combines
+            HARM_IMPACT and
+            CRITICAL_HARM_IDENTITY_CONFLICT
+            cases for executive protection
+            reporting.
+          </div>
         </section>
 
 
         {/* ================================================
-            SYSTEM HEALTH
+            SYSTEM STATE
             ================================================ */}
 
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -1298,12 +1302,13 @@ export default function DataIntegrityPage() {
               </div>
 
               <h2>
-                Source & Processing Health
+                Source & Processing State
               </h2>
             </div>
 
             <Server size={22} />
           </div>
+
 
           <div className="tableWrap">
             <table>
@@ -1313,7 +1318,7 @@ export default function DataIntegrityPage() {
                   <th>ROLE</th>
                   <th>RECORDS</th>
                   <th>ACCESS MODEL</th>
-                  <th>STATUS</th>
+                  <th>DEMO STATE</th>
                 </tr>
               </thead>
 
@@ -1333,14 +1338,9 @@ export default function DataIntegrityPage() {
                           <td>
                             <div
                               style={{
-                                display:
-                                  "flex",
-
-                                alignItems:
-                                  "center",
-
-                                gap:
-                                  "9px",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "9px",
                               }}
                             >
                               <div className="agentIcon">
@@ -1349,11 +1349,8 @@ export default function DataIntegrityPage() {
 
                               <strong
                                 style={{
-                                  color:
-                                    "#ccd8e7",
-
-                                  fontSize:
-                                    "9px",
+                                  color: "#ccd8e7",
+                                  fontSize: "11px",
                                 }}
                               >
                                 {system.system}
@@ -1379,13 +1376,14 @@ export default function DataIntegrityPage() {
                                   ===
                                   "READ ONLY"
                                     ? "#59cfa0"
-                                    : "#73a7ff",
+                                    : system.access
+                                      ===
+                                      "CONTROLLED TARGET"
+                                      ? "#ffbd67"
+                                      : "#73a7ff",
 
-                                fontSize:
-                                  "8px",
-
-                                fontWeight:
-                                  800,
+                                fontSize: "10px",
+                                fontWeight: 800,
                               }}
                             >
                               {system.access}
@@ -1411,39 +1409,40 @@ export default function DataIntegrityPage() {
 
 
         {/* ================================================
-            MONITORING RUNS
+            DEMO SNAPSHOT + MASTER GOVERNANCE
             ================================================ */}
 
         <section
           className="dashboardGrid"
           style={{
-            marginTop: "14px",
+            marginTop: "16px",
           }}
         >
 
-          {/* RECONCILIATION RUNS */}
+          {/* VALIDATED SNAPSHOT */}
 
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CONTINUOUS MONITORING
+                  VALIDATED DEMO SNAPSHOT
                 </div>
 
                 <h2>
-                  Reconciliation Runs
+                  Reconciliation Dataset
                 </h2>
               </div>
 
               <RefreshCcw size={22} />
             </div>
 
+
             <div className="tableWrap">
               <table>
                 <thead>
                   <tr>
-                    <th>RUN</th>
-                    <th>TIME</th>
+                    <th>SNAPSHOT</th>
+                    <th>SCOPE</th>
                     <th>BIOMETRIC</th>
                     <th>MASTER</th>
                     <th>FINDINGS</th>
@@ -1454,15 +1453,22 @@ export default function DataIntegrityPage() {
 
                 <tbody>
                   {
-                    monitoringRuns.map(
+                    demoSnapshots.map(
                       (run) => (
-                        <tr key={run.id}>
-                          <td className="mono">
-                            {run.id}
+                        <tr key={run.name}>
+                          <td>
+                            <strong
+                              style={{
+                                color: "#d0dbea",
+                                fontSize: "11px",
+                              }}
+                            >
+                              {run.name}
+                            </strong>
                           </td>
 
                           <td>
-                            {run.time}
+                            {run.scope}
                           </td>
 
                           <td>
@@ -1495,12 +1501,29 @@ export default function DataIntegrityPage() {
                 </tbody>
               </table>
             </div>
+
+
+            <div
+              style={{
+                padding: "14px 18px",
+                borderTop:
+                  "1px solid rgba(255,255,255,0.05)",
+                color: "#687b93",
+                fontSize: "10px",
+                lineHeight: 1.55,
+              }}
+            >
+              The interface intentionally avoids
+              fabricated monitoring IDs and
+              timestamps. This table represents
+              the validated synthetic
+              reconciliation dataset used by the
+              current demo.
+            </div>
           </div>
 
 
-          {/* ==============================================
-              MASTER GOVERNANCE
-              ============================================== */}
+          {/* MASTER GOVERNANCE */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -1519,8 +1542,7 @@ export default function DataIntegrityPage() {
 
             <div
               style={{
-                padding:
-                  "17px",
+                padding: "17px",
               }}
             >
               <div className="integrityInfo">
@@ -1532,12 +1554,13 @@ export default function DataIntegrityPage() {
                   </strong>
 
                   <span>
-                    AI correction workflows do
-                    not write automatically to
-                    the Master Reference System.
+                    Automated AI correction
+                    workflows do not modify the
+                    Master Reference System.
                   </span>
                 </div>
               </div>
+
 
               <div className="integrityInfo">
                 <ShieldCheck size={21} />
@@ -1548,21 +1571,21 @@ export default function DataIntegrityPage() {
                   </strong>
 
                   <span>
-                    Master identities are used
-                    as authoritative candidates
-                    during reconciliation.
+                    Master identities are read as
+                    authoritative candidates during
+                    reconciliation.
                   </span>
                 </div>
               </div>
+
 
               <div
                 className="integrityInfo"
                 style={{
                   borderColor:
-                    "rgba(255,185,90,0.09)",
-
+                    "rgba(255,185,90,0.12)",
                   background:
-                    "rgba(255,185,90,0.045)",
+                    "rgba(255,185,90,0.055)",
                 }}
               >
                 <AlertTriangle
@@ -1573,19 +1596,19 @@ export default function DataIntegrityPage() {
                 <div>
                   <strong
                     style={{
-                      color:
-                        "#d1a35d",
+                      color: "#e0ad5f",
                     }}
                   >
-                    Master Review Required
+                    Master Data Review Required
                   </strong>
 
                   <span>
                     If evidence suggests the
-                    Master record itself may be
-                    incorrect, the case is
-                    escalated rather than
-                    automatically corrected.
+                    authoritative Master record
+                    itself may be incorrect, the
+                    issue is escalated for
+                    dedicated human review rather
+                    than automatically corrected.
                   </span>
                 </div>
               </div>
@@ -1601,7 +1624,7 @@ export default function DataIntegrityPage() {
         <section
           className="panel"
           style={{
-            marginTop: "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -1622,13 +1645,9 @@ export default function DataIntegrityPage() {
           <div
             style={{
               padding: "20px",
-
               display: "flex",
-
               alignItems: "center",
-
               gap: "8px",
-
               overflowX: "auto",
             }}
           >
@@ -1652,29 +1671,17 @@ export default function DataIntegrityPage() {
                   key={stage}
                   style={{
                     display: "flex",
-
-                    alignItems:
-                      "center",
-
+                    alignItems: "center",
                     gap: "8px",
-
-                    flexShrink:
-                      0,
+                    flexShrink: 0,
                   }}
                 >
                   <div
                     style={{
-                      minWidth:
-                        "110px",
-
-                      padding:
-                        "11px",
-
-                      borderRadius:
-                        "10px",
-
-                      textAlign:
-                        "center",
+                      minWidth: "110px",
+                      padding: "11px",
+                      borderRadius: "10px",
+                      textAlign: "center",
 
                       background:
                         index === 9
@@ -1691,11 +1698,8 @@ export default function DataIntegrityPage() {
                           ? "#59cfa0"
                           : "#76a9ff",
 
-                      fontSize:
-                        "8px",
-
-                      fontWeight:
-                        750,
+                      fontSize: "10px",
+                      fontWeight: 750,
                     }}
                   >
                     {stage}
@@ -1707,7 +1711,7 @@ export default function DataIntegrityPage() {
                     (
                       <ChevronRight
                         size={14}
-                        color="#43566d"
+                        color="#52647b"
                       />
                     )
                   }
@@ -1725,29 +1729,26 @@ export default function DataIntegrityPage() {
         <section
           className="integrityInfo"
           style={{
-            margin:
-              "14px 0 0",
-
-            padding:
-              "18px",
+            margin: "16px 0 0",
+            padding: "18px",
           }}
         >
           <CheckCircle2 size={25} />
 
           <div>
             <strong>
-              Continuous Identity Integrity
-              Monitoring
+              Continuous Identity Integrity Model
             </strong>
 
             <span>
-              The platform continuously compares
-              operational biometric relationships
-              against the authoritative Master
-              Reference, detects integrity
-              exceptions, prioritizes potential
-              human harm and provides controlled
-              remediation with full verification.
+              The platform compares operational
+              biometric relationships against the
+              authoritative Master Reference,
+              detects integrity exceptions,
+              prioritizes potential human harm and
+              supports controlled remediation with
+              required human approval and
+              post-correction verification.
             </span>
           </div>
         </section>
@@ -1766,7 +1767,7 @@ export default function DataIntegrityPage() {
           <div>
             <Activity size={15} />
 
-            Continuous Reconciliation Active
+            Synthetic Reconciliation Demo
           </div>
         </footer>
 

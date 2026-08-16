@@ -1,6 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import {
+  useParams,
+} from "next/navigation";
 
 import Sidebar from "../../components/Sidebar";
+
+import {
+  useLanguage,
+} from "../../components/LanguageProvider";
 
 import {
   COMPLEX_DEMO_CASE,
@@ -35,18 +44,226 @@ import {
 
 
 /* =========================================================
-   CASE DETAIL VIEW MODELS
+   HELPERS
+   ========================================================= */
 
-   Core identity, risk, execution and verification values
-   come from app/lib/demo-data.js.
+function L(
+  language,
+  english,
+  arabic
+) {
+  return language === "ar"
+    ? arabic
+    : english;
+}
 
-   Narrative fields and supporting finding breakdowns below
-   are synthetic frontend presentation data.
 
-   IMPORTANT:
-   The current backend demonstration uses synthetic vector
-   correlation. It does not expose separate Face,
-   Fingerprint or Iris similarity scores.
+function localizeStatus(
+  value,
+  language,
+  t
+) {
+  const keys = {
+    APPROVED:
+      "statuses.APPROVED",
+
+    COMPLETED:
+      "statuses.COMPLETED",
+
+    PASSED:
+      "statuses.PASSED",
+
+    PENDING:
+      "statuses.PENDING",
+
+    NOT_READY:
+      "statuses.NOT_READY",
+
+    NOT_STARTED:
+      "statuses.NOT_STARTED",
+
+    NOT_AUTHORIZED:
+      "statuses.NOT_AUTHORIZED",
+
+    VERIFIED_CLOSED:
+      "statuses.VERIFIED_CLOSED",
+
+    AI_INVESTIGATED:
+      "statuses.AI_INVESTIGATED",
+  };
+
+  if (keys[value]) {
+    return t(keys[value]);
+  }
+
+  return L(
+    language,
+    value,
+    value
+  );
+}
+
+
+function localizeCaseType(
+  value,
+  language,
+  t
+) {
+  const keys = {
+    HARM_IMPACT:
+      "caseTypes.HARM_IMPACT",
+
+    CRITICAL_HARM_IDENTITY_CONFLICT:
+      "caseTypes.CRITICAL_HARM_CONFLICT",
+
+    COMPLEX_IDENTITY_CONFLICT:
+      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
+
+    DATA_MISMATCH:
+      "caseTypes.DATA_MISMATCH",
+
+    WRONG_MAPPING:
+      "caseTypes.WRONG_MAPPING",
+
+    DUPLICATE_IDENTITY:
+      "caseTypes.DUPLICATE_IDENTITY",
+
+    ORPHAN_RECORD:
+      "caseTypes.ORPHAN",
+  };
+
+  if (keys[value]) {
+    return t(keys[value]);
+  }
+
+  return value;
+}
+
+
+function localizeFindingType(
+  value,
+  language
+) {
+  const labels = {
+    WRONG_MAPPING: {
+      en: "Wrong Mapping",
+      ar: "ربط خاطئ",
+    },
+
+    HARM_IMPACT: {
+      en: "Harm Impact",
+      ar: "تأثير ضرر",
+    },
+
+    DUPLICATE_BIOMETRIC: {
+      en: "Duplicate Biometric",
+      ar: "سجل بيومتري مكرر",
+    },
+
+    DATA_MISMATCH: {
+      en: "Data Mismatch",
+      ar: "اختلاف بيانات",
+    },
+
+    DUPLICATE_IDENTITY: {
+      en: "Duplicate Identity",
+      ar: "هوية مكررة",
+    },
+
+    IDENTITY_CORRELATION: {
+      en: "Identity Correlation",
+      ar: "مطابقة الهوية",
+    },
+  };
+
+  return (
+    labels[value]?.[language]
+    ||
+    value
+  );
+}
+
+
+function localizeCaseTitle(
+  caseData,
+  language
+) {
+  const labels = {
+    [VERIFIED_DEMO_CASE.id]: {
+      en: VERIFIED_DEMO_CASE.title,
+      ar: "حالة تأثير وقائي على الشخص الخطأ",
+    },
+
+    [COMPLEX_DEMO_CASE.id]: {
+      en: COMPLEX_DEMO_CASE.title,
+      ar: "تعارض هوية معقد",
+    },
+  };
+
+  return (
+    labels[caseData.id]?.[language]
+    ||
+    caseData.title
+  );
+}
+
+
+function getAiConclusion(
+  caseData,
+  language
+) {
+  if (
+    caseData.id
+    === VERIFIED_DEMO_CASE.id
+  ) {
+    return L(
+      language,
+
+      caseData.aiConclusion,
+
+      "تشير الأدلة الاصطناعية المجمعة للبيانات البيومترية والهوية بقوة إلى أن السجل BIO-000166 مرتبط بالهوية REF-001009 وليس بالربط السابق REF-002711. وقد أدى تعارض الهوية إلى احتمال تأثير على الشخص الخطأ، ولذلك تم تصنيف الحالة بأولوية وقائية فورية."
+    );
+  }
+
+  return L(
+    language,
+
+    caseData.aiConclusion,
+
+    "تم تجميع عدة نتائج مترابطة خاصة بالسجلات البيومترية والهوية داخل حالة تحقيق معقدة واحدة. وحدد تحليل حسم الهوية على مستوى الحالة الهوية REF-002343 باعتبارها المرشح المرجعي الأقوى بدرجة ثقة 99.99%."
+  );
+}
+
+
+function getRootCause(
+  caseData,
+  language
+) {
+  if (
+    caseData.id
+    === VERIFIED_DEMO_CASE.id
+  ) {
+    return L(
+      language,
+
+      caseData.rootCause,
+
+      "أدى تعارض في الربط بعد التسجيل بين السجل البيومتري والهوية إلى ربط السجل البيومتري بهوية غير صحيحة داخل المرجع الرئيسي."
+    );
+  }
+
+  return L(
+    language,
+
+    caseData.rootCause,
+
+    "توجد علاقات متعارضة بين عدة سجلات بيومترية وهويات مرتبطة، مما يتطلب تجميع النتائج على مستوى الحالة قبل تحديد الهوية المرجعية الصحيحة."
+  );
+}
+
+
+/* =========================================================
+   CASE DATA
    ========================================================= */
 
 const caseDatabase = {
@@ -134,89 +351,64 @@ const caseDatabase = {
 
     dataComparison: [
       {
-        field:
-          "Previous Master Identity",
-
+        field: "Previous Master Identity",
+        fieldAr: "الهوية الرئيسية السابقة",
         current:
           VERIFIED_DEMO_CASE.currentIdentity,
-
         reference:
           VERIFIED_DEMO_CASE.canonicalIdentity,
-
-        result:
-          "CONFLICT",
+        result: "CONFLICT",
       },
 
       {
-        field:
-          "Biometric Ownership",
-
+        field: "Biometric Ownership",
+        fieldAr: "ملكية السجل البيومتري",
         current:
           VERIFIED_DEMO_CASE.currentIdentity,
-
         reference:
           VERIFIED_DEMO_CASE.canonicalIdentity,
-
-        result:
-          "CONFLICT",
+        result: "CONFLICT",
       },
 
       {
-        field:
-          "Identity Attributes",
-
-        current:
-          "Low consistency",
-
-        reference:
-          "High consistency",
-
-        result:
-          "MISMATCH",
+        field: "Identity Attributes",
+        fieldAr: "سمات الهوية",
+        current: "Low consistency",
+        currentAr: "اتساق منخفض",
+        reference: "High consistency",
+        referenceAr: "اتساق مرتفع",
+        result: "MISMATCH",
       },
 
       {
-        field:
-          "Canonical Resolution",
-
+        field: "Canonical Resolution",
+        fieldAr: "الحسم المرجعي",
         current:
           "Previous mapping rejected",
-
+        currentAr:
+          "تم رفض الربط السابق",
         reference:
           `${VERIFIED_DEMO_CASE.aiConfidence}% confidence`,
-
-        result:
-          "MATCH",
+        referenceAr:
+          `ثقة ${VERIFIED_DEMO_CASE.aiConfidence}%`,
+        result: "MATCH",
       },
     ],
 
     findingsList: [
       {
-        id:
-          "SYN-FND-0001",
-
-        type:
-          "WRONG_MAPPING",
-
-        role:
-          "PRIMARY",
-
+        id: "SYN-FND-0001",
+        type: "WRONG_MAPPING",
+        role: "PRIMARY",
         confidence:
           VERIFIED_DEMO_CASE.aiConfidence,
       },
 
       {
-        id:
-          "SYN-FND-0002",
-
-        type:
-          "HARM_IMPACT",
-
-        role:
-          "CORROBORATING",
-
-        confidence:
-          99.97,
+        id: "SYN-FND-0002",
+        type: "HARM_IMPACT",
+        role: "CORROBORATING",
+        confidence: 99.97,
       },
     ],
 
@@ -244,8 +436,7 @@ const caseDatabase = {
     },
 
     officer: {
-      status:
-        "APPROVED",
+      status: "APPROVED",
 
       name:
         "Demo Monitoring Officer",
@@ -258,8 +449,7 @@ const caseDatabase = {
     },
 
     manager: {
-      status:
-        "APPROVED",
+      status: "APPROVED",
 
       name:
         "Demo Supervising Manager",
@@ -296,83 +486,77 @@ const caseDatabase = {
 
     audit: [
       {
-        sequence:
-          "01",
-
-        actor:
-          "Investigation Agent",
-
+        sequence: "01",
+        actor: "Investigation Agent",
+        actorAr: "وكيل التحقيق",
         action:
           "AI investigation completed",
-
+        actionAr:
+          "اكتمل تحقيق الذكاء الاصطناعي",
         detail:
           "Identity evidence, risk, harm and proposed correction were prepared for human review.",
+        detailAr:
+          "تم تجهيز أدلة الهوية والمخاطر والضرر والتصحيح المقترح للمراجعة البشرية.",
       },
 
       {
-        sequence:
-          "02",
-
-        actor:
-          "Monitoring Officer",
-
+        sequence: "02",
+        actor: "Monitoring Officer",
+        actorAr: "ضابط المراقبة",
         action:
           "Officer approval recorded",
-
+        actionAr:
+          "تم تسجيل اعتماد الضابط",
         detail:
           "Level 1 human review approved the proposed identity correction.",
+        detailAr:
+          "اعتمد المستوى الأول من المراجعة البشرية تصحيح الهوية المقترح.",
       },
 
       {
-        sequence:
-          "03",
-
-        actor:
-          "Supervising Manager",
-
+        sequence: "03",
+        actor: "Supervising Manager",
+        actorAr: "المدير المشرف",
         action:
           "Manager approval recorded",
-
+        actionAr:
+          "تم تسجيل اعتماد المدير",
         detail:
           "Level 2 human review authorized controlled correction execution.",
+        detailAr:
+          "صرح المستوى الثاني من المراجعة البشرية بتنفيذ التصحيح الخاضع للتحكم.",
       },
 
       {
-        sequence:
-          "04",
-
-        actor:
-          "Execution Agent",
-
+        sequence: "04",
+        actor: "Execution Agent",
+        actorAr: "وكيل التنفيذ",
         action:
           "Controlled correction completed",
-
+        actionAr:
+          "اكتمل التصحيح الخاضع للتحكم",
         detail:
           "BIO-000166 was reassigned from REF-002711 to REF-001009 in the permitted runtime target.",
+        detailAr:
+          "تمت إعادة ربط BIO-000166 من REF-002711 إلى REF-001009 داخل هدف التشغيل المسموح.",
       },
 
       {
-        sequence:
-          "05",
-
-        actor:
-          "Verification Agent",
-
+        sequence: "05",
+        actor: "Verification Agent",
+        actorAr: "وكيل التحقق",
         action:
           "Post-correction verification passed",
-
+        actionAr:
+          "نجح التحقق بعد التصحيح",
         detail:
           "Verification score reached 100 and the case reached VERIFIED_CLOSED.",
+        detailAr:
+          "وصلت درجة التحقق إلى 100 وتم إغلاق الحالة بعد التحقق.",
       },
     ],
   },
 
-
-  /* ======================================================
-     BACKEND-CONFIRMED COMPLEX CASE
-
-     BIO-000795 → CASE-2026-00014
-     ====================================================== */
 
   [COMPLEX_DEMO_CASE.id]: {
     id:
@@ -457,117 +641,73 @@ const caseDatabase = {
 
     dataComparison: [
       {
-        field:
-          "Current Master Link",
-
+        field: "Current Master Link",
+        fieldAr: "الربط الرئيسي الحالي",
         current:
           COMPLEX_DEMO_CASE.currentMasterIdentities[0],
-
         reference:
           COMPLEX_DEMO_CASE.canonicalIdentity,
-
-        result:
-          "CONFLICT",
+        result: "CONFLICT",
       },
 
       {
-        field:
-          "Related Biometric",
-
+        field: "Related Biometric",
+        fieldAr: "السجل البيومتري المرتبط",
         current:
           COMPLEX_DEMO_CASE.affectedBiometrics[0],
-
         reference:
           COMPLEX_DEMO_CASE.primaryBiometricId,
-
-        result:
-          "RELATED",
+        result: "RELATED",
       },
 
       {
-        field:
-          "Canonical Resolution",
-
+        field: "Canonical Resolution",
+        fieldAr: "الحسم المرجعي",
         current:
           "Unresolved at raw finding level",
-
+        currentAr:
+          "غير محسوم على مستوى النتائج الأولية",
         reference:
           COMPLEX_DEMO_CASE.canonicalIdentity,
-
-        result:
-          "MATCH",
+        result: "MATCH",
       },
     ],
 
     findingsList: [
       {
-        id:
-          "SYN-FND-0011",
-
-        type:
-          "WRONG_MAPPING",
-
-        role:
-          "PRIMARY",
-
+        id: "SYN-FND-0011",
+        type: "WRONG_MAPPING",
+        role: "PRIMARY",
         confidence:
           COMPLEX_DEMO_CASE.aiConfidence,
       },
 
       {
-        id:
-          "SYN-FND-0012",
-
-        type:
-          "DUPLICATE_BIOMETRIC",
-
-        role:
-          "CORROBORATING",
-
-        confidence:
-          100,
+        id: "SYN-FND-0012",
+        type: "DUPLICATE_BIOMETRIC",
+        role: "CORROBORATING",
+        confidence: 100,
       },
 
       {
-        id:
-          "SYN-FND-0013",
-
-        type:
-          "DATA_MISMATCH",
-
-        role:
-          "CORROBORATING",
-
-        confidence:
-          99.95,
+        id: "SYN-FND-0013",
+        type: "DATA_MISMATCH",
+        role: "CORROBORATING",
+        confidence: 99.95,
       },
 
       {
-        id:
-          "SYN-FND-0014",
-
-        type:
-          "DUPLICATE_IDENTITY",
-
-        role:
-          "CORROBORATING",
-
-        confidence:
-          99.92,
+        id: "SYN-FND-0014",
+        type: "DUPLICATE_IDENTITY",
+        role: "CORROBORATING",
+        confidence: 99.92,
       },
 
       {
-        id:
-          "SYN-FND-0015",
-
-        type:
-          "IDENTITY_CORRELATION",
-
-        role:
-          "CORROBORATING",
-
-        confidence:
-          99.91,
+        id: "SYN-FND-0015",
+        type: "IDENTITY_CORRELATION",
+        role: "CORROBORATING",
+        confidence: 99.91,
       },
     ],
 
@@ -595,97 +735,78 @@ const caseDatabase = {
     },
 
     officer: {
-      status:
-        "PENDING",
-
-      name:
-        "Not assigned",
-
-      decision:
-        "PENDING",
-
+      status: "PENDING",
+      name: "Not assigned",
+      decision: "PENDING",
       comments:
         "Awaiting Monitoring Officer review.",
     },
 
     manager: {
-      status:
-        "NOT_READY",
-
-      name:
-        "Not assigned",
-
-      decision:
-        "NOT_READY",
-
+      status: "NOT_READY",
+      name: "Not assigned",
+      decision: "NOT_READY",
       comments:
         "Manager review becomes available only after Officer approval.",
     },
 
     verification: {
-      status:
-        "NOT_STARTED",
-
-      score:
-        null,
-
-      biometricMatch:
-        null,
-
-      identityMappingValid:
-        null,
-
-      conflictResolved:
-        null,
-
-      secondaryConflict:
-        null,
-
-      finalStatus:
-        "AI_INVESTIGATED",
+      status: "NOT_STARTED",
+      score: null,
+      biometricMatch: null,
+      identityMappingValid: null,
+      conflictResolved: null,
+      secondaryConflict: null,
+      finalStatus: "AI_INVESTIGATED",
     },
 
     audit: [
       {
-        sequence:
-          "01",
-
+        sequence: "01",
         actor:
           "Reconciliation Agent",
-
+        actorAr:
+          "وكيل المطابقة",
         action:
           "Multiple related findings detected",
-
+        actionAr:
+          "تم اكتشاف نتائج مترابطة متعددة",
         detail:
           "Related biometric and identity inconsistencies were identified during reconciliation.",
+        detailAr:
+          "تم اكتشاف اختلافات مترابطة في السجلات البيومترية والهوية أثناء عملية المطابقة.",
       },
 
       {
-        sequence:
-          "02",
-
+        sequence: "02",
         actor:
           "Case Aggregation Engine",
-
+        actorAr:
+          "محرك تجميع الحالات",
         action:
           "Findings aggregated",
-
+        actionAr:
+          "تم تجميع النتائج",
         detail:
           "Five related findings were consolidated into one complex identity case.",
+        detailAr:
+          "تم دمج خمس نتائج مترابطة داخل حالة تعارض هوية معقدة واحدة.",
       },
 
       {
-        sequence:
-          "03",
-
+        sequence: "03",
         actor:
           "Identity Resolution Agent",
-
+        actorAr:
+          "وكيل حسم الهوية",
         action:
           "Canonical identity resolved",
-
+        actionAr:
+          "تم حسم الهوية المرجعية",
         detail:
           "REF-002343 was selected as the strongest case-level identity candidate.",
+        detailAr:
+          "تم اختيار REF-002343 كأقوى مرشح للهوية على مستوى الحالة.",
       },
     ],
   },
@@ -698,6 +819,7 @@ const caseDatabase = {
 
 function PriorityBadge({
   priority,
+  t,
 }) {
   const className =
     priority === "IMMEDIATE"
@@ -708,7 +830,7 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {priority}
+      {t(`priorities.${priority}`)}
     </span>
   );
 }
@@ -716,6 +838,8 @@ function PriorityBadge({
 
 function StatusBadge({
   value,
+  language,
+  t,
 }) {
   const success =
     [
@@ -726,9 +850,7 @@ function StatusBadge({
     ].includes(value);
 
   const warning =
-    [
-      "PENDING",
-    ].includes(value);
+    value === "PENDING";
 
   const neutral =
     [
@@ -775,13 +897,18 @@ function StatusBadge({
         borderRadius: "7px",
         color,
         background,
-        border: `1px solid ${border}`,
+        border:
+          `1px solid ${border}`,
         fontSize: "10px",
         fontWeight: 800,
         whiteSpace: "nowrap",
       }}
     >
-      {value}
+      {localizeStatus(
+        value,
+        language,
+        t
+      )}
     </span>
   );
 }
@@ -845,86 +972,68 @@ function RiskMetric({
 
 
 /* =========================================================
-   CASE LIFECYCLE
+   LIFECYCLE
    ========================================================= */
 
 function getLifecycle(
-  caseData
+  caseData,
+  language
 ) {
-  if (
-    caseData.isVerifiedClosed
-  ) {
-    return [
-      [
-        "Detected",
-        true,
-      ],
-      [
-        "Reconciled",
-        true,
-      ],
-      [
+  const items = [
+    [
+      L(language, "Detected", "تم الاكتشاف"),
+      true,
+    ],
+
+    [
+      L(language, "Reconciled", "تمت المطابقة"),
+      true,
+    ],
+
+    [
+      L(
+        language,
         "AI Investigated",
-        true,
-      ],
-      [
+        "تحقيق الذكاء الاصطناعي"
+      ),
+      true,
+    ],
+
+    [
+      L(
+        language,
         "Officer Review",
-        true,
-      ],
-      [
+        "مراجعة الضابط"
+      ),
+      caseData.isVerifiedClosed,
+    ],
+
+    [
+      L(
+        language,
         "Manager Approval",
-        true,
-      ],
-      [
-        "Execution",
-        true,
-      ],
-      [
-        "Verification",
-        true,
-      ],
-      [
-        "Closed",
-        true,
-      ],
-    ];
-  }
+        "اعتماد المدير"
+      ),
+      caseData.isVerifiedClosed,
+    ],
 
+    [
+      L(language, "Execution", "التنفيذ"),
+      caseData.isVerifiedClosed,
+    ],
 
-  return [
     [
-      "Detected",
-      true,
+      L(language, "Verification", "التحقق"),
+      caseData.isVerifiedClosed,
     ],
+
     [
-      "Reconciled",
-      true,
-    ],
-    [
-      "AI Investigated",
-      true,
-    ],
-    [
-      "Officer Review",
-      false,
-    ],
-    [
-      "Manager Approval",
-      false,
-    ],
-    [
-      "Execution",
-      false,
-    ],
-    [
-      "Verification",
-      false,
-    ],
-    [
-      "Closed",
-      false,
+      L(language, "Closed", "مغلقة"),
+      caseData.isVerifiedClosed,
     ],
   ];
+
+  return items;
 }
 
 
@@ -934,6 +1043,8 @@ function getLifecycle(
 
 function CaseNotFound({
   caseId,
+  language,
+  t,
 }) {
   return (
     <div className="appShell">
@@ -950,7 +1061,7 @@ function CaseNotFound({
         >
           <ArrowLeft size={16} />
 
-          Back to Cases
+          {t("caseDetail.backToCases")}
         </Link>
 
         <div
@@ -967,7 +1078,11 @@ function CaseNotFound({
           />
 
           <h1>
-            Case not found
+            {L(
+              language,
+              "Case not found",
+              "الحالة غير موجودة"
+            )}
           </h1>
 
           <p
@@ -988,24 +1103,30 @@ function CaseNotFound({
    PAGE
    ========================================================= */
 
-export default async function CaseInvestigationPage({
-  params,
-}) {
+export default function CaseInvestigationPage() {
+  const params =
+    useParams();
+
+  const caseId =
+    params?.caseId;
+
+
   const {
-    caseId,
-  } = await params;
+    language,
+    t,
+  } = useLanguage();
 
 
   const caseData =
-    caseDatabase[
-      caseId
-    ];
+    caseDatabase[caseId];
 
 
   if (!caseData) {
     return (
       <CaseNotFound
         caseId={caseId}
+        language={language}
+        t={t}
       />
     );
   }
@@ -1013,7 +1134,8 @@ export default async function CaseInvestigationPage({
 
   const lifecycle =
     getLifecycle(
-      caseData
+      caseData,
+      language
     );
 
 
@@ -1046,7 +1168,7 @@ export default async function CaseInvestigationPage({
           >
             <ArrowLeft size={16} />
 
-            Back to Cases
+            {t("caseDetail.backToCases")}
           </Link>
 
 
@@ -1060,7 +1182,11 @@ export default async function CaseInvestigationPage({
               <div className="eyebrow">
                 <BrainCircuit size={15} />
 
-                AI INVESTIGATION WORKSPACE
+                {L(
+                  language,
+                  "AI INVESTIGATION WORKSPACE",
+                  "مساحة تحقيق الذكاء الاصطناعي"
+                )}
               </div>
 
 
@@ -1085,12 +1211,15 @@ export default async function CaseInvestigationPage({
                   priority={
                     caseData.priority
                   }
+                  t={t}
                 />
 
                 <StatusBadge
                   value={
                     caseData.status
                   }
+                  language={language}
+                  t={t}
                 />
               </div>
 
@@ -1100,11 +1229,22 @@ export default async function CaseInvestigationPage({
                   marginTop: "7px",
                 }}
               >
-                {caseData.title}
+                {
+                  localizeCaseTitle(
+                    caseData,
+                    language
+                  )
+                }
 
                 {" · "}
 
-                {caseData.caseType}
+                {
+                  localizeCaseType(
+                    caseData.caseType,
+                    language,
+                    t
+                  )
+                }
               </p>
             </div>
 
@@ -1114,7 +1254,11 @@ export default async function CaseInvestigationPage({
                 <Search size={18} />
 
                 <span>
-                  Search Evidence
+                  {L(
+                    language,
+                    "Search Evidence",
+                    "البحث في الأدلة"
+                  )}
                 </span>
               </button>
 
@@ -1125,11 +1269,17 @@ export default async function CaseInvestigationPage({
 
                 <div className="profileText">
                   <strong>
-                    Monitoring Officer
+                    {t(
+                      "common.monitoringOfficer"
+                    )}
                   </strong>
 
                   <span>
-                    Case Review
+                    {L(
+                      language,
+                      "Case Review",
+                      "مراجعة الحالة"
+                    )}
                   </span>
                 </div>
               </div>
@@ -1150,16 +1300,19 @@ export default async function CaseInvestigationPage({
 
             <div className="alertText">
               <strong>
-                Critical Protective Case —
-                Potential Wrong-Person Impact
+                {L(
+                  language,
+                  "Critical Protective Case — Potential Wrong-Person Impact",
+                  "حالة وقائية حرجة — تأثير محتمل على الشخص الخطأ"
+                )}
               </strong>
 
               <span>
-                This case was assigned immediate
-                protective priority because an
-                unrelated person could be affected
-                by the incorrect identity
-                relationship.
+                {L(
+                  language,
+                  "This case was assigned immediate protective priority because an unrelated person could be affected by the incorrect identity relationship.",
+                  "تم تصنيف هذه الحالة بأولوية وقائية فورية لأن شخصًا غير مرتبط بالحالة قد يتأثر نتيجة علاقة هوية غير صحيحة."
+                )}
               </span>
             </div>
 
@@ -1170,7 +1323,11 @@ export default async function CaseInvestigationPage({
                 padding: "0 13px",
               }}
             >
-              PRIORITY {caseData.protectivePriority}
+              {L(
+                language,
+                `PRIORITY ${caseData.protectivePriority}`,
+                `الأولوية ${caseData.protectivePriority}`
+              )}
             </div>
           </section>
         )}
@@ -1192,16 +1349,19 @@ export default async function CaseInvestigationPage({
 
             <div>
               <strong>
-                Correction Verified and Case Closed
+                {L(
+                  language,
+                  "Correction Verified and Case Closed",
+                  "تم التحقق من التصحيح وإغلاق الحالة"
+                )}
               </strong>
 
               <span>
-                The approved correction was
-                executed successfully and passed
-                post-correction verification with
-                a score of
-                {" "}
-                {caseData.verification.score}.
+                {L(
+                  language,
+                  `The approved correction was executed successfully and passed post-correction verification with a score of ${caseData.verification.score}.`,
+                  `تم تنفيذ التصحيح المعتمد بنجاح واجتاز التحقق بعد التصحيح بدرجة ${caseData.verification.score}.`
+                )}
               </span>
             </div>
           </section>
@@ -1230,11 +1390,19 @@ export default async function CaseInvestigationPage({
             </div>
 
             <div className="metricTitle">
-              Primary Biometric
+              {L(
+                language,
+                "Primary Biometric",
+                "السجل البيومتري الرئيسي"
+              )}
             </div>
 
             <div className="metricSubtitle">
-              Source record under investigation
+              {L(
+                language,
+                "Source record under investigation",
+                "السجل المصدر قيد التحقيق"
+              )}
             </div>
           </div>
 
@@ -1251,11 +1419,19 @@ export default async function CaseInvestigationPage({
             </div>
 
             <div className="metricTitle">
-              AI Confidence
+              {L(
+                language,
+                "AI Confidence",
+                "ثقة الذكاء الاصطناعي"
+              )}
             </div>
 
             <div className="metricSubtitle">
-              Canonical identity resolution
+              {L(
+                language,
+                "Canonical identity resolution",
+                "حسم الهوية المرجعية"
+              )}
             </div>
           </div>
 
@@ -1280,11 +1456,17 @@ export default async function CaseInvestigationPage({
             </div>
 
             <div className="metricTitle">
-              Harm Impact
+              {t(
+                "commandCenter.harmImpact"
+              )}
             </div>
 
             <div className="metricSubtitle">
-              Potential consequence score
+              {L(
+                language,
+                "Potential consequence score",
+                "درجة التأثير المحتمل"
+              )}
             </div>
           </div>
 
@@ -1301,11 +1483,17 @@ export default async function CaseInvestigationPage({
             </div>
 
             <div className="metricTitle">
-              Supporting Findings
+              {t(
+                "caseDetail.supportingFindings"
+              )}
             </div>
 
             <div className="metricSubtitle">
-              Aggregated case evidence
+              {L(
+                language,
+                "Aggregated case evidence",
+                "أدلة الحالة المجمعة"
+              )}
             </div>
           </div>
         </section>
@@ -1323,7 +1511,11 @@ export default async function CaseInvestigationPage({
           }}
         >
           <div className="panelEyebrow">
-            CASE LIFECYCLE
+            {L(
+              language,
+              "CASE LIFECYCLE",
+              "دورة حياة الحالة"
+            )}
           </div>
 
 
@@ -1406,7 +1598,7 @@ export default async function CaseInvestigationPage({
 
 
         {/* ===============================================
-            AI INVESTIGATION + CASE INFORMATION
+            AI INVESTIGATION + INFO
             =============================================== */}
 
         <section className="dashboardGrid">
@@ -1414,11 +1606,19 @@ export default async function CaseInvestigationPage({
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  AI INVESTIGATION
+                  {L(
+                    language,
+                    "AI INVESTIGATION",
+                    "تحقيق الذكاء الاصطناعي"
+                  )}
                 </div>
 
                 <h2>
-                  Investigation Conclusion
+                  {L(
+                    language,
+                    "Investigation Conclusion",
+                    "نتيجة التحقيق"
+                  )}
                 </h2>
               </div>
 
@@ -1463,7 +1663,11 @@ export default async function CaseInvestigationPage({
                         color: "#d7e6f9",
                       }}
                     >
-                      AI Conclusion
+                      {L(
+                        language,
+                        "AI Conclusion",
+                        "استنتاج الذكاء الاصطناعي"
+                      )}
                     </strong>
 
                     <p
@@ -1474,7 +1678,10 @@ export default async function CaseInvestigationPage({
                         margin: "8px 0 0",
                       }}
                     >
-                      {caseData.aiConclusion}
+                      {getAiConclusion(
+                        caseData,
+                        language
+                      )}
                     </p>
                   </div>
                 </div>
@@ -1487,7 +1694,11 @@ export default async function CaseInvestigationPage({
                 }}
               >
                 <div className="panelEyebrow">
-                  PROBABLE ROOT CAUSE
+                  {L(
+                    language,
+                    "PROBABLE ROOT CAUSE",
+                    "السبب الجذري المحتمل"
+                  )}
                 </div>
 
                 <p
@@ -1498,7 +1709,10 @@ export default async function CaseInvestigationPage({
                     margin: "10px 0 0",
                   }}
                 >
-                  {caseData.rootCause}
+                  {getRootCause(
+                    caseData,
+                    language
+                  )}
                 </p>
               </div>
 
@@ -1512,7 +1726,11 @@ export default async function CaseInvestigationPage({
                 }}
               >
                 <span className="confidence">
-                  AI Confidence:
+                  {L(
+                    language,
+                    "AI Confidence:",
+                    "ثقة الذكاء الاصطناعي:"
+                  )}
                   {" "}
                   {caseData.confidence}%
                 </span>
@@ -1523,7 +1741,11 @@ export default async function CaseInvestigationPage({
                     fontSize: "10px",
                   }}
                 >
-                  Investigation:
+                  {L(
+                    language,
+                    "Investigation:",
+                    "التحقيق:"
+                  )}
                   {" "}
                   {caseData.investigationId}
                 </span>
@@ -1536,11 +1758,19 @@ export default async function CaseInvestigationPage({
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CASE INFORMATION
+                  {L(
+                    language,
+                    "CASE INFORMATION",
+                    "معلومات الحالة"
+                  )}
                 </div>
 
                 <h2>
-                  Investigation Metadata
+                  {L(
+                    language,
+                    "Investigation Metadata",
+                    "بيانات التحقيق"
+                  )}
                 </h2>
               </div>
 
@@ -1555,28 +1785,76 @@ export default async function CaseInvestigationPage({
             >
               {[
                 [
-                  "Case ID",
+                  L(
+                    language,
+                    "Case ID",
+                    "رقم الحالة"
+                  ),
                   caseData.id,
                 ],
+
                 [
-                  "Investigation ID",
+                  L(
+                    language,
+                    "Investigation ID",
+                    "رقم التحقيق"
+                  ),
                   caseData.investigationId,
                 ],
+
                 [
-                  "Case Type",
-                  caseData.caseType,
+                  L(
+                    language,
+                    "Case Type",
+                    "نوع الحالة"
+                  ),
+                  localizeCaseType(
+                    caseData.caseType,
+                    language,
+                    t
+                  ),
                 ],
+
                 [
-                  "Detection Context",
-                  caseData.detectedAt,
+                  L(
+                    language,
+                    "Detection Context",
+                    "سياق الاكتشاف"
+                  ),
+                  L(
+                    language,
+                    caseData.detectedAt,
+                    caseData.id
+                    === VERIFIED_DEMO_CASE.id
+                      ? "عرض تجريبي اصطناعي متكامل"
+                      : "تشغيل المطابقة الاصطناعية"
+                  ),
                 ],
+
                 [
-                  "Source",
-                  caseData.sourceSystem,
+                  L(
+                    language,
+                    "Source",
+                    "المصدر"
+                  ),
+                  L(
+                    language,
+                    caseData.sourceSystem,
+                    "النظام البيومتري"
+                  ),
                 ],
+
                 [
-                  "Reference",
-                  caseData.referenceSystem,
+                  L(
+                    language,
+                    "Reference",
+                    "المرجع"
+                  ),
+                  L(
+                    language,
+                    caseData.referenceSystem,
+                    "نظام المرجع الرئيسي"
+                  ),
                 ],
               ].map(
                 ([
@@ -1615,12 +1893,17 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                IDENTITY RESOLUTION
+                {t(
+                  "caseDetail.identityResolution"
+                )}
               </div>
 
               <h2>
-                Previous / Current Mapping vs
-                Canonical Identity
+                {L(
+                  language,
+                  "Previous / Current Mapping vs Canonical Identity",
+                  "الربط السابق / الحالي مقابل الهوية المرجعية"
+                )}
               </h2>
             </div>
 
@@ -1658,8 +1941,16 @@ export default async function CaseInvestigationPage({
               >
                 {
                   caseData.isVerifiedClosed
-                    ? "PREVIOUS MAPPING"
-                    : "CURRENT MAPPING"
+                    ? L(
+                        language,
+                        "PREVIOUS MAPPING",
+                        "الربط السابق"
+                      )
+                    : L(
+                        language,
+                        "CURRENT MAPPING",
+                        "الربط الحالي"
+                      )
                 }
               </div>
 
@@ -1695,7 +1986,11 @@ export default async function CaseInvestigationPage({
                       fontSize: "10px",
                     }}
                   >
-                    Linked Master Identity
+                    {L(
+                      language,
+                      "Linked Master Identity",
+                      "الهوية الرئيسية المرتبطة"
+                    )}
                   </span>
 
                   <strong
@@ -1720,10 +2015,11 @@ export default async function CaseInvestigationPage({
                   lineHeight: 1.6,
                 }}
               >
-                AI reconciliation identified this
-                relationship as inconsistent with
-                the stronger case-level identity
-                evidence.
+                {L(
+                  language,
+                  "AI reconciliation identified this relationship as inconsistent with the stronger case-level identity evidence.",
+                  "حددت عملية المطابقة بالذكاء الاصطناعي أن هذه العلاقة غير متوافقة مع أدلة الهوية الأقوى على مستوى الحالة."
+                )}
               </div>
             </div>
 
@@ -1748,7 +2044,15 @@ export default async function CaseInvestigationPage({
                   color: "#6ca4ff",
                 }}
               >
-                <ArrowRight size={19} />
+                {
+                  language === "ar"
+                    ? (
+                      <ArrowLeft size={19} />
+                    )
+                    : (
+                      <ArrowRight size={19} />
+                    )
+                }
               </div>
             </div>
 
@@ -1773,8 +2077,16 @@ export default async function CaseInvestigationPage({
               >
                 {
                   caseData.isVerifiedClosed
-                    ? "VERIFIED CANONICAL IDENTITY"
-                    : "AI CANONICAL RESOLUTION"
+                    ? L(
+                        language,
+                        "VERIFIED CANONICAL IDENTITY",
+                        "الهوية المرجعية المتحقق منها"
+                      )
+                    : L(
+                        language,
+                        "AI CANONICAL RESOLUTION",
+                        "الحسم المرجعي بالذكاء الاصطناعي"
+                      )
                 }
               </div>
 
@@ -1810,7 +2122,9 @@ export default async function CaseInvestigationPage({
                       fontSize: "10px",
                     }}
                   >
-                    Canonical Identity
+                    {t(
+                      "common.canonicalIdentity"
+                    )}
                   </span>
 
                   <strong
@@ -1831,7 +2145,8 @@ export default async function CaseInvestigationPage({
                 style={{
                   marginTop: "18px",
                   display: "flex",
-                  justifyContent: "space-between",
+                  justifyContent:
+                    "space-between",
                   alignItems: "center",
                   gap: "12px",
                 }}
@@ -1842,7 +2157,11 @@ export default async function CaseInvestigationPage({
                     fontSize: "10px",
                   }}
                 >
-                  AI Identity Confidence
+                  {L(
+                    language,
+                    "AI Identity Confidence",
+                    "ثقة الذكاء الاصطناعي بالهوية"
+                  )}
                 </span>
 
                 <strong
@@ -1869,18 +2188,19 @@ export default async function CaseInvestigationPage({
             marginTop: "16px",
           }}
         >
-
-          {/* CORRELATION EVIDENCE */}
-
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  SYNTHETIC CORRELATION
+                  {t(
+                    "caseDetail.syntheticCorrelation"
+                  )}
                 </div>
 
                 <h2>
-                  Identity Resolution Evidence
+                  {t(
+                    "caseDetail.identityResolutionEvidence"
+                  )}
                 </h2>
               </div>
 
@@ -1906,11 +2226,9 @@ export default async function CaseInvestigationPage({
                   lineHeight: 1.65,
                 }}
               >
-                The current backend demonstration
-                uses synthetic vector-based
-                correlation. It does not expose
-                separate Face, Fingerprint or Iris
-                similarity scores.
+                {t(
+                  "caseDetail.syntheticEvidenceNotice"
+                )}
               </div>
 
 
@@ -1921,17 +2239,25 @@ export default async function CaseInvestigationPage({
               >
                 <div className="detailRow">
                   <span>
-                    Canonical Identity Confidence
+                    {t(
+                      "caseDetail.canonicalIdentityConfidence"
+                    )}
                   </span>
 
                   <strong className="confidence">
-                    {caseData.evidence.resolutionConfidence}%
+                    {
+                      caseData.evidence
+                        .resolutionConfidence
+                    }
+                    %
                   </strong>
                 </div>
 
                 <div className="detailRow">
                   <span>
-                    Supporting Findings
+                    {t(
+                      "caseDetail.supportingFindings"
+                    )}
                   </span>
 
                   <strong>
@@ -1941,7 +2267,9 @@ export default async function CaseInvestigationPage({
 
                 <div className="detailRow">
                   <span>
-                    Canonical Identity Candidate
+                    {t(
+                      "caseDetail.canonicalCandidate"
+                    )}
                   </span>
 
                   <strong className="successText">
@@ -1951,11 +2279,15 @@ export default async function CaseInvestigationPage({
 
                 <div className="detailRow">
                   <span>
-                    Correlation Source
+                    {t(
+                      "caseDetail.evidenceSource"
+                    )}
                   </span>
 
                   <strong>
-                    Synthetic Vector Evidence
+                    {t(
+                      "caseDetail.syntheticVectorEvidence"
+                    )}
                   </strong>
                 </div>
               </div>
@@ -1972,7 +2304,8 @@ export default async function CaseInvestigationPage({
                     "1px solid rgba(73,140,255,0.11)",
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
+                  justifyContent:
+                    "space-between",
                   gap: "15px",
                 }}
               >
@@ -1985,7 +2318,9 @@ export default async function CaseInvestigationPage({
                       fontWeight: 750,
                     }}
                   >
-                    IDENTITY RESOLUTION CONFIDENCE
+                    {t(
+                      "caseDetail.canonicalIdentityConfidence"
+                    )}
                   </span>
 
                   <strong
@@ -1996,7 +2331,11 @@ export default async function CaseInvestigationPage({
                       fontSize: "20px",
                     }}
                   >
-                    {caseData.evidence.resolutionConfidence}%
+                    {
+                      caseData.evidence
+                        .resolutionConfidence
+                    }
+                    %
                   </strong>
                 </div>
 
@@ -2018,20 +2357,19 @@ export default async function CaseInvestigationPage({
 
                   <div>
                     <strong>
-                      Post-Correction Biometric Match
+                      {t(
+                        "caseDetail.postCorrectionBiometricMatch"
+                      )}
                     </strong>
 
                     <span>
-                      Verified biometric match score:
-                      {" "}
-                      {
-                        caseData.evidence
-                          .postCorrectionMatch
-                      }
-                      %.
-                      This value comes from the
-                      completed post-correction
-                      verification stage.
+                      {L(
+                        language,
+
+                        `Verified biometric match score: ${caseData.evidence.postCorrectionMatch}%. This value comes from the completed post-correction verification stage.`,
+
+                        `درجة مطابقة السجل البيومتري المتحقق منها: ${caseData.evidence.postCorrectionMatch}%. هذه القيمة ناتجة عن مرحلة التحقق المكتملة بعد التصحيح.`
+                      )}
                     </span>
                   </div>
                 </div>
@@ -2040,17 +2378,21 @@ export default async function CaseInvestigationPage({
           </div>
 
 
-          {/* PROTECTIVE RISK */}
-
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  PROTECTIVE RISK MODEL
+                  {L(
+                    language,
+                    "PROTECTIVE RISK MODEL",
+                    "نموذج المخاطر الوقائية"
+                  )}
                 </div>
 
                 <h2>
-                  Risk & Harm Analysis
+                  {t(
+                    "caseDetail.riskHarmAnalysis"
+                  )}
                 </h2>
               </div>
 
@@ -2067,19 +2409,33 @@ export default async function CaseInvestigationPage({
               }}
             >
               <RiskMetric
-                label="Risk Score"
+                label={
+                  L(
+                    language,
+                    "Risk Score",
+                    "درجة المخاطر"
+                  )
+                }
                 value={caseData.risk}
                 type="danger"
               />
 
               <RiskMetric
-                label="Harm Impact"
+                label={
+                  t(
+                    "commandCenter.harmImpact"
+                  )
+                }
                 value={caseData.harm}
                 type="danger"
               />
 
               <RiskMetric
-                label="Protective Priority"
+                label={
+                  t(
+                    "common.protectivePriority"
+                  )
+                }
                 value={
                   caseData.protectivePriority
                 }
@@ -2092,20 +2448,23 @@ export default async function CaseInvestigationPage({
 
                 <div>
                   <strong>
-                    Wrongly Affected Person:
-                    {" "}
+                    {t(
+                      "caseDetail.wronglyAffectedPerson"
+                    )}
+                    {": "}
                     {
                       caseData.wronglyAffected
-                        ? "YES"
-                        : "NO"
+                        ? t("common.yes")
+                        : t("common.no")
                     }
                   </strong>
 
                   <span>
-                    Protective Priority can
-                    override normal technical
-                    severity when another person
-                    may be harmed.
+                    {L(
+                      language,
+                      "Protective Priority can override normal technical severity when another person may be harmed.",
+                      "يمكن للأولوية الوقائية تجاوز شدة المشكلة التقنية المعتادة عندما يكون هناك احتمال لضرر شخص آخر."
+                    )}
                   </span>
                 </div>
               </div>
@@ -2127,11 +2486,19 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                CROSS-SYSTEM RECONCILIATION
+                {L(
+                  language,
+                  "CROSS-SYSTEM RECONCILIATION",
+                  "المطابقة بين الأنظمة"
+                )}
               </div>
 
               <h2>
-                Registration Data Comparison
+                {L(
+                  language,
+                  "Registration Data Comparison",
+                  "مقارنة بيانات التسجيل"
+                )}
               </h2>
             </div>
 
@@ -2143,10 +2510,37 @@ export default async function CaseInvestigationPage({
             <table>
               <thead>
                 <tr>
-                  <th>FIELD</th>
-                  <th>BIOMETRIC SYSTEM</th>
-                  <th>MASTER REFERENCE</th>
-                  <th>RESULT</th>
+                  <th>
+                    {L(
+                      language,
+                      "FIELD",
+                      "الحقل"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "BIOMETRIC SYSTEM",
+                      "النظام البيومتري"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "MASTER REFERENCE",
+                      "المرجع الرئيسي"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "RESULT",
+                      "النتيجة"
+                    )}
+                  </th>
                 </tr>
               </thead>
 
@@ -2162,16 +2556,32 @@ export default async function CaseInvestigationPage({
                               color: "#cbd7e7",
                             }}
                           >
-                            {row.field}
+                            {
+                              language === "ar"
+                                ? row.fieldAr
+                                : row.field
+                            }
                           </strong>
                         </td>
 
                         <td className="mono">
-                          {row.current}
+                          {
+                            language === "ar"
+                            &&
+                            row.currentAr
+                              ? row.currentAr
+                              : row.current
+                          }
                         </td>
 
                         <td className="mono">
-                          {row.reference}
+                          {
+                            language === "ar"
+                            &&
+                            row.referenceAr
+                              ? row.referenceAr
+                              : row.reference
+                          }
                         </td>
 
                         <td>
@@ -2195,7 +2605,31 @@ export default async function CaseInvestigationPage({
                                 : undefined
                             }
                           >
-                            {row.result}
+                            {
+                              row.result === "MATCH"
+                                ? L(
+                                    language,
+                                    "MATCH",
+                                    "متطابق"
+                                  )
+                                : row.result === "RELATED"
+                                  ? L(
+                                      language,
+                                      "RELATED",
+                                      "مرتبط"
+                                    )
+                                  : row.result === "MISMATCH"
+                                    ? L(
+                                        language,
+                                        "MISMATCH",
+                                        "غير متطابق"
+                                      )
+                                    : L(
+                                        language,
+                                        "CONFLICT",
+                                        "تعارض"
+                                      )
+                            }
                           </span>
                         </td>
                       </tr>
@@ -2221,11 +2655,17 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                SYNTHETIC SUPPORTING EVIDENCE
+                {t(
+                  "caseDetail.syntheticSupportingEvidence"
+                )}
               </div>
 
               <h2>
-                Findings Supporting This Case
+                {L(
+                  language,
+                  "Findings Supporting This Case",
+                  "النتائج الداعمة لهذه الحالة"
+                )}
               </h2>
             </div>
 
@@ -2243,11 +2683,9 @@ export default async function CaseInvestigationPage({
                 "1px solid rgba(255,255,255,0.045)",
             }}
           >
-            The breakdown below is representative
-            frontend evidence for the synthetic
-            demonstration. Case-level identity,
-            risk and verification metrics remain
-            the authoritative demo values.
+            {t(
+              "caseDetail.representativeEvidenceNotice"
+            )}
           </div>
 
 
@@ -2255,10 +2693,33 @@ export default async function CaseInvestigationPage({
             <table>
               <thead>
                 <tr>
-                  <th>FINDING ID</th>
-                  <th>TYPE</th>
-                  <th>ROLE</th>
-                  <th>AI CONFIDENCE</th>
+                  <th>
+                    {L(
+                      language,
+                      "FINDING ID",
+                      "رقم النتيجة"
+                    )}
+                  </th>
+
+                  <th>
+                    {t("common.type")}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "ROLE",
+                      "الدور"
+                    )}
+                  </th>
+
+                  <th>
+                    {L(
+                      language,
+                      "AI CONFIDENCE",
+                      "ثقة الذكاء الاصطناعي"
+                    )}
+                  </th>
                 </tr>
               </thead>
 
@@ -2273,7 +2734,12 @@ export default async function CaseInvestigationPage({
                         </td>
 
                         <td>
-                          {finding.type}
+                          {
+                            localizeFindingType(
+                              finding.type,
+                              language
+                            )
+                          }
                         </td>
 
                         <td>
@@ -2284,7 +2750,20 @@ export default async function CaseInvestigationPage({
                                 : "priority medium"
                             }
                           >
-                            {finding.role}
+                            {
+                              finding.role
+                              === "PRIMARY"
+                                ? L(
+                                    language,
+                                    "PRIMARY",
+                                    "رئيسي"
+                                  )
+                                : L(
+                                    language,
+                                    "CORROBORATING",
+                                    "داعم"
+                                  )
+                            }
                           </span>
                         </td>
 
@@ -2316,14 +2795,26 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                AI REMEDIATION AGENT
+                {L(
+                  language,
+                  "AI REMEDIATION AGENT",
+                  "وكيل المعالجة بالذكاء الاصطناعي"
+                )}
               </div>
 
               <h2>
                 {
                   caseData.isVerifiedClosed
-                    ? "Executed Correction"
-                    : "Proposed Correction"
+                    ? L(
+                        language,
+                        "Executed Correction",
+                        "التصحيح المنفذ"
+                      )
+                    : L(
+                        language,
+                        "Proposed Correction",
+                        "التصحيح المقترح"
+                      )
                 }
               </h2>
             </div>
@@ -2363,7 +2854,11 @@ export default async function CaseInvestigationPage({
                     letterSpacing: "1px",
                   }}
                 >
-                  BEFORE
+                  {L(
+                    language,
+                    "BEFORE",
+                    "قبل"
+                  )}
                 </div>
 
                 <div
@@ -2428,8 +2923,16 @@ export default async function CaseInvestigationPage({
                 >
                   {
                     caseData.isVerifiedClosed
-                      ? "VERIFIED AFTER"
-                      : "AI PROPOSED AFTER"
+                      ? L(
+                          language,
+                          "VERIFIED AFTER",
+                          "بعد التحقق"
+                        )
+                      : L(
+                          language,
+                          "AI PROPOSED AFTER",
+                          "بعد التصحيح المقترح"
+                        )
                   }
                 </div>
 
@@ -2487,16 +2990,34 @@ export default async function CaseInvestigationPage({
             >
               {[
                 [
-                  "Action",
+                  L(
+                    language,
+                    "Action",
+                    "الإجراء"
+                  ),
                   caseData.correction.action,
                 ],
+
                 [
-                  "Target System",
+                  L(
+                    language,
+                    "Target System",
+                    "النظام المستهدف"
+                  ),
                   caseData.correction.targetSystem,
                 ],
+
                 [
-                  "Execution",
-                  caseData.correction.execution,
+                  L(
+                    language,
+                    "Execution",
+                    "التنفيذ"
+                  ),
+                  localizeStatus(
+                    caseData.correction.execution,
+                    language,
+                    t
+                  ),
                 ],
               ].map(
                 ([
@@ -2560,16 +3081,32 @@ export default async function CaseInvestigationPage({
                 <strong>
                   {
                     caseData.isVerifiedClosed
-                      ? "Controlled Correction Completed"
-                      : "Execution Locked"
+                      ? L(
+                          language,
+                          "Controlled Correction Completed",
+                          "اكتمل التصحيح الخاضع للتحكم"
+                        )
+                      : L(
+                          language,
+                          "Execution Locked",
+                          "التنفيذ مقفل"
+                        )
                   }
                 </strong>
 
                 <span>
                   {
                     caseData.isVerifiedClosed
-                      ? "The correction was executed only after both required human approvals and subsequently passed verification."
-                      : "The AI can recommend and prepare this correction but cannot execute it until both Monitoring Officer and Manager approvals are complete."
+                      ? L(
+                          language,
+                          "The correction was executed only after both required human approvals and subsequently passed verification.",
+                          "تم تنفيذ التصحيح فقط بعد الحصول على الاعتمادين البشريين المطلوبين، ثم اجتاز مرحلة التحقق."
+                        )
+                      : L(
+                          language,
+                          "The AI can recommend and prepare this correction but cannot execute it until both Monitoring Officer and Manager approvals are complete.",
+                          "يمكن للذكاء الاصطناعي اقتراح هذا التصحيح وتجهيزه، لكنه لا يستطيع تنفيذه قبل اكتمال اعتماد ضابط المراقبة والمدير."
+                        )
                   }
                 </span>
               </div>
@@ -2594,11 +3131,17 @@ export default async function CaseInvestigationPage({
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  HUMAN REVIEW · LEVEL 1
+                  {L(
+                    language,
+                    "HUMAN REVIEW · LEVEL 1",
+                    "المراجعة البشرية · المستوى الأول"
+                  )}
                 </div>
 
                 <h2>
-                  Monitoring Officer
+                  {t(
+                    "common.monitoringOfficer"
+                  )}
                 </h2>
               </div>
 
@@ -2614,7 +3157,8 @@ export default async function CaseInvestigationPage({
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "space-between",
+                  justifyContent:
+                    "space-between",
                   alignItems: "center",
                   marginBottom: "15px",
                 }}
@@ -2627,7 +3171,11 @@ export default async function CaseInvestigationPage({
                       fontSize: "10px",
                     }}
                   >
-                    REVIEW STATUS
+                    {L(
+                      language,
+                      "REVIEW STATUS",
+                      "حالة المراجعة"
+                    )}
                   </span>
 
                   <strong
@@ -2636,14 +3184,21 @@ export default async function CaseInvestigationPage({
                       marginTop: "4px",
 
                       color:
-                        caseData.officer.status === "APPROVED"
+                        caseData.officer.status
+                        === "APPROVED"
                           ? "#59cfa0"
                           : "#ffbd67",
 
                       fontSize: "11px",
                     }}
                   >
-                    {caseData.officer.status}
+                    {
+                      localizeStatus(
+                        caseData.officer.status,
+                        language,
+                        t
+                      )
+                    }
                   </strong>
                 </div>
 
@@ -2667,22 +3222,44 @@ export default async function CaseInvestigationPage({
 
               <div className="detailRow">
                 <span>
-                  Officer
+                  {L(
+                    language,
+                    "Officer",
+                    "الضابط"
+                  )}
                 </span>
 
                 <strong>
-                  {caseData.officer.name}
+                  {
+                    language === "ar"
+                      ? (
+                          caseData.isVerifiedClosed
+                            ? "ضابط المراقبة التجريبي"
+                            : "غير معين"
+                        )
+                      : caseData.officer.name
+                  }
                 </strong>
               </div>
 
 
               <div className="detailRow">
                 <span>
-                  Decision
+                  {L(
+                    language,
+                    "Decision",
+                    "القرار"
+                  )}
                 </span>
 
                 <strong>
-                  {caseData.officer.decision}
+                  {
+                    localizeStatus(
+                      caseData.officer.decision,
+                      language,
+                      t
+                    )
+                  }
                 </strong>
               </div>
 
@@ -2694,7 +3271,19 @@ export default async function CaseInvestigationPage({
                   lineHeight: 1.65,
                 }}
               >
-                {caseData.officer.comments}
+                {
+                  caseData.isVerifiedClosed
+                    ? L(
+                        language,
+                        caseData.officer.comments,
+                        "راجع ضابط المراقبة أدلة التحقيق واعتمد التصحيح المقترح."
+                      )
+                    : L(
+                        language,
+                        caseData.officer.comments,
+                        "بانتظار مراجعة ضابط المراقبة."
+                      )
+                }
               </p>
 
 
@@ -2711,20 +3300,29 @@ export default async function CaseInvestigationPage({
                   <button className="primaryButton">
                     <Check size={17} />
 
-                    Approve
+                    {L(
+                      language,
+                      "Approve",
+                      "اعتماد"
+                    )}
                   </button>
 
                   <button
                     className="searchButton"
                     style={{
-                      justifyContent: "center",
+                      justifyContent:
+                        "center",
                       height: "42px",
                       borderColor:
                         "rgba(255,185,90,0.15)",
                       color: "#e0ad5f",
                     }}
                   >
-                    More Investigation
+                    {L(
+                      language,
+                      "More Investigation",
+                      "مزيد من التحقيق"
+                    )}
                   </button>
                 </div>
               )}
@@ -2736,11 +3334,17 @@ export default async function CaseInvestigationPage({
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  HUMAN REVIEW · LEVEL 2
+                  {L(
+                    language,
+                    "HUMAN REVIEW · LEVEL 2",
+                    "المراجعة البشرية · المستوى الثاني"
+                  )}
                 </div>
 
                 <h2>
-                  Manager Approval
+                  {t(
+                    "common.managerApproval"
+                  )}
                 </h2>
               </div>
 
@@ -2756,7 +3360,8 @@ export default async function CaseInvestigationPage({
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "space-between",
+                  justifyContent:
+                    "space-between",
                   alignItems: "center",
                   marginBottom: "15px",
                 }}
@@ -2769,7 +3374,11 @@ export default async function CaseInvestigationPage({
                       fontSize: "10px",
                     }}
                   >
-                    APPROVAL STATUS
+                    {L(
+                      language,
+                      "APPROVAL STATUS",
+                      "حالة الاعتماد"
+                    )}
                   </span>
 
                   <strong
@@ -2778,14 +3387,21 @@ export default async function CaseInvestigationPage({
                       marginTop: "4px",
 
                       color:
-                        caseData.manager.status === "APPROVED"
+                        caseData.manager.status
+                        === "APPROVED"
                           ? "#59cfa0"
                           : "#8495aa",
 
                       fontSize: "11px",
                     }}
                   >
-                    {caseData.manager.status}
+                    {
+                      localizeStatus(
+                        caseData.manager.status,
+                        language,
+                        t
+                      )
+                    }
                   </strong>
                 </div>
 
@@ -2809,22 +3425,44 @@ export default async function CaseInvestigationPage({
 
               <div className="detailRow">
                 <span>
-                  Manager
+                  {L(
+                    language,
+                    "Manager",
+                    "المدير"
+                  )}
                 </span>
 
                 <strong>
-                  {caseData.manager.name}
+                  {
+                    language === "ar"
+                      ? (
+                          caseData.isVerifiedClosed
+                            ? "المدير المشرف التجريبي"
+                            : "غير معين"
+                        )
+                      : caseData.manager.name
+                  }
                 </strong>
               </div>
 
 
               <div className="detailRow">
                 <span>
-                  Decision
+                  {L(
+                    language,
+                    "Decision",
+                    "القرار"
+                  )}
                 </span>
 
                 <strong>
-                  {caseData.manager.decision}
+                  {
+                    localizeStatus(
+                      caseData.manager.decision,
+                      language,
+                      t
+                    )
+                  }
                 </strong>
               </div>
 
@@ -2836,7 +3474,19 @@ export default async function CaseInvestigationPage({
                   lineHeight: 1.65,
                 }}
               >
-                {caseData.manager.comments}
+                {
+                  caseData.isVerifiedClosed
+                    ? L(
+                        language,
+                        caseData.manager.comments,
+                        "أكمل المدير المراجعة من المستوى الثاني وصرح بالتنفيذ الخاضع للتحكم."
+                      )
+                    : L(
+                        language,
+                        caseData.manager.comments,
+                        "تتاح مراجعة المدير فقط بعد اعتماد ضابط المراقبة."
+                      )
+                }
               </p>
 
 
@@ -2846,14 +3496,19 @@ export default async function CaseInvestigationPage({
                   disabled
                   style={{
                     width: "100%",
-                    justifyContent: "center",
+                    justifyContent:
+                      "center",
                     height: "42px",
                     marginTop: "16px",
                   }}
                 >
                   <LockKeyhole size={16} />
 
-                  Waiting for Officer Approval
+                  {L(
+                    language,
+                    "Waiting for Officer Approval",
+                    "بانتظار اعتماد الضابط"
+                  )}
                 </button>
               )}
             </div>
@@ -2874,12 +3529,19 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                CONTROLLED CORRECTION LIFECYCLE
+                {L(
+                  language,
+                  "CONTROLLED CORRECTION LIFECYCLE",
+                  "دورة التصحيح الخاضع للتحكم"
+                )}
               </div>
 
               <h2>
-                Execution & Post-Correction
-                Verification
+                {L(
+                  language,
+                  "Execution & Post-Correction Verification",
+                  "التنفيذ والتحقق بعد التصحيح"
+                )}
               </h2>
             </div>
 
@@ -2899,7 +3561,11 @@ export default async function CaseInvestigationPage({
             {[
               {
                 label:
-                  "Execution",
+                  L(
+                    language,
+                    "Execution",
+                    "التنفيذ"
+                  ),
 
                 value:
                   caseData.correction.execution,
@@ -2910,7 +3576,11 @@ export default async function CaseInvestigationPage({
 
               {
                 label:
-                  "Verification",
+                  L(
+                    language,
+                    "Verification",
+                    "التحقق"
+                  ),
 
                 value:
                   caseData.verification.status,
@@ -2921,7 +3591,11 @@ export default async function CaseInvestigationPage({
 
               {
                 label:
-                  "Case Closure",
+                  L(
+                    language,
+                    "Case Closure",
+                    "إغلاق الحالة"
+                  ),
 
                 value:
                   caseData.verification.finalStatus,
@@ -2998,7 +3672,13 @@ export default async function CaseInvestigationPage({
                         fontSize: "10px",
                       }}
                     >
-                      {item.value}
+                      {
+                        localizeStatus(
+                          item.value,
+                          language,
+                          t
+                        )
+                      }
                     </span>
                   </div>
                 );
@@ -3023,39 +3703,20 @@ export default async function CaseInvestigationPage({
 
                 <div>
                   <strong>
-                    Verification Score:
-                    {" "}
+                    {t(
+                      "caseDetail.verificationScore"
+                    )}
+                    {": "}
                     {caseData.verification.score}
                   </strong>
 
                   <span>
-                    Biometric Match:
-                    {" "}
-                    {caseData.verification.biometricMatch}%
-                    {" · "}
-                    Identity Mapping Valid:
-                    {" "}
-                    {
-                      caseData.verification.identityMappingValid
-                        ? "TRUE"
-                        : "FALSE"
-                    }
-                    {" · "}
-                    Conflict Resolved:
-                    {" "}
-                    {
-                      caseData.verification.conflictResolved
-                        ? "TRUE"
-                        : "FALSE"
-                    }
-                    {" · "}
-                    Secondary Conflict:
-                    {" "}
-                    {
-                      caseData.verification.secondaryConflict
-                        ? "TRUE"
-                        : "FALSE"
-                    }
+                    {L(
+                      language,
+                      `Biometric Match: ${caseData.verification.biometricMatch}% · Identity Mapping Valid: ${caseData.verification.identityMappingValid ? "TRUE" : "FALSE"} · Conflict Resolved: ${caseData.verification.conflictResolved ? "TRUE" : "FALSE"} · Secondary Conflict: ${caseData.verification.secondaryConflict ? "TRUE" : "FALSE"}`,
+
+                      `مطابقة السجل البيومتري: ${caseData.verification.biometricMatch}% · ربط الهوية صحيح: ${caseData.verification.identityMappingValid ? "نعم" : "لا"} · تم حل التعارض: ${caseData.verification.conflictResolved ? "نعم" : "لا"} · تعارض ثانوي: ${caseData.verification.secondaryConflict ? "نعم" : "لا"}`
+                    )}
                   </span>
                 </div>
               </div>
@@ -3065,7 +3726,7 @@ export default async function CaseInvestigationPage({
 
 
         {/* ===============================================
-            AUDIT TIMELINE
+            AUDIT
             =============================================== */}
 
         <section
@@ -3077,11 +3738,19 @@ export default async function CaseInvestigationPage({
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                TRACEABLE CASE HISTORY
+                {L(
+                  language,
+                  "TRACEABLE CASE HISTORY",
+                  "سجل الحالة القابل للتتبع"
+                )}
               </div>
 
               <h2>
-                Audit Sequence
+                {L(
+                  language,
+                  "Audit Sequence",
+                  "تسلسل التدقيق"
+                )}
               </h2>
             </div>
 
@@ -3125,7 +3794,11 @@ export default async function CaseInvestigationPage({
                         paddingTop: "3px",
                       }}
                     >
-                      STEP {event.sequence}
+                      {L(
+                        language,
+                        `STEP ${event.sequence}`,
+                        `الخطوة ${event.sequence}`
+                      )}
                     </div>
 
 
@@ -3160,7 +3833,11 @@ export default async function CaseInvestigationPage({
                             color: "#cbd8e7",
                           }}
                         >
-                          {event.action}
+                          {
+                            language === "ar"
+                              ? event.actionAr
+                              : event.action
+                          }
                         </strong>
 
                         <span
@@ -3169,7 +3846,11 @@ export default async function CaseInvestigationPage({
                             fontSize: "10px",
                           }}
                         >
-                          {event.actor}
+                          {
+                            language === "ar"
+                              ? event.actorAr
+                              : event.actor
+                          }
                         </span>
                       </div>
 
@@ -3181,7 +3862,11 @@ export default async function CaseInvestigationPage({
                           marginTop: "5px",
                         }}
                       >
-                        {event.detail}
+                        {
+                          language === "ar"
+                            ? event.detailAr
+                            : event.detail
+                        }
                       </div>
                     </div>
                   </div>
@@ -3207,20 +3892,21 @@ export default async function CaseInvestigationPage({
 
           <div>
             <strong>
-              Human-in-the-Loop Identity
-              Governance
+              {L(
+                language,
+                "Human-in-the-Loop Identity Governance",
+                "حوكمة الهوية مع إشراف بشري"
+              )}
             </strong>
 
             <span>
-              AI can detect, investigate,
-              prioritize and recommend
-              corrections, but AI approval is
-              disabled. Officer and Manager
-              authorization are required before
-              controlled execution.
-              The Master Reference remains
-              {" "}
-              {GOVERNANCE.masterReferenceAccess}.
+              {L(
+                language,
+
+                `AI can detect, investigate, prioritize and recommend corrections, but AI approval is disabled. Officer and Manager authorization are required before controlled execution. The Master Reference remains ${GOVERNANCE.masterReferenceAccess}.`,
+
+                "يمكن للذكاء الاصطناعي اكتشاف الحالات والتحقيق فيها وتحديد الأولويات واقتراح التصحيحات، لكن اعتماد الذكاء الاصطناعي غير مسموح. يلزم تصريح ضابط المراقبة والمدير قبل التنفيذ الخاضع للتحكم. ويظل المرجع الرئيسي للقراءة فقط."
+              )}
             </span>
           </div>
         </section>
@@ -3232,14 +3918,19 @@ export default async function CaseInvestigationPage({
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Synthetic Demonstration
+            {t("footer.platform")}
+            {" · "}
+            {t("footer.demo")}
           </span>
 
           <div>
             <Clock3 size={15} />
 
-            Traceable Case Lifecycle
+            {L(
+              language,
+              "Traceable Case Lifecycle",
+              "دورة حالة قابلة للتتبع"
+            )}
           </div>
         </footer>
 

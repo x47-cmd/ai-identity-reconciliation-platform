@@ -1,29 +1,23 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
   Activity,
-  AlertTriangle,
-  BadgeCheck,
   BarChart3,
   BrainCircuit,
   ChevronRight,
-  CircleAlert,
-  Clock3,
   Database,
-  FileCheck2,
   FileSearch,
   Fingerprint,
   Gauge,
-  LayoutDashboard,
   PieChart,
   Search,
   ShieldAlert,
   ShieldCheck,
   Timer,
-  TrendingDown,
   TrendingUp,
   UserCheck,
-  Users,
 } from "lucide-react";
 
 
@@ -296,128 +290,6 @@ const powerBiDatasets = [
     status: "READY",
   },
 ];
-
-
-/* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-          <span>Cases</span>
-          <span className="navCount">
-            53
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <BrainCircuit size={19} />
-          <span>AI Investigations</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/officer-review"
-        >
-          <UserCheck size={19} />
-          <span>Officer Review</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/manager-approval"
-        >
-          <BadgeCheck size={19} />
-          <span>Manager Approval</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/corrections-verification"
-        >
-          <FileCheck2 size={19} />
-          <span>
-            Corrections & Verification
-          </span>
-        </Link>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <Link
-          className="navItem active"
-          href="/analytics"
-        >
-          <Gauge size={19} />
-          <span>Analytics</span>
-        </Link>
-
-        <div className="navItem">
-          <Database size={19} />
-          <span>Data Integrity</span>
-        </div>
-
-        <div className="navItem">
-          <Activity size={19} />
-          <span>Audit Trail</span>
-        </div>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 
 /* =========================================================
@@ -1035,7 +907,13 @@ function TrendChart() {
 export default function AnalyticsPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
+
 
       <main className="mainContent">
 
@@ -1162,7 +1040,7 @@ export default function AnalyticsPage() {
 
 
         {/* ================================================
-            PRIORITY + ERROR DISTRIBUTION
+            PRIORITY + PROTECTIVE RISK
             ================================================ */}
 
         <section className="dashboardGrid">
@@ -1638,6 +1516,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
+
           <div className="metricCard">
             <div className="metricIcon">
               <Database size={20} />
@@ -1656,6 +1535,7 @@ export default function AnalyticsPage() {
             </div>
           </div>
 
+
           <div className="metricCard">
             <div className="metricIcon">
               <Fingerprint size={20} />
@@ -1673,6 +1553,7 @@ export default function AnalyticsPage() {
               Continuously reconciled dataset
             </div>
           </div>
+
 
           <div className="metricCard">
             <div className="metricIcon">
@@ -1718,6 +1599,7 @@ export default function AnalyticsPage() {
 
             <BrainCircuit size={22} />
           </div>
+
 
           <div className="tableWrap">
             <table>
@@ -1842,6 +1724,7 @@ export default function AnalyticsPage() {
             <BarChart3 size={22} />
           </div>
 
+
           <div
             style={{
               display:
@@ -1900,9 +1783,7 @@ export default function AnalyticsPage() {
                       "10px",
                   }}
                 >
-                  <div
-                    className="metricIcon"
-                  >
+                  <div className="metricIcon">
                     <BarChart3 size={21} />
                   </div>
 
@@ -1941,6 +1822,7 @@ export default function AnalyticsPage() {
                     </span>
                   </div>
                 </div>
+
 
                 <div
                   style={{
@@ -2027,6 +1909,7 @@ export default function AnalyticsPage() {
                   )}
                 </div>
               </div>
+
 
               <div
                 style={{
@@ -2430,6 +2313,10 @@ export default function AnalyticsPage() {
         </section>
 
 
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
             AI Identity Reconciliation Platform
@@ -2438,9 +2325,11 @@ export default function AnalyticsPage() {
 
           <div>
             <Activity size={15} />
+
             Intelligence Monitoring Active
           </div>
         </footer>
+
       </main>
     </div>
   );

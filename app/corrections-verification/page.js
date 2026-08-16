@@ -1,22 +1,17 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
-  Activity,
   AlertTriangle,
   BadgeCheck,
-  BrainCircuit,
   CheckCircle2,
   ChevronRight,
   CircleCheckBig,
-  Clock3,
   Database,
   FileCheck2,
-  FileSearch,
-  Fingerprint,
-  Gauge,
   GitCompareArrows,
   History,
-  LayoutDashboard,
   LockKeyhole,
   RefreshCcw,
   RotateCcw,
@@ -81,144 +76,6 @@ const correctionCases = [
     priority: "HIGH",
   },
 ];
-
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-
-          <span>
-            Command Center
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-
-          <span>
-            Cases
-          </span>
-
-          <span className="navCount">
-            53
-          </span>
-        </Link>
-
-        <div className="navItem">
-          <BrainCircuit size={19} />
-
-          <span>
-            AI Investigations
-          </span>
-        </div>
-
-        <Link
-          className="navItem"
-          href="/officer-review"
-        >
-          <UserCheck size={19} />
-
-          <span>
-            Officer Review
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/manager-approval"
-        >
-          <BadgeCheck size={19} />
-
-          <span>
-            Manager Approval
-          </span>
-        </Link>
-
-        <Link
-          className="navItem active"
-          href="/corrections-verification"
-        >
-          <CircleCheckBig size={19} />
-
-          <span>
-            Corrections & Verification
-          </span>
-        </Link>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <div className="navItem">
-          <Gauge size={19} />
-
-          <span>
-            Analytics
-          </span>
-        </div>
-
-        <div className="navItem">
-          <Database size={19} />
-
-          <span>
-            Data Integrity
-          </span>
-        </div>
-
-        <div className="navItem">
-          <Activity size={19} />
-
-          <span>
-            Audit Trail
-          </span>
-        </div>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 
 function Metric({
@@ -388,7 +245,13 @@ function BooleanResult({
 export default function CorrectionsVerificationPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
+
 
       <main className="mainContent">
 
@@ -1631,6 +1494,10 @@ export default function CorrectionsVerificationPage() {
         </section>
 
 
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
             AI Identity Reconciliation Platform
@@ -1639,9 +1506,11 @@ export default function CorrectionsVerificationPage() {
 
           <div>
             <ShieldCheck size={15} />
+
             Closed-Loop Verification Active
           </div>
         </footer>
+
       </main>
     </div>
   );

@@ -43,11 +43,9 @@ function L(
 
 
 /* =========================================================
-   DEMO SNAPSHOT
+   WORKFLOW SNAPSHOT
    ========================================================= */
 
-const MASTER_IDENTITIES = 3000;
-const BIOMETRIC_RECORDS = 1000;
 const AWAITING_REVIEW = 5;
 
 
@@ -58,75 +56,91 @@ const AWAITING_REVIEW = 5;
 const dashboardMetrics = [
   {
     key: "master",
-    value: "3,000",
+
+    value: PLATFORM_METRICS.masterIdentities.toLocaleString(),
+
     icon: Database,
 
     en: {
-      title: "Reference Identities",
+      title: "Master Reference Records",
+
       subtitle:
-        "Authoritative identities used for comparison",
+        "Authoritative records used for biometric comparison",
     },
 
     ar: {
-      title: "الهويات المرجعية",
+      title: "سجلات المرجع المعتمد",
+
       subtitle:
-        "الهويات المعتمدة المستخدمة في المطابقة",
+        "السجلات المرجعية المستخدمة في المطابقة البيومترية",
     },
   },
 
   {
     key: "biometric",
-    value: "1,000",
+
+    value: PLATFORM_METRICS.biometricRecords.toLocaleString(),
+
     icon: Fingerprint,
 
     en: {
       title: "Biometric Records",
+
       subtitle:
-        "Operational records monitored by the system",
+        "Operational biometric records monitored by the system",
     },
 
     ar: {
       title: "السجلات البيومترية",
+
       subtitle:
-        "السجلات التشغيلية التي يراقبها النظام",
+        "السجلات التشغيلية التي تتم مراقبتها ومطابقتها",
     },
   },
 
   {
     key: "cases",
+
     value: String(
       PLATFORM_METRICS.aggregatedCases
     ),
+
     icon: FileSearch,
 
     en: {
       title: "Detected Cases",
+
       subtitle:
-        "Identity issues detected for investigation",
+        "Matching and linking problems detected by the system",
     },
 
     ar: {
       title: "الحالات المكتشفة",
+
       subtitle:
-        "مشكلات هوية رصدها النظام للتحقيق",
+        "مشكلات في المطابقة والربط رصدها النظام",
     },
   },
 
   {
     key: "review",
+
     value: String(
       AWAITING_REVIEW
     ),
+
     icon: UserCheck,
 
     en: {
       title: "Awaiting Review",
+
       subtitle:
         "Cases currently requiring a human decision",
     },
 
     ar: {
       title: "بانتظار المراجعة",
+
       subtitle:
         "حالات تحتاج حاليًا إلى قرار بشري",
     },
@@ -137,7 +151,7 @@ const dashboardMetrics = [
 /* =========================================================
    IMPORTANT CASES
 
-   Names are synthetic demonstration names.
+   Synthetic demonstration names only.
    ========================================================= */
 
 const attentionCases = [
@@ -184,10 +198,8 @@ const attentionCases = [
     id:
       COMPLEX_DEMO_CASE.id,
 
-    person: {
-      en: "Ali Saeed Al Dhaheri",
-      ar: "علي سعيد الظاهري",
-    },
+    person:
+      COMPLEX_DEMO_CASE.person,
 
     issue:
       COMPLEX_DEMO_CASE.caseType,
@@ -207,7 +219,7 @@ const attentionCases = [
 
 
 /* =========================================================
-   SIMPLE AI STATUS
+   SMART MONITORING STATUS
    ========================================================= */
 
 const aiStatus = [
@@ -216,15 +228,19 @@ const aiStatus = [
 
     en: {
       title: "Continuous Monitoring",
+
       description:
-        "New and changed biometric relationships are monitored.",
+        "New and changed biometric record relationships are monitored.",
+
       status: "Active",
     },
 
     ar: {
       title: "المراقبة المستمرة",
+
       description:
         "تتم مراقبة علاقات السجلات البيومترية الجديدة والمتغيرة.",
+
       status: "نشطة",
     },
   },
@@ -233,16 +249,20 @@ const aiStatus = [
     icon: Fingerprint,
 
     en: {
-      title: "AI Identity Comparison",
+      title: "AI Biometric Reconciliation",
+
       description:
-        "Biometric relationships are compared with the Master Reference.",
+        "Biometric records are compared with the authoritative Master Reference.",
+
       status: "Active",
     },
 
     ar: {
-      title: "مطابقة الهوية بالذكاء الاصطناعي",
+      title: "المطابقة البيومترية بالذكاء الاصطناعي",
+
       description:
-        "تتم مقارنة علاقات السجلات البيومترية مع المرجع الرئيسي.",
+        "تتم مقارنة السجلات البيومترية مع المرجع الرئيسي المعتمد.",
+
       status: "نشطة",
     },
   },
@@ -252,15 +272,19 @@ const aiStatus = [
 
     en: {
       title: "AI Case Analysis",
+
       description:
         "Detected conflicts are analyzed and prepared for human review.",
+
       status: "Active",
     },
 
     ar: {
       title: "تحليل الحالات بالذكاء الاصطناعي",
+
       description:
-        "يتم تحليل التعارضات المكتشفة وتجهيزها للمراجعة البشرية.",
+        "يتم تحليل التعارضات المكتشفة وتجهيز النتائج للمراجعة البشرية.",
+
       status: "نشط",
     },
   },
@@ -292,8 +316,8 @@ function getIssueLabel(
     },
 
     WRONG_MAPPING: {
-      en: "Incorrect Identity Link",
-      ar: "ربط هوية غير صحيح",
+      en: "Incorrect Record-to-Person Link",
+      ar: "ربط السجل بشخص غير صحيح",
     },
 
     DATA_MISMATCH: {
@@ -302,13 +326,13 @@ function getIssueLabel(
     },
 
     DUPLICATE_IDENTITY: {
-      en: "Duplicate Identity",
-      ar: "هوية مكررة",
+      en: "Duplicate Identity Record",
+      ar: "سجل هوية مكرر",
     },
 
     ORPHAN_RECORD: {
-      en: "Missing Identity Link",
-      ar: "سجل بدون هوية مرتبطة",
+      en: "Missing Reference Link",
+      ar: "سجل بدون مرجع مرتبط",
     },
   };
 
@@ -418,7 +442,7 @@ function MetricCard({
         <span className="metricStatus">
           {L(
             language,
-            "LIVE DEMO",
+            "DEMO DATA",
             "بيانات تجريبية"
           )}
         </span>
@@ -508,6 +532,7 @@ export default function Home() {
         <header className="topbar">
 
           <div>
+
             <div className="eyebrow">
               <Sparkles
                 size={15}
@@ -516,8 +541,8 @@ export default function Home() {
 
               {L(
                 language,
-                "AI IDENTITY MONITORING",
-                "مراقبة الهوية بالذكاء الاصطناعي"
+                "AI BIOMETRIC MONITORING",
+                "المراقبة البيومترية بالذكاء الاصطناعي"
               )}
             </div>
 
@@ -525,8 +550,8 @@ export default function Home() {
             <h1>
               {L(
                 language,
-                "Identity Monitoring Dashboard",
-                "لوحة مراقبة الهوية"
+                "Biometric Reconciliation Dashboard",
+                "لوحة المطابقة البيومترية"
               )}
             </h1>
 
@@ -535,11 +560,12 @@ export default function Home() {
               {L(
                 language,
 
-                "Monitor identity relationships, detect problems with AI, and send cases that require action to the appropriate human reviewer.",
+                "Monitor biometric records and their links with the authoritative reference, detect conflicts with AI, and route cases requiring action to the appropriate reviewer.",
 
-                "مراقبة علاقات الهوية واكتشاف المشكلات بالذكاء الاصطناعي وتحويل الحالات التي تحتاج إجراء إلى الموظف المختص."
+                "مراقبة السجلات البيومترية وروابطها بالمرجع المعتمد، واكتشاف التعارضات بالذكاء الاصطناعي وتحويل الحالات التي تحتاج إلى إجراء للموظف المختص."
               )}
             </p>
+
           </div>
 
 
@@ -568,6 +594,7 @@ export default function Home() {
             </Link>
 
           </div>
+
         </header>
 
 
@@ -591,23 +618,26 @@ export default function Home() {
           />
 
           <div>
+
             <strong>
               {L(
                 language,
-                "What is the system monitoring?",
+                "What does the system monitor?",
                 "ماذا يراقب النظام؟"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
 
-                `The system compares ${BIOMETRIC_RECORDS.toLocaleString()} biometric records with ${MASTER_IDENTITIES.toLocaleString()} authoritative identities. AI analysis detected ${PLATFORM_METRICS.aggregatedCases} identity cases that require investigation or follow-up.`,
+                `The system continuously compares ${PLATFORM_METRICS.biometricRecords.toLocaleString()} biometric records with ${PLATFORM_METRICS.masterIdentities.toLocaleString()} authoritative reference records. AI detected ${PLATFORM_METRICS.aggregatedCases} cases that require investigation, review or follow-up.`,
 
-                `يقارن النظام ${BIOMETRIC_RECORDS.toLocaleString()} سجل بيومتري مع ${MASTER_IDENTITIES.toLocaleString()} هوية معتمدة. واكتشف تحليل الذكاء الاصطناعي ${PLATFORM_METRICS.aggregatedCases} حالة هوية تحتاج إلى تحقيق أو متابعة.`
+                `يقارن النظام بشكل مستمر ${PLATFORM_METRICS.biometricRecords.toLocaleString()} سجل بيومتري مع ${PLATFORM_METRICS.masterIdentities.toLocaleString()} سجل في المرجع المعتمد. واكتشف الذكاء الاصطناعي ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى تحقيق أو مراجعة أو متابعة.`
               )}
             </span>
+
           </div>
         </section>
 
@@ -648,6 +678,7 @@ export default function Home() {
 
 
           <div className="alertText">
+
             <strong>
               {L(
                 language,
@@ -658,15 +689,17 @@ export default function Home() {
               )}
             </strong>
 
+
             <span>
               {L(
                 language,
 
-                "These cases include identity conflicts where an incorrect relationship may affect another person. AI identifies the risk, but the final decision remains with authorized staff.",
+                "These cases include conflicts where an incorrect biometric-to-person relationship may affect another person. AI assesses the risk, while the final decision remains with authorized staff.",
 
-                "تشمل هذه الحالات تعارضات هوية قد يؤدي فيها الربط الخاطئ إلى التأثير على شخص آخر. يحدد الذكاء الاصطناعي مستوى الخطر، بينما يبقى القرار النهائي لدى الموظفين المخولين."
+                "تشمل هذه الحالات تعارضات قد يؤدي فيها ربط السجل البيومتري بشخص غير صحيح إلى التأثير على شخص آخر. يحلل الذكاء الاصطناعي مستوى الخطر، بينما يبقى القرار النهائي لدى الموظفين المخولين."
               )}
             </span>
+
           </div>
 
 
@@ -701,7 +734,9 @@ export default function Home() {
           <div className="panel">
 
             <div className="panelHeader">
+
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
@@ -710,6 +745,7 @@ export default function Home() {
                   )}
                 </div>
 
+
                 <h2>
                   {L(
                     language,
@@ -717,6 +753,7 @@ export default function Home() {
                     "الحالات المهمة"
                   )}
                 </h2>
+
               </div>
 
 
@@ -740,6 +777,7 @@ export default function Home() {
                   aria-hidden="true"
                 />
               </Link>
+
             </div>
 
 
@@ -753,11 +791,13 @@ export default function Home() {
                 (item) => {
 
                   const personName =
-                    item.person[
+                    item.person?.[
                       language
                     ]
                     ||
-                    item.person.en;
+                    item.person?.en
+                    ||
+                    item.id;
 
 
                   const content = (
@@ -976,42 +1016,48 @@ export default function Home() {
               {L(
                 language,
 
-                "AI analyzes the evidence, identifies likely identity conflicts and prepares recommendations. Sensitive corrections still require human approval.",
+                "AI analyzes biometric and reference evidence, identifies likely conflicts and prepares recommendations. Sensitive corrections still require human approval.",
 
-                "يحلل الذكاء الاصطناعي الأدلة ويحدد تعارضات الهوية المحتملة ويجهز التوصيات، بينما تتطلب التصحيحات الحساسة اعتمادًا بشريًا."
+                "يحلل الذكاء الاصطناعي الأدلة البيومترية والبيانات المرجعية، ويحدد التعارضات المحتملة ويجهز التوصيات، بينما تتطلب التصحيحات الحساسة اعتمادًا بشريًا."
               )}
             </div>
 
           </div>
 
 
-          {/* SIMPLE AI STATUS */}
+          {/* SMART MONITORING */}
 
           <div className="panel agentPanel">
 
             <div className="panelHeader">
+
               <div>
+
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "AI SYSTEM",
-                    "النظام الذكي"
+                    "AI MONITORING",
+                    "المراقبة الذكية"
                   )}
                 </div>
+
 
                 <h2>
                   {L(
                     language,
                     "Smart Monitoring Status",
-                    "حالة المراقبة الذكية"
+                    "حالة النظام الذكي"
                   )}
                 </h2>
+
               </div>
+
 
               <BrainCircuit
                 size={22}
                 aria-hidden="true"
               />
+
             </div>
 
 
@@ -1037,6 +1083,7 @@ export default function Home() {
                       className="agentItem"
                       key={index}
                     >
+
                       <div className="agentLeft">
 
                         <div className="agentIcon">
@@ -1048,6 +1095,7 @@ export default function Home() {
 
 
                         <div>
+
                           <strong>
                             {content.title}
                           </strong>
@@ -1057,6 +1105,7 @@ export default function Home() {
                               content.description
                             }
                           </span>
+
                         </div>
 
                       </div>
@@ -1072,6 +1121,7 @@ export default function Home() {
                         {content.status}
 
                       </div>
+
                     </div>
                   );
                 }
@@ -1101,13 +1151,14 @@ export default function Home() {
               {L(
                 language,
 
-                "The AI supports monitoring, analysis and recommendations. It cannot independently approve or execute sensitive identity changes.",
+                "AI supports continuous monitoring, biometric reconciliation, case analysis and recommendations. It cannot independently approve or execute sensitive corrections.",
 
-                "يدعم الذكاء الاصطناعي المراقبة والتحليل والتوصيات، ولا يمكنه اعتماد أو تنفيذ تغييرات حساسة على الهوية بشكل مستقل."
+                "يدعم الذكاء الاصطناعي المراقبة المستمرة والمطابقة البيومترية وتحليل الحالات وتجهيز التوصيات، ولا يستطيع اعتماد أو تنفيذ التصحيحات الحساسة بشكل مستقل."
               )}
             </div>
 
           </div>
+
         </section>
 
 
@@ -1124,7 +1175,9 @@ export default function Home() {
         >
 
           <div className="panelHeader">
+
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
@@ -1133,6 +1186,7 @@ export default function Home() {
                 )}
               </div>
 
+
               <h2>
                 {L(
                   language,
@@ -1140,12 +1194,15 @@ export default function Home() {
                   "تم الحل والتحقق"
                 )}
               </h2>
+
             </div>
+
 
             <CheckCircle2
               size={22}
               aria-hidden="true"
             />
+
           </div>
 
 
@@ -1174,7 +1231,9 @@ export default function Home() {
                   "wrap",
               }}
             >
+
               <div>
+
                 <strong
                   style={{
                     display:
@@ -1187,12 +1246,17 @@ export default function Home() {
                       "15px",
                   }}
                 >
-                  {L(
-                    language,
-                    "Salem Mohammed Al Kaabi",
-                    "سالم محمد الكعبي"
-                  )}
+                  {
+                    VERIFIED_DEMO_CASE.person?.[
+                      language
+                    ]
+                    ||
+                    VERIFIED_DEMO_CASE.person?.en
+                    ||
+                    VERIFIED_DEMO_CASE.id
+                  }
                 </strong>
+
 
                 <span
                   dir="ltr"
@@ -1213,11 +1277,14 @@ export default function Home() {
                   {
                     VERIFIED_DEMO_CASE.id
                   }
+
                   {" · "}
+
                   {
                     VERIFIED_DEMO_CASE.biometricId
                   }
                 </span>
+
               </div>
 
 
@@ -1260,6 +1327,7 @@ export default function Home() {
                   "تم الحل والتحقق"
                 )}
               </span>
+
             </div>
 
 
@@ -1294,6 +1362,7 @@ export default function Home() {
                     "1px solid rgba(255,80,100,0.08)",
                 }}
               >
+
                 <span
                   style={{
                     display:
@@ -1308,10 +1377,11 @@ export default function Home() {
                 >
                   {L(
                     language,
-                    "Incorrect Link",
+                    "Previous Incorrect Link",
                     "الربط السابق الخاطئ"
                   )}
                 </span>
+
 
                 <strong
                   dir="ltr"
@@ -1333,6 +1403,7 @@ export default function Home() {
                     VERIFIED_DEMO_CASE.currentIdentity
                   }
                 </strong>
+
               </div>
 
 
@@ -1351,6 +1422,7 @@ export default function Home() {
                     "1px solid rgba(52,211,153,0.08)",
                 }}
               >
+
                 <span
                   style={{
                     display:
@@ -1365,10 +1437,11 @@ export default function Home() {
                 >
                   {L(
                     language,
-                    "Verified Identity",
-                    "الهوية الصحيحة بعد التحقق"
+                    "Verified Reference",
+                    "المرجع الصحيح بعد التحقق"
                   )}
                 </span>
+
 
                 <strong
                   dir="ltr"
@@ -1390,6 +1463,7 @@ export default function Home() {
                     VERIFIED_DEMO_CASE.canonicalIdentity
                   }
                 </strong>
+
               </div>
 
             </div>
@@ -1403,6 +1477,7 @@ export default function Home() {
             >
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1416,10 +1491,12 @@ export default function Home() {
                     VERIFIED_DEMO_CASE.aiConfidence
                   }%
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1435,10 +1512,12 @@ export default function Home() {
                     "اعتماد الضابط والمدير"
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1460,6 +1539,7 @@ export default function Home() {
                     VERIFIED_DEMO_CASE.verification.score
                   }
                 </strong>
+
               </div>
 
             </div>
@@ -1489,6 +1569,7 @@ export default function Home() {
             </Link>
 
           </div>
+
         </section>
 
 
@@ -1506,12 +1587,15 @@ export default function Home() {
               "18px",
           }}
         >
+
           <Database
             size={23}
             aria-hidden="true"
           />
 
+
           <div>
+
             <strong>
               {L(
                 language,
@@ -1520,16 +1604,19 @@ export default function Home() {
               )}
             </strong>
 
+
             <span>
               {L(
                 language,
 
                 "The authoritative Master Reference remains read-only. Approved corrections can only target the permitted Biometric System after the required human approvals.",
 
-                "يبقى المرجع الرئيسي المعتمد للقراءة فقط. ولا يتم تنفيذ أي تصحيح إلا على النظام البيومتري المسموح وبعد الحصول على الاعتمادات البشرية المطلوبة."
+                "يبقى المرجع الرئيسي المعتمد للقراءة فقط، ولا يتم تنفيذ التصحيح إلا على النظام البيومتري المسموح وبعد الحصول على الاعتمادات البشرية المطلوبة."
               )}
             </span>
+
           </div>
+
         </section>
 
 
@@ -1542,13 +1629,14 @@ export default function Home() {
           <span>
             {L(
               language,
-              "AI Identity Reconciliation Platform · Synthetic Demo",
-              "منصة مطابقة الهوية بالذكاء الاصطناعي · عرض تجريبي"
+              "AI Biometric Reconciliation Platform · Synthetic Demo",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · عرض تجريبي"
             )}
           </span>
 
 
           <div>
+
             <Activity
               size={15}
               aria-hidden="true"
@@ -1559,11 +1647,13 @@ export default function Home() {
               "Continuous Monitoring Active",
               "المراقبة المستمرة نشطة"
             )}
+
           </div>
 
         </footer>
 
       </main>
+
     </div>
   );
 }

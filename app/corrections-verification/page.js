@@ -50,7 +50,7 @@ const correctionCases = [
   },
 
   {
-    id: "CASE-2026-00010",
+    id: "CASE-2026-00014",
     biometric: "BIO-000795",
 
     before: "REF-001183",

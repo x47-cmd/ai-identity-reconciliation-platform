@@ -1,17 +1,17 @@
 const translations = {
   en: {
     common: {
-      searchCase: "Search case",
+      searchCase: "Search cases",
       monitoringOfficer: "Monitoring Officer",
-      operations: "Operations",
-      syntheticDemo: "Synthetic Demo",
-      syntheticDemoEnvironment: "Synthetic Demo Environment",
-      systemOperational: "System Operational",
+      operations: "Identity Operations",
+      syntheticDemo: "Demo Data",
+      syntheticDemoEnvironment: "Demo Environment",
+      systemOperational: "System Active",
       active: "Active",
       ready: "Ready",
-      operational: "Operational",
+      operational: "Active",
       environment: "Environment",
-      processingState: "Processing State",
+      processingState: "System Status",
       viewDetails: "View Details",
       review: "Review",
       open: "Open",
@@ -20,48 +20,48 @@ const translations = {
       passed: "Passed",
       failed: "Failed",
       pending: "Pending",
-      immediate: "Immediate",
+      immediate: "Urgent",
       high: "High",
       medium: "Medium",
       low: "Low",
       total: "Total",
       case: "Case",
-      type: "Type",
-      biometric: "Biometric",
+      type: "Issue",
+      biometric: "Biometric Record",
       identity: "Identity",
-      confidence: "Confidence",
+      confidence: "AI Confidence",
       priority: "Priority",
       status: "Status",
       risk: "Risk",
-      harm: "Harm",
-      protectivePriority: "Protective Priority",
+      harm: "Potential Impact",
+      protectivePriority: "Protection Priority",
       currentIdentity: "Current Identity",
-      proposedIdentity: "Proposed Identity",
-      canonicalIdentity: "Canonical Identity",
+      proposedIdentity: "Recommended Identity",
+      canonicalIdentity: "Recommended Identity",
       previousIdentity: "Previous Identity",
       verifiedIdentity: "Verified Identity",
       biometricRecord: "Biometric Record",
       verification: "Verification",
-      execution: "Execution",
+      execution: "Correction",
       before: "Before",
       after: "After",
       score: "Score",
       action: "Action",
-      recommendation: "Recommendation",
+      recommendation: "AI Recommendation",
       decision: "Decision",
       no: "No",
       yes: "Yes",
       notStarted: "Not Started",
-      notReady: "Not Ready",
+      notReady: "Waiting",
       notAuthorized: "Not Authorized",
-      verifiedClosed: "Verified Closed",
-      aiInvestigated: "AI Investigated",
+      verifiedClosed: "Resolved & Verified",
+      aiInvestigated: "AI Analysis Complete",
       officerReview: "Officer Review",
       managerApproval: "Manager Approval",
-      readOnly: "Read-only",
-      masterProtected: "Master Protected",
-      readOnlyReference: "Read-only Reference",
-      syntheticDemonstration: "Synthetic Demonstration",
+      readOnly: "Read Only",
+      masterProtected: "Master Reference Protected",
+      readOnlyReference: "Read-Only Reference",
+      syntheticDemonstration: "Demo Data",
       continuousMonitoringActive: "Continuous Monitoring Active",
       language: "Language",
       english: "English",
@@ -69,491 +69,697 @@ const translations = {
     },
 
     sidebar: {
-      workspace: "WORKSPACE",
-      intelligence: "INTELLIGENCE",
-      commandCenter: "Command Center",
+      workspace: "MAIN",
+      intelligence: "REPORTING",
+      commandCenter: "Home",
       cases: "Cases",
-      aiInvestigations: "AI Investigations",
-      officerReview: "Officer Review",
+      aiInvestigations: "AI Analysis",
+      officerReview: "Approvals",
       managerApproval: "Manager Approval",
-      correctionsVerification: "Corrections & Verification",
+      correctionsVerification: "Correction & Verification",
       analytics: "Analytics",
       dataIntegrity: "Data Integrity",
-      reportsAudit: "Reports & Audit",
-      platformName: "Identity AI",
-      platformSubtitle: "Reconciliation Platform",
+      reportsAudit: "Reports & History",
+      platformName: "Identity Integrity",
+      platformSubtitle: "AI Monitoring Platform",
     },
 
     commandCenter: {
-      eyebrow: "AI IDENTITY OPERATIONS",
-      title: "Command Center",
+      eyebrow: "AI IDENTITY MONITORING",
+      title: "Identity Monitoring Dashboard",
       subtitle:
-        "Continuous identity reconciliation, protective risk detection and AI-assisted investigation.",
+        "Monitor identity relationships, detect problems with AI and send cases requiring action for human review.",
 
-      protectiveEngine: "Protective Priority Engine Active",
+      protectiveEngine: "High-Risk Identity Protection Active",
       protectiveMessage:
-        "9 protective cases were identified in the current synthetic demo dataset where identity conflicts may create potential wrong-person impact.",
-      reviewCases: "Review Cases",
+        "9 cases were identified where an incorrect identity relationship may affect another person.",
+      reviewCases: "View Cases",
 
-      totalCases: "Total Cases",
-      totalCasesSubtitle: "Aggregated identity integrity cases",
+      totalCases: "Detected Cases",
+      totalCasesSubtitle: "Identity issues detected by the system",
 
-      immediatePriority: "Immediate Priority",
-      immediatePrioritySubtitle: "Protective intervention priority",
+      immediatePriority: "Urgent Cases",
+      immediatePrioritySubtitle: "Require priority human attention",
 
       highPriority: "High Priority",
-      highPrioritySubtitle: "Require accelerated human review",
+      highPrioritySubtitle: "Require accelerated review",
 
       unresolvedIdentity: "Unresolved Identity",
-      unresolvedIdentitySubtitle: "All cases have canonical candidates",
+      unresolvedIdentitySubtitle: "Cases without a recommended identity",
 
-      demoKpi: "DEMO KPI",
-      aiPriorityQueue: "AI PRIORITY QUEUE",
+      demoKpi: "DEMO DATA",
+      aiPriorityQueue: "AI-IDENTIFIED CASES",
       casesRequiringAttention: "Cases Requiring Attention",
       viewAllCases: "View All Cases",
-      aiIdentity: "AI Identity",
+      aiIdentity: "AI Recommendation",
 
-      agenticAi: "AGENTIC AI",
-      agentOperations: "Agent Operations",
-      monitoringAgent: "Monitoring Agent",
-      reconciliationAgent: "Reconciliation Agent",
-      investigationAgent: "Investigation Agent",
-      approvalWorkflow: "Approval Workflow",
-      verificationAgent: "Verification Agent",
+      agenticAi: "AI SYSTEM",
+      agentOperations: "Smart Monitoring Status",
+      monitoringAgent: "Continuous Monitoring",
+      reconciliationAgent: "AI Identity Comparison",
+      investigationAgent: "AI Case Analysis",
+      approvalWorkflow: "Human Approval Workflow",
+      verificationAgent: "Final Verification",
 
       latestVerifiedProtectiveCase:
-        "LATEST VERIFIED PROTECTIVE CASE",
+        "LATEST RESOLVED CASE",
 
-      harmImpact: "Harm Impact",
+      harmImpact: "Potential Human Impact",
+
       endToEndVerificationPassed:
-        "End-to-End Verification Passed",
+        "Correction Successfully Verified",
 
       verificationPassedMessage:
-        "The approved correction passed post-correction verification and reached VERIFIED_CLOSED status.",
+        "The approved correction passed final verification and the case was safely closed.",
 
       protectiveWrongPersonDetected:
-        "Protective Wrong-Person Impact Detected",
+        "Possible Wrong-Person Impact Detected",
 
       protectiveWrongPersonMessage:
-        "The identity conflict was assigned immediate protective priority, reviewed by both required human approval levels, corrected in the permitted target and subsequently verified closed.",
+        "The system detected an identity conflict that could affect another person. The case was reviewed, approved, corrected and verified.",
 
       viewVerifiedLifecycle:
-        "View Verified Case Lifecycle",
+        "View Case Details",
 
-      platformHealth: "Platform Health",
-      canonicalCaseResolution: "Canonical Case Resolution",
-      protectiveDetection: "Protective Detection",
-      unexplainedFalsePositives: "Unexplained False Positives",
+      platformHealth: "System Status",
+
+      canonicalCaseResolution:
+        "Cases With Recommended Identity",
+
+      protectiveDetection:
+        "High-Risk Case Detection",
+
+      unexplainedFalsePositives:
+        "Unexplained Alerts",
 
       masterReferenceProtected:
         "Master Reference Protected",
 
       masterProtectionMessage:
-        "The authoritative Master Reference remains read-only. Automated corrections target only the permitted Biometric System runtime dataset after required human approval.",
+        "The authoritative Master Reference remains read-only. Approved corrections can only be applied to the permitted Biometric System.",
 
       openDataIntegrityCenter:
-        "Open Data Integrity Center",
+        "View Data Status",
     },
 
     cases: {
       title: "Cases",
-      eyebrow: "IDENTITY CASE MANAGEMENT",
+      eyebrow: "AI-DETECTED IDENTITY CASES",
       subtitle:
-        "Review aggregated reconciliation cases, protective priorities and AI identity resolution outcomes.",
+        "Review identity problems detected by the system and follow each case until it is resolved.",
 
-      totalCases: "Total Cases",
-      immediate: "Immediate",
+      totalCases: "Detected Cases",
+      immediate: "Urgent",
       high: "High",
       medium: "Medium",
 
       protectiveHarmCases:
-        "Protective / Harm Cases",
+        "Possible Wrong-Person Impact",
 
       searchPlaceholder:
-        "Search case, biometric or identity",
+        "Search case, person or reference",
 
       allCases: "All Cases",
-      caseType: "Case Type",
+      caseType: "Issue",
       biometricRecord: "Biometric Record",
-      identityChange: "Identity Change",
-      protectiveScore: "Protective Score",
+      identityChange: "Recommended Change",
+      protectiveScore: "Protection Score",
 
-      openInvestigation: "Open Investigation",
-      detailUnavailable: "Detail Unavailable in Demo",
+      openInvestigation: "View AI Investigation",
+      detailUnavailable: "Detailed demo view is not available for this case",
 
-      verifiedClosed: "VERIFIED CLOSED",
-      aiInvestigated: "AI INVESTIGATED",
+      verifiedClosed: "RESOLVED & VERIFIED",
+      aiInvestigated: "AI ANALYSIS COMPLETE",
     },
 
     caseDetail: {
       backToCases: "Back to Cases",
       investigation: "AI Investigation",
       caseOverview: "Case Overview",
-      identityResolution: "Identity Resolution",
-      riskHarmAnalysis: "Risk & Harm Analysis",
-      approvalLifecycle: "Approval Lifecycle",
+      identityResolution: "Identity Recommendation",
+      riskHarmAnalysis: "Risk & Human Impact",
+      approvalLifecycle: "Approval Status",
       correctionVerification: "Correction & Verification",
-      auditHistory: "Audit History",
+      auditHistory: "Case History",
 
-      syntheticCorrelation: "SYNTHETIC CORRELATION",
+      syntheticCorrelation: "AI IDENTITY COMPARISON",
+
       identityResolutionEvidence:
-        "Identity Resolution Evidence",
+        "Evidence Supporting the Recommendation",
 
       syntheticEvidenceNotice:
-        "The backend uses synthetic vector-based correlation and does not expose separate face, fingerprint or iris similarity scores.",
+        "This demonstration uses synthetic biometric-vector evidence and does not contain real biometric or personal data.",
 
       canonicalIdentityConfidence:
-        "Canonical Identity Confidence",
+        "AI Identity Confidence",
 
-      supportingFindings: "Supporting Findings",
-      canonicalCandidate: "Canonical Candidate",
-      evidenceSource: "Evidence Source",
+      supportingFindings:
+        "Supporting Findings",
+
+      canonicalCandidate:
+        "Recommended Identity",
+
+      evidenceSource:
+        "Evidence Source",
+
       syntheticVectorEvidence:
-        "Synthetic Vector Evidence",
+        "Synthetic Biometric Evidence",
 
       postCorrectionBiometricMatch:
-        "Post-Correction Biometric Match",
+        "Post-Correction Biometric Verification",
 
-      currentMapping: "Current Mapping",
-      canonicalResolution: "Canonical Resolution",
+      currentMapping:
+        "Current Identity Link",
+
+      canonicalResolution:
+        "AI Recommended Identity",
 
       syntheticSupportingEvidence:
-        "SYNTHETIC SUPPORTING EVIDENCE",
+        "SUPPORTING AI EVIDENCE",
 
       representativeEvidenceNotice:
-        "This breakdown is representative frontend evidence. Case-level metrics remain the authoritative synthetic demo values.",
+        "The supporting evidence shown is part of the synthetic demonstration.",
 
       wronglyAffectedPerson:
-        "Wrongly Affected Person",
+        "Possible Impact on Another Person",
 
       monitoringOfficerDecision:
-        "Monitoring Officer Decision",
+        "Officer Decision",
 
       supervisingManagerDecision:
-        "Supervising Manager Decision",
+        "Manager Decision",
 
-      executionStatus: "Execution Status",
-      verificationStatus: "Verification Status",
-      verificationScore: "Verification Score",
-      mappingValid: "Identity Mapping Valid",
-      conflictResolved: "Conflict Resolved",
-      secondaryConflict: "Secondary Conflict",
+      executionStatus:
+        "Correction Status",
 
-      auditTrail: "Audit Trail",
-      traceableEvents: "Traceable Events",
+      verificationStatus:
+        "Verification Status",
+
+      verificationScore:
+        "Verification Score",
+
+      mappingValid:
+        "Identity Link Valid",
+
+      conflictResolved:
+        "Conflict Resolved",
+
+      secondaryConflict:
+        "Additional Conflict",
+
+      auditTrail:
+        "Audit History",
+
+      traceableEvents:
+        "Recorded Events",
     },
 
     officerReview: {
-      eyebrow: "HUMAN OVERSIGHT",
-      title: "Officer Review",
+      eyebrow: "HUMAN APPROVAL WORKFLOW",
+      title: "Approvals",
       subtitle:
-        "Monitoring Officer review queue for AI-investigated identity reconciliation cases.",
+        "Review AI recommendations and follow cases through Officer approval, Manager approval, correction and verification.",
 
-      awaitingOfficer: "Awaiting Officer",
-      awaitingManager: "Awaiting Manager",
-      immediateCases: "Immediate",
-      highCases: "High",
-      mediumCases: "Medium",
-      wrongPersonCases: "Wrong-Person Impact",
-      aiInvestigated: "AI Investigated",
+      awaitingOfficer:
+        "Waiting for Officer",
 
-      reviewQueue: "Officer Review Queue",
-      queueOrder: "Queue Order",
-      recommendation: "AI Recommendation",
-      action: "Action",
-      reviewCase: "Review Case",
+      awaitingManager:
+        "Waiting for Manager",
+
+      immediateCases:
+        "Urgent",
+
+      highCases:
+        "High",
+
+      mediumCases:
+        "Medium",
+
+      wrongPersonCases:
+        "Possible Wrong-Person Impact",
+
+      aiInvestigated:
+        "AI Analysis Complete",
+
+      reviewQueue:
+        "Cases Awaiting Review",
+
+      queueOrder:
+        "Priority Order",
+
+      recommendation:
+        "AI Recommendation",
+
+      action:
+        "Action",
+
+      reviewCase:
+        "View Case",
 
       nextRecommended:
-        "Next Recommended Review",
+        "Next Priority Case",
 
       humanApprovalRequired:
-        "Human approval is required before any correction can proceed.",
+        "Human approval is required before any sensitive correction can be executed.",
     },
 
     managerApproval: {
-      eyebrow: "FINAL HUMAN AUTHORIZATION",
+      eyebrow: "SECOND HUMAN APPROVAL",
       title: "Manager Approval",
       subtitle:
-        "Supervising Manager authorization queue for officer-approved correction proposals.",
+        "Manager review of correction recommendations already approved by the Monitoring Officer.",
 
-      awaitingManager: "Awaiting Manager",
-      immediateCases: "Immediate",
-      highCases: "High",
-      mediumCases: "Medium",
-      officerApproved: "Officer Approved",
-      executionAuthorized: "Execution Authorized",
+      awaitingManager:
+        "Waiting for Manager",
 
-      approvalQueue: "Manager Approval Queue",
-      finalReview: "Final Review",
-      approvalPackage: "Approval Package",
-      queueOrder: "Queue Order",
+      immediateCases:
+        "Urgent",
+
+      highCases:
+        "High",
+
+      mediumCases:
+        "Medium",
+
+      officerApproved:
+        "Officer Approved",
+
+      executionAuthorized:
+        "Approved for Correction",
+
+      approvalQueue:
+        "Cases Awaiting Manager",
+
+      finalReview:
+        "Manager Review",
+
+      approvalPackage:
+        "Case Information",
+
+      queueOrder:
+        "Priority Order",
 
       recommendedCase:
-        "Recommended Final Review",
+        "Next Priority Case",
 
       twoHumanApproval:
-        "Two-human approval is mandatory before correction execution.",
+        "Officer and Manager approval are required before correction.",
     },
 
     corrections: {
-      eyebrow: "AUTHORIZED REMEDIATION",
-      title: "Corrections & Verification",
+      eyebrow: "APPROVED CORRECTIONS",
+      title: "Correction & Verification",
       subtitle:
-        "Controlled correction execution and post-correction verification workspace.",
+        "Track approved identity corrections and confirm that they pass final verification.",
 
-      completedCorrections: "Completed Corrections",
-      verifiedClosed: "Verified Closed",
-      pendingAuthorization: "Pending Authorization",
-      verificationPassed: "Verification Passed",
+      completedCorrections:
+        "Completed Corrections",
 
-      correctionLifecycle: "Correction Lifecycle",
+      verifiedClosed:
+        "Resolved & Verified",
+
+      pendingAuthorization:
+        "Waiting for Approval",
+
+      verificationPassed:
+        "Verification Passed",
+
+      correctionLifecycle:
+        "Correction Status",
+
       before: "Before",
       after: "After",
-      execution: "Execution",
+      execution: "Correction",
       verification: "Verification",
 
       authorizedCorrection:
-        "Authorized Correction",
+        "Approved Correction",
 
       masterModified:
-        "Master Reference Modified",
+        "Master Reference Changed",
 
       originalDatasetModified:
-        "Original Biometric Dataset Modified",
+        "Original Biometric Data Changed",
 
       protectedSourceMessage:
-        "Protected source datasets remain unchanged. Authorized corrections apply only to the permitted runtime target.",
+        "The protected Master Reference remains unchanged. Approved corrections apply only to the permitted Biometric System.",
 
       verificationPassedMessage:
-        "Post-correction verification passed and the identity conflict was resolved.",
+        "Final verification passed and the identity conflict was resolved.",
     },
 
     analytics: {
-      eyebrow: "OPERATIONAL INTELLIGENCE",
+      eyebrow: "AI PERFORMANCE & MANAGEMENT KPIs",
       title: "Analytics",
       subtitle:
-        "Validated synthetic demo metrics for reconciliation quality, protective detection and case operations.",
+        "Management view of identity cases, priorities, AI performance, approvals and resolution results.",
 
-      totalBiometricRecords: "Biometric Records",
-      masterIdentities: "Master Identities",
-      rawFindings: "Raw Findings",
-      aggregatedCases: "Aggregated Cases",
+      totalBiometricRecords:
+        "Biometric Records",
 
-      caseTypeBreakdown: "Case Type Breakdown",
-      evidenceFlow: "Evidence & Case Flow",
-      qualityMetrics: "Quality Metrics",
-      operationalSnapshot: "Operational Snapshot",
+      masterIdentities:
+        "Reference Identities",
 
-      dataMismatch: "Data Mismatch",
-      wrongMapping: "Wrong Mapping",
+      rawFindings:
+        "Initial AI Findings",
+
+      aggregatedCases:
+        "Detected Cases",
+
+      caseTypeBreakdown:
+        "Cases by Issue Type",
+
+      evidenceFlow:
+        "Detection Flow",
+
+      qualityMetrics:
+        "AI Quality",
+
+      operationalSnapshot:
+        "Workflow Status",
+
+      dataMismatch:
+        "Data Mismatch",
+
+      wrongMapping:
+        "Incorrect Identity Link",
+
       complexIdentityConflict:
         "Complex Identity Conflict",
-      duplicateIdentity: "Duplicate Identity",
-      harmImpact: "Harm Impact",
-      orphan: "Orphan",
-      criticalHarmIdentityConflict:
-        "Critical Harm Identity Conflict",
 
-      expectedAnomalies: "Expected Anomalies",
-      detectedAnomalies: "Detected Anomalies",
-      missedAnomalies: "Missed Anomalies",
-      detectionRecall: "Detection Recall",
-      rawPrecision: "Raw Precision",
-      f1Score: "F1 Score",
-      diagnosticPrecision: "Diagnostic Precision",
-      protectiveDetection: "Protective Detection",
+      duplicateIdentity:
+        "Duplicate Identity",
+
+      harmImpact:
+        "Possible Wrong-Person Impact",
+
+      orphan:
+        "Missing Identity Link",
+
+      criticalHarmIdentityConflict:
+        "Critical Identity Conflict",
+
+      expectedAnomalies:
+        "Expected Test Issues",
+
+      detectedAnomalies:
+        "Detected Test Issues",
+
+      missedAnomalies:
+        "Missed Issues",
+
+      detectionRecall:
+        "Detection Rate",
+
+      rawPrecision:
+        "Initial Detection Precision",
+
+      f1Score:
+        "Overall Detection Score",
+
+      diagnosticPrecision:
+        "Final Analysis Accuracy",
+
+      protectiveDetection:
+        "High-Risk Case Detection",
+
       protectivePriorityAccuracy:
-        "Protective Priority Accuracy",
+        "High-Risk Priority Accuracy",
+
       unexplainedFalsePositives:
-        "Unexplained False Positives",
+        "Unexplained Alerts",
 
       corroboratingFindings:
-        "Corroborating Findings",
-      multifindingCases: "Multi-Finding Cases",
-      protectiveCases: "Protective Cases",
+        "Supporting Findings",
 
-      officerQueue: "Officer Queue",
-      managerQueue: "Manager Queue",
-      completedCorrection: "Completed Correction",
-      verifiedClosed: "Verified Closed",
+      multifindingCases:
+        "Cases With Multiple Findings",
 
-      powerBi: "Power BI",
-      planned: "PLANNED",
-      integrationReady: "Integration Ready",
+      protectiveCases:
+        "Possible Wrong-Person Cases",
+
+      officerQueue:
+        "Waiting for Officer",
+
+      managerQueue:
+        "Waiting for Manager",
+
+      completedCorrection:
+        "Correction Completed",
+
+      verifiedClosed:
+        "Resolved & Verified",
+
+      powerBi:
+        "Power BI",
+
+      planned:
+        "PLANNED",
+
+      integrationReady:
+        "Reporting Data Ready",
+
       powerBiMessage:
-        "Power BI integration is planned and is not connected in the current demo.",
+        "Live Power BI integration is planned and is not connected in the current demonstration.",
     },
 
     dataIntegrity: {
-      eyebrow: "RECONCILIATION CONTROL",
+      eyebrow: "DATA PROTECTION & COMPARISON",
       title: "Data Integrity",
       subtitle:
-        "Monitor source protection, reconciliation evidence and canonical identity resolution.",
+        "Monitor source protection, identity comparison and system data consistency.",
 
-      masterReference: "Master Reference",
-      aiReconciliation: "AI Reconciliation",
-      biometricSystem: "Biometric System",
+      masterReference:
+        "Master Reference",
+
+      aiReconciliation:
+        "AI Identity Comparison",
+
+      biometricSystem:
+        "Biometric System",
 
       authoritativeSource:
-        "Authoritative Source",
+        "Authoritative Reference",
 
       controlledCorrectionTarget:
-        "Controlled Correction Target",
+        "Permitted Correction System",
 
-      records: "Records",
-      identities: "Identities",
+      records:
+        "Records",
+
+      identities:
+        "Identities",
 
       reconciliationSnapshot:
-        "Current Demo Reconciliation",
+        "Current Comparison Results",
 
-      aggregatedCases: "Aggregated Cases",
+      aggregatedCases:
+        "Detected Cases",
+
       corroboratingFindings:
-        "Corroborating Findings",
+        "Supporting Findings",
 
-      caseTaxonomy: "Case Taxonomy",
-      qualityValidation: "Quality Validation",
+      caseTaxonomy:
+        "Issue Types",
+
+      qualityValidation:
+        "AI Quality Check",
 
       canonicalResolution:
-        "Canonical Case Resolution",
+        "Cases With Recommended Identity",
+
       diagnosticPrecision:
-        "Diagnostic Precision",
+        "Final Analysis Accuracy",
+
       protectiveDetection:
-        "Protective Detection",
+        "High-Risk Case Detection",
+
       protectivePriorityAccuracy:
-        "Protective Priority Accuracy",
+        "High-Risk Priority Accuracy",
 
       masterReadOnly:
-        "Master Reference Is Read-Only",
+        "Master Reference Is Read Only",
 
       masterReadOnlyMessage:
-        "The reconciliation platform can compare against the authoritative Master Reference but cannot automatically modify it.",
+        "The system can compare data with the authoritative Master Reference but cannot automatically modify it.",
 
       resolutionNotice:
-        "53 / 53 canonical case resolution means every case has a canonical identity candidate. It does not mean all 53 cases are closed.",
+        "53 of 53 cases have a recommended identity. This does not mean all 53 cases have been approved, corrected or closed.",
     },
 
     reportsAudit: {
-      eyebrow: "GOVERNANCE & TRACEABILITY",
-      title: "Reports & Audit",
+      eyebrow: "COMPLETED CASES & AUDIT HISTORY",
+      title: "Reports & History",
       subtitle:
-        "Traceable governance history for AI investigation, human approvals, correction execution and verification.",
+        "Review completed cases, AI findings, human approvals, corrections and final verification results.",
 
-      auditEvents: "Audit Events",
-      humanDecisions: "Human Decisions",
-      controlledAiStages: "Controlled AI Stages",
-      verifiedClosed: "Verified Closed",
+      auditEvents:
+        "Recorded Events",
+
+      humanDecisions:
+        "Human Approvals",
+
+      controlledAiStages:
+        "AI Processing Stages",
+
+      verifiedClosed:
+        "Resolved & Verified",
 
       selectedAuditCase:
-        "Selected Audit Case",
+        "Selected Case",
 
       endToEndAuditTrail:
-        "End-to-End Audit Trail",
+        "Complete Case History",
 
       officerApproval:
-        "Monitoring Officer Approval",
+        "Officer Approval",
 
       managerApproval:
-        "Supervising Manager Approval",
+        "Manager Approval",
 
       correctionExecution:
-        "Correction Execution",
+        "Correction",
 
       postCorrectionVerification:
-        "Post-Correction Verification",
+        "Final Verification",
 
       finalCaseStatus:
-        "Final Case Status",
+        "Final Status",
 
-      traceable: "Traceable",
-      auditHistory: "Audit History",
+      traceable:
+        "Recorded",
+
+      auditHistory:
+        "Audit History",
 
       dataProtection:
         "Data Protection",
 
       masterModified:
-        "Master Reference Modified",
+        "Master Reference Changed",
 
       originalBiometricModified:
-        "Original Biometric Dataset Modified",
+        "Original Biometric Data Changed",
 
       pdfAuditReport:
-        "PDF Audit Report",
+        "PDF Case Report",
 
       planned:
         "PLANNED",
 
       pdfMessage:
-        "PDF audit report generation is planned and is not enabled in the current demo.",
+        "Downloadable PDF report generation is planned and is not enabled in the current demonstration.",
 
       governanceMessage:
-        "AI stages are controlled and traceable. Sensitive correction decisions require human approval.",
+        "AI analysis and human decisions are recorded. Sensitive corrections require authorized human approval.",
     },
 
     priorities: {
-      IMMEDIATE: "IMMEDIATE",
+      IMMEDIATE: "URGENT",
       HIGH: "HIGH",
       MEDIUM: "MEDIUM",
       LOW: "LOW",
     },
 
     statuses: {
-      VERIFIED_CLOSED: "VERIFIED CLOSED",
-      AI_INVESTIGATED: "AI INVESTIGATED",
-      PENDING: "PENDING",
-      APPROVED: "APPROVED",
-      COMPLETED: "COMPLETED",
-      PASSED: "PASSED",
-      FAILED: "FAILED",
-      NOT_READY: "NOT READY",
-      NOT_STARTED: "NOT STARTED",
-      NOT_AUTHORIZED: "NOT AUTHORIZED",
-      AWAITING_OFFICER: "AWAITING OFFICER",
-      AWAITING_MANAGER: "AWAITING MANAGER",
-      OFFICER_APPROVED: "OFFICER APPROVED",
-      EXECUTION_AUTHORIZED: "EXECUTION AUTHORIZED",
+      VERIFIED_CLOSED:
+        "RESOLVED & VERIFIED",
+
+      AI_INVESTIGATED:
+        "AI ANALYSIS COMPLETE",
+
+      PENDING:
+        "PENDING",
+
+      APPROVED:
+        "APPROVED",
+
+      COMPLETED:
+        "COMPLETED",
+
+      PASSED:
+        "PASSED",
+
+      FAILED:
+        "FAILED",
+
+      NOT_READY:
+        "WAITING",
+
+      NOT_STARTED:
+        "NOT STARTED",
+
+      NOT_AUTHORIZED:
+        "NOT AUTHORIZED",
+
+      AWAITING_OFFICER:
+        "WAITING FOR OFFICER",
+
+      AWAITING_MANAGER:
+        "WAITING FOR MANAGER",
+
+      OFFICER_APPROVED:
+        "OFFICER APPROVED",
+
+      EXECUTION_AUTHORIZED:
+        "APPROVED FOR CORRECTION",
     },
 
     caseTypes: {
-      HARM_IMPACT: "HARM IMPACT",
+      HARM_IMPACT:
+        "POSSIBLE WRONG-PERSON IMPACT",
 
       CRITICAL_HARM_CONFLICT:
-        "CRITICAL HARM CONFLICT",
+        "CRITICAL IDENTITY CONFLICT",
 
       CRITICAL_HARM_IDENTITY_CONFLICT:
-        "CRITICAL HARM IDENTITY CONFLICT",
+        "CRITICAL IDENTITY CONFLICT",
 
       COMPLEX_IDENTITY_CONFLICT:
         "COMPLEX IDENTITY CONFLICT",
 
-      DATA_MISMATCH: "DATA MISMATCH",
-      WRONG_MAPPING: "WRONG MAPPING",
-      DUPLICATE_IDENTITY: "DUPLICATE IDENTITY",
-      ORPHAN: "ORPHAN",
-      ORPHAN_RECORD: "ORPHAN RECORD",
+      DATA_MISMATCH:
+        "DATA MISMATCH",
+
+      WRONG_MAPPING:
+        "INCORRECT IDENTITY LINK",
+
+      DUPLICATE_IDENTITY:
+        "DUPLICATE IDENTITY",
+
+      ORPHAN:
+        "MISSING IDENTITY LINK",
+
+      ORPHAN_RECORD:
+        "MISSING IDENTITY LINK",
     },
 
     footer: {
       platform:
         "AI Identity Reconciliation Platform",
-      demo: "Synthetic Demonstration",
+
+      demo:
+        "Synthetic Demo",
+
       monitoring:
         "Continuous Monitoring Active",
     },
   },
 
+
   ar: {
     common: {
-      searchCase: "البحث عن حالة",
+      searchCase: "البحث في الحالات",
       monitoringOfficer: "ضابط المراقبة",
-      operations: "العمليات",
-      syntheticDemo: "عرض تجريبي اصطناعي",
-      syntheticDemoEnvironment: "بيئة تجريبية اصطناعية",
-      systemOperational: "النظام يعمل",
+      operations: "عمليات الهوية",
+      syntheticDemo: "بيانات تجريبية",
+      syntheticDemoEnvironment: "بيئة تجريبية",
+      systemOperational: "النظام نشط",
       active: "نشط",
       ready: "جاهز",
-      operational: "قيد التشغيل",
+      operational: "نشط",
       environment: "البيئة",
-      processingState: "حالة المعالجة",
+      processingState: "حالة النظام",
       viewDetails: "عرض التفاصيل",
       review: "مراجعة",
       open: "فتح",
@@ -561,49 +767,49 @@ const translations = {
       completed: "مكتمل",
       passed: "ناجح",
       failed: "فشل",
-      pending: "قيد الانتظار",
+      pending: "بانتظار القرار",
       immediate: "فوري",
       high: "مرتفع",
       medium: "متوسط",
       low: "منخفض",
       total: "الإجمالي",
       case: "الحالة",
-      type: "النوع",
+      type: "المشكلة",
       biometric: "السجل البيومتري",
       identity: "الهوية",
-      confidence: "الثقة",
+      confidence: "ثقة الذكاء الاصطناعي",
       priority: "الأولوية",
       status: "الحالة",
       risk: "المخاطر",
-      harm: "الضرر",
-      protectivePriority: "الأولوية الوقائية",
+      harm: "التأثير المحتمل",
+      protectivePriority: "أولوية الحماية",
       currentIdentity: "الهوية الحالية",
-      proposedIdentity: "الهوية المقترحة",
-      canonicalIdentity: "الهوية المرجعية الصحيحة",
+      proposedIdentity: "الهوية الموصى بها",
+      canonicalIdentity: "الهوية الموصى بها",
       previousIdentity: "الهوية السابقة",
-      verifiedIdentity: "الهوية المتحقق منها",
+      verifiedIdentity: "الهوية الصحيحة بعد التحقق",
       biometricRecord: "السجل البيومتري",
       verification: "التحقق",
-      execution: "التنفيذ",
+      execution: "التصحيح",
       before: "قبل",
       after: "بعد",
       score: "الدرجة",
       action: "الإجراء",
-      recommendation: "التوصية",
+      recommendation: "توصية الذكاء الاصطناعي",
       decision: "القرار",
       no: "لا",
       yes: "نعم",
       notStarted: "لم يبدأ",
-      notReady: "غير جاهز",
-      notAuthorized: "غير مصرح",
-      verifiedClosed: "تم التحقق والإغلاق",
-      aiInvestigated: "تم التحقيق بالذكاء الاصطناعي",
+      notReady: "بانتظار المرحلة السابقة",
+      notAuthorized: "غير مصرح بالتنفيذ",
+      verifiedClosed: "تم الحل والتحقق",
+      aiInvestigated: "اكتمل تحليل الذكاء الاصطناعي",
       officerReview: "مراجعة الضابط",
       managerApproval: "اعتماد المدير",
       readOnly: "للقراءة فقط",
       masterProtected: "المرجع الرئيسي محمي",
       readOnlyReference: "مرجع للقراءة فقط",
-      syntheticDemonstration: "عرض تجريبي اصطناعي",
+      syntheticDemonstration: "بيانات تجريبية",
       continuousMonitoringActive: "المراقبة المستمرة نشطة",
       language: "اللغة",
       english: "English",
@@ -611,474 +817,801 @@ const translations = {
     },
 
     sidebar: {
-      workspace: "مساحة العمل",
-      intelligence: "التحليلات والذكاء",
-      commandCenter: "مركز القيادة",
+      workspace: "القائمة الرئيسية",
+      intelligence: "التقارير",
+      commandCenter: "الرئيسية",
       cases: "الحالات",
-      aiInvestigations: "تحقيقات الذكاء الاصطناعي",
-      officerReview: "مراجعة الضابط",
+      aiInvestigations: "تحليل الذكاء الاصطناعي",
+      officerReview: "الموافقات",
       managerApproval: "اعتماد المدير",
       correctionsVerification: "التصحيح والتحقق",
       analytics: "التحليلات",
       dataIntegrity: "سلامة البيانات",
-      reportsAudit: "التقارير والتدقيق",
-      platformName: "Identity AI",
-      platformSubtitle: "منصة مطابقة الهوية",
+      reportsAudit: "التقارير والسجل",
+      platformName: "مراقبة سلامة الهوية",
+      platformSubtitle: "منصة مراقبة ذكية",
     },
 
     commandCenter: {
-      eyebrow: "عمليات الهوية بالذكاء الاصطناعي",
-      title: "مركز القيادة",
+      eyebrow: "مراقبة الهوية بالذكاء الاصطناعي",
+
+      title:
+        "لوحة مراقبة الهوية",
+
       subtitle:
-        "مطابقة مستمرة للهوية، واكتشاف المخاطر الوقائية، وتحقيقات مدعومة بالذكاء الاصطناعي.",
+        "مراقبة علاقات الهوية واكتشاف المشكلات بالذكاء الاصطناعي وتحويل الحالات التي تحتاج إجراء إلى الموظف المختص.",
 
-      protectiveEngine: "محرك الأولوية الوقائية نشط",
+      protectiveEngine:
+        "حماية الحالات عالية الخطورة نشطة",
+
       protectiveMessage:
-        "تم تحديد 9 حالات وقائية ضمن مجموعة البيانات التجريبية الاصطناعية الحالية، حيث قد تؤدي تعارضات الهوية إلى تأثير محتمل على الشخص الخطأ.",
-      reviewCases: "مراجعة الحالات",
+        "تم اكتشاف 9 حالات قد يؤدي فيها ربط الهوية بشكل خاطئ إلى التأثير على شخص آخر.",
 
-      totalCases: "إجمالي الحالات",
-      totalCasesSubtitle: "حالات سلامة الهوية المجمعة",
+      reviewCases:
+        "عرض الحالات",
 
-      immediatePriority: "أولوية فورية",
-      immediatePrioritySubtitle: "أولوية التدخل الوقائي",
+      totalCases:
+        "الحالات المكتشفة",
 
-      highPriority: "أولوية مرتفعة",
-      highPrioritySubtitle: "تتطلب مراجعة بشرية عاجلة",
+      totalCasesSubtitle:
+        "مشكلات هوية رصدها النظام",
 
-      unresolvedIdentity: "هوية غير محسومة",
-      unresolvedIdentitySubtitle: "جميع الحالات لديها هوية مرجحة",
+      immediatePriority:
+        "حالات فورية",
 
-      demoKpi: "مؤشر تجريبي",
-      aiPriorityQueue: "قائمة أولويات الذكاء الاصطناعي",
-      casesRequiringAttention: "حالات تتطلب الانتباه",
-      viewAllCases: "عرض جميع الحالات",
-      aiIdentity: "الهوية المقترحة",
+      immediatePrioritySubtitle:
+        "تحتاج إلى أولوية في المراجعة",
 
-      agenticAi: "وكلاء الذكاء الاصطناعي",
-      agentOperations: "عمليات الوكلاء",
-      monitoringAgent: "وكيل المراقبة",
-      reconciliationAgent: "وكيل المطابقة",
-      investigationAgent: "وكيل التحقيق",
-      approvalWorkflow: "مسار الاعتماد",
-      verificationAgent: "وكيل التحقق",
+      highPriority:
+        "أولوية مرتفعة",
+
+      highPrioritySubtitle:
+        "تحتاج إلى مراجعة عاجلة",
+
+      unresolvedIdentity:
+        "هويات غير محسومة",
+
+      unresolvedIdentitySubtitle:
+        "حالات لم يتم تحديد هوية مرجحة لها",
+
+      demoKpi:
+        "بيانات تجريبية",
+
+      aiPriorityQueue:
+        "حالات اكتشفها الذكاء الاصطناعي",
+
+      casesRequiringAttention:
+        "حالات تحتاج إلى متابعة",
+
+      viewAllCases:
+        "عرض جميع الحالات",
+
+      aiIdentity:
+        "توصية الذكاء الاصطناعي",
+
+      agenticAi:
+        "النظام الذكي",
+
+      agentOperations:
+        "حالة المراقبة الذكية",
+
+      monitoringAgent:
+        "المراقبة المستمرة",
+
+      reconciliationAgent:
+        "مطابقة الهوية بالذكاء الاصطناعي",
+
+      investigationAgent:
+        "تحليل الحالات بالذكاء الاصطناعي",
+
+      approvalWorkflow:
+        "مسار الاعتماد البشري",
+
+      verificationAgent:
+        "التحقق النهائي",
 
       latestVerifiedProtectiveCase:
-        "أحدث حالة وقائية تم التحقق منها",
+        "آخر حالة تم حلها",
 
-      harmImpact: "تأثير الضرر",
+      harmImpact:
+        "التأثير المحتمل على الأشخاص",
+
       endToEndVerificationPassed:
-        "نجح التحقق من البداية إلى النهاية",
+        "تم التحقق من التصحيح بنجاح",
 
       verificationPassedMessage:
-        "اجتاز التصحيح المعتمد التحقق اللاحق وتم إغلاق الحالة بعد التحقق.",
+        "اجتاز التصحيح المعتمد عملية التحقق النهائي وتم إغلاق الحالة بأمان.",
 
       protectiveWrongPersonDetected:
-        "تم اكتشاف تأثير وقائي محتمل على الشخص الخطأ",
+        "تم اكتشاف احتمال تأثير على شخص آخر",
 
       protectiveWrongPersonMessage:
-        "تم تصنيف تعارض الهوية بأولوية وقائية فورية، ومراجعته من مستويي الاعتماد البشري المطلوبين، وتصحيحه في النظام المسموح ثم التحقق من إغلاقه.",
+        "اكتشف النظام تعارضًا في الهوية قد يؤثر على شخص آخر، وتمت مراجعته واعتماده وتصحيحه والتحقق منه.",
 
       viewVerifiedLifecycle:
-        "عرض دورة حياة الحالة المتحقق منها",
+        "عرض تفاصيل الحالة",
 
-      platformHealth: "صحة المنصة",
-      canonicalCaseResolution: "حسم الهوية المرجعية للحالات",
-      protectiveDetection: "الاكتشاف الوقائي",
-      unexplainedFalsePositives: "التنبيهات الخاطئة غير المفسرة",
+      platformHealth:
+        "حالة النظام",
+
+      canonicalCaseResolution:
+        "حالات لديها هوية مرجحة",
+
+      protectiveDetection:
+        "اكتشاف الحالات الحساسة",
+
+      unexplainedFalsePositives:
+        "تنبيهات غير مفسرة",
 
       masterReferenceProtected:
         "المرجع الرئيسي محمي",
 
       masterProtectionMessage:
-        "يبقى المرجع الرئيسي المعتمد للقراءة فقط. تستهدف التصحيحات الآلية فقط بيانات التشغيل المسموح بها في النظام البيومتري وبعد الاعتماد البشري المطلوب.",
+        "يبقى المرجع الرئيسي المعتمد للقراءة فقط، ولا يتم التصحيح إلا على النظام البيومتري المسموح وبعد الاعتمادات المطلوبة.",
 
       openDataIntegrityCenter:
-        "فتح مركز سلامة البيانات",
+        "عرض حالة البيانات",
     },
 
     cases: {
-      title: "الحالات",
-      eyebrow: "إدارة حالات الهوية",
-      subtitle:
-        "مراجعة حالات المطابقة المجمعة والأولويات الوقائية ونتائج حسم الهوية بالذكاء الاصطناعي.",
+      title:
+        "الحالات",
 
-      totalCases: "إجمالي الحالات",
-      immediate: "فوري",
-      high: "مرتفع",
-      medium: "متوسط",
+      eyebrow:
+        "حالات الهوية المكتشفة بالذكاء الاصطناعي",
+
+      subtitle:
+        "راجع مشكلات الهوية التي رصدها النظام وتابع كل حالة حتى يتم حلها.",
+
+      totalCases:
+        "الحالات المكتشفة",
+
+      immediate:
+        "فوري",
+
+      high:
+        "مرتفع",
+
+      medium:
+        "متوسط",
 
       protectiveHarmCases:
-        "الحالات الوقائية وحالات الضرر",
+        "احتمال تأثير على شخص آخر",
 
       searchPlaceholder:
-        "البحث عن حالة أو سجل بيومتري أو هوية",
+        "البحث عن حالة أو شخص أو مرجع",
 
-      allCases: "جميع الحالات",
-      caseType: "نوع الحالة",
-      biometricRecord: "السجل البيومتري",
-      identityChange: "تغيير الهوية",
-      protectiveScore: "درجة الأولوية الوقائية",
+      allCases:
+        "جميع الحالات",
 
-      openInvestigation: "فتح التحقيق",
-      detailUnavailable: "التفاصيل غير متاحة في النسخة التجريبية",
+      caseType:
+        "المشكلة",
 
-      verifiedClosed: "تم التحقق والإغلاق",
-      aiInvestigated: "تم التحقيق بالذكاء الاصطناعي",
+      biometricRecord:
+        "السجل البيومتري",
+
+      identityChange:
+        "التغيير الموصى به",
+
+      protectiveScore:
+        "درجة الحماية",
+
+      openInvestigation:
+        "عرض تحقيق الذكاء الاصطناعي",
+
+      detailUnavailable:
+        "التفاصيل الكاملة غير متاحة لهذه الحالة التجريبية",
+
+      verifiedClosed:
+        "تم الحل والتحقق",
+
+      aiInvestigated:
+        "اكتمل تحليل الذكاء الاصطناعي",
     },
 
     caseDetail: {
-      backToCases: "العودة إلى الحالات",
-      investigation: "تحقيق الذكاء الاصطناعي",
-      caseOverview: "نظرة عامة على الحالة",
-      identityResolution: "حسم الهوية",
-      riskHarmAnalysis: "تحليل المخاطر والضرر",
-      approvalLifecycle: "دورة الاعتماد",
-      correctionVerification: "التصحيح والتحقق",
-      auditHistory: "سجل التدقيق",
+      backToCases:
+        "العودة إلى الحالات",
 
-      syntheticCorrelation: "المطابقة الاصطناعية",
+      investigation:
+        "تحقيق الذكاء الاصطناعي",
+
+      caseOverview:
+        "ملخص الحالة",
+
+      identityResolution:
+        "توصية الهوية",
+
+      riskHarmAnalysis:
+        "المخاطر والتأثير المحتمل",
+
+      approvalLifecycle:
+        "حالة الموافقات",
+
+      correctionVerification:
+        "التصحيح والتحقق",
+
+      auditHistory:
+        "تاريخ الحالة",
+
+      syntheticCorrelation:
+        "مطابقة الهوية بالذكاء الاصطناعي",
+
       identityResolutionEvidence:
-        "أدلة حسم الهوية",
+        "الأدلة الداعمة للتوصية",
 
       syntheticEvidenceNotice:
-        "يستخدم النظام الخلفي مطابقة قائمة على متجهات اصطناعية ولا يعرض درجات منفصلة للوجه أو البصمة أو قزحية العين.",
+        "يستخدم هذا العرض بيانات بيومترية اصطناعية فقط ولا يحتوي على بيانات شخصية أو بيومترية حقيقية.",
 
       canonicalIdentityConfidence:
-        "درجة الثقة بالهوية المرجعية",
+        "ثقة الذكاء الاصطناعي بالهوية",
 
-      supportingFindings: "النتائج الداعمة",
-      canonicalCandidate: "الهوية المرجحة",
-      evidenceSource: "مصدر الأدلة",
+      supportingFindings:
+        "النتائج الداعمة",
+
+      canonicalCandidate:
+        "الهوية الموصى بها",
+
+      evidenceSource:
+        "مصدر الأدلة",
+
       syntheticVectorEvidence:
-        "أدلة المتجهات الاصطناعية",
+        "أدلة بيومترية اصطناعية",
 
       postCorrectionBiometricMatch:
-        "مطابقة السجل البيومتري بعد التصحيح",
+        "التحقق البيومتري بعد التصحيح",
 
-      currentMapping: "الربط الحالي",
-      canonicalResolution: "الحسم المرجعي",
+      currentMapping:
+        "ربط الهوية الحالي",
+
+      canonicalResolution:
+        "الهوية التي أوصى بها الذكاء الاصطناعي",
 
       syntheticSupportingEvidence:
-        "الأدلة الاصطناعية الداعمة",
+        "أدلة الذكاء الاصطناعي الداعمة",
 
       representativeEvidenceNotice:
-        "هذا التفصيل يمثل أدلة توضيحية في الواجهة، بينما تظل مقاييس الحالة هي القيم المرجعية المعتمدة للعرض التجريبي.",
+        "الأدلة المعروضة جزء من البيانات التجريبية الاصطناعية.",
 
       wronglyAffectedPerson:
-        "شخص متأثر بشكل خاطئ",
+        "احتمال تأثير على شخص آخر",
 
       monitoringOfficerDecision:
-        "قرار ضابط المراقبة",
+        "قرار الضابط",
 
       supervisingManagerDecision:
-        "قرار المدير المشرف",
+        "قرار المدير",
 
-      executionStatus: "حالة التنفيذ",
-      verificationStatus: "حالة التحقق",
-      verificationScore: "درجة التحقق",
-      mappingValid: "ربط الهوية صحيح",
-      conflictResolved: "تم حل التعارض",
-      secondaryConflict: "تعارض ثانوي",
+      executionStatus:
+        "حالة التصحيح",
 
-      auditTrail: "مسار التدقيق",
-      traceableEvents: "أحداث قابلة للتتبع",
+      verificationStatus:
+        "حالة التحقق",
+
+      verificationScore:
+        "درجة التحقق",
+
+      mappingValid:
+        "ربط الهوية صحيح",
+
+      conflictResolved:
+        "تم حل التعارض",
+
+      secondaryConflict:
+        "تعارض إضافي",
+
+      auditTrail:
+        "سجل التدقيق",
+
+      traceableEvents:
+        "الأحداث المسجلة",
     },
 
     officerReview: {
-      eyebrow: "الإشراف البشري",
-      title: "مراجعة الضابط",
+      eyebrow:
+        "مسار الاعتماد البشري",
+
+      title:
+        "الموافقات",
+
       subtitle:
-        "قائمة مراجعة ضابط المراقبة للحالات التي تم التحقيق فيها بالذكاء الاصطناعي.",
+        "راجع توصيات الذكاء الاصطناعي وتابع الحالات من مراجعة الضابط واعتماد المدير وحتى التصحيح والتحقق.",
 
-      awaitingOfficer: "بانتظار الضابط",
-      awaitingManager: "بانتظار المدير",
-      immediateCases: "فوري",
-      highCases: "مرتفع",
-      mediumCases: "متوسط",
-      wrongPersonCases: "تأثير على الشخص الخطأ",
-      aiInvestigated: "تم التحقيق بالذكاء الاصطناعي",
+      awaitingOfficer:
+        "بانتظار الضابط",
 
-      reviewQueue: "قائمة مراجعة الضابط",
-      queueOrder: "ترتيب القائمة",
-      recommendation: "توصية الذكاء الاصطناعي",
-      action: "الإجراء",
-      reviewCase: "مراجعة الحالة",
+      awaitingManager:
+        "بانتظار المدير",
+
+      immediateCases:
+        "فوري",
+
+      highCases:
+        "مرتفع",
+
+      mediumCases:
+        "متوسط",
+
+      wrongPersonCases:
+        "احتمال تأثير على شخص آخر",
+
+      aiInvestigated:
+        "اكتمل تحليل الذكاء الاصطناعي",
+
+      reviewQueue:
+        "الحالات بانتظار المراجعة",
+
+      queueOrder:
+        "ترتيب الأولوية",
+
+      recommendation:
+        "توصية الذكاء الاصطناعي",
+
+      action:
+        "الإجراء",
+
+      reviewCase:
+        "عرض الحالة",
 
       nextRecommended:
-        "الحالة التالية الموصى بمراجعتها",
+        "الحالة التالية حسب الأولوية",
 
       humanApprovalRequired:
-        "يتطلب أي تصحيح اعتمادًا بشريًا قبل التنفيذ.",
+        "يلزم الاعتماد البشري قبل تنفيذ أي تصحيح حساس.",
     },
 
     managerApproval: {
-      eyebrow: "الاعتماد البشري النهائي",
-      title: "اعتماد المدير",
+      eyebrow:
+        "الاعتماد البشري الثاني",
+
+      title:
+        "اعتماد المدير",
+
       subtitle:
-        "قائمة اعتماد المدير المشرف لمقترحات التصحيح التي وافق عليها الضابط.",
+        "مراجعة المدير لتوصيات التصحيح التي اعتمدها ضابط المراقبة.",
 
-      awaitingManager: "بانتظار المدير",
-      immediateCases: "فوري",
-      highCases: "مرتفع",
-      mediumCases: "متوسط",
-      officerApproved: "معتمد من الضابط",
-      executionAuthorized: "مصرح بالتنفيذ",
+      awaitingManager:
+        "بانتظار المدير",
 
-      approvalQueue: "قائمة اعتماد المدير",
-      finalReview: "المراجعة النهائية",
-      approvalPackage: "حزمة الاعتماد",
-      queueOrder: "ترتيب القائمة",
+      immediateCases:
+        "فوري",
+
+      highCases:
+        "مرتفع",
+
+      mediumCases:
+        "متوسط",
+
+      officerApproved:
+        "معتمد من الضابط",
+
+      executionAuthorized:
+        "معتمد للتصحيح",
+
+      approvalQueue:
+        "حالات بانتظار المدير",
+
+      finalReview:
+        "مراجعة المدير",
+
+      approvalPackage:
+        "معلومات الحالة",
+
+      queueOrder:
+        "ترتيب الأولوية",
 
       recommendedCase:
-        "الحالة الموصى بمراجعتها نهائيًا",
+        "الحالة التالية حسب الأولوية",
 
       twoHumanApproval:
-        "يلزم اعتماد بشري من مستويين قبل تنفيذ أي تصحيح.",
+        "يلزم اعتماد الضابط والمدير قبل تنفيذ التصحيح.",
     },
 
     corrections: {
-      eyebrow: "المعالجة المصرح بها",
-      title: "التصحيح والتحقق",
+      eyebrow:
+        "التصحيحات المعتمدة",
+
+      title:
+        "التصحيح والتحقق",
+
       subtitle:
-        "مساحة تنفيذ التصحيحات المصرح بها والتحقق منها بعد التنفيذ.",
+        "متابعة تصحيحات الهوية المعتمدة والتأكد من نجاح التحقق النهائي.",
 
-      completedCorrections: "التصحيحات المكتملة",
-      verifiedClosed: "تم التحقق والإغلاق",
-      pendingAuthorization: "بانتظار التصريح",
-      verificationPassed: "نجح التحقق",
+      completedCorrections:
+        "التصحيحات المكتملة",
 
-      correctionLifecycle: "دورة حياة التصحيح",
-      before: "قبل",
-      after: "بعد",
-      execution: "التنفيذ",
-      verification: "التحقق",
+      verifiedClosed:
+        "تم الحل والتحقق",
+
+      pendingAuthorization:
+        "بانتظار الاعتماد",
+
+      verificationPassed:
+        "نجح التحقق",
+
+      correctionLifecycle:
+        "حالة التصحيح",
+
+      before:
+        "قبل",
+
+      after:
+        "بعد",
+
+      execution:
+        "التصحيح",
+
+      verification:
+        "التحقق",
 
       authorizedCorrection:
-        "التصحيح المصرح به",
+        "التصحيح المعتمد",
 
       masterModified:
-        "تم تعديل المرجع الرئيسي",
+        "تم تغيير المرجع الرئيسي",
 
       originalDatasetModified:
-        "تم تعديل مجموعة البيانات البيومترية الأصلية",
+        "تم تغيير البيانات البيومترية الأصلية",
 
       protectedSourceMessage:
-        "تظل مصادر البيانات المحمية دون تغيير، وتطبق التصحيحات المصرح بها فقط على هدف التشغيل المسموح.",
+        "يبقى المرجع الرئيسي المحمي دون تغيير، وتطبق التصحيحات المعتمدة فقط على النظام البيومتري المسموح.",
 
       verificationPassedMessage:
-        "نجح التحقق بعد التصحيح وتم حل تعارض الهوية.",
+        "نجح التحقق النهائي وتم حل تعارض الهوية.",
     },
 
     analytics: {
-      eyebrow: "الذكاء التشغيلي",
-      title: "التحليلات",
+      eyebrow:
+        "أداء الذكاء الاصطناعي ومؤشرات الإدارة",
+
+      title:
+        "التحليلات",
+
       subtitle:
-        "مقاييس العرض الاصطناعي المعتمدة لجودة المطابقة والاكتشاف الوقائي وعمليات الحالات.",
+        "عرض إداري لحالات الهوية والأولويات وأداء الذكاء الاصطناعي والموافقات ونتائج معالجة الحالات.",
 
-      totalBiometricRecords: "السجلات البيومترية",
-      masterIdentities: "هويات المرجع الرئيسي",
-      rawFindings: "النتائج الأولية",
-      aggregatedCases: "الحالات المجمعة",
+      totalBiometricRecords:
+        "السجلات البيومترية",
 
-      caseTypeBreakdown: "توزيع أنواع الحالات",
-      evidenceFlow: "تدفق الأدلة والحالات",
-      qualityMetrics: "مقاييس الجودة",
-      operationalSnapshot: "ملخص العمليات",
+      masterIdentities:
+        "الهويات المرجعية",
 
-      dataMismatch: "اختلاف البيانات",
-      wrongMapping: "ربط خاطئ",
+      rawFindings:
+        "نتائج الذكاء الاصطناعي الأولية",
+
+      aggregatedCases:
+        "الحالات المكتشفة",
+
+      caseTypeBreakdown:
+        "الحالات حسب نوع المشكلة",
+
+      evidenceFlow:
+        "مسار الاكتشاف",
+
+      qualityMetrics:
+        "جودة الذكاء الاصطناعي",
+
+      operationalSnapshot:
+        "حالة سير العمل",
+
+      dataMismatch:
+        "اختلاف في البيانات",
+
+      wrongMapping:
+        "ربط هوية غير صحيح",
+
       complexIdentityConflict:
         "تعارض هوية معقد",
-      duplicateIdentity: "هوية مكررة",
-      harmImpact: "تأثير ضرر",
-      orphan: "سجل دون مرجع",
-      criticalHarmIdentityConflict:
-        "تعارض هوية ذو ضرر حرج",
 
-      expectedAnomalies: "الشذوذ المتوقع",
-      detectedAnomalies: "الشذوذ المكتشف",
-      missedAnomalies: "الشذوذ غير المكتشف",
-      detectionRecall: "استدعاء الاكتشاف",
-      rawPrecision: "الدقة الأولية",
-      f1Score: "درجة F1",
-      diagnosticPrecision: "الدقة التشخيصية",
-      protectiveDetection: "الاكتشاف الوقائي",
+      duplicateIdentity:
+        "هوية مكررة",
+
+      harmImpact:
+        "احتمال تأثير على شخص آخر",
+
+      orphan:
+        "سجل بدون هوية مرتبطة",
+
+      criticalHarmIdentityConflict:
+        "تعارض هوية حرج",
+
+      expectedAnomalies:
+        "المشكلات التجريبية المتوقعة",
+
+      detectedAnomalies:
+        "المشكلات التي تم اكتشافها",
+
+      missedAnomalies:
+        "مشكلات لم يتم اكتشافها",
+
+      detectionRecall:
+        "نسبة اكتشاف الحالات",
+
+      rawPrecision:
+        "دقة الاكتشاف الأولي",
+
+      f1Score:
+        "مؤشر جودة الاكتشاف",
+
+      diagnosticPrecision:
+        "دقة التحليل النهائي",
+
+      protectiveDetection:
+        "اكتشاف الحالات الحساسة",
+
       protectivePriorityAccuracy:
-        "دقة الأولوية الوقائية",
+        "دقة تحديد الحالات الحساسة",
+
       unexplainedFalsePositives:
-        "التنبيهات الخاطئة غير المفسرة",
+        "تنبيهات غير مفسرة",
 
       corroboratingFindings:
         "النتائج الداعمة",
-      multifindingCases: "الحالات متعددة النتائج",
-      protectiveCases: "الحالات الوقائية",
 
-      officerQueue: "قائمة الضابط",
-      managerQueue: "قائمة المدير",
-      completedCorrection: "تصحيح مكتمل",
-      verifiedClosed: "تم التحقق والإغلاق",
+      multifindingCases:
+        "حالات لديها عدة نتائج",
 
-      powerBi: "Power BI",
-      planned: "مخطط",
-      integrationReady: "جاهز للتكامل",
+      protectiveCases:
+        "حالات قد تؤثر على شخص آخر",
+
+      officerQueue:
+        "بانتظار الضابط",
+
+      managerQueue:
+        "بانتظار المدير",
+
+      completedCorrection:
+        "تم التصحيح",
+
+      verifiedClosed:
+        "تم الحل والتحقق",
+
+      powerBi:
+        "Power BI",
+
+      planned:
+        "مخطط له",
+
+      integrationReady:
+        "بيانات التقارير جاهزة",
+
       powerBiMessage:
-        "تكامل Power BI مخطط له وغير متصل في النسخة التجريبية الحالية.",
+        "ربط Power BI الفعلي مخطط له وغير متصل في النسخة التجريبية الحالية.",
     },
 
     dataIntegrity: {
-      eyebrow: "التحكم في المطابقة",
-      title: "سلامة البيانات",
-      subtitle:
-        "مراقبة حماية المصادر وأدلة المطابقة وحسم الهوية المرجعية.",
+      eyebrow:
+        "حماية البيانات والمطابقة",
 
-      masterReference: "المرجع الرئيسي",
-      aiReconciliation: "مطابقة الذكاء الاصطناعي",
-      biometricSystem: "النظام البيومتري",
+      title:
+        "سلامة البيانات",
+
+      subtitle:
+        "مراقبة حماية المصادر ومطابقة الهوية واتساق البيانات بين الأنظمة.",
+
+      masterReference:
+        "المرجع الرئيسي",
+
+      aiReconciliation:
+        "مطابقة الهوية بالذكاء الاصطناعي",
+
+      biometricSystem:
+        "النظام البيومتري",
 
       authoritativeSource:
-        "المصدر المعتمد",
+        "المرجع المعتمد",
 
       controlledCorrectionTarget:
-        "هدف التصحيح الخاضع للتحكم",
+        "النظام المسموح بالتصحيح فيه",
 
-      records: "السجلات",
-      identities: "الهويات",
+      records:
+        "السجلات",
+
+      identities:
+        "الهويات",
 
       reconciliationSnapshot:
-        "مطابقة العرض التجريبي الحالية",
+        "نتائج المطابقة الحالية",
 
-      aggregatedCases: "الحالات المجمعة",
+      aggregatedCases:
+        "الحالات المكتشفة",
+
       corroboratingFindings:
         "النتائج الداعمة",
 
-      caseTaxonomy: "تصنيف الحالات",
-      qualityValidation: "التحقق من الجودة",
+      caseTaxonomy:
+        "أنواع المشكلات",
+
+      qualityValidation:
+        "فحص جودة الذكاء الاصطناعي",
 
       canonicalResolution:
-        "حسم الهوية المرجعية للحالات",
+        "حالات لديها هوية مرجحة",
+
       diagnosticPrecision:
-        "الدقة التشخيصية",
+        "دقة التحليل النهائي",
+
       protectiveDetection:
-        "الاكتشاف الوقائي",
+        "اكتشاف الحالات الحساسة",
+
       protectivePriorityAccuracy:
-        "دقة الأولوية الوقائية",
+        "دقة تحديد الحالات الحساسة",
 
       masterReadOnly:
         "المرجع الرئيسي للقراءة فقط",
 
       masterReadOnlyMessage:
-        "يمكن لمنصة المطابقة المقارنة مع المرجع الرئيسي المعتمد، لكنها لا تستطيع تعديله تلقائيًا.",
+        "يمكن للنظام مقارنة البيانات مع المرجع الرئيسي المعتمد، لكنه لا يستطيع تعديله تلقائيًا.",
 
       resolutionNotice:
-        "حسم الهوية المرجعية لـ 53 من 53 حالة يعني أن لكل حالة هوية مرجحة، ولا يعني أن جميع الحالات الـ53 مغلقة.",
+        "وجود هوية مرجحة لـ53 من 53 حالة لا يعني أن جميع الحالات تمت الموافقة عليها أو تصحيحها أو إغلاقها.",
     },
 
     reportsAudit: {
-      eyebrow: "الحوكمة والتتبع",
-      title: "التقارير والتدقيق",
-      subtitle:
-        "سجل حوكمة قابل للتتبع لتحقيقات الذكاء الاصطناعي والاعتمادات البشرية وتنفيذ التصحيح والتحقق.",
+      eyebrow:
+        "الحالات المكتملة وسجل التدقيق",
 
-      auditEvents: "أحداث التدقيق",
-      humanDecisions: "القرارات البشرية",
+      title:
+        "التقارير والسجل",
+
+      subtitle:
+        "راجع الحالات المكتملة ونتائج الذكاء الاصطناعي والاعتمادات البشرية والتصحيحات ونتائج التحقق النهائية.",
+
+      auditEvents:
+        "الأحداث المسجلة",
+
+      humanDecisions:
+        "الاعتمادات البشرية",
+
       controlledAiStages:
-        "مراحل الذكاء الاصطناعي الخاضعة للتحكم",
-      verifiedClosed: "تم التحقق والإغلاق",
+        "مراحل معالجة الذكاء الاصطناعي",
+
+      verifiedClosed:
+        "تم الحل والتحقق",
 
       selectedAuditCase:
-        "الحالة المحددة للتدقيق",
+        "الحالة المحددة",
 
       endToEndAuditTrail:
-        "مسار التدقيق من البداية إلى النهاية",
+        "تاريخ الحالة الكامل",
 
       officerApproval:
-        "اعتماد ضابط المراقبة",
+        "اعتماد الضابط",
 
       managerApproval:
-        "اعتماد المدير المشرف",
+        "اعتماد المدير",
 
       correctionExecution:
-        "تنفيذ التصحيح",
+        "التصحيح",
 
       postCorrectionVerification:
-        "التحقق بعد التصحيح",
+        "التحقق النهائي",
 
       finalCaseStatus:
         "الحالة النهائية",
 
-      traceable: "قابل للتتبع",
-      auditHistory: "سجل التدقيق",
+      traceable:
+        "مسجل",
+
+      auditHistory:
+        "سجل التدقيق",
 
       dataProtection:
         "حماية البيانات",
 
       masterModified:
-        "تم تعديل المرجع الرئيسي",
+        "تم تغيير المرجع الرئيسي",
 
       originalBiometricModified:
-        "تم تعديل البيانات البيومترية الأصلية",
+        "تم تغيير البيانات البيومترية الأصلية",
 
       pdfAuditReport:
-        "تقرير التدقيق PDF",
+        "تقرير الحالة PDF",
 
       planned:
-        "مخطط",
+        "مخطط له",
 
       pdfMessage:
-        "إنشاء تقرير تدقيق PDF مخطط له وغير مفعّل في النسخة التجريبية الحالية.",
+        "إنشاء تقرير PDF قابل للتنزيل مخطط له وغير مفعّل في النسخة التجريبية الحالية.",
 
       governanceMessage:
-        "مراحل الذكاء الاصطناعي خاضعة للتحكم وقابلة للتتبع، وتتطلب قرارات التصحيح الحساسة اعتمادًا بشريًا.",
+        "يتم تسجيل تحليل الذكاء الاصطناعي والقرارات البشرية، وتتطلب التصحيحات الحساسة اعتماد الموظفين المخولين.",
     },
 
     priorities: {
-      IMMEDIATE: "فوري",
-      HIGH: "مرتفع",
-      MEDIUM: "متوسط",
-      LOW: "منخفض",
+      IMMEDIATE:
+        "فوري",
+
+      HIGH:
+        "مرتفع",
+
+      MEDIUM:
+        "متوسط",
+
+      LOW:
+        "منخفض",
     },
 
     statuses: {
-      VERIFIED_CLOSED: "تم التحقق والإغلاق",
-      AI_INVESTIGATED: "تم التحقيق بالذكاء الاصطناعي",
-      PENDING: "قيد الانتظار",
-      APPROVED: "معتمد",
-      COMPLETED: "مكتمل",
-      PASSED: "ناجح",
-      FAILED: "فشل",
-      NOT_READY: "غير جاهز",
-      NOT_STARTED: "لم يبدأ",
-      NOT_AUTHORIZED: "غير مصرح",
-      AWAITING_OFFICER: "بانتظار الضابط",
-      AWAITING_MANAGER: "بانتظار المدير",
-      OFFICER_APPROVED: "معتمد من الضابط",
-      EXECUTION_AUTHORIZED: "مصرح بالتنفيذ",
+      VERIFIED_CLOSED:
+        "تم الحل والتحقق",
+
+      AI_INVESTIGATED:
+        "اكتمل تحليل الذكاء الاصطناعي",
+
+      PENDING:
+        "بانتظار القرار",
+
+      APPROVED:
+        "معتمد",
+
+      COMPLETED:
+        "مكتمل",
+
+      PASSED:
+        "ناجح",
+
+      FAILED:
+        "فشل",
+
+      NOT_READY:
+        "بانتظار المرحلة السابقة",
+
+      NOT_STARTED:
+        "لم يبدأ",
+
+      NOT_AUTHORIZED:
+        "غير مصرح بالتنفيذ",
+
+      AWAITING_OFFICER:
+        "بانتظار الضابط",
+
+      AWAITING_MANAGER:
+        "بانتظار المدير",
+
+      OFFICER_APPROVED:
+        "معتمد من الضابط",
+
+      EXECUTION_AUTHORIZED:
+        "معتمد للتصحيح",
     },
 
     caseTypes: {
-      HARM_IMPACT: "تأثير ضرر",
+      HARM_IMPACT:
+        "احتمال تأثير على شخص آخر",
 
       CRITICAL_HARM_CONFLICT:
-        "تعارض ذو ضرر حرج",
+        "تعارض هوية حرج",
 
       CRITICAL_HARM_IDENTITY_CONFLICT:
-        "تعارض هوية ذو ضرر حرج",
+        "تعارض هوية حرج",
 
       COMPLEX_IDENTITY_CONFLICT:
         "تعارض هوية معقد",
 
-      DATA_MISMATCH: "اختلاف بيانات",
-      WRONG_MAPPING: "ربط خاطئ",
-      DUPLICATE_IDENTITY: "هوية مكررة",
-      ORPHAN: "سجل دون مرجع",
-      ORPHAN_RECORD: "سجل دون مرجع",
+      DATA_MISMATCH:
+        "اختلاف في البيانات",
+
+      WRONG_MAPPING:
+        "ربط هوية غير صحيح",
+
+      DUPLICATE_IDENTITY:
+        "هوية مكررة",
+
+      ORPHAN:
+        "سجل بدون هوية مرتبطة",
+
+      ORPHAN_RECORD:
+        "سجل بدون هوية مرتبطة",
     },
 
     footer: {
       platform:
         "منصة مطابقة الهوية بالذكاء الاصطناعي",
-      demo: "عرض تجريبي اصطناعي",
+
+      demo:
+        "بيانات تجريبية",
+
       monitoring:
         "المراقبة المستمرة نشطة",
     },

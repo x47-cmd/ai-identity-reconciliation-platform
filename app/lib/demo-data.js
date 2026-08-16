@@ -70,6 +70,9 @@ export const PLATFORM_METRICS = {
    TECHNICAL CASE TYPE BREAKDOWN
 
    This reflects the actual aggregated case taxonomy.
+
+   Total:
+   15 + 11 + 8 + 6 + 6 + 4 + 3 = 53
    ========================================================= */
 
 export const CASE_TYPE_BREAKDOWN = [
@@ -129,31 +132,37 @@ export const CASE_TYPE_BREAKDOWN = [
 
 export const EXECUTIVE_CASE_BREAKDOWN = [
   {
+    type: "DATA_MISMATCH",
     label: "Data Mismatch",
     count: 15,
   },
 
   {
+    type: "WRONG_MAPPING",
     label: "Wrong Mapping",
     count: 11,
   },
 
   {
+    type: "PROTECTIVE_HARM",
     label: "Wrong-Person / Harm Impact",
     count: 9,
   },
 
   {
+    type: "COMPLEX_IDENTITY_CONFLICT",
     label: "Complex Identity Conflict",
     count: 8,
   },
 
   {
+    type: "DUPLICATE_IDENTITY",
     label: "Duplicate Identity",
     count: 6,
   },
 
   {
+    type: "ORPHAN_RECORD",
     label: "Orphan Record",
     count: 4,
   },
@@ -163,8 +172,14 @@ export const EXECUTIVE_CASE_BREAKDOWN = [
 /* =========================================================
    PRIMARY VERIFIED E2E DEMO CASE
 
-   This is the main case used for the full demonstration:
-   AI → Officer → Manager → Execution → Verification → Closed
+   Main full lifecycle demonstration:
+
+   AI Investigation
+   → Monitoring Officer Approval
+   → Supervising Manager Approval
+   → Controlled Execution
+   → Post-Correction Verification
+   → VERIFIED_CLOSED
    ========================================================= */
 
 export const VERIFIED_DEMO_CASE = {
@@ -182,6 +197,8 @@ export const VERIFIED_DEMO_CASE = {
 
   currentIdentity: "REF-002711",
 
+  proposedIdentity: "REF-001009",
+
   canonicalIdentity: "REF-001009",
 
   aiConfidence: 99.99,
@@ -192,56 +209,109 @@ export const VERIFIED_DEMO_CASE = {
 
   protectivePriority: 98.0,
 
-  officerDecision: "APPROVED",
+  officer: {
+    role: "Monitoring Officer",
 
-  managerDecision: "APPROVED",
+    actor:
+      "Demo Monitoring Officer",
+
+    decision:
+      "APPROVED",
+  },
+
+  manager: {
+    role:
+      "Supervising Manager",
+
+    actor:
+      "Demo Supervising Manager",
+
+    decision:
+      "APPROVED",
+  },
+
+  officerDecision:
+    "APPROVED",
+
+  managerDecision:
+    "APPROVED",
 
   execution: {
-    status: "COMPLETED",
+    status:
+      "COMPLETED",
 
-    action: "REASSIGN_BIOMETRIC_IDENTITY",
+    action:
+      "REASSIGN_BIOMETRIC_IDENTITY",
 
-    targetSystem: "BIOMETRIC_SYSTEM",
+    targetSystem:
+      "BIOMETRIC_SYSTEM",
 
-    targetRecord: "BIO-000166",
+    targetRecord:
+      "BIO-000166",
 
-    field: "linked_master_id",
+    field:
+      "linked_master_id",
 
-    before: "REF-002711",
+    before:
+      "REF-002711",
 
-    after: "REF-001009",
+    after:
+      "REF-001009",
   },
 
   verification: {
-    status: "PASSED",
+    status:
+      "PASSED",
 
-    score: 100,
+    score:
+      100,
 
-    biometricMatch: 99.9903,
+    /*
+     Backend-confirmed raw similarity score.
+     Keep this value in raw 0..1 form.
+    */
+    biometricMatch:
+      0.999903,
 
-    identityMappingValid: true,
+    /*
+     Convenience value for UI percentage display.
+     0.999903 × 100 = 99.9903%
+    */
+    biometricMatchPercent:
+      99.9903,
 
-    originalConflictResolved: true,
+    identityMappingValid:
+      true,
 
-    secondaryConflict: false,
+    originalConflictResolved:
+      true,
 
-    rollbackRequired: false,
+    secondaryConflict:
+      false,
+
+    rollbackRequired:
+      false,
   },
 
-  finalStatus: "VERIFIED_CLOSED",
+  finalStatus:
+    "VERIFIED_CLOSED",
 
-  auditTrailEventCount: 5,
+  auditTrailEventCount:
+    5,
 
-  masterModified: false,
+  masterModified:
+    false,
 
-  originalBiometricDatasetModified: false,
+  originalBiometricDatasetModified:
+    false,
 
-  demoResult: "SUCCESS",
+  demoResult:
+    "SUCCESS",
 };
 
 
 /* =========================================================
-   ACTUAL COMPLEX IDENTITY CASE
+   COMPLEX IDENTITY DEMO CASE
 
    IMPORTANT:
    BIO-000795 belongs to CASE-2026-00014.
@@ -249,47 +319,70 @@ export const VERIFIED_DEMO_CASE = {
    Previous frontend versions incorrectly used:
    CASE-2026-00010
 
-   That old frontend ID must be removed during refactoring.
+   CASE-2026-00010 must not be used for BIO-000795.
    ========================================================= */
 
 export const COMPLEX_DEMO_CASE = {
-  id: "CASE-2026-00014",
+  id:
+    "CASE-2026-00014",
 
-  caseType: "COMPLEX_IDENTITY_CONFLICT",
+  caseType:
+    "COMPLEX_IDENTITY_CONFLICT",
 
-  title: "Complex Identity Conflict",
+  title:
+    "Complex Identity Conflict",
 
-  priority: "HIGH",
+  priority:
+    "HIGH",
 
-  wronglyAffected: false,
+  wronglyAffected:
+    false,
 
   affectedBiometrics: [
     "BIO-000277",
     "BIO-000795",
   ],
 
-  primaryBiometricId: "BIO-000795",
+  primaryBiometricId:
+    "BIO-000795",
+
+  currentIdentity:
+    "REF-001183",
+
+  proposedIdentity:
+    "REF-002343",
+
+  canonicalIdentity:
+    "REF-002343",
 
   currentMasterIdentities: [
     "REF-001183",
     "REF-002343",
   ],
 
-  canonicalIdentity: "REF-002343",
+  aiConfidence:
+    99.99,
 
-  aiConfidence: 99.99,
+  risk:
+    90,
 
-  risk: 90,
+  harm:
+    60,
 
-  harm: 60,
+  protectivePriority:
+    85,
 
-  protectivePriority: 85,
+  supportCount:
+    3,
 
-  supportCount: 3,
+  findingCount:
+    5,
 
-  findingCount: 5,
+  unresolvedIdentity:
+    false,
 
-  unresolvedIdentity: false,
+  finalStatus:
+    "AI_INVESTIGATED",
 };
 
 
@@ -300,32 +393,67 @@ export const COMPLEX_DEMO_CASE = {
 export const VERIFIED_DEMO_LIFECYCLE = [
   {
     order: 1,
-    label: "AI Investigation",
-    status: "COMPLETED",
+
+    stage:
+      "AI_INVESTIGATION",
+
+    label:
+      "AI Investigation",
+
+    status:
+      "COMPLETED",
   },
 
   {
     order: 2,
-    label: "Officer Approval",
-    status: "APPROVED",
+
+    stage:
+      "OFFICER_APPROVAL",
+
+    label:
+      "Officer Approval",
+
+    status:
+      "APPROVED",
   },
 
   {
     order: 3,
-    label: "Manager Approval",
-    status: "APPROVED",
+
+    stage:
+      "MANAGER_APPROVAL",
+
+    label:
+      "Manager Approval",
+
+    status:
+      "APPROVED",
   },
 
   {
     order: 4,
-    label: "Controlled Correction",
-    status: "COMPLETED",
+
+    stage:
+      "CONTROLLED_CORRECTION",
+
+    label:
+      "Controlled Correction",
+
+    status:
+      "COMPLETED",
   },
 
   {
     order: 5,
-    label: "Post-Correction Verification",
-    status: "VERIFIED_CLOSED",
+
+    stage:
+      "POST_CORRECTION_VERIFICATION",
+
+    label:
+      "Post-Correction Verification",
+
+    status:
+      "VERIFIED_CLOSED",
   },
 ];
 
@@ -353,10 +481,16 @@ export const GOVERNANCE = {
   managerApprovalRequired:
     true,
 
+  twoHumanApprovalRequired:
+    true,
+
   postCorrectionVerificationRequired:
     true,
 
   verificationFailureBlocksClosure:
+    true,
+
+  sourceDataProtectionRequired:
     true,
 };
 
@@ -402,89 +536,159 @@ export const PLATFORM_WORKFLOW = [
 
 export const AI_AGENTS = [
   {
-    id: "monitoring",
-    name: "Monitoring Agent",
+    id:
+      "monitoring",
+
+    name:
+      "Monitoring Agent",
+
     role:
       "Detects new or changed operational records.",
   },
 
   {
-    id: "reconciliation",
-    name: "Reconciliation Agent",
+    id:
+      "reconciliation",
+
+    name:
+      "Reconciliation Agent",
+
     role:
       "Compares biometric records against the Master Reference.",
   },
 
   {
-    id: "biometric-correlation",
-    name: "Biometric Correlation Agent",
+    id:
+      "biometric-correlation",
+
+    name:
+      "Biometric Correlation Agent",
+
     role:
-      "Evaluates biometric similarity and relationships.",
+      "Evaluates synthetic biometric-vector similarity and relationships.",
   },
 
   {
-    id: "identity-resolution",
-    name: "Identity Resolution Agent",
+    id:
+      "identity-resolution",
+
+    name:
+      "Identity Resolution Agent",
+
     role:
       "Determines the strongest canonical identity candidate.",
   },
 
   {
-    id: "anomaly-detection",
-    name: "Anomaly Detection Agent",
+    id:
+      "anomaly-detection",
+
+    name:
+      "Anomaly Detection Agent",
+
     role:
-      "Detects mismatches, duplicates, overlaps and anomalies.",
+      "Detects mismatches, duplicates, overlaps and other identity-integrity anomalies.",
   },
 
   {
-    id: "investigation",
-    name: "Investigation Agent",
+    id:
+      "investigation",
+
+    name:
+      "Investigation Agent",
+
     role:
       "Combines evidence and prepares structured investigation results.",
   },
 
   {
-    id: "remediation",
-    name: "Remediation Agent",
+    id:
+      "remediation",
+
+    name:
+      "Remediation Agent",
+
     role:
-      "Prepares proposed Before / After corrections.",
+      "Prepares proposed Before / After corrections without independently authorizing them.",
   },
 
   {
-    id: "approval-workflow",
-    name: "Approval Workflow Agent",
+    id:
+      "approval-workflow",
+
+    name:
+      "Approval Workflow Agent",
+
     role:
-      "Coordinates Officer and Manager human approvals.",
+      "Coordinates Monitoring Officer and Supervising Manager human approvals.",
   },
 
   {
-    id: "execution",
-    name: "Execution Agent",
+    id:
+      "execution",
+
+    name:
+      "Execution Agent",
+
     role:
-      "Executes only fully authorized corrections against permitted targets.",
+      "Executes only fully authorized corrections against permitted runtime targets.",
   },
 
   {
-    id: "verification",
-    name: "Verification Agent",
+    id:
+      "verification",
+
+    name:
+      "Verification Agent",
+
     role:
-      "Revalidates identity integrity after correction.",
+      "Revalidates identity integrity after correction and determines whether closure conditions are satisfied.",
   },
 
   {
-    id: "audit",
-    name: "Audit Agent",
+    id:
+      "audit",
+
+    name:
+      "Audit Agent",
+
     role:
       "Maintains case lifecycle traceability and reporting data.",
   },
 
   {
-    id: "intelligence-reporting",
-    name: "Intelligence & Reporting Agent",
+    id:
+      "intelligence-reporting",
+
+    name:
+      "Intelligence & Reporting Agent",
+
     role:
       "Produces operational and management intelligence.",
   },
 ];
+
+
+/* =========================================================
+   SYNTHETIC DATA MODEL
+   ========================================================= */
+
+export const SYNTHETIC_DATA_MODEL = {
+  demonstrationOnly:
+    true,
+
+  biometricEvidence:
+    "GENERIC_SYNTHETIC_VECTOR",
+
+  modalitySpecificScoresAvailable:
+    false,
+
+  realPersonalData:
+    false,
+
+  realBiometricData:
+    false,
+};
 
 
 /* =========================================================

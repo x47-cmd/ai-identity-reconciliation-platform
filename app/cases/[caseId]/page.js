@@ -25,7 +25,6 @@ import {
   Fingerprint,
   GitCompareArrows,
   LockKeyhole,
-  ScanFace,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -38,11 +37,16 @@ import {
 /* =========================================================
    CASE DETAIL VIEW MODELS
 
-   Core identity, risk and verification values come from:
-   app/lib/demo-data.js
+   Core identity, risk, execution and verification values
+   come from app/lib/demo-data.js.
 
-   Additional narrative/evidence fields below are frontend
-   presentation data for the synthetic demonstration.
+   Narrative fields and supporting finding breakdowns below
+   are synthetic frontend presentation data.
+
+   IMPORTANT:
+   The current backend demonstration uses synthetic vector
+   correlation. It does not expose separate Face,
+   Fingerprint or Iris similarity scores.
    ========================================================= */
 
 const caseDatabase = {
@@ -106,7 +110,7 @@ const caseDatabase = {
 
     aiConclusion:
       (
-        "The aggregated biometric and identity evidence strongly "
+        "The aggregated synthetic biometric and identity evidence strongly "
         + "indicates that BIO-000166 is associated with REF-001009 "
         + "rather than its previous mapping REF-002711. The identity "
         + "conflict created potential wrong-person impact and was "
@@ -121,17 +125,11 @@ const caseDatabase = {
       ),
 
     evidence: {
-      face:
-        99.98,
-
-      fingerprint:
-        99.99,
-
-      iris:
-        99.97,
-
-      combined:
+      resolutionConfidence:
         VERIFIED_DEMO_CASE.aiConfidence,
+
+      postCorrectionMatch:
+        VERIFIED_DEMO_CASE.verification.biometricMatch,
     },
 
     dataComparison: [
@@ -179,13 +177,13 @@ const caseDatabase = {
 
       {
         field:
-          "Biometric Evidence",
+          "Canonical Resolution",
 
         current:
-          "Low support",
+          "Previous mapping rejected",
 
         reference:
-          `${VERIFIED_DEMO_CASE.aiConfidence}% support`,
+          `${VERIFIED_DEMO_CASE.aiConfidence}% confidence`,
 
         result:
           "MATCH",
@@ -195,7 +193,7 @@ const caseDatabase = {
     findingsList: [
       {
         id:
-          "FND-000041",
+          "SYN-FND-0001",
 
         type:
           "WRONG_MAPPING",
@@ -209,7 +207,7 @@ const caseDatabase = {
 
       {
         id:
-          "FND-000042",
+          "SYN-FND-0002",
 
         type:
           "HARM_IMPACT",
@@ -371,9 +369,8 @@ const caseDatabase = {
 
 
   /* ======================================================
-     ACTUAL COMPLEX CASE
+     BACKEND-CONFIRMED COMPLEX CASE
 
-     Backend-confirmed mapping:
      BIO-000795 → CASE-2026-00014
      ====================================================== */
 
@@ -451,17 +448,11 @@ const caseDatabase = {
       ),
 
     evidence: {
-      face:
-        99.98,
-
-      fingerprint:
-        99.99,
-
-      iris:
-        99.96,
-
-      combined:
+      resolutionConfidence:
         COMPLEX_DEMO_CASE.aiConfidence,
+
+      postCorrectionMatch:
+        null,
     },
 
     dataComparison: [
@@ -511,7 +502,7 @@ const caseDatabase = {
     findingsList: [
       {
         id:
-          "FND-000081",
+          "SYN-FND-0011",
 
         type:
           "WRONG_MAPPING",
@@ -525,7 +516,7 @@ const caseDatabase = {
 
       {
         id:
-          "FND-000082",
+          "SYN-FND-0012",
 
         type:
           "DUPLICATE_BIOMETRIC",
@@ -539,7 +530,7 @@ const caseDatabase = {
 
       {
         id:
-          "FND-000083",
+          "SYN-FND-0013",
 
         type:
           "DATA_MISMATCH",
@@ -553,7 +544,7 @@ const caseDatabase = {
 
       {
         id:
-          "FND-000084",
+          "SYN-FND-0014",
 
         type:
           "DUPLICATE_IDENTITY",
@@ -567,7 +558,7 @@ const caseDatabase = {
 
       {
         id:
-          "FND-000085",
+          "SYN-FND-0015",
 
         type:
           "IDENTITY_CORRELATION",
@@ -628,7 +619,7 @@ const caseDatabase = {
         "NOT_READY",
 
       comments:
-        "Manager review becomes available after Officer approval.",
+        "Manager review becomes available only after Officer approval.",
     },
 
     verification: {
@@ -734,35 +725,44 @@ function StatusBadge({
       "VERIFIED_CLOSED",
     ].includes(value);
 
-  const pending =
+  const warning =
     [
       "PENDING",
+    ].includes(value);
+
+  const neutral =
+    [
       "NOT_READY",
       "NOT_STARTED",
       "NOT_AUTHORIZED",
-      "AI_INVESTIGATED",
     ].includes(value);
 
   const color =
     success
       ? "#59cfa0"
-      : pending
+      : warning
         ? "#ffbd67"
-        : "#76a9ff";
+        : neutral
+          ? "#8b9db3"
+          : "#76a9ff";
 
   const background =
     success
       ? "rgba(52,211,153,0.07)"
-      : pending
+      : warning
         ? "rgba(255,185,90,0.06)"
-        : "rgba(70,140,255,0.07)";
+        : neutral
+          ? "rgba(130,150,175,0.06)"
+          : "rgba(70,140,255,0.07)";
 
   const border =
     success
       ? "rgba(52,211,153,0.13)"
-      : pending
+      : warning
         ? "rgba(255,185,90,0.12)"
-        : "rgba(70,140,255,0.12)";
+        : neutral
+          ? "rgba(130,150,175,0.11)"
+          : "rgba(70,140,255,0.12)";
 
   return (
     <span
@@ -771,97 +771,18 @@ function StatusBadge({
         alignItems: "center",
         justifyContent: "center",
         minHeight: "25px",
-        padding: "0 9px",
+        padding: "0 10px",
         borderRadius: "7px",
         color,
         background,
         border: `1px solid ${border}`,
-        fontSize: "8px",
+        fontSize: "10px",
         fontWeight: 800,
+        whiteSpace: "nowrap",
       }}
     >
       {value}
     </span>
-  );
-}
-
-
-function ScoreBar({
-  label,
-  score,
-  icon: Icon,
-}) {
-  return (
-    <div
-      style={{
-        padding:
-          "13px 0",
-      }}
-    >
-      <div
-        style={{
-          display:
-            "flex",
-
-          justifyContent:
-            "space-between",
-
-          alignItems:
-            "center",
-
-          marginBottom:
-            "8px",
-        }}
-      >
-        <div
-          style={{
-            display:
-              "flex",
-
-            alignItems:
-              "center",
-
-            gap:
-              "8px",
-
-            color:
-              "#8598b0",
-
-            fontSize:
-              "10px",
-          }}
-        >
-          <Icon
-            size={16}
-            color="#659eff"
-          />
-
-          {label}
-        </div>
-
-        <strong
-          style={{
-            fontSize:
-              "11px",
-
-            color:
-              "#d7e3f1",
-          }}
-        >
-          {score}%
-        </strong>
-      </div>
-
-      <div className="progress">
-        <div
-          className="progressFill"
-          style={{
-            width:
-              `${Math.min(score, 100)}%`,
-          }}
-        />
-      </div>
-    </div>
   );
 }
 
@@ -881,35 +802,21 @@ function RiskMetric({
   return (
     <div
       style={{
-        flex:
-          1,
-
-        minWidth:
-          "150px",
-
-        padding:
-          "17px",
-
-        borderRadius:
-          "13px",
-
+        flex: 1,
+        minWidth: "150px",
+        padding: "17px",
+        borderRadius: "13px",
         background:
           "rgba(255,255,255,0.025)",
-
         border:
           "1px solid rgba(255,255,255,0.055)",
       }}
     >
       <div
         style={{
-          color:
-            "#61748e",
-
-          fontSize:
-            "9px",
-
-          marginBottom:
-            "9px",
+          color: "#71839a",
+          fontSize: "10px",
+          marginBottom: "9px",
         }}
       >
         {label}
@@ -918,8 +825,7 @@ function RiskMetric({
       <strong
         style={{
           color,
-          fontSize:
-            "24px",
+          fontSize: "24px",
         }}
       >
         {value}
@@ -927,11 +833,8 @@ function RiskMetric({
 
       <span
         style={{
-          color:
-            "#50627b",
-
-          fontSize:
-            "9px",
+          color: "#667991",
+          fontSize: "10px",
         }}
       >
         {" / 100"}
@@ -1041,11 +944,8 @@ function CaseNotFound({
           href="/cases"
           className="textButton"
           style={{
-            width:
-              "fit-content",
-
-            textDecoration:
-              "none",
+            width: "fit-content",
+            textDecoration: "none",
           }}
         >
           <ArrowLeft size={16} />
@@ -1056,14 +956,9 @@ function CaseNotFound({
         <div
           className="panel"
           style={{
-            padding:
-              "50px",
-
-            marginTop:
-              "20px",
-
-            textAlign:
-              "center",
+            padding: "50px",
+            marginTop: "20px",
+            textAlign: "center",
           }}
         >
           <CircleAlert
@@ -1077,8 +972,7 @@ function CaseNotFound({
 
           <p
             style={{
-              color:
-                "#6f819a",
+              color: "#7b8da4",
             }}
           >
             {caseId}
@@ -1137,25 +1031,17 @@ export default async function CaseInvestigationPage({
 
         <div
           style={{
-            marginBottom:
-              "19px",
+            marginBottom: "19px",
           }}
         >
           <Link
             href="/cases"
             className="textButton"
             style={{
-              width:
-                "fit-content",
-
-              padding:
-                0,
-
-              textDecoration:
-                "none",
-
-              marginBottom:
-                "15px",
+              width: "fit-content",
+              padding: 0,
+              textDecoration: "none",
+              marginBottom: "15px",
             }}
           >
             <ArrowLeft size={16} />
@@ -1167,8 +1053,7 @@ export default async function CaseInvestigationPage({
           <header
             className="topbar"
             style={{
-              marginBottom:
-                0,
+              marginBottom: 0,
             }}
           >
             <div>
@@ -1181,26 +1066,16 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  gap:
-                    "12px",
-
-                  flexWrap:
-                    "wrap",
-
-                  marginTop:
-                    "7px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                  flexWrap: "wrap",
+                  marginTop: "7px",
                 }}
               >
                 <h1
                   style={{
-                    margin:
-                      0,
+                    margin: 0,
                   }}
                 >
                   {caseData.id}
@@ -1222,8 +1097,7 @@ export default async function CaseInvestigationPage({
 
               <p
                 style={{
-                  marginTop:
-                    "7px",
+                  marginTop: "7px",
                 }}
               >
                 {caseData.title}
@@ -1292,11 +1166,8 @@ export default async function CaseInvestigationPage({
             <div
               className="priority immediate"
               style={{
-                height:
-                  "32px",
-
-                padding:
-                  "0 13px",
+                height: "32px",
+                padding: "0 13px",
               }}
             >
               PRIORITY {caseData.protectivePriority}
@@ -1313,11 +1184,8 @@ export default async function CaseInvestigationPage({
           <section
             className="integrityInfo"
             style={{
-              margin:
-                "0 0 20px",
-
-              padding:
-                "17px",
+              margin: "0 0 20px",
+              padding: "17px",
             }}
           >
             <CheckCircle2 size={24} />
@@ -1355,8 +1223,7 @@ export default async function CaseInvestigationPage({
             <div
               className="metricValue"
               style={{
-                fontSize:
-                  "18px",
+                fontSize: "18px",
               }}
             >
               {caseData.biometricId}
@@ -1434,11 +1301,11 @@ export default async function CaseInvestigationPage({
             </div>
 
             <div className="metricTitle">
-              AI Findings
+              Supporting Findings
             </div>
 
             <div className="metricSubtitle">
-              Aggregated supporting evidence
+              Aggregated case evidence
             </div>
           </div>
         </section>
@@ -1451,11 +1318,8 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginBottom:
-              "14px",
-
-            padding:
-              "18px 20px",
+            marginBottom: "16px",
+            padding: "18px 20px",
           }}
         >
           <div className="panelEyebrow">
@@ -1465,23 +1329,12 @@ export default async function CaseInvestigationPage({
 
           <div
             style={{
-              marginTop:
-                "17px",
-
-              display:
-                "flex",
-
-              alignItems:
-                "center",
-
-              gap:
-                "8px",
-
-              overflowX:
-                "auto",
-
-              paddingBottom:
-                "4px",
+              marginTop: "17px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              overflowX: "auto",
+              paddingBottom: "4px",
             }}
           >
             {lifecycle.map(
@@ -1495,29 +1348,17 @@ export default async function CaseInvestigationPage({
                 <div
                   key={label}
                   style={{
-                    display:
-                      "flex",
-
-                    alignItems:
-                      "center",
-
-                    gap:
-                      "8px",
-
-                    flexShrink:
-                      0,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    flexShrink: 0,
                   }}
                 >
                   <div
                     style={{
-                      minWidth:
-                        "108px",
-
-                      padding:
-                        "10px 12px",
-
-                      borderRadius:
-                        "10px",
+                      minWidth: "108px",
+                      padding: "10px 12px",
+                      borderRadius: "10px",
 
                       border:
                         complete
@@ -1532,22 +1373,14 @@ export default async function CaseInvestigationPage({
                       color:
                         complete
                           ? "#5fd0a5"
-                          : "#65778f",
+                          : "#74869d",
 
-                      fontSize:
-                        "9px",
+                      fontSize: "10px",
+                      fontWeight: 700,
 
-                      fontWeight:
-                        700,
-
-                      display:
-                        "flex",
-
-                      alignItems:
-                        "center",
-
-                      gap:
-                        "6px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
                     }}
                   >
                     {complete ? (
@@ -1562,7 +1395,7 @@ export default async function CaseInvestigationPage({
                   {index < 7 && (
                     <ChevronRight
                       size={14}
-                      color="#43546a"
+                      color="#52647b"
                     />
                   )}
                 </div>
@@ -1595,54 +1428,39 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                padding:
-                  "21px",
+                padding: "21px",
               }}
             >
               <div
                 style={{
-                  padding:
-                    "17px",
-
-                  borderRadius:
-                    "13px",
-
+                  padding: "17px",
+                  borderRadius: "13px",
                   background:
                     "rgba(54,125,255,0.055)",
-
                   border:
                     "1px solid rgba(72,139,255,0.1)",
                 }}
               >
                 <div
                   style={{
-                    display:
-                      "flex",
-
-                    gap:
-                      "10px",
+                    display: "flex",
+                    gap: "10px",
                   }}
                 >
                   <Sparkles
                     size={20}
                     color="#69a1ff"
                     style={{
-                      flexShrink:
-                        0,
+                      flexShrink: 0,
                     }}
                   />
 
                   <div>
                     <strong
                       style={{
-                        display:
-                          "block",
-
-                        fontSize:
-                          "11px",
-
-                        color:
-                          "#d7e6f9",
+                        display: "block",
+                        fontSize: "11px",
+                        color: "#d7e6f9",
                       }}
                     >
                       AI Conclusion
@@ -1650,17 +1468,10 @@ export default async function CaseInvestigationPage({
 
                     <p
                       style={{
-                        color:
-                          "#8194ad",
-
-                        fontSize:
-                          "10px",
-
-                        lineHeight:
-                          1.8,
-
-                        margin:
-                          "8px 0 0",
+                        color: "#8799b0",
+                        fontSize: "11px",
+                        lineHeight: 1.75,
+                        margin: "8px 0 0",
                       }}
                     >
                       {caseData.aiConclusion}
@@ -1672,8 +1483,7 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  marginTop:
-                    "17px",
+                  marginTop: "19px",
                 }}
               >
                 <div className="panelEyebrow">
@@ -1682,17 +1492,10 @@ export default async function CaseInvestigationPage({
 
                 <p
                   style={{
-                    color:
-                      "#91a1b6",
-
-                    fontSize:
-                      "10px",
-
-                    lineHeight:
-                      1.8,
-
-                    margin:
-                      "10px 0 0",
+                    color: "#96a6ba",
+                    fontSize: "11px",
+                    lineHeight: 1.75,
+                    margin: "10px 0 0",
                   }}
                 >
                   {caseData.rootCause}
@@ -1702,17 +1505,10 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  marginTop:
-                    "20px",
-
-                  display:
-                    "flex",
-
-                  gap:
-                    "8px",
-
-                  flexWrap:
-                    "wrap",
+                  marginTop: "20px",
+                  display: "flex",
+                  gap: "10px",
+                  flexWrap: "wrap",
                 }}
               >
                 <span className="confidence">
@@ -1723,11 +1519,8 @@ export default async function CaseInvestigationPage({
 
                 <span
                   style={{
-                    color:
-                      "#52677f",
-
-                    fontSize:
-                      "9px",
+                    color: "#71839a",
+                    fontSize: "10px",
                   }}
                 >
                   Investigation:
@@ -1757,8 +1550,7 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                padding:
-                  "7px 19px 17px",
+                padding: "7px 19px 17px",
               }}
             >
               {[
@@ -1817,8 +1609,7 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -1839,50 +1630,30 @@ export default async function CaseInvestigationPage({
 
           <div
             style={{
-              display:
-                "grid",
-
+              display: "grid",
               gridTemplateColumns:
                 "1fr auto 1fr",
-
-              alignItems:
-                "stretch",
-
-              gap:
-                "18px",
-
-              padding:
-                "22px",
+              alignItems: "stretch",
+              gap: "18px",
+              padding: "22px",
             }}
           >
             <div
               style={{
-                padding:
-                  "22px",
-
-                borderRadius:
-                  "15px",
-
+                padding: "22px",
+                borderRadius: "15px",
                 border:
                   "1px solid rgba(255,90,108,0.15)",
-
                 background:
                   "rgba(255,76,96,0.055)",
               }}
             >
               <div
                 style={{
-                  color:
-                    "#c26d77",
-
-                  fontSize:
-                    "9px",
-
-                  fontWeight:
-                    800,
-
-                  letterSpacing:
-                    "1px",
+                  color: "#d27a85",
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "1px",
                 }}
               >
                 {
@@ -1895,41 +1666,22 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  marginTop:
-                    "17px",
-
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  gap:
-                    "11px",
+                  marginTop: "17px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "11px",
                 }}
               >
                 <div
                   style={{
-                    width:
-                      "43px",
-
-                    height:
-                      "43px",
-
-                    borderRadius:
-                      "12px",
-
-                    display:
-                      "grid",
-
-                    placeItems:
-                      "center",
-
+                    width: "43px",
+                    height: "43px",
+                    borderRadius: "12px",
+                    display: "grid",
+                    placeItems: "center",
                     background:
                       "rgba(255,92,108,0.09)",
-
-                    color:
-                      "#ff7887",
+                    color: "#ff7887",
                   }}
                 >
                   <Users size={21} />
@@ -1938,14 +1690,9 @@ export default async function CaseInvestigationPage({
                 <div>
                   <span
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#805d64",
-
-                      fontSize:
-                        "8px",
+                      display: "block",
+                      color: "#976c74",
+                      fontSize: "10px",
                     }}
                   >
                     Linked Master Identity
@@ -1953,17 +1700,10 @@ export default async function CaseInvestigationPage({
 
                   <strong
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#ff8592",
-
-                      fontSize:
-                        "20px",
-
-                      marginTop:
-                        "3px",
+                      display: "block",
+                      color: "#ff8592",
+                      fontSize: "20px",
+                      marginTop: "3px",
                     }}
                   >
                     {caseData.currentIdentity}
@@ -1974,61 +1714,38 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  marginTop:
-                    "18px",
-
-                  color:
-                    "#9b6970",
-
-                  fontSize:
-                    "9px",
-
-                  lineHeight:
-                    1.6,
+                  marginTop: "18px",
+                  color: "#ab737b",
+                  fontSize: "10px",
+                  lineHeight: 1.6,
                 }}
               >
-                AI evidence identified this
-                relationship as inconsistent
-                with the stronger biometric and
-                identity evidence.
+                AI reconciliation identified this
+                relationship as inconsistent with
+                the stronger case-level identity
+                evidence.
               </div>
             </div>
 
 
             <div
               style={{
-                display:
-                  "grid",
-
-                placeItems:
-                  "center",
+                display: "grid",
+                placeItems: "center",
               }}
             >
               <div
                 style={{
-                  width:
-                    "42px",
-
-                  height:
-                    "42px",
-
-                  borderRadius:
-                    "50%",
-
-                  display:
-                    "grid",
-
-                  placeItems:
-                    "center",
-
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "50%",
+                  display: "grid",
+                  placeItems: "center",
                   background:
                     "rgba(58,130,255,0.1)",
-
                   border:
                     "1px solid rgba(72,141,255,0.18)",
-
-                  color:
-                    "#6ca4ff",
+                  color: "#6ca4ff",
                 }}
               >
                 <ArrowRight size={19} />
@@ -2038,32 +1755,20 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                padding:
-                  "22px",
-
-                borderRadius:
-                  "15px",
-
+                padding: "22px",
+                borderRadius: "15px",
                 border:
                   "1px solid rgba(52,211,153,0.14)",
-
                 background:
                   "rgba(52,211,153,0.045)",
               }}
             >
               <div
                 style={{
-                  color:
-                    "#58bd96",
-
-                  fontSize:
-                    "9px",
-
-                  fontWeight:
-                    800,
-
-                  letterSpacing:
-                    "1px",
+                  color: "#58bd96",
+                  fontSize: "10px",
+                  fontWeight: 800,
+                  letterSpacing: "1px",
                 }}
               >
                 {
@@ -2076,41 +1781,22 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  marginTop:
-                    "17px",
-
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  gap:
-                    "11px",
+                  marginTop: "17px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "11px",
                 }}
               >
                 <div
                   style={{
-                    width:
-                      "43px",
-
-                    height:
-                      "43px",
-
-                    borderRadius:
-                      "12px",
-
-                    display:
-                      "grid",
-
-                    placeItems:
-                      "center",
-
+                    width: "43px",
+                    height: "43px",
+                    borderRadius: "12px",
+                    display: "grid",
+                    placeItems: "center",
                     background:
                       "rgba(52,211,153,0.08)",
-
-                    color:
-                      "#55c99c",
+                    color: "#55c99c",
                   }}
                 >
                   <UserCheck size={21} />
@@ -2119,14 +1805,9 @@ export default async function CaseInvestigationPage({
                 <div>
                   <span
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#568775",
-
-                      fontSize:
-                        "8px",
+                      display: "block",
+                      color: "#679585",
+                      fontSize: "10px",
                     }}
                   >
                     Canonical Identity
@@ -2134,17 +1815,10 @@ export default async function CaseInvestigationPage({
 
                   <strong
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#59d0a1",
-
-                      fontSize:
-                        "20px",
-
-                      marginTop:
-                        "3px",
+                      display: "block",
+                      color: "#59d0a1",
+                      fontSize: "20px",
+                      marginTop: "3px",
                     }}
                   >
                     {caseData.proposedIdentity}
@@ -2155,26 +1829,17 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  marginTop:
-                    "18px",
-
-                  display:
-                    "flex",
-
-                  justifyContent:
-                    "space-between",
-
-                  alignItems:
-                    "center",
+                  marginTop: "18px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "12px",
                 }}
               >
                 <span
                   style={{
-                    color:
-                      "#608c7d",
-
-                    fontSize:
-                      "9px",
+                    color: "#719a8b",
+                    fontSize: "10px",
                   }}
                 >
                   AI Identity Confidence
@@ -2182,11 +1847,8 @@ export default async function CaseInvestigationPage({
 
                 <strong
                   style={{
-                    color:
-                      "#59d0a1",
-
-                    fontSize:
-                      "13px",
+                    color: "#59d0a1",
+                    fontSize: "13px",
                   }}
                 >
                   {caseData.confidence}%
@@ -2198,127 +1860,187 @@ export default async function CaseInvestigationPage({
 
 
         {/* ===============================================
-            BIOMETRIC EVIDENCE + RISK
+            SYNTHETIC CORRELATION + RISK
             =============================================== */}
 
         <section
           className="dashboardGrid"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
+
+          {/* CORRELATION EVIDENCE */}
+
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  BIOMETRIC CORRELATION
+                  SYNTHETIC CORRELATION
                 </div>
 
                 <h2>
-                  AI Biometric Evidence
+                  Identity Resolution Evidence
                 </h2>
               </div>
 
-              <ScanFace size={23} />
+              <Fingerprint size={23} />
             </div>
 
 
             <div
               style={{
-                padding:
-                  "8px 20px 20px",
+                padding: "18px 20px 20px",
               }}
             >
-              <ScoreBar
-                label="Face Similarity"
-                score={caseData.evidence.face}
-                icon={ScanFace}
-              />
-
-              <ScoreBar
-                label="Fingerprint Similarity"
-                score={caseData.evidence.fingerprint}
-                icon={Fingerprint}
-              />
-
-              <ScoreBar
-                label="Iris Similarity"
-                score={caseData.evidence.iris}
-                icon={Activity}
-              />
+              <div
+                style={{
+                  padding: "14px",
+                  borderRadius: "11px",
+                  background:
+                    "rgba(70,140,255,0.045)",
+                  border:
+                    "1px solid rgba(70,140,255,0.08)",
+                  color: "#8194ad",
+                  fontSize: "10px",
+                  lineHeight: 1.65,
+                }}
+              >
+                The current backend demonstration
+                uses synthetic vector-based
+                correlation. It does not expose
+                separate Face, Fingerprint or Iris
+                similarity scores.
+              </div>
 
 
               <div
                 style={{
-                  marginTop:
-                    "9px",
+                  marginTop: "15px",
+                }}
+              >
+                <div className="detailRow">
+                  <span>
+                    Canonical Identity Confidence
+                  </span>
 
-                  padding:
-                    "15px",
+                  <strong className="confidence">
+                    {caseData.evidence.resolutionConfidence}%
+                  </strong>
+                </div>
 
-                  borderRadius:
-                    "11px",
+                <div className="detailRow">
+                  <span>
+                    Supporting Findings
+                  </span>
 
+                  <strong>
+                    {caseData.findings}
+                  </strong>
+                </div>
+
+                <div className="detailRow">
+                  <span>
+                    Canonical Identity Candidate
+                  </span>
+
+                  <strong className="successText">
+                    {caseData.proposedIdentity}
+                  </strong>
+                </div>
+
+                <div className="detailRow">
+                  <span>
+                    Correlation Source
+                  </span>
+
+                  <strong>
+                    Synthetic Vector Evidence
+                  </strong>
+                </div>
+              </div>
+
+
+              <div
+                style={{
+                  marginTop: "15px",
+                  padding: "15px",
+                  borderRadius: "11px",
                   background:
                     "rgba(54,125,255,0.06)",
-
                   border:
                     "1px solid rgba(73,140,255,0.11)",
-
-                  display:
-                    "flex",
-
-                  alignItems:
-                    "center",
-
-                  justifyContent:
-                    "space-between",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: "15px",
                 }}
               >
                 <div>
                   <span
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#617796",
-
-                      fontSize:
-                        "8px",
+                      display: "block",
+                      color: "#7185a0",
+                      fontSize: "10px",
+                      fontWeight: 750,
                     }}
                   >
-                    COMBINED BIOMETRIC SCORE
+                    IDENTITY RESOLUTION CONFIDENCE
                   </span>
 
                   <strong
                     style={{
-                      display:
-                        "block",
-
-                      marginTop:
-                        "4px",
-
-                      color:
-                        "#74a9ff",
-
-                      fontSize:
-                        "20px",
+                      display: "block",
+                      marginTop: "4px",
+                      color: "#74a9ff",
+                      fontSize: "20px",
                     }}
                   >
-                    {caseData.evidence.combined}%
+                    {caseData.evidence.resolutionConfidence}%
                   </strong>
                 </div>
 
-                <ShieldCheck
+                <BrainCircuit
                   size={28}
                   color="#639fff"
                 />
               </div>
+
+
+              {caseData.isVerifiedClosed && (
+                <div
+                  className="integrityInfo"
+                  style={{
+                    margin: "14px 0 0",
+                  }}
+                >
+                  <ShieldCheck size={21} />
+
+                  <div>
+                    <strong>
+                      Post-Correction Biometric Match
+                    </strong>
+
+                    <span>
+                      Verified biometric match score:
+                      {" "}
+                      {
+                        caseData.evidence
+                          .postCorrectionMatch
+                      }
+                      %.
+                      This value comes from the
+                      completed post-correction
+                      verification stage.
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
+
+          {/* PROTECTIVE RISK */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -2338,17 +2060,10 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                padding:
-                  "18px",
-
-                display:
-                  "flex",
-
-                flexDirection:
-                  "column",
-
-                gap:
-                  "9px",
+                padding: "18px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "9px",
               }}
             >
               <RiskMetric
@@ -2406,8 +2121,7 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -2445,8 +2159,7 @@ export default async function CaseInvestigationPage({
                         <td>
                           <strong
                             style={{
-                              color:
-                                "#cbd7e7",
+                              color: "#cbd7e7",
                             }}
                           >
                             {row.field}
@@ -2473,11 +2186,11 @@ export default async function CaseInvestigationPage({
                             style={
                               row.result === "MATCH"
                                 ? {
-                                    color:
-                                      "#56ca9d",
-
+                                    color: "#56ca9d",
                                     background:
                                       "rgba(52,211,153,0.07)",
+                                    border:
+                                      "1px solid rgba(52,211,153,0.13)",
                                   }
                                 : undefined
                             }
@@ -2502,14 +2215,13 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                AGGREGATED AI EVIDENCE
+                SYNTHETIC SUPPORTING EVIDENCE
               </div>
 
               <h2>
@@ -2518,6 +2230,24 @@ export default async function CaseInvestigationPage({
             </div>
 
             <BrainCircuit size={22} />
+          </div>
+
+
+          <div
+            style={{
+              padding: "12px 18px",
+              color: "#71839a",
+              fontSize: "10px",
+              lineHeight: 1.6,
+              borderBottom:
+                "1px solid rgba(255,255,255,0.045)",
+            }}
+          >
+            The breakdown below is representative
+            frontend evidence for the synthetic
+            demonstration. Case-level identity,
+            risk and verification metrics remain
+            the authoritative demo values.
           </div>
 
 
@@ -2580,8 +2310,7 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -2605,50 +2334,33 @@ export default async function CaseInvestigationPage({
 
           <div
             style={{
-              padding:
-                "22px",
+              padding: "22px",
             }}
           >
             <div
               style={{
-                display:
-                  "grid",
-
+                display: "grid",
                 gridTemplateColumns:
                   "1fr 1fr",
-
-                gap:
-                  "14px",
+                gap: "14px",
               }}
             >
               <div
                 style={{
-                  padding:
-                    "20px",
-
-                  borderRadius:
-                    "14px",
-
+                  padding: "20px",
+                  borderRadius: "14px",
                   border:
                     "1px solid rgba(255,86,103,0.14)",
-
                   background:
                     "rgba(255,74,94,0.045)",
                 }}
               >
                 <div
                   style={{
-                    color:
-                      "#bd6974",
-
-                    fontSize:
-                      "9px",
-
-                    fontWeight:
-                      800,
-
-                    letterSpacing:
-                      "1px",
+                    color: "#cd7580",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "1px",
                   }}
                 >
                   BEFORE
@@ -2656,14 +2368,9 @@ export default async function CaseInvestigationPage({
 
                 <div
                   style={{
-                    marginTop:
-                      "15px",
-
-                    color:
-                      "#61718a",
-
-                    fontSize:
-                      "9px",
+                    marginTop: "15px",
+                    color: "#71839a",
+                    fontSize: "10px",
                   }}
                 >
                   {
@@ -2674,17 +2381,10 @@ export default async function CaseInvestigationPage({
 
                 <strong
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#ff808d",
-
-                    fontSize:
-                      "22px",
-
-                    marginTop:
-                      "5px",
+                    display: "block",
+                    color: "#ff808d",
+                    fontSize: "22px",
+                    marginTop: "5px",
                   }}
                 >
                   {
@@ -2695,14 +2395,9 @@ export default async function CaseInvestigationPage({
 
                 <div
                   style={{
-                    color:
-                      "#815e64",
-
-                    fontSize:
-                      "9px",
-
-                    marginTop:
-                      "7px",
+                    color: "#916a71",
+                    fontSize: "10px",
+                    marginTop: "7px",
                   }}
                 >
                   {
@@ -2715,32 +2410,20 @@ export default async function CaseInvestigationPage({
 
               <div
                 style={{
-                  padding:
-                    "20px",
-
-                  borderRadius:
-                    "14px",
-
+                  padding: "20px",
+                  borderRadius: "14px",
                   border:
                     "1px solid rgba(52,211,153,0.14)",
-
                   background:
                     "rgba(52,211,153,0.04)",
                 }}
               >
                 <div
                   style={{
-                    color:
-                      "#55bb93",
-
-                    fontSize:
-                      "9px",
-
-                    fontWeight:
-                      800,
-
-                    letterSpacing:
-                      "1px",
+                    color: "#5fc79d",
+                    fontSize: "10px",
+                    fontWeight: 800,
+                    letterSpacing: "1px",
                   }}
                 >
                   {
@@ -2752,14 +2435,9 @@ export default async function CaseInvestigationPage({
 
                 <div
                   style={{
-                    marginTop:
-                      "15px",
-
-                    color:
-                      "#61718a",
-
-                    fontSize:
-                      "9px",
+                    marginTop: "15px",
+                    color: "#71839a",
+                    fontSize: "10px",
                   }}
                 >
                   {
@@ -2770,17 +2448,10 @@ export default async function CaseInvestigationPage({
 
                 <strong
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#58cea0",
-
-                    fontSize:
-                      "22px",
-
-                    marginTop:
-                      "5px",
+                    display: "block",
+                    color: "#58cea0",
+                    fontSize: "22px",
+                    marginTop: "5px",
                   }}
                 >
                   {
@@ -2791,14 +2462,9 @@ export default async function CaseInvestigationPage({
 
                 <div
                   style={{
-                    color:
-                      "#557c6e",
-
-                    fontSize:
-                      "9px",
-
-                    marginTop:
-                      "7px",
+                    color: "#668c7e",
+                    fontSize: "10px",
+                    marginTop: "7px",
                   }}
                 >
                   {
@@ -2812,17 +2478,11 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                marginTop:
-                  "15px",
-
-                display:
-                  "grid",
-
+                marginTop: "15px",
+                display: "grid",
                 gridTemplateColumns:
                   "1fr 1fr 1fr",
-
-                gap:
-                  "10px",
+                gap: "10px",
               }}
             >
               {[
@@ -2846,29 +2506,19 @@ export default async function CaseInvestigationPage({
                   <div
                     key={label}
                     style={{
-                      padding:
-                        "13px",
-
-                      borderRadius:
-                        "10px",
-
+                      padding: "13px",
+                      borderRadius: "10px",
                       background:
                         "rgba(255,255,255,0.024)",
-
                       border:
                         "1px solid rgba(255,255,255,0.05)",
                     }}
                   >
                     <span
                       style={{
-                        display:
-                          "block",
-
-                        color:
-                          "#596b84",
-
-                        fontSize:
-                          "8px",
+                        display: "block",
+                        color: "#71839a",
+                        fontSize: "10px",
                       }}
                     >
                       {label}
@@ -2876,17 +2526,10 @@ export default async function CaseInvestigationPage({
 
                     <strong
                       style={{
-                        display:
-                          "block",
-
-                        marginTop:
-                          "5px",
-
-                        color:
-                          "#b8c6d8",
-
-                        fontSize:
-                          "9px",
+                        display: "block",
+                        marginTop: "5px",
+                        color: "#c2cfdf",
+                        fontSize: "10px",
                       }}
                     >
                       {value}
@@ -2900,8 +2543,7 @@ export default async function CaseInvestigationPage({
             <div
               className="integrityInfo"
               style={{
-                margin:
-                  "15px 0 0",
+                margin: "15px 0 0",
               }}
             >
               {
@@ -2945,9 +2587,7 @@ export default async function CaseInvestigationPage({
           style={{
             gridTemplateColumns:
               "1fr 1fr",
-
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panel">
@@ -2968,36 +2608,23 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                padding:
-                  "18px",
+                padding: "18px",
               }}
             >
               <div
                 style={{
-                  display:
-                    "flex",
-
-                  justifyContent:
-                    "space-between",
-
-                  alignItems:
-                    "center",
-
-                  marginBottom:
-                    "15px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "15px",
                 }}
               >
                 <div>
                   <span
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#5e7189",
-
-                      fontSize:
-                        "8px",
+                      display: "block",
+                      color: "#71839a",
+                      fontSize: "10px",
                     }}
                   >
                     REVIEW STATUS
@@ -3005,19 +2632,15 @@ export default async function CaseInvestigationPage({
 
                   <strong
                     style={{
-                      display:
-                        "block",
-
-                      marginTop:
-                        "4px",
+                      display: "block",
+                      marginTop: "4px",
 
                       color:
                         caseData.officer.status === "APPROVED"
                           ? "#59cfa0"
                           : "#ffbd67",
 
-                      fontSize:
-                        "11px",
+                      fontSize: "11px",
                     }}
                   >
                     {caseData.officer.status}
@@ -3066,14 +2689,9 @@ export default async function CaseInvestigationPage({
 
               <p
                 style={{
-                  color:
-                    "#667991",
-
-                  fontSize:
-                    "9px",
-
-                  lineHeight:
-                    1.6,
+                  color: "#788ba2",
+                  fontSize: "10px",
+                  lineHeight: 1.65,
                 }}
               >
                 {caseData.officer.comments}
@@ -3083,17 +2701,11 @@ export default async function CaseInvestigationPage({
               {!caseData.isVerifiedClosed && (
                 <div
                   style={{
-                    display:
-                      "grid",
-
+                    display: "grid",
                     gridTemplateColumns:
                       "1fr 1fr",
-
-                    gap:
-                      "8px",
-
-                    marginTop:
-                      "16px",
+                    gap: "8px",
+                    marginTop: "16px",
                   }}
                 >
                   <button className="primaryButton">
@@ -3105,11 +2717,11 @@ export default async function CaseInvestigationPage({
                   <button
                     className="searchButton"
                     style={{
-                      justifyContent:
-                        "center",
-
-                      height:
-                        "42px",
+                      justifyContent: "center",
+                      height: "42px",
+                      borderColor:
+                        "rgba(255,185,90,0.15)",
+                      color: "#e0ad5f",
                     }}
                   >
                     More Investigation
@@ -3138,36 +2750,23 @@ export default async function CaseInvestigationPage({
 
             <div
               style={{
-                padding:
-                  "18px",
+                padding: "18px",
               }}
             >
               <div
                 style={{
-                  display:
-                    "flex",
-
-                  justifyContent:
-                    "space-between",
-
-                  alignItems:
-                    "center",
-
-                  marginBottom:
-                    "15px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "15px",
                 }}
               >
                 <div>
                   <span
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#5e7189",
-
-                      fontSize:
-                        "8px",
+                      display: "block",
+                      color: "#71839a",
+                      fontSize: "10px",
                     }}
                   >
                     APPROVAL STATUS
@@ -3175,19 +2774,15 @@ export default async function CaseInvestigationPage({
 
                   <strong
                     style={{
-                      display:
-                        "block",
-
-                      marginTop:
-                        "4px",
+                      display: "block",
+                      marginTop: "4px",
 
                       color:
                         caseData.manager.status === "APPROVED"
                           ? "#59cfa0"
-                          : "#687b94",
+                          : "#8495aa",
 
-                      fontSize:
-                        "11px",
+                      fontSize: "11px",
                     }}
                   >
                     {caseData.manager.status}
@@ -3205,7 +2800,7 @@ export default async function CaseInvestigationPage({
                     : (
                       <LockKeyhole
                         size={21}
-                        color="#64768d"
+                        color="#74869d"
                       />
                     )
                 }
@@ -3236,14 +2831,9 @@ export default async function CaseInvestigationPage({
 
               <p
                 style={{
-                  color:
-                    "#667991",
-
-                  fontSize:
-                    "9px",
-
-                  lineHeight:
-                    1.6,
+                  color: "#788ba2",
+                  fontSize: "10px",
+                  lineHeight: 1.65,
                 }}
               >
                 {caseData.manager.comments}
@@ -3255,23 +2845,10 @@ export default async function CaseInvestigationPage({
                   className="searchButton"
                   disabled
                   style={{
-                    width:
-                      "100%",
-
-                    justifyContent:
-                      "center",
-
-                    height:
-                      "42px",
-
-                    marginTop:
-                      "16px",
-
-                    cursor:
-                      "not-allowed",
-
-                    opacity:
-                      0.45,
+                    width: "100%",
+                    justifyContent: "center",
+                    height: "42px",
+                    marginTop: "16px",
                   }}
                 >
                   <LockKeyhole size={16} />
@@ -3291,8 +2868,7 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -3313,17 +2889,11 @@ export default async function CaseInvestigationPage({
 
           <div
             style={{
-              padding:
-                "22px",
-
-              display:
-                "grid",
-
+              padding: "22px",
+              display: "grid",
               gridTemplateColumns:
                 "repeat(3, 1fr)",
-
-              gap:
-                "12px",
+              gap: "12px",
             }}
           >
             {[
@@ -3382,11 +2952,8 @@ export default async function CaseInvestigationPage({
                       item.label
                     }
                     style={{
-                      padding:
-                        "17px",
-
-                      borderRadius:
-                        "12px",
+                      padding: "17px",
+                      borderRadius: "12px",
 
                       background:
                         complete
@@ -3404,20 +2971,15 @@ export default async function CaseInvestigationPage({
                       color={
                         complete
                           ? "#59cfa0"
-                          : "#6d809a"
+                          : "#7b8da4"
                       }
                     />
 
                     <strong
                       style={{
-                        display:
-                          "block",
-
-                        marginTop:
-                          "12px",
-
-                        fontSize:
-                          "10px",
+                        display: "block",
+                        marginTop: "12px",
+                        fontSize: "11px",
                       }}
                     >
                       {item.label}
@@ -3425,19 +2987,15 @@ export default async function CaseInvestigationPage({
 
                     <span
                       style={{
-                        display:
-                          "block",
+                        display: "block",
 
                         color:
                           complete
                             ? "#59cfa0"
-                            : "#60728c",
+                            : "#71839a",
 
-                        marginTop:
-                          "5px",
-
-                        fontSize:
-                          "9px",
+                        marginTop: "5px",
+                        fontSize: "10px",
                       }}
                     >
                       {item.value}
@@ -3452,15 +3010,13 @@ export default async function CaseInvestigationPage({
           {caseData.isVerifiedClosed && (
             <div
               style={{
-                padding:
-                  "0 22px 22px",
+                padding: "0 22px 22px",
               }}
             >
               <div
                 className="integrityInfo"
                 style={{
-                  margin:
-                    0,
+                  margin: 0,
                 }}
               >
                 <ShieldCheck size={21} />
@@ -3492,6 +3048,14 @@ export default async function CaseInvestigationPage({
                         ? "TRUE"
                         : "FALSE"
                     }
+                    {" · "}
+                    Secondary Conflict:
+                    {" "}
+                    {
+                      caseData.verification.secondaryConflict
+                        ? "TRUE"
+                        : "FALSE"
+                    }
                   </span>
                 </div>
               </div>
@@ -3507,8 +3071,7 @@ export default async function CaseInvestigationPage({
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "16px",
           }}
         >
           <div className="panelHeader">
@@ -3528,8 +3091,7 @@ export default async function CaseInvestigationPage({
 
           <div
             style={{
-              padding:
-                "8px 21px 20px",
+              padding: "8px 21px 20px",
             }}
           >
             {
@@ -3543,17 +3105,11 @@ export default async function CaseInvestigationPage({
                       `${event.sequence}-${event.action}`
                     }
                     style={{
-                      display:
-                        "grid",
-
+                      display: "grid",
                       gridTemplateColumns:
                         "70px 24px 1fr",
-
-                      gap:
-                        "10px",
-
-                      padding:
-                        "15px 0",
+                      gap: "10px",
+                      padding: "15px 0",
 
                       borderBottom:
                         index
@@ -3564,14 +3120,9 @@ export default async function CaseInvestigationPage({
                   >
                     <div
                       style={{
-                        color:
-                          "#53667e",
-
-                        fontSize:
-                          "9px",
-
-                        paddingTop:
-                          "3px",
+                        color: "#687b93",
+                        fontSize: "10px",
+                        paddingTop: "3px",
                       }}
                     >
                       STEP {event.sequence}
@@ -3580,26 +3131,14 @@ export default async function CaseInvestigationPage({
 
                     <div
                       style={{
-                        width:
-                          "22px",
-
-                        height:
-                          "22px",
-
-                        borderRadius:
-                          "50%",
-
-                        display:
-                          "grid",
-
-                        placeItems:
-                          "center",
-
+                        width: "22px",
+                        height: "22px",
+                        borderRadius: "50%",
+                        display: "grid",
+                        placeItems: "center",
                         background:
                           "rgba(66,139,255,0.09)",
-
-                        color:
-                          "#659eff",
+                        color: "#659eff",
                       }}
                     >
                       <Check size={12} />
@@ -3609,26 +3148,16 @@ export default async function CaseInvestigationPage({
                     <div>
                       <div
                         style={{
-                          display:
-                            "flex",
-
-                          gap:
-                            "7px",
-
-                          alignItems:
-                            "center",
-
-                          flexWrap:
-                            "wrap",
+                          display: "flex",
+                          gap: "7px",
+                          alignItems: "center",
+                          flexWrap: "wrap",
                         }}
                       >
                         <strong
                           style={{
-                            fontSize:
-                              "10px",
-
-                            color:
-                              "#cbd8e7",
+                            fontSize: "11px",
+                            color: "#cbd8e7",
                           }}
                         >
                           {event.action}
@@ -3636,11 +3165,8 @@ export default async function CaseInvestigationPage({
 
                         <span
                           style={{
-                            color:
-                              "#5278b0",
-
-                            fontSize:
-                              "8px",
+                            color: "#6390cd",
+                            fontSize: "10px",
                           }}
                         >
                           {event.actor}
@@ -3649,17 +3175,10 @@ export default async function CaseInvestigationPage({
 
                       <div
                         style={{
-                          color:
-                            "#65778f",
-
-                          fontSize:
-                            "9px",
-
-                          lineHeight:
-                            1.6,
-
-                          marginTop:
-                            "5px",
+                          color: "#74869d",
+                          fontSize: "10px",
+                          lineHeight: 1.6,
+                          marginTop: "5px",
                         }}
                       >
                         {event.detail}
@@ -3680,11 +3199,8 @@ export default async function CaseInvestigationPage({
         <section
           className="integrityInfo"
           style={{
-            margin:
-              "14px 0 0",
-
-            padding:
-              "17px",
+            margin: "16px 0 0",
+            padding: "17px",
           }}
         >
           <ShieldCheck size={24} />

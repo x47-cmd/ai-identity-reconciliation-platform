@@ -3,10 +3,7 @@
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
-
-import {
-  useLanguage,
-} from "../components/LanguageProvider";
+import { useLanguage } from "../components/LanguageProvider";
 
 import {
   Activity,
@@ -30,18 +27,316 @@ import {
 
 
 /* =========================================================
-   LANGUAGE HELPER
+   LANGUAGE
    ========================================================= */
 
-function L(
-  language,
-  english,
-  arabic
-) {
-  return language === "ar"
-    ? arabic
-    : english;
-}
+const copy = {
+  en: {
+    eyebrow: "GOVERNANCE · TRACEABILITY · REPORTING",
+    title: "Reports & Audit Trail",
+    subtitle:
+      "Complete traceability of AI findings, human decisions, approved corrections, verification outcomes and executive reporting.",
+
+    search: "Search audit history",
+    auditGovernance: "Audit & Governance",
+    reportingCenter: "Reporting Center",
+
+    traceabilityTitle: "Full Case Traceability Active",
+    traceabilityMessage:
+      "AI actions, human decisions, correction execution, verification outcomes and final case state can be reconstructed through the recorded case lifecycle.",
+
+    auditReady: "AUDIT READY",
+
+    auditEvents: "Audit Events",
+    auditEventsDescription: "Selected E2E lifecycle events",
+
+    humanDecisions: "Human Decisions",
+    humanDecisionsDescription: "Officer and Manager approvals",
+
+    controlledAiStages: "Controlled AI Stages",
+    controlledAiStagesDescription:
+      "Investigation, execution and verification",
+
+    verifiedClosed: "Verified Closed",
+    verifiedClosedDescription:
+      "Completed end-to-end demo case",
+
+    selectedAuditCase: "SELECTED AUDIT CASE",
+
+    caseType: "Case Type",
+    priority: "Priority",
+    aiConfidence: "AI Confidence",
+    protectivePriority: "Protective Priority",
+
+    before: "BEFORE",
+    verifiedAfter: "VERIFIED AFTER",
+
+    officerApproval: "Officer Approval",
+    managerApproval: "Manager Approval",
+    verification: "Verification",
+    score: "Score",
+
+    masterModified: "Master Modified",
+    masterProtectedValue: "FALSE · READ ONLY",
+
+    originalBiometricModified: "Original Biometric Modified",
+    originalProtectedValue: "FALSE · SOURCE PRESERVED",
+
+    traceableCaseHistory: "TRACEABLE CASE HISTORY",
+    endToEndAuditSequence: "End-to-End Audit Sequence",
+    step: "STEP",
+
+    demoAuditRegister: "DEMO AUDIT REGISTER",
+    recordedLifecycleSequence: "Recorded Lifecycle Sequence",
+
+    sequence: "SEQUENCE",
+    case: "CASE",
+    actor: "ACTOR",
+    actorType: "ACTOR TYPE",
+    action: "ACTION",
+    status: "STATUS",
+
+    formalReporting: "FORMAL REPORTING",
+    reportCenter: "Report Center",
+
+    caseReportContent: "CASE REPORT CONTENT",
+    formalEvidencePackage: "Formal Evidence Package",
+
+    reportGovernance: "REPORT GOVERNANCE",
+    traceabilityControls: "Traceability Controls",
+
+    humanAttribution: "Human Attribution",
+    humanAttributionText:
+      "Officer and Manager decisions remain attributable to the relevant human review stage.",
+
+    aiAttribution: "AI Attribution",
+    aiAttributionText:
+      "AI findings, recommendations and lifecycle actions identify the responsible processing component.",
+
+    chronologicalTraceability: "Chronological Traceability",
+    chronologicalTraceabilityText:
+      "The case lifecycle can be reconstructed from AI investigation through verified closure.",
+
+    masterReferenceProtection: "Master Reference Protection",
+    masterReferenceProtectionText:
+      "The selected demo confirms that the Master Reference remained unchanged during controlled correction.",
+
+    managementReporting: "MANAGEMENT REPORTING",
+    executiveReportingCoverage:
+      "Executive Reporting Coverage",
+
+    caseVolume: "Case Volume",
+    protectiveCases: "Protective Cases",
+    demoVerification: "Demo Verification",
+    unresolvedIdentity: "Unresolved Identity",
+
+    currentArtifacts: "CURRENT ARTIFACTS",
+    machineReadableOutputs: "Machine-Readable Outputs",
+
+    futureExport: "FUTURE EXPORT",
+    formalPdfReporting: "Formal PDF Reporting",
+
+    reportModelReady: "Report Model Ready",
+    reportModelReadyText:
+      "Required case, AI, approval, correction and verification information is already represented in the reporting design.",
+
+    pdfGeneratorPlanned: "PDF Generator Planned",
+    pdfMessage:
+      "A formal downloadable PDF generator has not yet been connected to this frontend workspace.",
+
+    finalAuditTitle:
+      "Auditable End-to-End Case Lifecycle",
+
+    finalAuditMessage:
+      "CASE-2026-00001 demonstrates a traceable lifecycle from AI investigation through Officer and Manager approvals, controlled correction, post-correction verification and VERIFIED_CLOSED status.",
+
+    footer:
+      "AI Identity Reconciliation Platform · Reports & Audit Trail Center",
+
+    auditMonitoringActive:
+      "Audit Monitoring Active",
+
+    planned:
+      "PLANNED",
+  },
+
+  ar: {
+    eyebrow: "الحوكمة · التتبع · التقارير",
+    title: "التقارير وسجل التدقيق",
+    subtitle:
+      "تتبع شامل لنتائج الذكاء الاصطناعي والقرارات البشرية والتصحيحات المعتمدة ونتائج التحقق والتقارير التنفيذية.",
+
+    search: "البحث في سجل التدقيق",
+    auditGovernance: "التدقيق والحوكمة",
+    reportingCenter: "مركز التقارير",
+
+    traceabilityTitle: "التتبع الكامل للحالة نشط",
+    traceabilityMessage:
+      "يمكن إعادة بناء إجراءات الذكاء الاصطناعي والقرارات البشرية وتنفيذ التصحيح ونتائج التحقق والحالة النهائية من خلال دورة حياة الحالة المسجلة.",
+
+    auditReady: "جاهز للتدقيق",
+
+    auditEvents: "أحداث التدقيق",
+    auditEventsDescription:
+      "أحداث دورة الحياة للحالة التجريبية المحددة",
+
+    humanDecisions: "القرارات البشرية",
+    humanDecisionsDescription:
+      "اعتمادات الضابط والمدير",
+
+    controlledAiStages:
+      "مراحل الذكاء الاصطناعي الخاضعة للتحكم",
+
+    controlledAiStagesDescription:
+      "التحقيق والتنفيذ والتحقق",
+
+    verifiedClosed: "تم التحقق والإغلاق",
+    verifiedClosedDescription:
+      "حالة تجريبية متكاملة مكتملة",
+
+    selectedAuditCase: "حالة التدقيق المحددة",
+
+    caseType: "نوع الحالة",
+    priority: "الأولوية",
+    aiConfidence: "ثقة الذكاء الاصطناعي",
+    protectivePriority: "الأولوية الوقائية",
+
+    before: "قبل",
+    verifiedAfter: "بعد التحقق",
+
+    officerApproval: "اعتماد ضابط المراقبة",
+    managerApproval: "اعتماد المدير",
+    verification: "التحقق",
+    score: "الدرجة",
+
+    masterModified: "تم تعديل المرجع الرئيسي",
+    masterProtectedValue:
+      "لا · للقراءة فقط",
+
+    originalBiometricModified:
+      "تم تعديل المصدر البيومتري الأصلي",
+
+    originalProtectedValue:
+      "لا · المصدر محفوظ",
+
+    traceableCaseHistory:
+      "سجل الحالة القابل للتتبع",
+
+    endToEndAuditSequence:
+      "تسلسل التدقيق المتكامل",
+
+    step: "الخطوة",
+
+    demoAuditRegister:
+      "سجل التدقيق التجريبي",
+
+    recordedLifecycleSequence:
+      "تسلسل دورة الحياة المسجل",
+
+    sequence: "التسلسل",
+    case: "الحالة",
+    actor: "المنفذ",
+    actorType: "نوع المنفذ",
+    action: "الإجراء",
+    status: "الحالة",
+
+    formalReporting: "التقارير الرسمية",
+    reportCenter: "مركز التقارير",
+
+    caseReportContent:
+      "محتوى تقرير الحالة",
+
+    formalEvidencePackage:
+      "حزمة الأدلة الرسمية",
+
+    reportGovernance:
+      "حوكمة التقارير",
+
+    traceabilityControls:
+      "ضوابط التتبع",
+
+    humanAttribution:
+      "إسناد القرارات البشرية",
+
+    humanAttributionText:
+      "تبقى قرارات ضابط المراقبة والمدير مرتبطة بمرحلة المراجعة البشرية ذات الصلة.",
+
+    aiAttribution:
+      "إسناد إجراءات الذكاء الاصطناعي",
+
+    aiAttributionText:
+      "تحدد نتائج وتوصيات وإجراءات الذكاء الاصطناعي المكون المسؤول عن المعالجة.",
+
+    chronologicalTraceability:
+      "التتبع الزمني",
+
+    chronologicalTraceabilityText:
+      "يمكن إعادة بناء دورة حياة الحالة من تحقيق الذكاء الاصطناعي وحتى الإغلاق بعد التحقق.",
+
+    masterReferenceProtection:
+      "حماية المرجع الرئيسي",
+
+    masterReferenceProtectionText:
+      "يؤكد العرض المحدد أن المرجع الرئيسي ظل دون تغيير أثناء التصحيح الخاضع للتحكم.",
+
+    managementReporting:
+      "تقارير الإدارة",
+
+    executiveReportingCoverage:
+      "تغطية التقارير التنفيذية",
+
+    caseVolume:
+      "حجم الحالات",
+
+    protectiveCases:
+      "الحالات الوقائية",
+
+    demoVerification:
+      "التحقق التجريبي",
+
+    unresolvedIdentity:
+      "هويات غير محسومة",
+
+    currentArtifacts:
+      "المخرجات الحالية",
+
+    machineReadableOutputs:
+      "مخرجات قابلة للقراءة آليًا",
+
+    futureExport:
+      "التصدير المستقبلي",
+
+    formalPdfReporting:
+      "تقارير PDF الرسمية",
+
+    reportModelReady:
+      "نموذج التقرير جاهز",
+
+    reportModelReadyText:
+      "تم تمثيل معلومات الحالة والذكاء الاصطناعي والاعتماد والتصحيح والتحقق المطلوبة داخل تصميم التقارير.",
+
+    pdfGeneratorPlanned:
+      "مولد PDF مخطط له",
+
+    pdfMessage:
+      "لم يتم بعد ربط مولد PDF رسمي قابل للتنزيل بواجهة المنصة.",
+
+    finalAuditTitle:
+      "دورة حياة متكاملة وقابلة للتدقيق",
+
+    finalAuditMessage:
+      "توضح CASE-2026-00001 دورة حياة قابلة للتتبع تبدأ من تحقيق الذكاء الاصطناعي مرورًا باعتماد ضابط المراقبة والمدير والتصحيح الخاضع للتحكم والتحقق بعد التصحيح وحتى الوصول إلى حالة التحقق والإغلاق.",
+
+    footer:
+      "منصة مطابقة وتسوية الهوية بالذكاء الاصطناعي · مركز التقارير والتدقيق",
+
+    auditMonitoringActive:
+      "مراقبة التدقيق نشطة",
+
+    planned:
+      "مخطط له",
+  },
+};
 
 
 /* =========================================================
@@ -54,11 +349,16 @@ const auditEvents = [
     caseId: "CASE-2026-00001",
     sequence: "01",
     actor: "Investigation Agent",
+    actorAr: "وكيل التحقيق",
     actorType: "AI_AGENT",
+    actorTypeAr: "وكيل ذكاء اصطناعي",
     action: "AI_INVESTIGATION_COMPLETED",
+    actionAr: "اكتمل تحقيق الذكاء الاصطناعي",
     status: "COMPLETED",
     detail:
       "AI investigation completed and the proposed identity correction package was prepared for human review.",
+    detailAr:
+      "اكتمل تحقيق الذكاء الاصطناعي وتم إعداد حزمة تصحيح الهوية المقترحة للمراجعة البشرية.",
   },
 
   {
@@ -66,11 +366,16 @@ const auditEvents = [
     caseId: "CASE-2026-00001",
     sequence: "02",
     actor: "Demo Monitoring Officer",
+    actorAr: "ضابط المراقبة التجريبي",
     actorType: "HUMAN",
+    actorTypeAr: "بشري",
     action: "OFFICER_APPROVAL_RECORDED",
+    actionAr: "تم تسجيل اعتماد ضابط المراقبة",
     status: "APPROVED",
     detail:
       "Monitoring Officer reviewed the evidence and approved the proposed correction.",
+    detailAr:
+      "راجع ضابط المراقبة الأدلة واعتمد التصحيح المقترح.",
   },
 
   {
@@ -78,11 +383,16 @@ const auditEvents = [
     caseId: "CASE-2026-00001",
     sequence: "03",
     actor: "Demo Supervising Manager",
+    actorAr: "المدير المشرف التجريبي",
     actorType: "HUMAN",
+    actorTypeAr: "بشري",
     action: "MANAGER_APPROVAL_RECORDED",
+    actionAr: "تم تسجيل اعتماد المدير",
     status: "APPROVED",
     detail:
       "Manager completed the second-level review and authorized controlled correction execution.",
+    detailAr:
+      "أكمل المدير المراجعة من المستوى الثاني وصرح بتنفيذ التصحيح الخاضع للتحكم.",
   },
 
   {
@@ -90,11 +400,16 @@ const auditEvents = [
     caseId: "CASE-2026-00001",
     sequence: "04",
     actor: "Execution Agent",
+    actorAr: "وكيل التنفيذ",
     actorType: "AI_AGENT",
+    actorTypeAr: "وكيل ذكاء اصطناعي",
     action: "CONTROLLED_CORRECTION_EXECUTED",
+    actionAr: "تم تنفيذ التصحيح الخاضع للتحكم",
     status: "COMPLETED",
     detail:
       "BIO-000166 was changed from REF-002711 to REF-001009 in the isolated controlled runtime dataset.",
+    detailAr:
+      "تم تغيير BIO-000166 من REF-002711 إلى REF-001009 داخل مجموعة بيانات التشغيل المعزولة والخاضعة للتحكم.",
   },
 
   {
@@ -102,11 +417,16 @@ const auditEvents = [
     caseId: "CASE-2026-00001",
     sequence: "05",
     actor: "Verification Agent",
+    actorAr: "وكيل التحقق",
     actorType: "AI_AGENT",
+    actorTypeAr: "وكيل ذكاء اصطناعي",
     action: "POST_CORRECTION_VERIFICATION_PASSED",
+    actionAr: "نجح التحقق بعد التصحيح",
     status: "VERIFIED_CLOSED",
     detail:
       "Post-correction verification passed with score 100. Mapping was validated, the original conflict was resolved and the case reached VERIFIED_CLOSED.",
+    detailAr:
+      "نجح التحقق بعد التصحيح بدرجة 100، وتم التحقق من صحة الربط وحل التعارض الأصلي ووصلت الحالة إلى مرحلة التحقق والإغلاق.",
   },
 ];
 
@@ -117,155 +437,101 @@ const auditEvents = [
 
 const reports = [
   {
-    title:
-      "Case Investigation Report",
-
+    title: "Case Investigation Report",
+    titleAr: "تقرير تحقيق الحالة",
     description:
       "AI investigation, evidence, risk analysis, identity resolution and proposed correction.",
-
-    type:
-      "CASE REPORT",
-
-    icon:
-      BrainCircuit,
+    descriptionAr:
+      "تحقيق الذكاء الاصطناعي والأدلة وتحليل المخاطر وحسم الهوية والتصحيح المقترح.",
+    type: "CASE REPORT",
+    typeAr: "تقرير حالة",
+    icon: BrainCircuit,
   },
 
   {
-    title:
-      "Correction & Verification Report",
-
+    title: "Correction & Verification Report",
+    titleAr: "تقرير التصحيح والتحقق",
     description:
       "Before/After correction, approvals, execution result and post-correction verification.",
-
-    type:
-      "CORRECTION REPORT",
-
-    icon:
-      FileCheck2,
+    descriptionAr:
+      "حالة ما قبل وبعد التصحيح والاعتمادات ونتيجة التنفيذ والتحقق بعد التصحيح.",
+    type: "CORRECTION REPORT",
+    typeAr: "تقرير تصحيح",
+    icon: FileCheck2,
   },
 
   {
-    title:
-      "Full Audit Report",
-
+    title: "Full Audit Report",
+    titleAr: "تقرير التدقيق الكامل",
     description:
       "Chronological lifecycle record covering AI actions, human decisions, execution and verification.",
-
-    type:
-      "AUDIT REPORT",
-
-    icon:
-      History,
+    descriptionAr:
+      "سجل زمني لدورة الحياة يشمل إجراءات الذكاء الاصطناعي والقرارات البشرية والتنفيذ والتحقق.",
+    type: "AUDIT REPORT",
+    typeAr: "تقرير تدقيق",
+    icon: History,
   },
 
   {
-    title:
-      "Harm Impact Report",
-
+    title: "Harm Impact Report",
+    titleAr: "تقرير تأثير الضرر",
     description:
       "Protective cases where identity errors may negatively affect an unrelated person.",
-
-    type:
-      "PROTECTIVE REPORT",
-
-    icon:
-      ShieldAlert,
+    descriptionAr:
+      "الحالات الوقائية التي قد تؤثر فيها أخطاء الهوية سلبًا على شخص غير مرتبط بالحالة.",
+    type: "PROTECTIVE REPORT",
+    typeAr: "تقرير وقائي",
+    icon: ShieldAlert,
   },
 
   {
-    title:
-      "Executive Monthly Report",
-
+    title: "Executive Monthly Report",
+    titleAr: "التقرير التنفيذي الشهري",
     description:
       "Management KPIs, case volumes, priorities, AI performance and resolution outcomes.",
-
-    type:
-      "EXECUTIVE REPORT",
-
-    icon:
-      BarChart3,
+    descriptionAr:
+      "مؤشرات الإدارة وحجم الحالات والأولويات وأداء الذكاء الاصطناعي ونتائج الحسم.",
+    type: "EXECUTIVE REPORT",
+    typeAr: "تقرير تنفيذي",
+    icon: BarChart3,
   },
 
   {
-    title:
-      "Data Integrity Report",
-
+    title: "Data Integrity Report",
+    titleAr: "تقرير سلامة البيانات",
     description:
       "Cross-system mismatches, duplicates, orphan records, source health and reconciliation results.",
-
-    type:
-      "DATA REPORT",
-
-    icon:
-      Database,
+    descriptionAr:
+      "الاختلافات بين الأنظمة والسجلات المكررة والمعزولة وسلامة المصادر ونتائج المطابقة.",
+    type: "DATA REPORT",
+    typeAr: "تقرير بيانات",
+    icon: Database,
   },
 ];
 
 
 /* =========================================================
-   SELECTED CASE
+   SELECTED DEMO CASE
    ========================================================= */
 
 const caseSummary = {
-  caseId:
-    "CASE-2026-00001",
-
-  type:
-    "HARM_IMPACT",
-
-  priority:
-    "IMMEDIATE",
-
-  biometric:
-    "BIO-000166",
-
-  before:
-    "REF-002711",
-
-  after:
-    "REF-001009",
-
-  confidence:
-    "99.99%",
-
-  risk:
-    "94.99",
-
-  harm:
-    "97.5",
-
-  protective:
-    "98.0",
-
-  officer:
-    "Demo Monitoring Officer",
-
-  officerDecision:
-    "APPROVED",
-
-  manager:
-    "Demo Supervising Manager",
-
-  managerDecision:
-    "APPROVED",
-
-  execution:
-    "COMPLETED",
-
-  verification:
-    "PASSED",
-
-  verificationScore:
-    "100",
-
-  masterModified:
-    "FALSE",
-
-  sourceModified:
-    "FALSE",
-
-  finalStatus:
-    "VERIFIED_CLOSED",
+  caseId: "CASE-2026-00001",
+  type: "HARM_IMPACT",
+  priority: "IMMEDIATE",
+  biometric: "BIO-000166",
+  before: "REF-002711",
+  after: "REF-001009",
+  confidence: "99.99%",
+  protective: "98.0",
+  officer: "Demo Monitoring Officer",
+  officerAr: "ضابط المراقبة التجريبي",
+  officerDecision: "APPROVED",
+  manager: "Demo Supervising Manager",
+  managerAr: "المدير المشرف التجريبي",
+  managerDecision: "APPROVED",
+  verification: "PASSED",
+  verificationScore: "100",
+  finalStatus: "VERIFIED_CLOSED",
 };
 
 
@@ -273,290 +539,95 @@ const caseSummary = {
    LOCALIZATION HELPERS
    ========================================================= */
 
-function localizeStatus(
+const statusLabels = {
+  COMPLETED: {
+    en: "COMPLETED",
+    ar: "مكتمل",
+  },
+
+  APPROVED: {
+    en: "APPROVED",
+    ar: "معتمد",
+  },
+
+  PASSED: {
+    en: "PASSED",
+    ar: "ناجح",
+  },
+
+  VERIFIED_CLOSED: {
+    en: "VERIFIED CLOSED",
+    ar: "تم التحقق والإغلاق",
+  },
+};
+
+
+const priorityLabels = {
+  IMMEDIATE: {
+    en: "IMMEDIATE",
+    ar: "فورية",
+  },
+
+  HIGH: {
+    en: "HIGH",
+    ar: "عالية",
+  },
+
+  MEDIUM: {
+    en: "MEDIUM",
+    ar: "متوسطة",
+  },
+};
+
+
+const caseTypeLabels = {
+  HARM_IMPACT: {
+    en: "HARM IMPACT",
+    ar: "تأثير ضرر",
+  },
+
+  WRONG_MAPPING: {
+    en: "WRONG MAPPING",
+    ar: "ربط خاطئ",
+  },
+
+  DATA_MISMATCH: {
+    en: "DATA MISMATCH",
+    ar: "عدم تطابق البيانات",
+  },
+
+  DUPLICATE_IDENTITY: {
+    en: "DUPLICATE IDENTITY",
+    ar: "هوية مكررة",
+  },
+
+  COMPLEX_IDENTITY_CONFLICT: {
+    en: "COMPLEX IDENTITY CONFLICT",
+    ar: "تعارض هوية معقد",
+  },
+
+  CRITICAL_HARM_CONFLICT: {
+    en: "CRITICAL HARM CONFLICT",
+    ar: "تعارض ضرر حرج",
+  },
+
+  ORPHAN: {
+    en: "ORPHAN",
+    ar: "سجل معزول",
+  },
+};
+
+
+function localizedValue(
+  map,
   value,
-  language,
-  t
+  language
 ) {
-  const keys = {
-    COMPLETED:
-      "statuses.COMPLETED",
-
-    APPROVED:
-      "statuses.APPROVED",
-
-    PASSED:
-      "statuses.PASSED",
-
-    VERIFIED_CLOSED:
-      "statuses.VERIFIED_CLOSED",
-  };
-
-
-  if (keys[value]) {
-    return t(
-      keys[value]
-    );
-  }
-
-
-  return L(
-    language,
-    value,
+  return (
+    map[value]?.[language] ||
+    map[value]?.en ||
     value
   );
-}
-
-
-function localizePriority(
-  value,
-  t
-) {
-  const keys = {
-    IMMEDIATE:
-      "priorities.IMMEDIATE",
-
-    HIGH:
-      "priorities.HIGH",
-
-    MEDIUM:
-      "priorities.MEDIUM",
-  };
-
-
-  return keys[value]
-    ? t(keys[value])
-    : value;
-}
-
-
-function localizeCaseType(
-  value,
-  t
-) {
-  const keys = {
-    HARM_IMPACT:
-      "caseTypes.HARM_IMPACT",
-
-    WRONG_MAPPING:
-      "caseTypes.WRONG_MAPPING",
-
-    DATA_MISMATCH:
-      "caseTypes.DATA_MISMATCH",
-
-    DUPLICATE_IDENTITY:
-      "caseTypes.DUPLICATE_IDENTITY",
-
-    COMPLEX_IDENTITY_CONFLICT:
-      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
-
-    CRITICAL_HARM_IDENTITY_CONFLICT:
-      "caseTypes.CRITICAL_HARM_CONFLICT",
-
-    ORPHAN_RECORD:
-      "caseTypes.ORPHAN",
-  };
-
-
-  return keys[value]
-    ? t(keys[value])
-    : value;
-}
-
-
-function localizeActor(
-  actor,
-  language
-) {
-  const labels = {
-    "Investigation Agent":
-      "وكيل التحقيق",
-
-    "Demo Monitoring Officer":
-      "ضابط المراقبة التجريبي",
-
-    "Demo Supervising Manager":
-      "المدير المشرف التجريبي",
-
-    "Execution Agent":
-      "وكيل التنفيذ",
-
-    "Verification Agent":
-      "وكيل التحقق",
-  };
-
-
-  return language === "ar"
-    ? labels[actor] || actor
-    : actor;
-}
-
-
-function localizeActorType(
-  actorType,
-  language
-) {
-  const labels = {
-    HUMAN:
-      "بشري",
-
-    AI_AGENT:
-      "وكيل ذكاء اصطناعي",
-  };
-
-
-  return language === "ar"
-    ? labels[actorType] || actorType
-    : actorType;
-}
-
-
-function localizeAction(
-  action,
-  language
-) {
-  const labels = {
-    AI_INVESTIGATION_COMPLETED:
-      "اكتمل تحقيق الذكاء الاصطناعي",
-
-    OFFICER_APPROVAL_RECORDED:
-      "تم تسجيل اعتماد الضابط",
-
-    MANAGER_APPROVAL_RECORDED:
-      "تم تسجيل اعتماد المدير",
-
-    CONTROLLED_CORRECTION_EXECUTED:
-      "تم تنفيذ التصحيح الخاضع للتحكم",
-
-    POST_CORRECTION_VERIFICATION_PASSED:
-      "نجح التحقق بعد التصحيح",
-  };
-
-
-  return language === "ar"
-    ? labels[action] || action
-    : action;
-}
-
-
-function localizeEventDetail(
-  detail,
-  language
-) {
-  const labels = {
-    "AI investigation completed and the proposed identity correction package was prepared for human review.":
-      "اكتمل تحقيق الذكاء الاصطناعي وتم إعداد حزمة تصحيح الهوية المقترحة للمراجعة البشرية.",
-
-    "Monitoring Officer reviewed the evidence and approved the proposed correction.":
-      "راجع ضابط المراقبة الأدلة واعتمد التصحيح المقترح.",
-
-    "Manager completed the second-level review and authorized controlled correction execution.":
-      "أكمل المدير المراجعة من المستوى الثاني وصرح بتنفيذ التصحيح الخاضع للتحكم.",
-
-    "BIO-000166 was changed from REF-002711 to REF-001009 in the isolated controlled runtime dataset.":
-      "تم تغيير BIO-000166 من REF-002711 إلى REF-001009 داخل مجموعة بيانات التشغيل المعزولة والخاضعة للتحكم.",
-
-    "Post-correction verification passed with score 100. Mapping was validated, the original conflict was resolved and the case reached VERIFIED_CLOSED.":
-      "نجح التحقق بعد التصحيح بدرجة 100، وتم التحقق من صحة الربط وحل التعارض الأصلي ووصلت الحالة إلى مرحلة التحقق والإغلاق.",
-  };
-
-
-  return language === "ar"
-    ? labels[detail] || detail
-    : detail;
-}
-
-
-function localizeReportTitle(
-  title,
-  language
-) {
-  const labels = {
-    "Case Investigation Report":
-      "تقرير تحقيق الحالة",
-
-    "Correction & Verification Report":
-      "تقرير التصحيح والتحقق",
-
-    "Full Audit Report":
-      "تقرير التدقيق الكامل",
-
-    "Harm Impact Report":
-      "تقرير تأثير الضرر",
-
-    "Executive Monthly Report":
-      "التقرير التنفيذي الشهري",
-
-    "Data Integrity Report":
-      "تقرير سلامة البيانات",
-  };
-
-
-  return language === "ar"
-    ? labels[title] || title
-    : title;
-}
-
-
-function localizeReportType(
-  type,
-  language
-) {
-  const labels = {
-    "CASE REPORT":
-      "تقرير حالة",
-
-    "CORRECTION REPORT":
-      "تقرير تصحيح",
-
-    "AUDIT REPORT":
-      "تقرير تدقيق",
-
-    "PROTECTIVE REPORT":
-      "تقرير وقائي",
-
-    "EXECUTIVE REPORT":
-      "تقرير تنفيذي",
-
-    "DATA REPORT":
-      "تقرير بيانات",
-  };
-
-
-  return language === "ar"
-    ? labels[type] || type
-    : type;
-}
-
-
-function localizeReportDescription(
-  description,
-  language
-) {
-  const labels = {
-    "AI investigation, evidence, risk analysis, identity resolution and proposed correction.":
-      "تحقيق الذكاء الاصطناعي والأدلة وتحليل المخاطر وحسم الهوية والتصحيح المقترح.",
-
-    "Before/After correction, approvals, execution result and post-correction verification.":
-      "حالة ما قبل وبعد التصحيح والاعتمادات ونتيجة التنفيذ والتحقق بعد التصحيح.",
-
-    "Chronological lifecycle record covering AI actions, human decisions, execution and verification.":
-      "سجل زمني لدورة الحياة يشمل إجراءات الذكاء الاصطناعي والقرارات البشرية والتنفيذ والتحقق.",
-
-    "Protective cases where identity errors may negatively affect an unrelated person.":
-      "الحالات الوقائية التي قد تؤثر فيها أخطاء الهوية سلبًا على شخص غير مرتبط بالحالة.",
-
-    "Management KPIs, case volumes, priorities, AI performance and resolution outcomes.":
-      "مؤشرات الإدارة وحجم الحالات والأولويات وأداء الذكاء الاصطناعي ونتائج الحسم.",
-
-    "Cross-system mismatches, duplicates, orphan records, source health and reconciliation results.":
-      "الاختلافات بين الأنظمة والسجلات المكررة والمعزولة وسلامة المصادر ونتائج المطابقة.",
-  };
-
-
-  return language === "ar"
-    ? labels[description] || description
-    : description;
 }
 
 
@@ -569,7 +640,7 @@ function Metric({
   label,
   value,
   description,
-  language,
+  auditReady,
 }) {
   return (
     <div className="metricCard">
@@ -580,34 +651,22 @@ function Metric({
 
         <span
           style={{
-            color:
-              "#59cfa0",
-
-            fontSize:
-              "8px",
-
-            fontWeight:
-              800,
+            color: "#59cfa0",
+            fontSize: "8px",
+            fontWeight: 800,
           }}
         >
-          {L(
-            language,
-            "AUDIT READY",
-            "جاهز للتدقيق"
-          )}
+          {auditReady}
         </span>
       </div>
-
 
       <div className="metricValue">
         {value}
       </div>
 
-
       <div className="metricTitle">
         {label}
       </div>
-
 
       <div className="metricSubtitle">
         {description}
@@ -624,7 +683,6 @@ function Metric({
 function StatusBadge({
   value,
   language,
-  t,
 }) {
   const successValues = [
     "COMPLETED",
@@ -633,66 +691,41 @@ function StatusBadge({
     "VERIFIED_CLOSED",
   ];
 
-
   const success =
-    successValues.includes(
-      value
-    );
-
+    successValues.includes(value);
 
   return (
     <span
       style={{
-        display:
-          "inline-flex",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "24px",
+        padding: "0 9px",
+        borderRadius: "7px",
 
-        alignItems:
-          "center",
+        color: success
+          ? "#59cfa0"
+          : "#76a9ff",
 
-        justifyContent:
-          "center",
+        background: success
+          ? "rgba(52,211,153,0.07)"
+          : "rgba(70,140,255,0.07)",
 
-        minHeight:
-          "24px",
+        border: success
+          ? "1px solid rgba(52,211,153,0.12)"
+          : "1px solid rgba(70,140,255,0.12)",
 
-        padding:
-          "0 9px",
-
-        borderRadius:
-          "7px",
-
-        color:
-          success
-            ? "#59cfa0"
-            : "#76a9ff",
-
-        background:
-          success
-            ? "rgba(52,211,153,0.07)"
-            : "rgba(70,140,255,0.07)",
-
-        border:
-          success
-            ? "1px solid rgba(52,211,153,0.12)"
-            : "1px solid rgba(70,140,255,0.12)",
-
-        fontSize:
-          "8px",
-
-        fontWeight:
-          800,
-
-        whiteSpace:
-          "nowrap",
+        fontSize: "8px",
+        fontWeight: 800,
+        whiteSpace: "nowrap",
       }}
     >
-      {
-        localizeStatus(
-          value,
-          language,
-          t
-        )
-      }
+      {localizedValue(
+        statusLabels,
+        value,
+        language
+      )}
     </span>
   );
 }
@@ -703,58 +736,146 @@ function StatusBadge({
    ========================================================= */
 
 export default function ReportsAuditPage() {
-  const {
-    language,
-    t,
-  } = useLanguage();
+  const { language } =
+    useLanguage();
+
+  const c =
+    copy[language] || copy.en;
+
+  const isArabic =
+    language === "ar";
+
+
+  const evidenceItems = [
+    {
+      en: "Case ID & lifecycle metadata",
+      ar: "معرف الحالة وبيانات دورة الحياة",
+    },
+    {
+      en: "Case type & priority",
+      ar: "نوع الحالة والأولوية",
+    },
+    {
+      en: "AI investigation conclusion",
+      ar: "خلاصة تحقيق الذكاء الاصطناعي",
+    },
+    {
+      en: "Identity resolution evidence",
+      ar: "أدلة حسم الهوية",
+    },
+    {
+      en: "Synthetic correlation evidence",
+      ar: "أدلة المطابقة الاصطناعية",
+    },
+    {
+      en: "Risk & harm assessment",
+      ar: "تقييم المخاطر والضرر",
+    },
+    {
+      en: "Wrong-person impact analysis",
+      ar: "تحليل تأثير الشخص الخطأ",
+    },
+    {
+      en: "Before / After correction",
+      ar: "ما قبل / بعد التصحيح",
+    },
+    {
+      en: "Officer decision",
+      ar: "قرار ضابط المراقبة",
+    },
+    {
+      en: "Manager decision",
+      ar: "قرار المدير",
+    },
+    {
+      en: "Execution result",
+      ar: "نتيجة التنفيذ",
+    },
+    {
+      en: "Post-correction verification",
+      ar: "التحقق بعد التصحيح",
+    },
+    {
+      en: "Final case status",
+      ar: "الحالة النهائية",
+    },
+    {
+      en: "Audit sequence",
+      ar: "تسلسل التدقيق",
+    },
+  ];
+
+
+  const machineOutputs = [
+    {
+      en: "Case data",
+      ar: "بيانات الحالات",
+      value: "CSV / JSON",
+    },
+    {
+      en: "AI findings",
+      ar: "نتائج الذكاء الاصطناعي",
+      value: "CSV / JSON",
+    },
+    {
+      en: "Investigations",
+      ar: "التحقيقات",
+      value: "CSV / JSON",
+    },
+    {
+      en: "Approval state",
+      ar: "حالة الاعتماد",
+      value: "JSON",
+    },
+    {
+      en: "Execution results",
+      ar: "نتائج التنفيذ",
+      value: "CSV / JSON",
+    },
+    {
+      en: "Verification results",
+      ar: "نتائج التحقق",
+      value: "CSV / JSON",
+    },
+  ];
 
 
   return (
     <div className="appShell">
-
       <Sidebar />
-
 
       <main className="mainContent">
 
-        {/* ================================================
+        {/* =================================================
             HEADER
-            ================================================ */}
+            ================================================= */}
 
         <header className="topbar">
           <div>
             <div className="eyebrow">
               <History size={15} />
-
-              {t(
-                "reportsAudit.eyebrow"
-              )}
+              {c.eyebrow}
             </div>
 
             <h1>
-              {t(
-                "reportsAudit.title"
-              )}
+              {c.title}
             </h1>
 
             <p>
-              {t(
-                "reportsAudit.subtitle"
-              )}
+              {c.subtitle}
             </p>
           </div>
 
 
           <div className="topbarActions">
-            <button className="searchButton">
+            <button
+              className="searchButton"
+              type="button"
+            >
               <Search size={18} />
 
               <span>
-                {L(
-                  language,
-                  "Search audit history",
-                  "البحث في سجل التدقيق"
-                )}
+                {c.search}
               </span>
             </button>
 
@@ -766,19 +887,11 @@ export default function ReportsAuditPage() {
 
               <div className="profileText">
                 <strong>
-                  {L(
-                    language,
-                    "Audit & Governance",
-                    "التدقيق والحوكمة"
-                  )}
+                  {c.auditGovernance}
                 </strong>
 
                 <span>
-                  {L(
-                    language,
-                    "Reporting Center",
-                    "مركز التقارير"
-                  )}
+                  {c.reportingCenter}
                 </span>
               </div>
             </div>
@@ -786,133 +899,90 @@ export default function ReportsAuditPage() {
         </header>
 
 
-        {/* ================================================
-            AUDIT CONTROL
-            ================================================ */}
+        {/* =================================================
+            TRACEABILITY NOTICE
+            ================================================= */}
 
         <section
           className="integrityInfo"
           style={{
-            margin:
-              "0 0 20px",
-
-            padding:
-              "18px",
+            margin: "0 0 20px",
+            padding: "18px",
           }}
         >
           <LockKeyhole size={25} />
 
           <div>
             <strong>
-              {L(
-                language,
-                "Full Case Traceability Active",
-                "التتبع الكامل للحالة نشط"
-              )}
+              {c.traceabilityTitle}
             </strong>
 
             <span>
-              {t(
-                "reportsAudit.governanceMessage"
-              )}
+              {c.traceabilityMessage}
             </span>
           </div>
         </section>
 
 
-        {/* ================================================
-            KPIs
-            ================================================ */}
+        {/* =================================================
+            KPI CARDS
+            ================================================= */}
 
         <section className="statsGrid">
           <Metric
             icon={History}
-            label={
-              t(
-                "reportsAudit.auditEvents"
-              )
-            }
+            label={c.auditEvents}
             value="5"
             description={
-              L(
-                language,
-                "Selected E2E lifecycle events",
-                "أحداث دورة الحياة للحالة التجريبية المحددة"
-              )
+              c.auditEventsDescription
             }
-            language={language}
+            auditReady={c.auditReady}
           />
 
           <Metric
             icon={Users}
-            label={
-              t(
-                "reportsAudit.humanDecisions"
-              )
-            }
+            label={c.humanDecisions}
             value="2"
             description={
-              L(
-                language,
-                "Officer and Manager approvals",
-                "اعتماد الضابط والمدير"
-              )
+              c.humanDecisionsDescription
             }
-            language={language}
+            auditReady={c.auditReady}
           />
 
           <Metric
             icon={BrainCircuit}
-            label={
-              t(
-                "reportsAudit.controlledAiStages"
-              )
-            }
+            label={c.controlledAiStages}
             value="3"
             description={
-              L(
-                language,
-                "Investigation, execution and verification",
-                "التحقيق والتنفيذ والتحقق"
-              )
+              c.controlledAiStagesDescription
             }
-            language={language}
+            auditReady={c.auditReady}
           />
 
           <Metric
             icon={CheckCircle2}
-            label={
-              t(
-                "reportsAudit.verifiedClosed"
-              )
-            }
+            label={c.verifiedClosed}
             value="1"
             description={
-              L(
-                language,
-                "Completed end-to-end demo case",
-                "حالة عرض متكاملة مكتملة"
-              )
+              c.verifiedClosedDescription
             }
-            language={language}
+            auditReady={c.auditReady}
           />
         </section>
 
 
-        {/* ================================================
-            SELECTED CASE AUDIT SUMMARY
-            ================================================ */}
+        {/* =================================================
+            SELECTED CASE
+            ================================================= */}
 
         <section className="panel">
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                {t(
-                  "reportsAudit.selectedAuditCase"
-                )}
+                {c.selectedAuditCase}
               </div>
 
-              <h2>
+              <h2 dir="ltr">
                 {caseSummary.caseId}
               </h2>
             </div>
@@ -922,218 +992,143 @@ export default function ReportsAuditPage() {
                 caseSummary.finalStatus
               }
               language={language}
-              t={t}
             />
           </div>
 
 
           <div
             style={{
-              padding:
-                "21px",
+              padding: "21px",
             }}
           >
             <div
               style={{
-                display:
-                  "grid",
-
+                display: "grid",
                 gridTemplateColumns:
                   "repeat(4,1fr)",
-
-                gap:
-                  "10px",
+                gap: "10px",
               }}
             >
               {[
-                [
-                  t(
-                    "common.type"
-                  ),
-
-                  localizeCaseType(
+                {
+                  label: c.caseType,
+                  value: localizedValue(
+                    caseTypeLabels,
                     caseSummary.type,
-                    t
+                    language
                   ),
-                ],
+                },
 
-                [
-                  t(
-                    "common.priority"
-                  ),
-
-                  localizePriority(
+                {
+                  label: c.priority,
+                  value: localizedValue(
+                    priorityLabels,
                     caseSummary.priority,
-                    t
+                    language
                   ),
-                ],
+                },
 
-                [
-                  L(
-                    language,
-                    "AI Confidence",
-                    "ثقة الذكاء الاصطناعي"
-                  ),
+                {
+                  label: c.aiConfidence,
+                  value:
+                    caseSummary.confidence,
+                },
 
-                  caseSummary.confidence,
-                ],
-
-                [
-                  t(
-                    "common.protectivePriority"
-                  ),
-
-                  caseSummary.protective,
-                ],
-              ].map(
-                ([
-                  label,
-                  value,
-                ]) => (
-                  <div
-                    key={label}
+                {
+                  label:
+                    c.protectivePriority,
+                  value:
+                    caseSummary.protective,
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  style={{
+                    padding: "14px",
+                    borderRadius: "11px",
+                    background:
+                      "rgba(255,255,255,0.025)",
+                    border:
+                      "1px solid rgba(255,255,255,0.05)",
+                  }}
+                >
+                  <span
                     style={{
-                      padding:
-                        "14px",
-
-                      borderRadius:
-                        "11px",
-
-                      background:
-                        "rgba(255,255,255,0.025)",
-
-                      border:
-                        "1px solid rgba(255,255,255,0.05)",
+                      display: "block",
+                      color: "#596c84",
+                      fontSize: "8px",
                     }}
                   >
-                    <span
-                      style={{
-                        display:
-                          "block",
+                    {item.label}
+                  </span>
 
-                        color:
-                          "#596c84",
-
-                        fontSize:
-                          "8px",
-                      }}
-                    >
-                      {label}
-                    </span>
-
-                    <strong
-                      style={{
-                        display:
-                          "block",
-
-                        marginTop:
-                          "5px",
-
-                        color:
-                          "#d0dceb",
-
-                        fontSize:
-                          "12px",
-                      }}
-                    >
-                      {value}
-                    </strong>
-                  </div>
-                )
-              )}
+                  <strong
+                    style={{
+                      display: "block",
+                      marginTop: "5px",
+                      color: "#d0dceb",
+                      fontSize: "12px",
+                    }}
+                  >
+                    {item.value}
+                  </strong>
+                </div>
+              ))}
             </div>
 
 
-            {/* ============================================
-                BEFORE / AFTER
-                ============================================ */}
+            {/* BEFORE / AFTER */}
 
             <div
               style={{
-                display:
-                  "grid",
-
+                display: "grid",
                 gridTemplateColumns:
                   "1fr auto 1fr",
-
-                alignItems:
-                  "center",
-
-                gap:
-                  "14px",
-
-                marginTop:
-                  "16px",
+                alignItems: "center",
+                gap: "14px",
+                marginTop: "16px",
               }}
             >
               <div
                 style={{
-                  padding:
-                    "18px",
-
-                  borderRadius:
-                    "12px",
-
+                  padding: "18px",
+                  borderRadius: "12px",
                   background:
                     "rgba(255,80,100,0.045)",
-
                   border:
                     "1px solid rgba(255,80,100,0.1)",
                 }}
               >
                 <span
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#9b626a",
-
-                    fontSize:
-                      "8px",
-
-                    fontWeight:
-                      800,
+                    display: "block",
+                    color: "#9b626a",
+                    fontSize: "8px",
+                    fontWeight: 800,
                   }}
                 >
-                  {L(
-                    language,
-                    "BEFORE",
-                    "قبل"
-                  )}
+                  {c.before}
                 </span>
 
                 <span
+                  dir="ltr"
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#61738b",
-
-                    fontSize:
-                      "8px",
-
-                    marginTop:
-                      "10px",
+                    display: "block",
+                    color: "#61738b",
+                    fontSize: "8px",
+                    marginTop: "10px",
                   }}
                 >
                   {caseSummary.biometric}
                 </span>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#ff7b89",
-
-                    fontSize:
-                      "21px",
-
-                    marginTop:
-                      "4px",
+                    display: "block",
+                    color: "#ff7b89",
+                    fontSize: "21px",
+                    marginTop: "4px",
                   }}
                 >
                   {caseSummary.before}
@@ -1144,77 +1139,54 @@ export default function ReportsAuditPage() {
               <ChevronRight
                 size={21}
                 color="#5f94df"
+                style={{
+                  transform: isArabic
+                    ? "rotate(180deg)"
+                    : "none",
+                }}
               />
 
 
               <div
                 style={{
-                  padding:
-                    "18px",
-
-                  borderRadius:
-                    "12px",
-
+                  padding: "18px",
+                  borderRadius: "12px",
                   background:
                     "rgba(52,211,153,0.045)",
-
                   border:
                     "1px solid rgba(52,211,153,0.1)",
                 }}
               >
                 <span
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#56806f",
-
-                    fontSize:
-                      "8px",
-
-                    fontWeight:
-                      800,
+                    display: "block",
+                    color: "#56806f",
+                    fontSize: "8px",
+                    fontWeight: 800,
                   }}
                 >
-                  {L(
-                    language,
-                    "VERIFIED AFTER",
-                    "بعد التحقق"
-                  )}
+                  {c.verifiedAfter}
                 </span>
 
                 <span
+                  dir="ltr"
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#61738b",
-
-                    fontSize:
-                      "8px",
-
-                    marginTop:
-                      "10px",
+                    display: "block",
+                    color: "#61738b",
+                    fontSize: "8px",
+                    marginTop: "10px",
                   }}
                 >
                   {caseSummary.biometric}
                 </span>
 
                 <strong
+                  dir="ltr"
                   style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#59cfa0",
-
-                    fontSize:
-                      "21px",
-
-                    marginTop:
-                      "4px",
+                    display: "block",
+                    color: "#59cfa0",
+                    fontSize: "21px",
+                    marginTop: "4px",
                   }}
                 >
                   {caseSummary.after}
@@ -1223,23 +1195,15 @@ export default function ReportsAuditPage() {
             </div>
 
 
-            {/* ============================================
-                DECISIONS
-                ============================================ */}
+            {/* HUMAN DECISIONS */}
 
             <div
               style={{
-                display:
-                  "grid",
-
+                display: "grid",
                 gridTemplateColumns:
                   "1fr 1fr 1fr",
-
-                gap:
-                  "10px",
-
-                marginTop:
-                  "14px",
+                gap: "10px",
+                marginTop: "14px",
               }}
             >
               <div className="integrityInfo">
@@ -1247,28 +1211,21 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.officerApproval"
-                    )}
+                    {c.officerApproval}
                   </strong>
 
                   <span>
-                    {
-                      localizeActor(
-                        caseSummary.officer,
-                        language
-                      )
-                    }
+                    {isArabic
+                      ? caseSummary.officerAr
+                      : caseSummary.officer}
 
                     {" · "}
 
-                    {
-                      localizeStatus(
-                        caseSummary.officerDecision,
-                        language,
-                        t
-                      )
-                    }
+                    {localizedValue(
+                      statusLabels,
+                      caseSummary.officerDecision,
+                      language
+                    )}
                   </span>
                 </div>
               </div>
@@ -1279,28 +1236,21 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.managerApproval"
-                    )}
+                    {c.managerApproval}
                   </strong>
 
                   <span>
-                    {
-                      localizeActor(
-                        caseSummary.manager,
-                        language
-                      )
-                    }
+                    {isArabic
+                      ? caseSummary.managerAr
+                      : caseSummary.manager}
 
                     {" · "}
 
-                    {
-                      localizeStatus(
-                        caseSummary.managerDecision,
-                        language,
-                        t
-                      )
-                    }
+                    {localizedValue(
+                      statusLabels,
+                      caseSummary.managerDecision,
+                      language
+                    )}
                   </span>
                 </div>
               </div>
@@ -1311,27 +1261,19 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.postCorrectionVerification"
-                    )}
+                    {c.verification}
                   </strong>
 
                   <span>
-                    {
-                      localizeStatus(
-                        caseSummary.verification,
-                        language,
-                        t
-                      )
-                    }
+                    {localizedValue(
+                      statusLabels,
+                      caseSummary.verification,
+                      language
+                    )}
 
                     {" · "}
 
-                    {L(
-                      language,
-                      "Score",
-                      "الدرجة"
-                    )}
+                    {c.score}
 
                     {" "}
 
@@ -1344,23 +1286,15 @@ export default function ReportsAuditPage() {
             </div>
 
 
-            {/* ============================================
-                SOURCE PROTECTION
-                ============================================ */}
+            {/* SOURCE PROTECTION */}
 
             <div
               style={{
-                display:
-                  "grid",
-
+                display: "grid",
                 gridTemplateColumns:
                   "1fr 1fr",
-
-                gap:
-                  "10px",
-
-                marginTop:
-                  "10px",
+                gap: "10px",
+                marginTop: "10px",
               }}
             >
               <div className="integrityInfo">
@@ -1368,17 +1302,11 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.masterModified"
-                    )}
+                    {c.masterModified}
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "FALSE · READ ONLY",
-                      "لا · للقراءة فقط"
-                    )}
+                    {c.masterProtectedValue}
                   </span>
                 </div>
               </div>
@@ -1389,17 +1317,13 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.originalBiometricModified"
-                    )}
+                    {
+                      c.originalBiometricModified
+                    }
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "FALSE · SOURCE PRESERVED",
-                      "لا · المصدر محفوظ"
-                    )}
+                    {c.originalProtectedValue}
                   </span>
                 </div>
               </div>
@@ -1408,29 +1332,24 @@ export default function ReportsAuditPage() {
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             AUDIT TIMELINE
-            ================================================ */}
+            ================================================= */}
 
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "14px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                {t(
-                  "reportsAudit.auditHistory"
-                )}
+                {c.traceableCaseHistory}
               </div>
 
               <h2>
-                {t(
-                  "reportsAudit.endToEndAuditTrail"
-                )}
+                {c.endToEndAuditSequence}
               </h2>
             </div>
 
@@ -1444,245 +1363,161 @@ export default function ReportsAuditPage() {
                 "7px 21px 20px",
             }}
           >
-            {
-              auditEvents.map(
-                (
-                  event,
-                  index
-                ) => (
+            {auditEvents.map(
+              (event, index) => (
+                <div
+                  key={event.id}
+                  style={{
+                    display: "grid",
+
+                    gridTemplateColumns:
+                      "65px 28px 175px 1fr 120px",
+
+                    alignItems: "start",
+
+                    gap: "11px",
+
+                    padding: "16px 0",
+
+                    borderBottom:
+                      index <
+                      auditEvents.length - 1
+                        ? "1px solid rgba(255,255,255,0.045)"
+                        : "none",
+                  }}
+                >
                   <div
-                    key={
-                      event.id
-                    }
                     style={{
-                      display:
-                        "grid",
-
-                      gridTemplateColumns:
-                        "65px 28px 175px 1fr 120px",
-
-                      alignItems:
-                        "start",
-
-                      gap:
-                        "11px",
-
-                      padding:
-                        "16px 0",
-
-                      borderBottom:
-                        index
-                        <
-                        auditEvents.length - 1
-                          ? "1px solid rgba(255,255,255,0.045)"
-                          : "none",
+                      color: "#52647b",
+                      fontSize: "9px",
+                      paddingTop: "5px",
                     }}
                   >
-                    <div
-                      style={{
-                        color:
-                          "#52647b",
-
-                        fontSize:
-                          "9px",
-
-                        paddingTop:
-                          "5px",
-                      }}
-                    >
-                      {L(
-                        language,
-                        `STEP ${event.sequence}`,
-                        `الخطوة ${event.sequence}`
-                      )}
-                    </div>
-
-
-                    <div
-                      style={{
-                        width:
-                          "24px",
-
-                        height:
-                          "24px",
-
-                        borderRadius:
-                          "50%",
-
-                        display:
-                          "grid",
-
-                        placeItems:
-                          "center",
-
-                        background:
-                          event.actorType
-                          ===
-                          "HUMAN"
-                            ? "rgba(255,185,90,0.08)"
-                            : "rgba(70,140,255,0.08)",
-
-                        color:
-                          event.actorType
-                          ===
-                          "HUMAN"
-                            ? "#ffbd67"
-                            : "#69a2ff",
-                      }}
-                    >
-                      {
-                        event.actorType
-                        ===
-                        "HUMAN"
-                          ? (
-                            <Users size={13} />
-                          )
-                          : (
-                            <BrainCircuit size={13} />
-                          )
-                      }
-                    </div>
-
-
-                    <div>
-                      <strong
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#cbd7e7",
-
-                          fontSize:
-                            "9px",
-                        }}
-                      >
-                        {
-                          localizeActor(
-                            event.actor,
-                            language
-                          )
-                        }
-                      </strong>
-
-                      <span
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#566980",
-
-                          fontSize:
-                            "8px",
-
-                          marginTop:
-                            "4px",
-                        }}
-                      >
-                        {
-                          localizeActorType(
-                            event.actorType,
-                            language
-                          )
-                        }
-                      </span>
-                    </div>
-
-
-                    <div>
-                      <strong
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#9eb0c5",
-
-                          fontSize:
-                            "9px",
-                        }}
-                      >
-                        {
-                          localizeAction(
-                            event.action,
-                            language
-                          )
-                        }
-                      </strong>
-
-                      <span
-                        style={{
-                          display:
-                            "block",
-
-                          color:
-                            "#63758d",
-
-                          fontSize:
-                            "9px",
-
-                          lineHeight:
-                            1.6,
-
-                          marginTop:
-                            "5px",
-                        }}
-                      >
-                        {
-                          localizeEventDetail(
-                            event.detail,
-                            language
-                          )
-                        }
-                      </span>
-                    </div>
-
-
-                    <StatusBadge
-                      value={
-                        event.status
-                      }
-                      language={
-                        language
-                      }
-                      t={t}
-                    />
+                    {c.step}{" "}
+                    {event.sequence}
                   </div>
-                )
+
+
+                  <div
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      borderRadius: "50%",
+                      display: "grid",
+                      placeItems: "center",
+
+                      background:
+                        event.actorType ===
+                        "HUMAN"
+                          ? "rgba(255,185,90,0.08)"
+                          : "rgba(70,140,255,0.08)",
+
+                      color:
+                        event.actorType ===
+                        "HUMAN"
+                          ? "#ffbd67"
+                          : "#69a2ff",
+                    }}
+                  >
+                    {event.actorType ===
+                    "HUMAN" ? (
+                      <Users size={13} />
+                    ) : (
+                      <BrainCircuit
+                        size={13}
+                      />
+                    )}
+                  </div>
+
+
+                  <div>
+                    <strong
+                      style={{
+                        display: "block",
+                        color: "#cbd7e7",
+                        fontSize: "9px",
+                      }}
+                    >
+                      {isArabic
+                        ? event.actorAr
+                        : event.actor}
+                    </strong>
+
+                    <span
+                      style={{
+                        display: "block",
+                        color: "#566980",
+                        fontSize: "8px",
+                        marginTop: "4px",
+                      }}
+                    >
+                      {isArabic
+                        ? event.actorTypeAr
+                        : event.actorType}
+                    </span>
+                  </div>
+
+
+                  <div>
+                    <strong
+                      style={{
+                        display: "block",
+                        color: "#9eb0c5",
+                        fontSize: "9px",
+                      }}
+                    >
+                      {isArabic
+                        ? event.actionAr
+                        : event.action}
+                    </strong>
+
+                    <span
+                      style={{
+                        display: "block",
+                        color: "#63758d",
+                        fontSize: "9px",
+                        lineHeight: 1.6,
+                        marginTop: "5px",
+                      }}
+                    >
+                      {isArabic
+                        ? event.detailAr
+                        : event.detail}
+                    </span>
+                  </div>
+
+
+                  <StatusBadge
+                    value={event.status}
+                    language={language}
+                  />
+                </div>
               )
-            }
+            )}
           </div>
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             AUDIT REGISTER
-            ================================================ */}
+            ================================================= */}
 
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "14px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                {L(
-                  language,
-                  "DEMO AUDIT REGISTER",
-                  "سجل التدقيق التجريبي"
-                )}
+                {c.demoAuditRegister}
               </div>
 
               <h2>
-                {L(
-                  language,
-                  "Recorded Lifecycle Sequence",
-                  "تسلسل دورة الحياة المسجل"
-                )}
+                {
+                  c.recordedLifecycleSequence
+                }
               </h2>
             </div>
 
@@ -1693,184 +1528,114 @@ export default function ReportsAuditPage() {
           <div className="tableWrap">
             <table
               style={{
-                minWidth:
-                  "1100px",
+                minWidth: "1100px",
               }}
             >
               <thead>
                 <tr>
-                  <th>
-                    {L(
-                      language,
-                      "SEQUENCE",
-                      "التسلسل"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "common.case"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "ACTOR",
-                      "المنفذ"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "ACTOR TYPE",
-                      "نوع المنفذ"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "ACTION",
-                      "الإجراء"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "common.status"
-                    )}
-                  </th>
+                  <th>{c.sequence}</th>
+                  <th>{c.case}</th>
+                  <th>{c.actor}</th>
+                  <th>{c.actorType}</th>
+                  <th>{c.action}</th>
+                  <th>{c.status}</th>
                 </tr>
               </thead>
 
-
               <tbody>
-                {
-                  auditEvents.map(
-                    (event) => (
-                      <tr
-                        key={
-                          event.id
-                        }
+                {auditEvents.map(
+                  (event) => (
+                    <tr key={event.id}>
+                      <td
+                        className="mono"
+                        dir="ltr"
                       >
-                        <td className="mono">
-                          {event.sequence}
-                        </td>
+                        {event.sequence}
+                      </td>
 
-
-                        <td>
-                          <Link
-                            href={
-                              `/cases/${event.caseId}`
-                            }
-                            className="caseId"
-                            style={{
-                              textDecoration:
-                                "none",
-                            }}
-                          >
+                      <td>
+                        <Link
+                          href={`/cases/${event.caseId}`}
+                          className="caseId"
+                          style={{
+                            textDecoration:
+                              "none",
+                          }}
+                        >
+                          <span dir="ltr">
                             {event.caseId}
-                          </Link>
-                        </td>
-
-
-                        <td>
-                          {
-                            localizeActor(
-                              event.actor,
-                              language
-                            )
-                          }
-                        </td>
-
-
-                        <td>
-                          <span
-                            style={{
-                              color:
-                                event.actorType
-                                ===
-                                "HUMAN"
-                                  ? "#ffbd67"
-                                  : "#76a9ff",
-
-                              fontSize:
-                                "8px",
-
-                              fontWeight:
-                                800,
-                            }}
-                          >
-                            {
-                              localizeActorType(
-                                event.actorType,
-                                language
-                              )
-                            }
                           </span>
-                        </td>
+                        </Link>
+                      </td>
 
+                      <td>
+                        {isArabic
+                          ? event.actorAr
+                          : event.actor}
+                      </td>
 
-                        <td>
-                          {
-                            localizeAction(
-                              event.action,
-                              language
-                            )
+                      <td>
+                        <span
+                          style={{
+                            color:
+                              event.actorType ===
+                              "HUMAN"
+                                ? "#ffbd67"
+                                : "#76a9ff",
+
+                            fontSize: "8px",
+                            fontWeight: 800,
+                          }}
+                        >
+                          {isArabic
+                            ? event.actorTypeAr
+                            : event.actorType}
+                        </span>
+                      </td>
+
+                      <td>
+                        {isArabic
+                          ? event.actionAr
+                          : event.action}
+                      </td>
+
+                      <td>
+                        <StatusBadge
+                          value={
+                            event.status
                           }
-                        </td>
-
-
-                        <td>
-                          <StatusBadge
-                            value={
-                              event.status
-                            }
-                            language={
-                              language
-                            }
-                            t={t}
-                          />
-                        </td>
-                      </tr>
-                    )
+                          language={
+                            language
+                          }
+                        />
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             REPORT CENTER
-            ================================================ */}
+            ================================================= */}
 
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "14px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                {L(
-                  language,
-                  "FORMAL REPORTING",
-                  "التقارير الرسمية"
-                )}
+                {c.formalReporting}
               </div>
 
               <h2>
-                {L(
-                  language,
-                  "Report Center",
-                  "مركز التقارير"
-                )}
+                {c.reportCenter}
               </h2>
             </div>
 
@@ -1880,197 +1645,130 @@ export default function ReportsAuditPage() {
 
           <div
             style={{
-              display:
-                "grid",
-
+              display: "grid",
               gridTemplateColumns:
                 "repeat(3,1fr)",
-
-              gap:
-                "12px",
-
-              padding:
-                "20px",
+              gap: "12px",
+              padding: "20px",
             }}
           >
-            {
-              reports.map(
-                (report) => {
-                  const Icon =
-                    report.icon;
+            {reports.map(
+              (report) => {
+                const Icon =
+                  report.icon;
 
+                return (
+                  <div
+                    key={report.title}
+                    style={{
+                      padding: "18px",
+                      borderRadius:
+                        "13px",
 
-                  return (
-                    <div
-                      key={
-                        report.title
-                      }
+                      border:
+                        "1px solid rgba(255,255,255,0.055)",
+
+                      background:
+                        "rgba(255,255,255,0.022)",
+
+                      display: "flex",
+                      flexDirection:
+                        "column",
+
+                      minHeight:
+                        "215px",
+                    }}
+                  >
+                    <div className="metricIcon">
+                      <Icon size={20} />
+                    </div>
+
+                    <span
                       style={{
-                        padding:
-                          "18px",
-
-                        borderRadius:
-                          "13px",
-
-                        border:
-                          "1px solid rgba(255,255,255,0.055)",
-
-                        background:
-                          "rgba(255,255,255,0.022)",
-
-                        display:
-                          "flex",
-
-                        flexDirection:
-                          "column",
-
-                        minHeight:
-                          "215px",
+                        color: "#5f91dd",
+                        fontSize: "8px",
+                        fontWeight: 800,
+                        marginTop: "16px",
                       }}
                     >
-                      <div className="metricIcon">
-                        <Icon size={20} />
-                      </div>
+                      {isArabic
+                        ? report.typeAr
+                        : report.type}
+                    </span>
 
+                    <strong
+                      style={{
+                        color: "#d1ddea",
+                        fontSize: "11px",
+                        marginTop: "5px",
+                      }}
+                    >
+                      {isArabic
+                        ? report.titleAr
+                        : report.title}
+                    </strong>
 
-                      <span
-                        style={{
-                          color:
-                            "#5f91dd",
+                    <p
+                      style={{
+                        color: "#63758d",
+                        fontSize: "9px",
+                        lineHeight: 1.6,
+                        margin:
+                          "8px 0 16px",
+                      }}
+                    >
+                      {isArabic
+                        ? report.descriptionAr
+                        : report.description}
+                    </p>
 
-                          fontSize:
-                            "8px",
+                    <button
+                      type="button"
+                      className="searchButton"
+                      disabled
+                      style={{
+                        marginTop: "auto",
+                        width: "100%",
+                        justifyContent:
+                          "center",
+                        cursor:
+                          "not-allowed",
+                        opacity: 0.62,
+                      }}
+                    >
+                      <FileText size={15} />
 
-                          fontWeight:
-                            800,
-
-                          marginTop:
-                            "16px",
-                        }}
-                      >
-                        {
-                          localizeReportType(
-                            report.type,
-                            language
-                          )
-                        }
-                      </span>
-
-
-                      <strong
-                        style={{
-                          color:
-                            "#d1ddea",
-
-                          fontSize:
-                            "11px",
-
-                          marginTop:
-                            "5px",
-                        }}
-                      >
-                        {
-                          localizeReportTitle(
-                            report.title,
-                            language
-                          )
-                        }
-                      </strong>
-
-
-                      <p
-                        style={{
-                          color:
-                            "#63758d",
-
-                          fontSize:
-                            "9px",
-
-                          lineHeight:
-                            1.6,
-
-                          margin:
-                            "8px 0 16px",
-                        }}
-                      >
-                        {
-                          localizeReportDescription(
-                            report.description,
-                            language
-                          )
-                        }
-                      </p>
-
-
-                      <button
-                        className="searchButton"
-                        disabled
-                        style={{
-                          marginTop:
-                            "auto",
-
-                          width:
-                            "100%",
-
-                          justifyContent:
-                            "center",
-
-                          cursor:
-                            "not-allowed",
-
-                          opacity:
-                            0.62,
-                        }}
-                      >
-                        <FileText size={15} />
-
-                        {t(
-                          "reportsAudit.pdfAuditReport"
-                        )}
-
-                        {" · "}
-
-                        {t(
-                          "reportsAudit.planned"
-                        )}
-                      </button>
-                    </div>
-                  );
-                }
-              )
-            }
+                      {c.pdfGeneratorPlanned}
+                    </button>
+                  </div>
+                );
+              }
+            )}
           </div>
         </section>
 
 
-        {/* ================================================
-            REPORT CONTENT MODEL
-            ================================================ */}
+        {/* =================================================
+            EVIDENCE + GOVERNANCE
+            ================================================= */}
 
         <section
           className="dashboardGrid"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "14px",
           }}
         >
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "CASE REPORT CONTENT",
-                    "محتوى تقرير الحالة"
-                  )}
+                  {c.caseReportContent}
                 </div>
 
                 <h2>
-                  {L(
-                    language,
-                    "Formal Evidence Package",
-                    "حزمة الأدلة الرسمية"
-                  )}
+                  {
+                    c.formalEvidencePackage
+                  }
                 </h2>
               </div>
 
@@ -2084,91 +1782,16 @@ export default function ReportsAuditPage() {
                   "8px 18px 18px",
               }}
             >
-              {[
-                [
-                  "Case ID & lifecycle metadata",
-                  "معرف الحالة وبيانات دورة الحياة",
-                ],
-
-                [
-                  "Case type & priority",
-                  "نوع الحالة والأولوية",
-                ],
-
-                [
-                  "AI investigation conclusion",
-                  "خلاصة تحقيق الذكاء الاصطناعي",
-                ],
-
-                [
-                  "Identity resolution evidence",
-                  "أدلة حسم الهوية",
-                ],
-
-                [
-                  "Synthetic correlation evidence",
-                  "أدلة المطابقة الاصطناعية",
-                ],
-
-                [
-                  "Risk & harm assessment",
-                  "تقييم المخاطر والضرر",
-                ],
-
-                [
-                  "Wrong-person impact analysis",
-                  "تحليل تأثير الشخص الخطأ",
-                ],
-
-                [
-                  "Before / After correction",
-                  "ما قبل / بعد التصحيح",
-                ],
-
-                [
-                  "Officer decision",
-                  "قرار الضابط",
-                ],
-
-                [
-                  "Manager decision",
-                  "قرار المدير",
-                ],
-
-                [
-                  "Execution result",
-                  "نتيجة التنفيذ",
-                ],
-
-                [
-                  "Post-correction verification",
-                  "التحقق بعد التصحيح",
-                ],
-
-                [
-                  "Final case status",
-                  "الحالة النهائية",
-                ],
-
-                [
-                  "Audit sequence",
-                  "تسلسل التدقيق",
-                ],
-              ].map(
-                ([
-                  english,
-                  arabic,
-                ]) => (
+              {evidenceItems.map(
+                (item) => (
                   <div
-                    key={english}
+                    key={item.en}
                     className="detailRow"
                   >
                     <span>
-                      {L(
-                        language,
-                        english,
-                        arabic
-                      )}
+                      {isArabic
+                        ? item.ar
+                        : item.en}
                     </span>
 
                     <CheckCircle2
@@ -2182,25 +1805,17 @@ export default function ReportsAuditPage() {
           </div>
 
 
-          {/* TRACEABILITY CONTROLS */}
-
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "REPORT GOVERNANCE",
-                    "حوكمة التقارير"
-                  )}
+                  {c.reportGovernance}
                 </div>
 
                 <h2>
-                  {L(
-                    language,
-                    "Traceability Controls",
-                    "ضوابط التتبع"
-                  )}
+                  {
+                    c.traceabilityControls
+                  }
                 </h2>
               </div>
 
@@ -2210,8 +1825,7 @@ export default function ReportsAuditPage() {
 
             <div
               style={{
-                padding:
-                  "17px",
+                padding: "17px",
               }}
             >
               <div className="integrityInfo">
@@ -2219,19 +1833,13 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {L(
-                      language,
-                      "Human Attribution",
-                      "إسناد القرارات البشرية"
-                    )}
+                    {c.humanAttribution}
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "Officer and Manager decisions remain attributable to the relevant human review stage.",
-                      "تبقى قرارات الضابط والمدير مرتبطة بمرحلة المراجعة البشرية ذات الصلة."
-                    )}
+                    {
+                      c.humanAttributionText
+                    }
                   </span>
                 </div>
               </div>
@@ -2242,19 +1850,11 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {L(
-                      language,
-                      "AI Attribution",
-                      "إسناد إجراءات الذكاء الاصطناعي"
-                    )}
+                    {c.aiAttribution}
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "AI findings, recommendations and lifecycle actions identify the responsible processing component.",
-                      "تحدد نتائج وتوصيات وإجراءات الذكاء الاصطناعي المكون المسؤول عن المعالجة."
-                    )}
+                    {c.aiAttributionText}
                   </span>
                 </div>
               </div>
@@ -2265,17 +1865,15 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.traceable"
-                    )}
+                    {
+                      c.chronologicalTraceability
+                    }
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "The case lifecycle can be reconstructed from AI investigation through verified closure.",
-                      "يمكن إعادة بناء دورة حياة الحالة من تحقيق الذكاء الاصطناعي وحتى الإغلاق بعد التحقق."
-                    )}
+                    {
+                      c.chronologicalTraceabilityText
+                    }
                   </span>
                 </div>
               </div>
@@ -2286,17 +1884,15 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {t(
-                      "reportsAudit.dataProtection"
-                    )}
+                    {
+                      c.masterReferenceProtection
+                    }
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "The selected demo confirms that the Master Reference remained unchanged during controlled correction.",
-                      "يؤكد العرض المحدد أن المرجع الرئيسي ظل دون تغيير أثناء التصحيح الخاضع للتحكم."
-                    )}
+                    {
+                      c.masterReferenceProtectionText
+                    }
                   </span>
                 </div>
               </div>
@@ -2305,33 +1901,26 @@ export default function ReportsAuditPage() {
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             EXECUTIVE REPORTING
-            ================================================ */}
+            ================================================= */}
 
         <section
           className="panel"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "14px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                {L(
-                  language,
-                  "MANAGEMENT REPORTING",
-                  "تقارير الإدارة"
-                )}
+                {c.managementReporting}
               </div>
 
               <h2>
-                {L(
-                  language,
-                  "Executive Reporting Coverage",
-                  "تغطية التقارير التنفيذية"
-                )}
+                {
+                  c.executiveReportingCoverage
+                }
               </h2>
             </div>
 
@@ -2341,75 +1930,53 @@ export default function ReportsAuditPage() {
 
           <div
             style={{
-              display:
-                "grid",
-
+              display: "grid",
               gridTemplateColumns:
                 "repeat(4,1fr)",
-
-              gap:
-                "10px",
-
-              padding:
-                "20px",
+              gap: "10px",
+              padding: "20px",
             }}
           >
             {[
-              [
-                L(
-                  language,
-                  "Case Volume",
-                  "حجم الحالات"
-                ),
-                "53",
-                FileSearch,
-              ],
+              {
+                label: c.caseVolume,
+                value: "53",
+                Icon: FileSearch,
+              },
 
-              [
-                L(
-                  language,
-                  "Protective Cases",
-                  "الحالات الوقائية"
-                ),
-                "9",
-                ShieldAlert,
-              ],
+              {
+                label:
+                  c.protectiveCases,
+                value: "9",
+                Icon: ShieldAlert,
+              },
 
-              [
-                L(
-                  language,
-                  "Demo Verification",
-                  "التحقق التجريبي"
+              {
+                label:
+                  c.demoVerification,
+                value: localizedValue(
+                  statusLabels,
+                  "PASSED",
+                  language
                 ),
-                t(
-                  "statuses.PASSED"
-                ),
-                ShieldCheck,
-              ],
+                Icon: ShieldCheck,
+              },
 
-              [
-                L(
-                  language,
-                  "Unresolved Identity",
-                  "هويات غير محسومة"
-                ),
-                "0",
-                CheckCircle2,
-              ],
-            ].map(
-              (
-                [
-                  label,
-                  value,
-                  Icon,
-                ]
-              ) => (
+              {
+                label:
+                  c.unresolvedIdentity,
+                value: "0",
+                Icon: CheckCircle2,
+              },
+            ].map((item) => {
+              const Icon =
+                item.Icon;
+
+              return (
                 <div
-                  key={label}
+                  key={item.label}
                   style={{
-                    padding:
-                      "16px",
-
+                    padding: "16px",
                     borderRadius:
                       "11px",
 
@@ -2427,74 +1994,53 @@ export default function ReportsAuditPage() {
 
                   <strong
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#d2deeb",
-
-                      fontSize:
-                        "21px",
-
-                      marginTop:
-                        "12px",
+                      display: "block",
+                      color: "#d2deeb",
+                      fontSize: "21px",
+                      marginTop: "12px",
                     }}
                   >
-                    {value}
+                    {item.value}
                   </strong>
 
                   <span
                     style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#61738b",
-
-                      fontSize:
-                        "8px",
-
-                      marginTop:
-                        "4px",
+                      display: "block",
+                      color: "#61738b",
+                      fontSize: "8px",
+                      marginTop: "4px",
                     }}
                   >
-                    {label}
+                    {item.label}
                   </span>
                 </div>
-              )
-            )}
+              );
+            })}
           </div>
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             EXPORT READINESS
-            ================================================ */}
+            ================================================= */}
 
         <section
           className="dashboardGrid"
           style={{
-            marginTop:
-              "14px",
+            marginTop: "14px",
           }}
         >
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "CURRENT ARTIFACTS",
-                    "المخرجات الحالية"
-                  )}
+                  {c.currentArtifacts}
                 </div>
 
                 <h2>
-                  {L(
-                    language,
-                    "Machine-Readable Outputs",
-                    "مخرجات قابلة للقراءة آليًا"
-                  )}
+                  {
+                    c.machineReadableOutputs
+                  }
                 </h2>
               </div>
 
@@ -2508,62 +2054,20 @@ export default function ReportsAuditPage() {
                   "8px 18px 18px",
               }}
             >
-              {[
-                [
-                  "Case data",
-                  "بيانات الحالات",
-                  "CSV / JSON",
-                ],
-
-                [
-                  "AI findings",
-                  "نتائج الذكاء الاصطناعي",
-                  "CSV / JSON",
-                ],
-
-                [
-                  "Investigations",
-                  "التحقيقات",
-                  "CSV / JSON",
-                ],
-
-                [
-                  "Approval state",
-                  "حالة الاعتماد",
-                  "JSON",
-                ],
-
-                [
-                  "Execution results",
-                  "نتائج التنفيذ",
-                  "CSV / JSON",
-                ],
-
-                [
-                  "Verification results",
-                  "نتائج التحقق",
-                  "CSV / JSON",
-                ],
-              ].map(
-                ([
-                  english,
-                  arabic,
-                  value,
-                ]) => (
+              {machineOutputs.map(
+                (item) => (
                   <div
                     className="detailRow"
-                    key={english}
+                    key={item.en}
                   >
                     <span>
-                      {L(
-                        language,
-                        english,
-                        arabic
-                      )}
+                      {isArabic
+                        ? item.ar
+                        : item.en}
                     </span>
 
-                    <strong>
-                      {value}
+                    <strong dir="ltr">
+                      {item.value}
                     </strong>
                   </div>
                 )
@@ -2576,19 +2080,11 @@ export default function ReportsAuditPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "FUTURE EXPORT",
-                    "التصدير المستقبلي"
-                  )}
+                  {c.futureExport}
                 </div>
 
                 <h2>
-                  {L(
-                    language,
-                    "Formal PDF Reporting",
-                    "تقارير PDF الرسمية"
-                  )}
+                  {c.formalPdfReporting}
                 </h2>
               </div>
 
@@ -2598,8 +2094,7 @@ export default function ReportsAuditPage() {
 
             <div
               style={{
-                padding:
-                  "17px",
+                padding: "17px",
               }}
             >
               <div className="integrityInfo">
@@ -2607,19 +2102,13 @@ export default function ReportsAuditPage() {
 
                 <div>
                   <strong>
-                    {L(
-                      language,
-                      "Report Model Ready",
-                      "نموذج التقرير جاهز"
-                    )}
+                    {c.reportModelReady}
                   </strong>
 
                   <span>
-                    {L(
-                      language,
-                      "Required case, AI, approval, correction and verification information is already represented in the reporting design.",
-                      "تم تمثيل معلومات الحالة والذكاء الاصطناعي والاعتماد والتصحيح والتحقق المطلوبة بالفعل داخل تصميم التقارير."
-                    )}
+                    {
+                      c.reportModelReadyText
+                    }
                   </span>
                 </div>
               </div>
@@ -2647,21 +2136,11 @@ export default function ReportsAuditPage() {
                         "#d0a35f",
                     }}
                   >
-                    {t(
-                      "reportsAudit.pdfAuditReport"
-                    )}
-
-                    {" · "}
-
-                    {t(
-                      "reportsAudit.planned"
-                    )}
+                    {c.pdfGeneratorPlanned}
                   </strong>
 
                   <span>
-                    {t(
-                      "reportsAudit.pdfMessage"
-                    )}
+                    {c.pdfMessage}
                   </span>
                 </div>
               </div>
@@ -2670,69 +2149,44 @@ export default function ReportsAuditPage() {
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             FINAL AUDIT STATUS
-            ================================================ */}
+            ================================================= */}
 
         <section
           className="integrityInfo"
           style={{
-            margin:
-              "14px 0 0",
-
-            padding:
-              "18px",
+            margin: "14px 0 0",
+            padding: "18px",
           }}
         >
           <CheckCircle2 size={25} />
 
           <div>
             <strong>
-              {L(
-                language,
-                "Auditable End-to-End Case Lifecycle",
-                "دورة حياة متكاملة وقابلة للتدقيق"
-              )}
+              {c.finalAuditTitle}
             </strong>
 
             <span>
-              {L(
-                language,
-
-                "CASE-2026-00001 demonstrates a traceable lifecycle from AI investigation through Officer and Manager approvals, controlled correction, post-correction verification and VERIFIED_CLOSED status.",
-
-                "توضح CASE-2026-00001 دورة حياة قابلة للتتبع تبدأ من تحقيق الذكاء الاصطناعي مرورًا باعتماد الضابط والمدير والتصحيح الخاضع للتحكم والتحقق بعد التصحيح وحتى الوصول إلى حالة التحقق والإغلاق."
-              )}
+              {c.finalAuditMessage}
             </span>
           </div>
         </section>
 
 
-        {/* ================================================
+        {/* =================================================
             FOOTER
-            ================================================ */}
+            ================================================= */}
 
         <footer className="footer">
           <span>
-            {t(
-              "footer.platform"
-            )}
-
-            {" · "}
-
-            {t(
-              "reportsAudit.title"
-            )}
+            {c.footer}
           </span>
 
           <div>
             <Activity size={15} />
 
-            {L(
-              language,
-              "Audit Monitoring Active",
-              "مراقبة التدقيق نشطة"
-            )}
+            {c.auditMonitoringActive}
           </div>
         </footer>
 

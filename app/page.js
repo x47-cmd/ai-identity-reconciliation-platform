@@ -17,8 +17,6 @@ import {
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
-  CircleAlert,
-  Clock3,
   Database,
   FileSearch,
   Fingerprint,
@@ -30,162 +28,169 @@ import {
 
 
 /* =========================================================
-   COMMAND CENTER METRICS
-
-   All authoritative values are derived from demo-data.js.
+   LANGUAGE
    ========================================================= */
 
-const stats = [
+function L(
+  language,
+  english,
+  arabic
+) {
+  return language === "ar"
+    ? arabic
+    : english;
+}
+
+
+/* =========================================================
+   DEMO SNAPSHOT
+   ========================================================= */
+
+const MASTER_IDENTITIES = 3000;
+const BIOMETRIC_RECORDS = 1000;
+const AWAITING_REVIEW = 5;
+
+
+/* =========================================================
+   MAIN DASHBOARD METRICS
+   ========================================================= */
+
+const dashboardMetrics = [
   {
-    titleKey:
-      "commandCenter.totalCases",
+    key: "master",
+    value: "3,000",
+    icon: Database,
 
-    value:
-      String(
-        PLATFORM_METRICS.aggregatedCases
-      ),
+    en: {
+      title: "Reference Identities",
+      subtitle:
+        "Authoritative identities used for comparison",
+    },
 
-    subtitleKey:
-      "commandCenter.totalCasesSubtitle",
-
-    icon:
-      FileSearch,
+    ar: {
+      title: "الهويات المرجعية",
+      subtitle:
+        "الهويات المعتمدة المستخدمة في المطابقة",
+    },
   },
 
   {
-    titleKey:
-      "commandCenter.immediatePriority",
+    key: "biometric",
+    value: "1,000",
+    icon: Fingerprint,
 
-    value:
-      String(
-        PLATFORM_METRICS.priority.immediate
-      ),
+    en: {
+      title: "Biometric Records",
+      subtitle:
+        "Operational records monitored by the system",
+    },
 
-    subtitleKey:
-      "commandCenter.immediatePrioritySubtitle",
-
-    icon:
-      CircleAlert,
+    ar: {
+      title: "السجلات البيومترية",
+      subtitle:
+        "السجلات التشغيلية التي يراقبها النظام",
+    },
   },
 
   {
-    titleKey:
-      "commandCenter.highPriority",
+    key: "cases",
+    value: String(
+      PLATFORM_METRICS.aggregatedCases
+    ),
+    icon: FileSearch,
 
-    value:
-      String(
-        PLATFORM_METRICS.priority.high
-      ),
+    en: {
+      title: "Detected Cases",
+      subtitle:
+        "Identity issues detected for investigation",
+    },
 
-    subtitleKey:
-      "commandCenter.highPrioritySubtitle",
-
-    icon:
-      AlertTriangle,
+    ar: {
+      title: "الحالات المكتشفة",
+      subtitle:
+        "مشكلات هوية رصدها النظام للتحقيق",
+    },
   },
 
   {
-    titleKey:
-      "commandCenter.unresolvedIdentity",
+    key: "review",
+    value: String(
+      AWAITING_REVIEW
+    ),
+    icon: UserCheck,
 
-    value:
-      String(
-        PLATFORM_METRICS.unresolvedIdentityCases
-      ),
+    en: {
+      title: "Awaiting Review",
+      subtitle:
+        "Cases currently requiring a human decision",
+    },
 
-    subtitleKey:
-      "commandCenter.unresolvedIdentitySubtitle",
-
-    icon:
-      UserCheck,
+    ar: {
+      title: "بانتظار المراجعة",
+      subtitle:
+        "حالات تحتاج حاليًا إلى قرار بشري",
+    },
   },
 ];
 
 
 /* =========================================================
-   CURRENT ATTENTION QUEUE
+   IMPORTANT CASES
 
-   CASE-2026-00014 is linked directly to the authoritative
-   shared complex demo case.
-
-   Other rows are illustrative queue records used only
-   for the frontend demonstration.
+   Names are synthetic demonstration names.
    ========================================================= */
 
 const attentionCases = [
   {
-    id:
-      "CASE-2026-00002",
+    id: "CASE-2026-00002",
 
-    type:
-      "HARM_IMPACT",
+    person: {
+      en: "Khalid Rashid Al Mansoori",
+      ar: "خالد راشد المنصوري",
+    },
 
-    biometric:
-      "BIO-000341",
+    issue: "HARM_IMPACT",
 
-    current:
-      "REF-000882",
+    confidence: "99.98%",
 
-    proposed:
-      "REF-001704",
+    priority: "IMMEDIATE",
 
-    confidence:
-      "99.98%",
+    status: "OFFICER_REVIEW",
 
-    priority:
-      "IMMEDIATE",
-
-    status:
-      "OFFICER_REVIEW",
-
-    hasDetail:
-      false,
+    hasDetail: false,
   },
 
   {
-    id:
-      "CASE-2026-00003",
+    id: "CASE-2026-00003",
 
-    type:
+    person: {
+      en: "Maryam Ahmed Al Nuaimi",
+      ar: "مريم أحمد النعيمي",
+    },
+
+    issue:
       "CRITICAL_HARM_IDENTITY_CONFLICT",
 
-    biometric:
-      "BIO-000492",
+    confidence: "99.98%",
 
-    current:
-      "REF-001547",
+    priority: "IMMEDIATE",
 
-    proposed:
-      "REF-000621",
+    status: "AI_INVESTIGATED",
 
-    confidence:
-      "99.98%",
-
-    priority:
-      "IMMEDIATE",
-
-    status:
-      "AI_INVESTIGATED",
-
-    hasDetail:
-      false,
+    hasDetail: false,
   },
 
   {
     id:
       COMPLEX_DEMO_CASE.id,
 
-    type:
+    person: {
+      en: "Ali Saeed Al Dhaheri",
+      ar: "علي سعيد الظاهري",
+    },
+
+    issue:
       COMPLEX_DEMO_CASE.caseType,
-
-    biometric:
-      COMPLEX_DEMO_CASE.primaryBiometricId,
-
-    current:
-      COMPLEX_DEMO_CASE.currentIdentity,
-
-    proposed:
-      COMPLEX_DEMO_CASE.proposedIdentity,
 
     confidence:
       `${COMPLEX_DEMO_CASE.aiConfidence}%`,
@@ -196,70 +201,68 @@ const attentionCases = [
     status:
       COMPLEX_DEMO_CASE.finalStatus,
 
-    hasDetail:
-      true,
+    hasDetail: true,
   },
 ];
 
 
 /* =========================================================
-   AGENT OPERATIONS
+   SIMPLE AI STATUS
    ========================================================= */
 
-const agents = [
+const aiStatus = [
   {
-    nameKey:
-      "commandCenter.monitoringAgent",
+    icon: Activity,
 
-    statusKey:
-      "common.active",
+    en: {
+      title: "Continuous Monitoring",
+      description:
+        "New and changed biometric relationships are monitored.",
+      status: "Active",
+    },
 
-    icon:
-      Activity,
+    ar: {
+      title: "المراقبة المستمرة",
+      description:
+        "تتم مراقبة علاقات السجلات البيومترية الجديدة والمتغيرة.",
+      status: "نشطة",
+    },
   },
 
   {
-    nameKey:
-      "commandCenter.reconciliationAgent",
+    icon: Fingerprint,
 
-    statusKey:
-      "common.active",
+    en: {
+      title: "AI Identity Comparison",
+      description:
+        "Biometric relationships are compared with the Master Reference.",
+      status: "Active",
+    },
 
-    icon:
-      Fingerprint,
+    ar: {
+      title: "مطابقة الهوية بالذكاء الاصطناعي",
+      description:
+        "تتم مقارنة علاقات السجلات البيومترية مع المرجع الرئيسي.",
+      status: "نشطة",
+    },
   },
 
   {
-    nameKey:
-      "commandCenter.investigationAgent",
+    icon: BrainCircuit,
 
-    statusKey:
-      "common.active",
+    en: {
+      title: "AI Case Analysis",
+      description:
+        "Detected conflicts are analyzed and prepared for human review.",
+      status: "Active",
+    },
 
-    icon:
-      BrainCircuit,
-  },
-
-  {
-    nameKey:
-      "commandCenter.approvalWorkflow",
-
-    statusKey:
-      "common.ready",
-
-    icon:
-      UserCheck,
-  },
-
-  {
-    nameKey:
-      "commandCenter.verificationAgent",
-
-    statusKey:
-      "common.active",
-
-    icon:
-      ShieldCheck,
+    ar: {
+      title: "تحليل الحالات بالذكاء الاصطناعي",
+      description:
+        "يتم تحليل التعارضات المكتشفة وتجهيزها للمراجعة البشرية.",
+      status: "نشط",
+    },
   },
 ];
 
@@ -268,47 +271,118 @@ const agents = [
    HELPERS
    ========================================================= */
 
-function getCaseTypeLabel(
+function getIssueLabel(
   type,
-  t
+  language
 ) {
-  const key =
-    `caseTypes.${type}`;
+  const labels = {
+    HARM_IMPACT: {
+      en: "Possible Wrong-Person Impact",
+      ar: "احتمال تأثير على شخص آخر",
+    },
 
-  return t(
-    key,
+    CRITICAL_HARM_IDENTITY_CONFLICT: {
+      en: "Critical Identity Conflict",
+      ar: "تعارض هوية حرج",
+    },
+
+    COMPLEX_IDENTITY_CONFLICT: {
+      en: "Complex Identity Conflict",
+      ar: "تعارض هوية معقد",
+    },
+
+    WRONG_MAPPING: {
+      en: "Incorrect Identity Link",
+      ar: "ربط هوية غير صحيح",
+    },
+
+    DATA_MISMATCH: {
+      en: "Data Mismatch",
+      ar: "اختلاف في البيانات",
+    },
+
+    DUPLICATE_IDENTITY: {
+      en: "Duplicate Identity",
+      ar: "هوية مكررة",
+    },
+
+    ORPHAN_RECORD: {
+      en: "Missing Identity Link",
+      ar: "سجل بدون هوية مرتبطة",
+    },
+  };
+
+
+  return (
+    labels[type]?.[language]
+    ||
+    labels[type]?.en
+    ||
     type
-  );
-}
-
-
-function getPriorityLabel(
-  priority,
-  t
-) {
-  return t(
-    `priorities.${priority}`,
-    priority
   );
 }
 
 
 function getStatusLabel(
   status,
-  t
+  language
 ) {
-  if (
-    status ===
-    "OFFICER_REVIEW"
-  ) {
-    return t(
-      "common.officerReview"
-    );
-  }
+  const labels = {
+    OFFICER_REVIEW: {
+      en: "Awaiting Officer Review",
+      ar: "بانتظار مراجعة الضابط",
+    },
 
-  return t(
-    `statuses.${status}`,
+    AI_INVESTIGATED: {
+      en: "AI Analysis Complete",
+      ar: "اكتمل تحليل الذكاء الاصطناعي",
+    },
+
+    VERIFIED_CLOSED: {
+      en: "Resolved & Verified",
+      ar: "تم الحل والتحقق",
+    },
+  };
+
+
+  return (
+    labels[status]?.[language]
+    ||
+    labels[status]?.en
+    ||
     status
+  );
+}
+
+
+function getPriorityLabel(
+  priority,
+  language
+) {
+  const labels = {
+    IMMEDIATE: {
+      en: "Urgent",
+      ar: "فوري",
+    },
+
+    HIGH: {
+      en: "High",
+      ar: "مرتفع",
+    },
+
+    MEDIUM: {
+      en: "Medium",
+      ar: "متوسط",
+    },
+  };
+
+
+  return (
+    labels[priority]?.[language]
+    ||
+    labels[priority]?.en
+    ||
+    priority
   );
 }
 
@@ -319,13 +393,20 @@ function getStatusLabel(
 
 function MetricCard({
   item,
-  t,
+  language,
 }) {
   const Icon =
     item.icon;
 
+  const content =
+    item[language]
+    ||
+    item.en;
+
+
   return (
     <div className="metricCard">
+
       <div className="metricTop">
         <div className="metricIcon">
           <Icon
@@ -335,23 +416,29 @@ function MetricCard({
         </div>
 
         <span className="metricStatus">
-          {t(
-            "commandCenter.demoKpi"
+          {L(
+            language,
+            "LIVE DEMO",
+            "بيانات تجريبية"
           )}
         </span>
       </div>
+
 
       <div className="metricValue">
         {item.value}
       </div>
 
+
       <div className="metricTitle">
-        {t(item.titleKey)}
+        {content.title}
       </div>
 
+
       <div className="metricSubtitle">
-        {t(item.subtitleKey)}
+        {content.subtitle}
       </div>
+
     </div>
   );
 }
@@ -363,7 +450,7 @@ function MetricCard({
 
 function PriorityBadge({
   priority,
-  t,
+  language,
 }) {
   const className =
     priority === "IMMEDIATE"
@@ -372,11 +459,12 @@ function PriorityBadge({
         ? "priority high"
         : "priority medium";
 
+
   return (
     <span className={className}>
       {getPriorityLabel(
         priority,
-        t
+        language
       )}
     </span>
   );
@@ -390,11 +478,12 @@ function PriorityBadge({
 export default function Home() {
   const {
     language,
-    t,
   } = useLanguage();
+
 
   const isArabic =
     language === "ar";
+
 
   const arrowStyle = {
     transform:
@@ -417,6 +506,7 @@ export default function Home() {
             ================================================ */}
 
         <header className="topbar">
+
           <div>
             <div className="eyebrow">
               <Sparkles
@@ -424,26 +514,37 @@ export default function Home() {
                 aria-hidden="true"
               />
 
-              {t(
-                "commandCenter.eyebrow"
+              {L(
+                language,
+                "AI IDENTITY MONITORING",
+                "مراقبة الهوية بالذكاء الاصطناعي"
               )}
             </div>
 
+
             <h1>
-              {t(
-                "commandCenter.title"
+              {L(
+                language,
+                "Identity Monitoring Dashboard",
+                "لوحة مراقبة الهوية"
               )}
             </h1>
 
+
             <p>
-              {t(
-                "commandCenter.subtitle"
+              {L(
+                language,
+
+                "Monitor identity relationships, detect problems with AI, and send cases that require action to the appropriate human reviewer.",
+
+                "مراقبة علاقات الهوية واكتشاف المشكلات بالذكاء الاصطناعي وتحويل الحالات التي تحتاج إجراء إلى الموظف المختص."
               )}
             </p>
           </div>
 
 
           <div className="topbarActions">
+
             <Link
               href="/cases"
               className="searchButton"
@@ -458,72 +559,125 @@ export default function Home() {
               />
 
               <span>
-                {t(
-                  "common.searchCase"
+                {L(
+                  language,
+                  "Search Cases",
+                  "البحث في الحالات"
                 )}
               </span>
             </Link>
 
-
-            <div className="profile">
-              <div className="avatar">
-                MO
-              </div>
-
-              <div className="profileText">
-                <strong>
-                  {t(
-                    "common.monitoringOfficer"
-                  )}
-                </strong>
-
-                <span>
-                  {t(
-                    "common.operations"
-                  )}
-                </span>
-              </div>
-            </div>
           </div>
         </header>
 
 
         {/* ================================================
-            PROTECTIVE PRIORITY ALERT
+            SIMPLE EXPLANATION
+            ================================================ */}
+
+        <section
+          className="integrityInfo"
+          style={{
+            margin:
+              "0 0 20px",
+
+            padding:
+              "18px",
+          }}
+        >
+          <ShieldCheck
+            size={24}
+            aria-hidden="true"
+          />
+
+          <div>
+            <strong>
+              {L(
+                language,
+                "What is the system monitoring?",
+                "ماذا يراقب النظام؟"
+              )}
+            </strong>
+
+            <span>
+              {L(
+                language,
+
+                `The system compares ${BIOMETRIC_RECORDS.toLocaleString()} biometric records with ${MASTER_IDENTITIES.toLocaleString()} authoritative identities. AI analysis detected ${PLATFORM_METRICS.aggregatedCases} identity cases that require investigation or follow-up.`,
+
+                `يقارن النظام ${BIOMETRIC_RECORDS.toLocaleString()} سجل بيومتري مع ${MASTER_IDENTITIES.toLocaleString()} هوية معتمدة. واكتشف تحليل الذكاء الاصطناعي ${PLATFORM_METRICS.aggregatedCases} حالة هوية تحتاج إلى تحقيق أو متابعة.`
+              )}
+            </span>
+          </div>
+        </section>
+
+
+        {/* ================================================
+            MAIN KPIs
+            ================================================ */}
+
+        <section className="statsGrid">
+
+          {dashboardMetrics.map(
+            (item) => (
+              <MetricCard
+                key={item.key}
+                item={item}
+                language={
+                  language
+                }
+              />
+            )
+          )}
+
+        </section>
+
+
+        {/* ================================================
+            URGENT NOTICE
             ================================================ */}
 
         <section className="alertBanner">
+
           <div className="alertIcon">
-            <ShieldCheck
+            <AlertTriangle
               size={24}
               aria-hidden="true"
             />
           </div>
 
+
           <div className="alertText">
             <strong>
-              {t(
-                "commandCenter.protectiveEngine"
+              {L(
+                language,
+
+                `${PLATFORM_METRICS.priority.immediate} urgent cases require priority attention`,
+
+                `${PLATFORM_METRICS.priority.immediate} حالات فورية تحتاج إلى أولوية في المتابعة`
               )}
             </strong>
 
             <span>
-              {t(
-                "commandCenter.protectiveMessage"
+              {L(
+                language,
+
+                "These cases include identity conflicts where an incorrect relationship may affect another person. AI identifies the risk, but the final decision remains with authorized staff.",
+
+                "تشمل هذه الحالات تعارضات هوية قد يؤدي فيها الربط الخاطئ إلى التأثير على شخص آخر. يحدد الذكاء الاصطناعي مستوى الخطر، بينما يبقى القرار النهائي لدى الموظفين المخولين."
               )}
             </span>
           </div>
 
+
           <Link
             href="/cases"
             className="bannerButton"
-            style={{
-              textDecoration:
-                "none",
-            }}
           >
-            {t(
-              "commandCenter.reviewCases"
+            {L(
+              language,
+              "View Cases",
+              "عرض الحالات"
             )}
 
             <ChevronRight
@@ -532,49 +686,39 @@ export default function Home() {
               aria-hidden="true"
             />
           </Link>
+
         </section>
 
 
         {/* ================================================
-            KPI CARDS
-            ================================================ */}
-
-        <section className="statsGrid">
-          {stats.map(
-            (item) => (
-              <MetricCard
-                key={
-                  item.titleKey
-                }
-                item={item}
-                t={t}
-              />
-            )
-          )}
-        </section>
-
-
-        {/* ================================================
-            PRIORITY CASES + AGENT OPERATIONS
+            CASES + AI STATUS
             ================================================ */}
 
         <section className="dashboardGrid">
 
-          <div className="panel casesPanel">
+          {/* IMPORTANT CASES */}
+
+          <div className="panel">
+
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {t(
-                    "commandCenter.aiPriorityQueue"
+                  {L(
+                    language,
+                    "CASES REQUIRING ATTENTION",
+                    "حالات تحتاج إلى متابعة"
                   )}
                 </div>
 
                 <h2>
-                  {t(
-                    "commandCenter.casesRequiringAttention"
+                  {L(
+                    language,
+                    "Priority Cases",
+                    "الحالات المهمة"
                   )}
                 </h2>
               </div>
+
 
               <Link
                 href="/cases"
@@ -584,8 +728,10 @@ export default function Home() {
                     "none",
                 }}
               >
-                {t(
-                  "commandCenter.viewAllCases"
+                {L(
+                  language,
+                  "View All",
+                  "عرض الكل"
                 )}
 
                 <ChevronRight
@@ -597,172 +743,267 @@ export default function Home() {
             </div>
 
 
-            <div className="tableWrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>
-                      {t(
-                        "common.case"
-                      )}
-                    </th>
+            <div
+              style={{
+                padding:
+                  "5px 18px",
+              }}
+            >
+              {attentionCases.map(
+                (item) => {
 
-                    <th>
-                      {t(
-                        "common.type"
-                      )}
-                    </th>
+                  const personName =
+                    item.person[
+                      language
+                    ]
+                    ||
+                    item.person.en;
 
-                    <th>
-                      {t(
-                        "common.biometric"
-                      )}
-                    </th>
 
-                    <th>
-                      {t(
-                        "commandCenter.aiIdentity"
-                      )}
-                    </th>
-
-                    <th>
-                      {t(
-                        "common.confidence"
-                      )}
-                    </th>
-
-                    <th>
-                      {t(
-                        "common.priority"
-                      )}
-                    </th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {attentionCases.map(
-                    (item) => (
-                      <tr
-                        key={item.id}
+                  const content = (
+                    <>
+                      <div
+                        style={{
+                          flex:
+                            "1 1 180px",
+                        }}
                       >
-                        <td>
-                          {item.hasDetail ? (
-                            <Link
-                              href={
-                                `/cases/${item.id}`
-                              }
-                              className="caseId"
-                              style={{
-                                textDecoration:
-                                  "none",
+                        <strong
+                          style={{
+                            display:
+                              "block",
 
-                                display:
-                                  "inline-block",
-                              }}
-                            >
-                              <span dir="ltr">
-                                {item.id}
-                              </span>
-                            </Link>
-                          ) : (
-                            <span
-                              className="caseId"
-                              style={{
-                                display:
-                                  "inline-block",
-                              }}
-                              dir="ltr"
-                            >
-                              {item.id}
-                            </span>
-                          )}
+                            color:
+                              "#e1eaf6",
 
-                          <div className="caseStatus">
-                            {getStatusLabel(
-                              item.status,
-                              t
-                            )}
-                          </div>
-                        </td>
-
-
-                        <td>
-                          {getCaseTypeLabel(
-                            item.type,
-                            t
-                          )}
-                        </td>
-
-
-                        <td
-                          className="mono"
-                          dir="ltr"
+                            fontSize:
+                              "12px",
+                          }}
                         >
-                          {item.biometric}
-                        </td>
+                          {personName}
+                        </strong>
+
+                        <span
+                          dir="ltr"
+                          style={{
+                            display:
+                              "block",
+
+                            marginTop:
+                              "4px",
+
+                            color:
+                              "#63768e",
+
+                            fontSize:
+                              "9px",
+                          }}
+                        >
+                          {item.id}
+                        </span>
+                      </div>
 
 
-                        <td>
-                          <div
-                            className="identityChange"
-                            dir="ltr"
-                          >
-                            <span className="oldIdentity">
-                              {item.current}
-                            </span>
+                      <div
+                        style={{
+                          flex:
+                            "1.2 1 190px",
+                        }}
+                      >
+                        <strong
+                          style={{
+                            display:
+                              "block",
 
-                            <ChevronRight
-                              size={14}
-                              aria-hidden="true"
-                            />
+                            color:
+                              "#b9c7d8",
 
-                            <span className="newIdentity">
-                              {item.proposed}
-                            </span>
-                          </div>
-                        </td>
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {getIssueLabel(
+                            item.issue,
+                            language
+                          )}
+                        </strong>
+
+                        <span
+                          style={{
+                            display:
+                              "block",
+
+                            marginTop:
+                              "4px",
+
+                            color:
+                              "#687b93",
+
+                            fontSize:
+                              "9px",
+                          }}
+                        >
+                          {L(
+                            language,
+                            `AI confidence ${item.confidence}`,
+                            `ثقة تحليل الذكاء الاصطناعي ${item.confidence}`
+                          )}
+                        </span>
+                      </div>
 
 
-                        <td>
-                          <span className="confidence">
-                            {item.confidence}
-                          </span>
-                        </td>
+                      <div
+                        style={{
+                          flex:
+                            "1 1 160px",
+                        }}
+                      >
+                        <span
+                          style={{
+                            display:
+                              "block",
+
+                            color:
+                              "#76a9ff",
+
+                            fontSize:
+                              "10px",
+
+                            fontWeight:
+                              700,
+                          }}
+                        >
+                          {getStatusLabel(
+                            item.status,
+                            language
+                          )}
+                        </span>
+                      </div>
 
 
-                        <td>
-                          <PriorityBadge
-                            priority={
-                              item.priority
-                            }
-                            t={t}
-                          />
-                        </td>
-                      </tr>
-                    )
-                  )}
-                </tbody>
-              </table>
+                      <PriorityBadge
+                        priority={
+                          item.priority
+                        }
+                        language={
+                          language
+                        }
+                      />
+                    </>
+                  );
+
+
+                  return item.hasDetail ? (
+                    <Link
+                      key={item.id}
+                      href={
+                        `/cases/${item.id}`
+                      }
+                      style={{
+                        display:
+                          "flex",
+
+                        flexWrap:
+                          "wrap",
+
+                        alignItems:
+                          "center",
+
+                        gap:
+                          "14px",
+
+                        padding:
+                          "16px 0",
+
+                        borderBottom:
+                          "1px solid rgba(255,255,255,0.045)",
+
+                        textDecoration:
+                          "none",
+
+                        color:
+                          "inherit",
+                      }}
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    <div
+                      key={item.id}
+                      style={{
+                        display:
+                          "flex",
+
+                        flexWrap:
+                          "wrap",
+
+                        alignItems:
+                          "center",
+
+                        gap:
+                          "14px",
+
+                        padding:
+                          "16px 0",
+
+                        borderBottom:
+                          "1px solid rgba(255,255,255,0.045)",
+                      }}
+                    >
+                      {content}
+                    </div>
+                  );
+                }
+              )}
             </div>
+
+
+            <div
+              style={{
+                padding:
+                  "13px 18px",
+
+                color:
+                  "#657890",
+
+                fontSize:
+                  "9px",
+
+                lineHeight:
+                  1.6,
+              }}
+            >
+              {L(
+                language,
+
+                "AI analyzes the evidence, identifies likely identity conflicts and prepares recommendations. Sensitive corrections still require human approval.",
+
+                "يحلل الذكاء الاصطناعي الأدلة ويحدد تعارضات الهوية المحتملة ويجهز التوصيات، بينما تتطلب التصحيحات الحساسة اعتمادًا بشريًا."
+              )}
+            </div>
+
           </div>
 
 
-          {/* ==============================================
-              AGENT OPERATIONS
-              ============================================== */}
+          {/* SIMPLE AI STATUS */}
 
           <div className="panel agentPanel">
+
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {t(
-                    "commandCenter.agenticAi"
+                  {L(
+                    language,
+                    "AI SYSTEM",
+                    "النظام الذكي"
                   )}
                 </div>
 
                 <h2>
-                  {t(
-                    "commandCenter.agentOperations"
+                  {L(
+                    language,
+                    "Smart Monitoring Status",
+                    "حالة المراقبة الذكية"
                   )}
                 </h2>
               </div>
@@ -775,19 +1016,29 @@ export default function Home() {
 
 
             <div className="agentList">
-              {agents.map(
-                (agent) => {
+
+              {aiStatus.map(
+                (
+                  item,
+                  index
+                ) => {
+
                   const Icon =
-                    agent.icon;
+                    item.icon;
+
+                  const content =
+                    item[language]
+                    ||
+                    item.en;
+
 
                   return (
                     <div
                       className="agentItem"
-                      key={
-                        agent.nameKey
-                      }
+                      key={index}
                     >
                       <div className="agentLeft">
+
                         <div className="agentIcon">
                           <Icon
                             size={18}
@@ -795,333 +1046,422 @@ export default function Home() {
                           />
                         </div>
 
+
                         <div>
                           <strong>
-                            {t(
-                              agent.nameKey
-                            )}
+                            {content.title}
                           </strong>
 
                           <span>
-                            {t(
-                              "common.operational"
-                            )}
+                            {
+                              content.description
+                            }
                           </span>
                         </div>
+
                       </div>
 
+
                       <div className="agentStatus">
+
                         <div
                           className="greenDot"
                           aria-hidden="true"
                         />
 
-                        {t(
-                          agent.statusKey
-                        )}
+                        {content.status}
+
                       </div>
                     </div>
                   );
                 }
               )}
+
             </div>
 
 
-            <div className="agentFooter">
-              <div>
-                <span>
-                  {t(
-                    "common.environment"
-                  )}
-                </span>
+            <div
+              style={{
+                padding:
+                  "13px 17px",
 
-                <strong>
-                  {t(
-                    "common.syntheticDemo"
-                  )}
-                </strong>
-              </div>
+                borderTop:
+                  "1px solid rgba(255,255,255,0.05)",
 
-              <div>
-                <span>
-                  {t(
-                    "common.processingState"
-                  )}
-                </span>
+                color:
+                  "#687b93",
 
-                <strong>
-                  {t(
-                    "common.operational"
-                  )}
-                </strong>
-              </div>
+                fontSize:
+                  "9px",
+
+                lineHeight:
+                  1.6,
+              }}
+            >
+              {L(
+                language,
+
+                "The AI supports monitoring, analysis and recommendations. It cannot independently approve or execute sensitive identity changes.",
+
+                "يدعم الذكاء الاصطناعي المراقبة والتحليل والتوصيات، ولا يمكنه اعتماد أو تنفيذ تغييرات حساسة على الهوية بشكل مستقل."
+              )}
             </div>
+
           </div>
         </section>
 
 
         {/* ================================================
-            VERIFIED CASE + PLATFORM HEALTH
+            LATEST RESOLVED CASE
             ================================================ */}
 
-        <section className="lowerGrid">
+        <section
+          className="panel"
+          style={{
+            marginTop:
+              "16px",
+          }}
+        >
 
-          <div className="panel selectedCase">
-            <div className="caseHeroHeader">
+          <div className="panelHeader">
+            <div>
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "LATEST COMPLETED CASE",
+                  "آخر حالة مكتملة"
+                )}
+              </div>
+
+              <h2>
+                {L(
+                  language,
+                  "Resolved & Verified",
+                  "تم الحل والتحقق"
+                )}
+              </h2>
+            </div>
+
+            <CheckCircle2
+              size={22}
+              aria-hidden="true"
+            />
+          </div>
+
+
+          <div
+            style={{
+              padding:
+                "20px",
+            }}
+          >
+
+            <div
+              style={{
+                display:
+                  "flex",
+
+                alignItems:
+                  "flex-start",
+
+                justifyContent:
+                  "space-between",
+
+                gap:
+                  "16px",
+
+                flexWrap:
+                  "wrap",
+              }}
+            >
               <div>
-                <div className="panelEyebrow">
-                  {t(
-                    "commandCenter.latestVerifiedProtectiveCase"
-                  )}
-                </div>
+                <strong
+                  style={{
+                    display:
+                      "block",
 
-                <h2 dir="ltr">
+                    color:
+                      "#e1eaf6",
+
+                    fontSize:
+                      "15px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Salem Mohammed Al Kaabi",
+                    "سالم محمد الكعبي"
+                  )}
+                </strong>
+
+                <span
+                  dir="ltr"
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#657890",
+
+                    fontSize:
+                      "10px",
+
+                    marginTop:
+                      "4px",
+                  }}
+                >
                   {
                     VERIFIED_DEMO_CASE.id
                   }
-                </h2>
+                  {" · "}
+                  {
+                    VERIFIED_DEMO_CASE.biometricId
+                  }
+                </span>
+              </div>
+
+
+              <span
+                style={{
+                  display:
+                    "inline-flex",
+
+                  alignItems:
+                    "center",
+
+                  minHeight:
+                    "27px",
+
+                  padding:
+                    "0 11px",
+
+                  borderRadius:
+                    "7px",
+
+                  color:
+                    "#59cfa0",
+
+                  background:
+                    "rgba(52,211,153,0.07)",
+
+                  border:
+                    "1px solid rgba(52,211,153,0.13)",
+
+                  fontSize:
+                    "10px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                {L(
+                  language,
+                  "RESOLVED & VERIFIED",
+                  "تم الحل والتحقق"
+                )}
+              </span>
+            </div>
+
+
+            <div
+              style={{
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "repeat(2,minmax(0,1fr))",
+
+                gap:
+                  "10px",
+
+                marginTop:
+                  "18px",
+              }}
+            >
+
+              <div
+                style={{
+                  padding:
+                    "14px",
+
+                  borderRadius:
+                    "11px",
+
+                  background:
+                    "rgba(255,80,100,0.04)",
+
+                  border:
+                    "1px solid rgba(255,80,100,0.08)",
+                }}
+              >
+                <span
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#8f6b72",
+
+                    fontSize:
+                      "9px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Incorrect Link",
+                    "الربط السابق الخاطئ"
+                  )}
+                </span>
+
+                <strong
+                  dir="ltr"
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "5px",
+
+                    color:
+                      "#ff7c89",
+
+                    fontSize:
+                      "13px",
+                  }}
+                >
+                  {
+                    VERIFIED_DEMO_CASE.currentIdentity
+                  }
+                </strong>
               </div>
 
 
               <div
                 style={{
-                  display: "flex",
-                  alignItems:
-                    "center",
-                  gap: "8px",
-                  flexWrap:
-                    "wrap",
-                  justifyContent:
-                    "flex-end",
+                  padding:
+                    "14px",
+
+                  borderRadius:
+                    "11px",
+
+                  background:
+                    "rgba(52,211,153,0.04)",
+
+                  border:
+                    "1px solid rgba(52,211,153,0.08)",
                 }}
               >
-                <PriorityBadge
-                  priority={
-                    VERIFIED_DEMO_CASE.priority
-                  }
-                  t={t}
-                />
-
                 <span
                   style={{
                     display:
-                      "inline-flex",
+                      "block",
 
-                    alignItems:
-                      "center",
+                    color:
+                      "#628b7b",
 
-                    justifyContent:
-                      "center",
+                    fontSize:
+                      "9px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Verified Identity",
+                    "الهوية الصحيحة بعد التحقق"
+                  )}
+                </span>
 
-                    minHeight:
-                      "25px",
+                <strong
+                  dir="ltr"
+                  style={{
+                    display:
+                      "block",
 
-                    padding:
-                      "0 10px",
-
-                    borderRadius:
-                      "7px",
+                    marginTop:
+                      "5px",
 
                     color:
                       "#59cfa0",
 
-                    background:
-                      "rgba(52,211,153,0.07)",
-
-                    border:
-                      "1px solid rgba(52,211,153,0.13)",
-
                     fontSize:
-                      "10px",
-
-                    fontWeight:
-                      850,
-
-                    letterSpacing:
-                      "0.45px",
+                      "13px",
                   }}
                 >
-                  {t(
-                    `statuses.${VERIFIED_DEMO_CASE.finalStatus}`,
-                    VERIFIED_DEMO_CASE.finalStatus
-                  )}
-                </span>
-              </div>
-            </div>
-
-
-            <div className="caseHeroBody">
-              <div className="caseScore">
-                <div className="scoreRing">
-                  <strong>
-                    {
-                      VERIFIED_DEMO_CASE.protectivePriority
-                    }
-                  </strong>
-
-                  <span>
-                    {t(
-                      "common.protectivePriority"
-                    )}
-                  </span>
-                </div>
-              </div>
-
-
-              <div className="caseDetails">
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "common.biometricRecord"
-                    )}
-                  </span>
-
-                  <strong dir="ltr">
-                    {
-                      VERIFIED_DEMO_CASE.biometricId
-                    }
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "common.previousIdentity"
-                    )}
-                  </span>
-
-                  <strong
-                    className="dangerText"
-                    dir="ltr"
-                  >
-                    {
-                      VERIFIED_DEMO_CASE.currentIdentity
-                    }
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "common.verifiedIdentity"
-                    )}
-                  </span>
-
-                  <strong
-                    className="successText"
-                    dir="ltr"
-                  >
-                    {
-                      VERIFIED_DEMO_CASE.canonicalIdentity
-                    }
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "common.confidence"
-                    )}
-                  </span>
-
-                  <strong>
-                    {
-                      VERIFIED_DEMO_CASE.aiConfidence
-                    }%
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "commandCenter.harmImpact"
-                    )}
-                  </span>
-
-                  <strong>
-                    {
-                      VERIFIED_DEMO_CASE.harm
-                    }
-                    {" / 100"}
-                  </strong>
-                </div>
-
-
-                <div className="detailRow">
-                  <span>
-                    {t(
-                      "common.verification"
-                    )}
-                  </span>
-
-                  <strong className="successText">
-                    {t(
-                      `statuses.${VERIFIED_DEMO_CASE.verification.status}`,
-                      VERIFIED_DEMO_CASE.verification.status
-                    )}
-
-                    {" · "}
-
-                    {
-                      VERIFIED_DEMO_CASE.verification.score
-                    }
-                  </strong>
-                </div>
-              </div>
-            </div>
-
-
-            <div className="caseWarning">
-              <AlertTriangle
-                size={20}
-                aria-hidden="true"
-              />
-
-              <div>
-                <strong>
-                  {t(
-                    "commandCenter.protectiveWrongPersonDetected"
-                  )}
+                  {
+                    VERIFIED_DEMO_CASE.canonicalIdentity
+                  }
                 </strong>
-
-                <span>
-                  {t(
-                    "commandCenter.protectiveWrongPersonMessage"
-                  )}
-                </span>
               </div>
+
             </div>
 
 
             <div
-              className="integrityInfo"
               style={{
-                margin:
-                  "14px 0 0",
+                marginTop:
+                  "12px",
               }}
             >
-              <CheckCircle2
-                size={21}
-                aria-hidden="true"
-              />
 
-              <div>
-                <strong>
-                  {t(
-                    "commandCenter.endToEndVerificationPassed"
-                  )}
-                </strong>
-
+              <div className="detailRow">
                 <span>
-                  {t(
-                    "commandCenter.verificationPassedMessage"
+                  {L(
+                    language,
+                    "AI Analysis Confidence",
+                    "ثقة تحليل الذكاء الاصطناعي"
                   )}
                 </span>
+
+                <strong dir="ltr">
+                  {
+                    VERIFIED_DEMO_CASE.aiConfidence
+                  }%
+                </strong>
               </div>
+
+
+              <div className="detailRow">
+                <span>
+                  {L(
+                    language,
+                    "Human Approval",
+                    "الاعتماد البشري"
+                  )}
+                </span>
+
+                <strong>
+                  {L(
+                    language,
+                    "Officer + Manager Approved",
+                    "اعتماد الضابط والمدير"
+                  )}
+                </strong>
+              </div>
+
+
+              <div className="detailRow">
+                <span>
+                  {L(
+                    language,
+                    "Post-Correction Verification",
+                    "التحقق بعد التصحيح"
+                  )}
+                </span>
+
+                <strong className="successText">
+                  {L(
+                    language,
+                    "Passed",
+                    "ناجح"
+                  )}
+
+                  {" · "}
+
+                  {
+                    VERIFIED_DEMO_CASE.verification.score
+                  }
+                </strong>
+              </div>
+
             </div>
 
 
@@ -1135,8 +1475,10 @@ export default function Home() {
                   "none",
               }}
             >
-              {t(
-                "commandCenter.viewVerifiedLifecycle"
+              {L(
+                language,
+                "View Case Details",
+                "عرض تفاصيل الحالة"
               )}
 
               <ChevronRight
@@ -1145,152 +1487,48 @@ export default function Home() {
                 aria-hidden="true"
               />
             </Link>
+
           </div>
+        </section>
 
 
-          {/* ==============================================
-              DATA INTEGRITY HEALTH
-              ============================================== */}
+        {/* ================================================
+            DATA PROTECTION
+            ================================================ */}
 
-          <div className="panel integrityPanel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {t(
-                    "dataIntegrity.title"
-                  )}
-                </div>
+        <section
+          className="integrityInfo"
+          style={{
+            margin:
+              "16px 0 0",
 
-                <h2>
-                  {t(
-                    "commandCenter.platformHealth"
-                  )}
-                </h2>
-              </div>
+            padding:
+              "18px",
+          }}
+        >
+          <Database
+            size={23}
+            aria-hidden="true"
+          />
 
-              <Database
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div className="healthScore">
-              <div>
-                <span>
-                  {t(
-                    "commandCenter.canonicalCaseResolution"
-                  )}
-                </span>
-
-                <strong>
-                  {
-                    PLATFORM_METRICS.aggregatedCases
-                  }
-                  {" / "}
-                  {
-                    PLATFORM_METRICS.aggregatedCases
-                  }
-                </strong>
-              </div>
-
-              <div className="progress">
-                <div className="progressFill full" />
-              </div>
-            </div>
-
-
-            <div className="healthScore">
-              <div>
-                <span>
-                  {t(
-                    "commandCenter.protectiveDetection"
-                  )}
-                </span>
-
-                <strong>
-                  {
-                    PLATFORM_METRICS.evaluation.protectiveDetectionRecall
-                  }%
-                </strong>
-              </div>
-
-              <div className="progress">
-                <div className="progressFill full" />
-              </div>
-            </div>
-
-
-            <div className="healthScore">
-              <div>
-                <span>
-                  {t(
-                    "commandCenter.unexplainedFalsePositives"
-                  )}
-                </span>
-
-                <strong>
-                  {
-                    PLATFORM_METRICS.evaluation.unexplainedFalsePositives
-                  }
-                </strong>
-              </div>
-
-              <div className="progress">
-                <div className="progressFill zero" />
-              </div>
-            </div>
-
-
-            <div className="integrityInfo">
-              <ShieldCheck
-                size={21}
-                aria-hidden="true"
-              />
-
-              <div>
-                <strong>
-                  {t(
-                    "commandCenter.masterReferenceProtected"
-                  )}
-                </strong>
-
-                <span>
-                  {t(
-                    "commandCenter.masterProtectionMessage"
-                  )}
-                </span>
-              </div>
-            </div>
-
-
-            <Link
-              href="/data-integrity"
-              className="textButton"
-              style={{
-                textDecoration:
-                  "none",
-
-                marginTop:
-                  "14px",
-
-                marginInlineStart:
-                  "18px",
-
-                width:
-                  "fit-content",
-              }}
-            >
-              {t(
-                "commandCenter.openDataIntegrityCenter"
+          <div>
+            <strong>
+              {L(
+                language,
+                "Master Reference Protected",
+                "المرجع الرئيسي محمي"
               )}
+            </strong>
 
-              <ChevronRight
-                size={16}
-                style={arrowStyle}
-                aria-hidden="true"
-              />
-            </Link>
+            <span>
+              {L(
+                language,
+
+                "The authoritative Master Reference remains read-only. Approved corrections can only target the permitted Biometric System after the required human approvals.",
+
+                "يبقى المرجع الرئيسي المعتمد للقراءة فقط. ولا يتم تنفيذ أي تصحيح إلا على النظام البيومتري المسموح وبعد الحصول على الاعتمادات البشرية المطلوبة."
+              )}
+            </span>
           </div>
         </section>
 
@@ -1300,28 +1538,29 @@ export default function Home() {
             ================================================ */}
 
         <footer className="footer">
+
           <span>
-            {t(
-              "footer.platform"
-            )}
-
-            {" · "}
-
-            {t(
-              "footer.demo"
+            {L(
+              language,
+              "AI Identity Reconciliation Platform · Synthetic Demo",
+              "منصة مطابقة الهوية بالذكاء الاصطناعي · عرض تجريبي"
             )}
           </span>
 
+
           <div>
-            <Clock3
+            <Activity
               size={15}
               aria-hidden="true"
             />
 
-            {t(
-              "footer.monitoring"
+            {L(
+              language,
+              "Continuous Monitoring Active",
+              "المراقبة المستمرة نشطة"
             )}
           </div>
+
         </footer>
 
       </main>

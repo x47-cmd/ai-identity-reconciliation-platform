@@ -3,13 +3,11 @@
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
-
-import {
-  useLanguage,
-} from "../components/LanguageProvider";
+import { useLanguage } from "../components/LanguageProvider";
 
 import {
   COMPLEX_DEMO_CASE,
+  EXECUTIVE_CASE_BREAKDOWN,
   PLATFORM_METRICS,
   VERIFIED_DEMO_CASE,
 } from "../lib/demo-data";
@@ -31,19 +29,22 @@ import {
 
 
 /* =========================================================
-   CASE WORKSPACE
+   REPRESENTATIVE CASE WORKSPACE
+
+   IMPORTANT:
+   - CASE-2026-00001 and CASE-2026-00014 use the
+     authoritative shared demo data.
+   - Other rows are representative frontend-only examples.
+   - Only supported case detail routes are linked.
    ========================================================= */
 
-const cases = [
+const representativeCases = [
   {
     id:
       VERIFIED_DEMO_CASE.id,
 
     type:
       VERIFIED_DEMO_CASE.caseType,
-
-    title:
-      VERIFIED_DEMO_CASE.title,
 
     biometric:
       VERIFIED_DEMO_CASE.biometricId,
@@ -52,7 +53,7 @@ const cases = [
       VERIFIED_DEMO_CASE.currentIdentity,
 
     proposed:
-      VERIFIED_DEMO_CASE.canonicalIdentity,
+      VERIFIED_DEMO_CASE.proposedIdentity,
 
     confidence:
       VERIFIED_DEMO_CASE.aiConfidence,
@@ -83,147 +84,355 @@ const cases = [
   },
 
   {
-    id: "CASE-2026-00002",
-    type: "HARM_IMPACT",
-    title: "Potential Wrong-Person Harm",
-    biometric: "BIO-000341",
-    current: "REF-000882",
-    proposed: "REF-001704",
-    confidence: 99.98,
-    risk: 93.8,
-    harm: 96.5,
-    protective: 97.5,
-    priority: "IMMEDIATE",
-    status: "READY_FOR_OFFICER_REVIEW",
-    affected: true,
-    findings: 2,
-    hasDetail: false,
+    id:
+      "CASE-2026-00002",
+
+    type:
+      "HARM_IMPACT",
+
+    biometric:
+      "BIO-000341",
+
+    current:
+      "REF-000882",
+
+    proposed:
+      "REF-001704",
+
+    confidence:
+      99.98,
+
+    risk:
+      93.8,
+
+    harm:
+      96.5,
+
+    protective:
+      97.5,
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "READY_FOR_OFFICER_REVIEW",
+
+    affected:
+      true,
+
+    findings:
+      2,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00003",
-    type: "CRITICAL_HARM_IDENTITY_CONFLICT",
-    title: "Critical Cross-Identity Harm Conflict",
-    biometric: "BIO-000492",
-    current: "REF-001547",
-    proposed: "REF-000621",
-    confidence: 99.98,
-    risk: 96.2,
-    harm: 96.0,
-    protective: 97.0,
-    priority: "IMMEDIATE",
-    status: "AI_INVESTIGATED",
-    affected: true,
-    findings: 5,
-    hasDetail: false,
+    id:
+      "CASE-2026-00003",
+
+    type:
+      "CRITICAL_HARM_IDENTITY_CONFLICT",
+
+    biometric:
+      "BIO-000492",
+
+    current:
+      "REF-001547",
+
+    proposed:
+      "REF-000621",
+
+    confidence:
+      99.98,
+
+    risk:
+      96.2,
+
+    harm:
+      96.0,
+
+    protective:
+      97.0,
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "AI_INVESTIGATED",
+
+    affected:
+      true,
+
+    findings:
+      5,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00004",
-    type: "HARM_IMPACT",
-    title: "Potential Wrong-Person Harm",
-    biometric: "BIO-000714",
-    current: "REF-002905",
-    proposed: "REF-001337",
-    confidence: 99.97,
-    risk: 92.5,
-    harm: 95.0,
-    protective: 96.5,
-    priority: "IMMEDIATE",
-    status: "READY_FOR_OFFICER_REVIEW",
-    affected: true,
-    findings: 2,
-    hasDetail: false,
+    id:
+      "CASE-2026-00004",
+
+    type:
+      "HARM_IMPACT",
+
+    biometric:
+      "BIO-000714",
+
+    current:
+      "REF-002905",
+
+    proposed:
+      "REF-001337",
+
+    confidence:
+      99.97,
+
+    risk:
+      92.5,
+
+    harm:
+      95.0,
+
+    protective:
+      96.5,
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "READY_FOR_OFFICER_REVIEW",
+
+    affected:
+      true,
+
+    findings:
+      2,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00005",
-    type: "CRITICAL_HARM_IDENTITY_CONFLICT",
-    title: "Critical Cross-Identity Harm Conflict",
-    biometric: "BIO-000621",
-    current: "REF-001912",
-    proposed: "REF-002448",
-    confidence: 99.96,
-    risk: 95.0,
-    harm: 94.5,
-    protective: 96.0,
-    priority: "IMMEDIATE",
-    status: "AWAITING_MANAGER_APPROVAL",
-    affected: true,
-    findings: 4,
-    hasDetail: false,
+    id:
+      "CASE-2026-00005",
+
+    type:
+      "CRITICAL_HARM_IDENTITY_CONFLICT",
+
+    biometric:
+      "BIO-000621",
+
+    current:
+      "REF-001912",
+
+    proposed:
+      "REF-002448",
+
+    confidence:
+      99.96,
+
+    risk:
+      95.0,
+
+    harm:
+      94.5,
+
+    protective:
+      96.0,
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "AWAITING_MANAGER_APPROVAL",
+
+    affected:
+      true,
+
+    findings:
+      4,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00006",
-    type: "HARM_IMPACT",
-    title: "Potential Wrong-Person Harm",
-    biometric: "BIO-000804",
-    current: "REF-002130",
-    proposed: "REF-000744",
-    confidence: 99.96,
-    risk: 91.5,
-    harm: 94.0,
-    protective: 95.5,
-    priority: "IMMEDIATE",
-    status: "READY_FOR_OFFICER_REVIEW",
-    affected: true,
-    findings: 2,
-    hasDetail: false,
+    id:
+      "CASE-2026-00006",
+
+    type:
+      "HARM_IMPACT",
+
+    biometric:
+      "BIO-000804",
+
+    current:
+      "REF-002130",
+
+    proposed:
+      "REF-000744",
+
+    confidence:
+      99.96,
+
+    risk:
+      91.5,
+
+    harm:
+      94.0,
+
+    protective:
+      95.5,
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "READY_FOR_OFFICER_REVIEW",
+
+    affected:
+      true,
+
+    findings:
+      2,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00007",
-    type: "WRONG_MAPPING",
-    title: "Incorrect Biometric Identity Mapping",
-    biometric: "BIO-000207",
-    current: "REF-001782",
-    proposed: "REF-000431",
-    confidence: 99.95,
-    risk: 89.5,
-    harm: 70.0,
-    protective: 88.0,
-    priority: "HIGH",
-    status: "AI_INVESTIGATED",
-    affected: false,
-    findings: 2,
-    hasDetail: false,
+    id:
+      "CASE-2026-00007",
+
+    type:
+      "WRONG_MAPPING",
+
+    biometric:
+      "BIO-000207",
+
+    current:
+      "REF-001782",
+
+    proposed:
+      "REF-000431",
+
+    confidence:
+      99.95,
+
+    risk:
+      89.5,
+
+    harm:
+      70.0,
+
+    protective:
+      88.0,
+
+    priority:
+      "HIGH",
+
+    status:
+      "AI_INVESTIGATED",
+
+    affected:
+      false,
+
+    findings:
+      2,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00008",
-    type: "COMPLEX_IDENTITY_CONFLICT",
-    title: "Complex Identity Conflict",
-    biometric: "BIO-000422",
-    current: "REF-002117",
-    proposed: "REF-000905",
-    confidence: 99.94,
-    risk: 91.0,
-    harm: 72.0,
-    protective: 87.0,
-    priority: "HIGH",
-    status: "READY_FOR_OFFICER_REVIEW",
-    affected: false,
-    findings: 5,
-    hasDetail: false,
+    id:
+      "CASE-2026-00008",
+
+    type:
+      "COMPLEX_IDENTITY_CONFLICT",
+
+    biometric:
+      "BIO-000422",
+
+    current:
+      "REF-002117",
+
+    proposed:
+      "REF-000905",
+
+    confidence:
+      99.94,
+
+    risk:
+      91.0,
+
+    harm:
+      72.0,
+
+    protective:
+      87.0,
+
+    priority:
+      "HIGH",
+
+    status:
+      "READY_FOR_OFFICER_REVIEW",
+
+    affected:
+      false,
+
+    findings:
+      5,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00009",
-    type: "DUPLICATE_IDENTITY",
-    title: "Duplicate Identity Registration",
-    biometric: "BIO-000612",
-    current: "REF-000374",
-    proposed: "REF-000374",
-    confidence: 99.92,
-    risk: 83.0,
-    harm: 55.0,
-    protective: 82.0,
-    priority: "HIGH",
-    status: "AI_INVESTIGATED",
-    affected: false,
-    findings: 3,
-    hasDetail: false,
+    id:
+      "CASE-2026-00009",
+
+    type:
+      "DUPLICATE_IDENTITY",
+
+    biometric:
+      "BIO-000612",
+
+    current:
+      "REF-000374",
+
+    proposed:
+      "REF-000374",
+
+    confidence:
+      99.92,
+
+    risk:
+      83.0,
+
+    harm:
+      55.0,
+
+    protective:
+      82.0,
+
+    priority:
+      "HIGH",
+
+    status:
+      "AI_INVESTIGATED",
+
+    affected:
+      false,
+
+    findings:
+      3,
+
+    hasDetail:
+      false,
   },
 
   {
@@ -233,17 +442,14 @@ const cases = [
     type:
       COMPLEX_DEMO_CASE.caseType,
 
-    title:
-      COMPLEX_DEMO_CASE.title,
-
     biometric:
       COMPLEX_DEMO_CASE.primaryBiometricId,
 
     current:
-      COMPLEX_DEMO_CASE.currentMasterIdentities[0],
+      COMPLEX_DEMO_CASE.currentIdentity,
 
     proposed:
-      COMPLEX_DEMO_CASE.canonicalIdentity,
+      COMPLEX_DEMO_CASE.proposedIdentity,
 
     confidence:
       COMPLEX_DEMO_CASE.aiConfidence,
@@ -261,7 +467,7 @@ const cases = [
       COMPLEX_DEMO_CASE.priority,
 
     status:
-      "AI_INVESTIGATED",
+      COMPLEX_DEMO_CASE.finalStatus,
 
     affected:
       COMPLEX_DEMO_CASE.wronglyAffected,
@@ -274,41 +480,156 @@ const cases = [
   },
 
   {
-    id: "CASE-2026-00011",
-    type: "DATA_MISMATCH",
-    title: "Identity Data Mismatch",
-    biometric: "BIO-000318",
-    current: "REF-002204",
-    proposed: "REF-002204",
-    confidence: 99.91,
-    risk: 61.0,
-    harm: 35.0,
-    protective: 58.0,
-    priority: "MEDIUM",
-    status: "READY_FOR_OFFICER_REVIEW",
-    affected: false,
-    findings: 1,
-    hasDetail: false,
+    id:
+      "CASE-2026-00011",
+
+    type:
+      "DATA_MISMATCH",
+
+    biometric:
+      "BIO-000318",
+
+    current:
+      "REF-002204",
+
+    proposed:
+      "REF-002204",
+
+    confidence:
+      99.91,
+
+    risk:
+      61.0,
+
+    harm:
+      35.0,
+
+    protective:
+      58.0,
+
+    priority:
+      "MEDIUM",
+
+    status:
+      "READY_FOR_OFFICER_REVIEW",
+
+    affected:
+      false,
+
+    findings:
+      1,
+
+    hasDetail:
+      false,
   },
 
   {
-    id: "CASE-2026-00012",
-    type: "ORPHAN_RECORD",
-    title: "Orphan Biometric Record",
-    biometric: "BIO-000909",
-    current: "REF-INVALID",
-    proposed: "REF-001567",
-    confidence: 99.9,
-    risk: 76.0,
-    harm: 45.0,
-    protective: 70.0,
-    priority: "MEDIUM",
-    status: "AI_INVESTIGATED",
-    affected: false,
-    findings: 1,
-    hasDetail: false,
+    id:
+      "CASE-2026-00012",
+
+    type:
+      "ORPHAN_RECORD",
+
+    biometric:
+      "BIO-000909",
+
+    current:
+      "REF-INVALID",
+
+    proposed:
+      "REF-001567",
+
+    confidence:
+      99.9,
+
+    risk:
+      76.0,
+
+    harm:
+      45.0,
+
+    protective:
+      70.0,
+
+    priority:
+      "MEDIUM",
+
+    status:
+      "AI_INVESTIGATED",
+
+    affected:
+      false,
+
+    findings:
+      1,
+
+    hasDetail:
+      false,
   },
 ];
+
+
+/* =========================================================
+   CASE TITLE LOCALIZATION
+   ========================================================= */
+
+const caseTitles = {
+  HARM_IMPACT: {
+    en:
+      "Potential Wrong-Person Harm",
+
+    ar:
+      "ضرر محتمل على الشخص الخطأ",
+  },
+
+  CRITICAL_HARM_IDENTITY_CONFLICT: {
+    en:
+      "Critical Cross-Identity Harm Conflict",
+
+    ar:
+      "تعارض هوية حرج ذو تأثير ضار",
+  },
+
+  WRONG_MAPPING: {
+    en:
+      "Incorrect Biometric Identity Mapping",
+
+    ar:
+      "ربط بيومتري خاطئ بالهوية",
+  },
+
+  COMPLEX_IDENTITY_CONFLICT: {
+    en:
+      "Complex Identity Conflict",
+
+    ar:
+      "تعارض هوية معقد",
+  },
+
+  DUPLICATE_IDENTITY: {
+    en:
+      "Duplicate Identity Registration",
+
+    ar:
+      "تسجيل هوية مكررة",
+  },
+
+  DATA_MISMATCH: {
+    en:
+      "Identity Data Mismatch",
+
+    ar:
+      "اختلاف في بيانات الهوية",
+  },
+
+  ORPHAN_RECORD: {
+    en:
+      "Orphan Biometric Record",
+
+    ar:
+      "سجل بيومتري دون مرجع",
+  },
+};
 
 
 /* =========================================================
@@ -317,39 +638,12 @@ const cases = [
 
 function getTypeLabel(
   type,
-  language,
   t
 ) {
-  const keys = {
-    HARM_IMPACT:
-      "caseTypes.HARM_IMPACT",
-
-    CRITICAL_HARM_IDENTITY_CONFLICT:
-      "caseTypes.CRITICAL_HARM_CONFLICT",
-
-    WRONG_MAPPING:
-      "caseTypes.WRONG_MAPPING",
-
-    COMPLEX_IDENTITY_CONFLICT:
-      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
-
-    DUPLICATE_IDENTITY:
-      "caseTypes.DUPLICATE_IDENTITY",
-
-    DATA_MISMATCH:
-      "caseTypes.DATA_MISMATCH",
-
-    ORPHAN_RECORD:
-      "caseTypes.ORPHAN",
-  };
-
-  if (keys[type]) {
-    return t(keys[type]);
-  }
-
-  return language === "ar"
-    ? "حالة هوية"
-    : type;
+  return t(
+    `caseTypes.${type}`,
+    type
+  );
 }
 
 
@@ -357,55 +651,48 @@ function getCaseTitle(
   type,
   language
 ) {
-  const titles = {
-    HARM_IMPACT: {
-      en: "Potential Wrong-Person Harm",
-      ar: "ضرر محتمل على الشخص الخطأ",
-    },
-
-    CRITICAL_HARM_IDENTITY_CONFLICT: {
-      en: "Critical Cross-Identity Harm Conflict",
-      ar: "تعارض هوية حرج ذو تأثير ضار",
-    },
-
-    WRONG_MAPPING: {
-      en: "Incorrect Biometric Identity Mapping",
-      ar: "ربط بيومتري خاطئ بالهوية",
-    },
-
-    COMPLEX_IDENTITY_CONFLICT: {
-      en: "Complex Identity Conflict",
-      ar: "تعارض هوية معقد",
-    },
-
-    DUPLICATE_IDENTITY: {
-      en: "Duplicate Identity Registration",
-      ar: "تسجيل هوية مكررة",
-    },
-
-    DATA_MISMATCH: {
-      en: "Identity Data Mismatch",
-      ar: "اختلاف في بيانات الهوية",
-    },
-
-    ORPHAN_RECORD: {
-      en: "Orphan Biometric Record",
-      ar: "سجل بيومتري دون مرجع",
-    },
-  };
-
   return (
-    titles[type]?.[language]
-    ||
-    titles[type]?.en
-    ||
+    caseTitles[type]?.[
+      language
+    ] ||
+    caseTitles[type]?.en ||
     type
   );
 }
 
 
+function getExecutiveGroupLabel(
+  type,
+  t
+) {
+  const keys = {
+    DATA_MISMATCH:
+      "analytics.dataMismatch",
+
+    WRONG_MAPPING:
+      "analytics.wrongMapping",
+
+    PROTECTIVE_HARM:
+      "cases.protectiveHarmCases",
+
+    COMPLEX_IDENTITY_CONFLICT:
+      "analytics.complexIdentityConflict",
+
+    DUPLICATE_IDENTITY:
+      "analytics.duplicateIdentity",
+
+    ORPHAN_RECORD:
+      "analytics.orphan",
+  };
+
+  return keys[type]
+    ? t(keys[type])
+    : type;
+}
+
+
 /* =========================================================
-   SMALL COMPONENTS
+   PRIORITY BADGE
    ========================================================= */
 
 function PriorityBadge({
@@ -421,11 +708,18 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {t(`priorities.${priority}`)}
+      {t(
+        `priorities.${priority}`,
+        priority
+      )}
     </span>
   );
 }
 
+
+/* =========================================================
+   STATUS BADGE
+   ========================================================= */
 
 function StatusBadge({
   status,
@@ -433,45 +727,64 @@ function StatusBadge({
 }) {
   const labels = {
     READY_FOR_OFFICER_REVIEW:
-      t("common.officerReview"),
+      t(
+        "common.officerReview"
+      ),
 
     AWAITING_MANAGER_APPROVAL:
-      t("common.managerApproval"),
+      t(
+        "common.managerApproval"
+      ),
 
     AI_INVESTIGATED:
-      t("common.aiInvestigated"),
+      t(
+        "statuses.AI_INVESTIGATED"
+      ),
 
     VERIFIED_CLOSED:
-      t("common.verifiedClosed"),
+      t(
+        "statuses.VERIFIED_CLOSED"
+      ),
   };
 
 
   const styles = {
     READY_FOR_OFFICER_REVIEW: {
-      color: "#79a9ff",
-      dot: "#5c99ff",
+      color:
+        "#79a9ff",
+
+      dot:
+        "#5c99ff",
     },
 
     AWAITING_MANAGER_APPROVAL: {
-      color: "#ffbb5d",
-      dot: "#ffbb5d",
+      color:
+        "#ffbb5d",
+
+      dot:
+        "#ffbb5d",
     },
 
     AI_INVESTIGATED: {
-      color: "#79a9ff",
-      dot: "#5c99ff",
+      color:
+        "#79a9ff",
+
+      dot:
+        "#5c99ff",
     },
 
     VERIFIED_CLOSED: {
-      color: "#59cfa0",
-      dot: "#34d399",
+      color:
+        "#59cfa0",
+
+      dot:
+        "#34d399",
     },
   };
 
 
   const style =
-    styles[status]
-    ||
+    styles[status] ||
     styles.AI_INVESTIGATED;
 
 
@@ -507,6 +820,7 @@ function StatusBadge({
       }}
     >
       <span
+        aria-hidden="true"
         style={{
           width:
             "6px",
@@ -523,14 +837,17 @@ function StatusBadge({
       />
 
       {
-        labels[status]
-        ||
+        labels[status] ||
         status
       }
     </span>
   );
 }
 
+
+/* =========================================================
+   MINI METRIC
+   ========================================================= */
 
 function MiniMetric({
   icon: Icon,
@@ -543,11 +860,16 @@ function MiniMetric({
     <div className="metricCard">
       <div className="metricTop">
         <div className="metricIcon">
-          <Icon size={19} />
+          <Icon
+            size={19}
+            aria-hidden="true"
+          />
         </div>
 
         <span className="metricStatus">
-          {t("commandCenter.demoKpi")}
+          {t(
+            "commandCenter.demoKpi"
+          )}
         </span>
       </div>
 
@@ -578,6 +900,18 @@ export default function CasesPage() {
   } = useLanguage();
 
 
+  const isArabic =
+    language === "ar";
+
+
+  const navigationArrowStyle = {
+    transform:
+      isArabic
+        ? "rotate(180deg)"
+        : "none",
+  };
+
+
   return (
     <div className="appShell">
 
@@ -593,29 +927,47 @@ export default function CasesPage() {
         <header className="topbar">
           <div>
             <div className="eyebrow">
-              <FileSearch size={15} />
+              <FileSearch
+                size={15}
+                aria-hidden="true"
+              />
 
-              {t("cases.eyebrow")}
+              {t(
+                "cases.eyebrow"
+              )}
             </div>
 
             <h1>
-              {t("cases.title")}
+              {t(
+                "cases.title"
+              )}
             </h1>
 
             <p>
-              {t("cases.subtitle")}
+              {t(
+                "cases.subtitle"
+              )}
             </p>
           </div>
 
 
           <div className="topbarActions">
-            <button className="searchButton">
-              <Search size={18} />
+            <button
+              type="button"
+              className="searchButton"
+            >
+              <Search
+                size={18}
+                aria-hidden="true"
+              />
 
               <span>
-                {t("cases.searchPlaceholder")}
+                {t(
+                  "cases.searchPlaceholder"
+                )}
               </span>
             </button>
+
 
             <div className="profile">
               <div className="avatar">
@@ -630,11 +982,9 @@ export default function CasesPage() {
                 </strong>
 
                 <span>
-                  {
-                    language === "ar"
-                      ? "عمليات الهوية"
-                      : "Identity Operations"
-                  }
+                  {isArabic
+                    ? "عمليات الهوية"
+                    : "Identity Operations"}
                 </span>
               </div>
             </div>
@@ -648,26 +998,26 @@ export default function CasesPage() {
 
         <section className="alertBanner">
           <div className="alertIcon">
-            <ShieldAlert size={24} />
+            <ShieldAlert
+              size={24}
+              aria-hidden="true"
+            />
           </div>
 
           <div className="alertText">
             <strong>
-              {
-                language === "ar"
-                  ? "نموذج حماية الشخص الخطأ"
-                  : "Wrong-Person Protection Model"
-              }
+              {isArabic
+                ? "نموذج حماية الشخص الخطأ"
+                : "Wrong-Person Protection Model"}
             </strong>
 
             <span>
-              {
-                language === "ar"
-                  ? "تحتوي مجموعة البيانات التجريبية الاصطناعية على 9 حالات وقائية قد تؤدي فيها تعارضات الهوية إلى تأثير محتمل على الشخص الخطأ، ولذلك تحصل هذه الحالات على أولوية وقائية أعلى."
-                  : "The synthetic demo dataset contains 9 protective cases where identity conflicts may create potential wrong-person impact. These cases receive elevated protective priority."
-              }
+              {isArabic
+                ? `تحتوي مجموعة البيانات التجريبية الاصطناعية على ${PLATFORM_METRICS.wronglyAffectedCases} حالات وقائية قد تؤدي فيها تعارضات الهوية إلى تأثير محتمل على الشخص الخطأ، ولذلك تحصل هذه الحالات على أولوية وقائية أعلى.`
+                : `The synthetic demo dataset contains ${PLATFORM_METRICS.wronglyAffectedCases} protective cases where identity conflicts may create potential wrong-person impact. These cases receive elevated protective priority.`}
             </span>
           </div>
+
 
           <div
             className="priority immediate"
@@ -679,11 +1029,9 @@ export default function CasesPage() {
                 "0 12px",
             }}
           >
-            {
-              language === "ar"
-                ? "9 وقائية"
-                : "9 PROTECTIVE"
-            }
+            {isArabic
+              ? `${PLATFORM_METRICS.wronglyAffectedCases} وقائية`
+              : `${PLATFORM_METRICS.wronglyAffectedCases} PROTECTIVE`}
           </div>
         </section>
 
@@ -696,69 +1044,73 @@ export default function CasesPage() {
           <MiniMetric
             icon={FileSearch}
             label={
-              t("cases.totalCases")
+              t(
+                "cases.totalCases"
+              )
             }
             value={
-              PLATFORM_METRICS
-                .aggregatedCases
+              PLATFORM_METRICS.aggregatedCases
             }
             description={
-              language === "ar"
+              isArabic
                 ? "حالات سلامة الهوية المجمعة"
                 : "Aggregated identity integrity cases"
             }
             t={t}
           />
 
+
           <MiniMetric
             icon={CircleAlert}
             label={
-              t("cases.immediate")
+              t(
+                "cases.immediate"
+              )
             }
             value={
-              PLATFORM_METRICS
-                .priority
-                .immediate
+              PLATFORM_METRICS.priority.immediate
             }
             description={
-              language === "ar"
+              isArabic
                 ? "أولوية التدخل الوقائي"
                 : "Protective intervention priority"
             }
             t={t}
           />
 
+
           <MiniMetric
             icon={AlertTriangle}
             label={
-              t("cases.high")
+              t(
+                "cases.high"
+              )
             }
             value={
-              PLATFORM_METRICS
-                .priority
-                .high
+              PLATFORM_METRICS.priority.high
             }
             description={
-              language === "ar"
+              isArabic
                 ? "مراجعة بشرية عاجلة"
                 : "Accelerated human review"
             }
             t={t}
           />
 
+
           <MiniMetric
             icon={ShieldCheck}
             label={
-              language === "ar"
+              isArabic
                 ? "تم حسم الهوية"
                 : "Identity Resolved"
             }
             value={
-              PLATFORM_METRICS
-                .aggregatedCases
+              PLATFORM_METRICS.aggregatedCases -
+              PLATFORM_METRICS.unresolvedIdentityCases
             }
             description={
-              language === "ar"
+              isArabic
                 ? "حالات لديها هوية مرجعية مرجحة"
                 : "Cases with canonical identity candidates"
             }
@@ -768,7 +1120,9 @@ export default function CasesPage() {
 
 
         {/* ================================================
-            FILTERS
+            FILTER BAR
+
+            Visual-only demo controls.
             ================================================ */}
 
         <section
@@ -797,7 +1151,9 @@ export default function CasesPage() {
             }}
           >
             <button
+              type="button"
               className="primaryButton"
+              aria-pressed="true"
               style={{
                 width:
                   "auto",
@@ -809,7 +1165,9 @@ export default function CasesPage() {
                   "0 17px",
               }}
             >
-              {t("cases.allCases")}
+              {t(
+                "cases.allCases"
+              )}
 
               <span
                 style={{
@@ -818,83 +1176,93 @@ export default function CasesPage() {
                 }}
               >
                 {
-                  PLATFORM_METRICS
-                    .aggregatedCases
+                  PLATFORM_METRICS.aggregatedCases
                 }
               </span>
             </button>
 
 
-            <button className="searchButton">
-              {t("cases.immediate")}
+            <button
+              type="button"
+              className="searchButton"
+            >
+              {t(
+                "cases.immediate"
+              )}
 
               <span>
                 {
-                  PLATFORM_METRICS
-                    .priority
-                    .immediate
+                  PLATFORM_METRICS.priority.immediate
                 }
               </span>
             </button>
 
 
-            <button className="searchButton">
-              {t("cases.high")}
+            <button
+              type="button"
+              className="searchButton"
+            >
+              {t(
+                "cases.high"
+              )}
 
               <span>
                 {
-                  PLATFORM_METRICS
-                    .priority
-                    .high
+                  PLATFORM_METRICS.priority.high
                 }
               </span>
             </button>
 
 
-            <button className="searchButton">
-              {t("cases.medium")}
+            <button
+              type="button"
+              className="searchButton"
+            >
+              {t(
+                "cases.medium"
+              )}
 
               <span>
                 {
-                  PLATFORM_METRICS
-                    .priority
-                    .medium
+                  PLATFORM_METRICS.priority.medium
                 }
               </span>
             </button>
 
 
-            <button className="searchButton">
-              {
-                language === "ar"
-                  ? "تأثير على الشخص الخطأ"
-                  : "Wrong-Person Impact"
-              }
+            <button
+              type="button"
+              className="searchButton"
+            >
+              {isArabic
+                ? "تأثير على الشخص الخطأ"
+                : "Wrong-Person Impact"}
 
               <span>
                 {
-                  PLATFORM_METRICS
-                    .wronglyAffectedCases
+                  PLATFORM_METRICS.wronglyAffectedCases
                 }
               </span>
             </button>
 
 
-            <button className="searchButton">
-              {
-                language === "ar"
-                  ? "بانتظار الضابط"
-                  : "Waiting Officer"
-              }
+            <button
+              type="button"
+              className="searchButton"
+            >
+              {isArabic
+                ? "بانتظار الضابط"
+                : "Waiting Officer"}
             </button>
 
 
-            <button className="searchButton">
-              {
-                language === "ar"
-                  ? "بانتظار المدير"
-                  : "Waiting Manager"
-              }
+            <button
+              type="button"
+              className="searchButton"
+            >
+              {isArabic
+                ? "بانتظار المدير"
+                : "Waiting Manager"}
             </button>
           </div>
         </section>
@@ -908,21 +1276,18 @@ export default function CasesPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                {
-                  language === "ar"
-                    ? "مساحة عمل أولويات الذكاء الاصطناعي"
-                    : "AI PRIORITY WORKSPACE"
-                }
+                {isArabic
+                  ? "مساحة عمل أولويات الذكاء الاصطناعي"
+                  : "AI PRIORITY WORKSPACE"}
               </div>
 
               <h2>
-                {
-                  language === "ar"
-                    ? "حالات مطابقة الهوية"
-                    : "Identity Reconciliation Cases"
-                }
+                {isArabic
+                  ? "حالات مطابقة الهوية"
+                  : "Identity Reconciliation Cases"}
               </h2>
             </div>
+
 
             <div
               style={{
@@ -942,13 +1307,14 @@ export default function CasesPage() {
                   "10px",
               }}
             >
-              <Activity size={15} />
+              <Activity
+                size={15}
+                aria-hidden="true"
+              />
 
-              {
-                language === "ar"
-                  ? "عرض المراقبة الاصطناعية"
-                  : "Synthetic monitoring view"
-              }
+              {isArabic
+                ? "عرض المراقبة الاصطناعية"
+                : "Synthetic monitoring view"}
             </div>
           </div>
 
@@ -963,31 +1329,45 @@ export default function CasesPage() {
               <thead>
                 <tr>
                   <th>
-                    {t("common.case")}
+                    {t(
+                      "common.case"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.type")}
+                    {t(
+                      "common.type"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.biometric")}
+                    {t(
+                      "common.biometric"
+                    )}
                   </th>
 
                   <th>
-                    {t("cases.identityChange")}
+                    {t(
+                      "cases.identityChange"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.confidence")}
+                    {t(
+                      "common.confidence"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.risk")}
+                    {t(
+                      "common.risk"
+                    )}
                   </th>
 
                   <th>
-                    {t("common.harm")}
+                    {t(
+                      "common.harm"
+                    )}
                   </th>
 
                   <th>
@@ -997,333 +1377,357 @@ export default function CasesPage() {
                   </th>
 
                   <th>
-                    {t("common.priority")}
+                    {t(
+                      "common.priority"
+                    )}
                   </th>
 
-                  <th></th>
+                  <th
+                    aria-label={
+                      t(
+                        "common.open"
+                      )
+                    }
+                  />
                 </tr>
               </thead>
 
 
               <tbody>
-                {
-                  cases.map(
-                    (item) => (
-                      <tr key={item.id}>
-
-                        <td>
-                          {
-                            item.hasDetail
-                              ? (
-                                <Link
-                                  href={
-                                    `/cases/${item.id}`
-                                  }
-                                  className="caseId"
-                                  style={{
-                                    textDecoration:
-                                      "none",
-
-                                    display:
-                                      "inline-block",
-                                  }}
-                                >
-                                  {item.id}
-                                </Link>
-                              )
-                              : (
-                                <span
-                                  className="caseId"
-                                  style={{
-                                    display:
-                                      "inline-block",
-                                  }}
-                                >
-                                  {item.id}
-                                </span>
-                              )
-                          }
-
-                          <StatusBadge
-                            status={
-                              item.status
+                {representativeCases.map(
+                  (item) => (
+                    <tr
+                      key={item.id}
+                    >
+                      <td>
+                        {item.hasDetail ? (
+                          <Link
+                            href={
+                              `/cases/${item.id}`
                             }
-                            t={t}
-                          />
-                        </td>
+                            className="caseId"
+                            style={{
+                              textDecoration:
+                                "none",
 
-
-                        <td>
-                          <div
+                              display:
+                                "inline-block",
+                            }}
+                          >
+                            <span dir="ltr">
+                              {item.id}
+                            </span>
+                          </Link>
+                        ) : (
+                          <span
+                            className="caseId"
                             style={{
                               display:
-                                "flex",
-
-                              alignItems:
-                                "center",
-
-                              gap:
-                                "8px",
+                                "inline-block",
                             }}
+                            dir="ltr"
                           >
-                            {
-                              item.affected
-                                ? (
-                                  <ShieldAlert
-                                    size={15}
-                                    color="#ff6f7e"
-                                  />
-                                )
-                                : (
-                                  <Fingerprint
-                                    size={15}
-                                    color="#609aff"
-                                  />
-                                )
-                            }
+                            {item.id}
+                          </span>
+                        )}
 
-                            <div>
-                              <div
-                                style={{
-                                  color:
-                                    "#d2deec",
+                        <StatusBadge
+                          status={
+                            item.status
+                          }
+                          t={t}
+                        />
+                      </td>
 
-                                  fontWeight:
-                                    650,
 
-                                  fontSize:
-                                    "11px",
+                      <td>
+                        <div
+                          style={{
+                            display:
+                              "flex",
 
-                                  lineHeight:
-                                    1.45,
-                                }}
-                              >
-                                {
-                                  getCaseTitle(
-                                    item.type,
-                                    language
-                                  )
-                                }
-                              </div>
+                            alignItems:
+                              "center",
 
-                              <div
-                                style={{
-                                  color:
-                                    "#71839a",
+                            gap:
+                              "8px",
+                          }}
+                        >
+                          {item.affected ? (
+                            <ShieldAlert
+                              size={15}
+                              color="#ff6f7e"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Fingerprint
+                              size={15}
+                              color="#609aff"
+                              aria-hidden="true"
+                            />
+                          )}
 
-                                  fontSize:
-                                    "10px",
 
-                                  lineHeight:
-                                    1.4,
+                          <div>
+                            <div
+                              style={{
+                                color:
+                                  "#d2deec",
 
-                                  marginTop:
-                                    "4px",
-                                }}
-                              >
-                                {
-                                  getTypeLabel(
-                                    item.type,
-                                    language,
-                                    t
-                                  )
-                                }
+                                fontWeight:
+                                  650,
 
-                                {" · "}
+                                fontSize:
+                                  "11px",
 
-                                {item.findings}
+                                lineHeight:
+                                  1.45,
+                              }}
+                            >
+                              {getCaseTitle(
+                                item.type,
+                                language
+                              )}
+                            </div>
 
-                                {
-                                  language === "ar"
-                                    ? " نتائج"
-                                    : " findings"
-                                }
-                              </div>
+                            <div
+                              style={{
+                                color:
+                                  "#71839a",
+
+                                fontSize:
+                                  "10px",
+
+                                lineHeight:
+                                  1.4,
+
+                                marginTop:
+                                  "4px",
+                              }}
+                            >
+                              {getTypeLabel(
+                                item.type,
+                                t
+                              )}
+
+                              {" · "}
+
+                              {
+                                item.findings
+                              }
+
+                              {isArabic
+                                ? " نتائج"
+                                : " findings"}
                             </div>
                           </div>
-                        </td>
+                        </div>
+                      </td>
 
 
-                        <td className="mono">
-                          {item.biometric}
-                        </td>
+                      <td
+                        className="mono"
+                        dir="ltr"
+                      >
+                        {item.biometric}
+                      </td>
 
 
-                        <td>
-                          <div className="identityChange">
-                            <span className="oldIdentity">
-                              {item.current}
-                            </span>
-
-                            <ChevronRight size={14} />
-
-                            <span className="newIdentity">
-                              {item.proposed}
-                            </span>
-                          </div>
-                        </td>
-
-
-                        <td>
-                          <span className="confidence">
-                            {item.confidence}%
+                      <td>
+                        <div
+                          className="identityChange"
+                          dir="ltr"
+                        >
+                          <span className="oldIdentity">
+                            {item.current}
                           </span>
-                        </td>
 
+                          <ChevronRight
+                            size={14}
+                            aria-hidden="true"
+                          />
 
-                        <td>
-                          <span
-                            style={{
-                              color:
-                                item.risk >= 90
-                                  ? "#ff7d8b"
-                                  : item.risk >= 80
-                                    ? "#ffbd67"
-                                    : "#aab9ca",
-
-                              fontWeight:
-                                750,
-                            }}
-                          >
-                            {item.risk}
+                          <span className="newIdentity">
+                            {item.proposed}
                           </span>
-                        </td>
+                        </div>
+                      </td>
 
 
-                        <td>
-                          <span
-                            style={{
-                              color:
-                                item.harm >= 90
-                                  ? "#ff7d8b"
+                      <td>
+                        <span className="confidence">
+                          {
+                            item.confidence
+                          }%
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <span
+                          style={{
+                            color:
+                              item.risk >= 90
+                                ? "#ff7d8b"
+                                : item.risk >= 80
+                                  ? "#ffbd67"
                                   : "#aab9ca",
 
-                              fontWeight:
-                                750,
-                            }}
-                          >
-                            {item.harm}
-                          </span>
-                        </td>
+                            fontWeight:
+                              750,
+                          }}
+                        >
+                          {item.risk}
+                        </span>
+                      </td>
 
 
-                        <td>
-                          <span
-                            style={{
-                              color:
-                                item.protective >= 95
-                                  ? "#ff7d8b"
-                                  : "#82aeff",
+                      <td>
+                        <span
+                          style={{
+                            color:
+                              item.harm >= 90
+                                ? "#ff7d8b"
+                                : "#aab9ca",
 
-                              fontWeight:
-                                750,
-                            }}
-                          >
-                            {item.protective}
-                          </span>
-                        </td>
-
-
-                        <td>
-                          <PriorityBadge
-                            priority={
-                              item.priority
-                            }
-                            t={t}
-                          />
-                        </td>
+                            fontWeight:
+                              750,
+                          }}
+                        >
+                          {item.harm}
+                        </span>
+                      </td>
 
 
-                        <td>
+                      <td>
+                        <span
+                          style={{
+                            color:
+                              item.protective >= 95
+                                ? "#ff7d8b"
+                                : "#82aeff",
+
+                            fontWeight:
+                              750,
+                          }}
+                        >
                           {
-                            item.hasDetail
-                              ? (
-                                <Link
-                                  href={
-                                    `/cases/${item.id}`
-                                  }
-                                  aria-label={
-                                    `${t(
-                                      "common.open"
-                                    )} ${item.id}`
-                                  }
-                                  style={{
-                                    width:
-                                      "31px",
-
-                                    height:
-                                      "31px",
-
-                                    borderRadius:
-                                      "9px",
-
-                                    display:
-                                      "grid",
-
-                                    placeItems:
-                                      "center",
-
-                                    border:
-                                      "1px solid rgba(255,255,255,0.07)",
-
-                                    background:
-                                      "rgba(255,255,255,0.025)",
-
-                                    color:
-                                      "#79a5e6",
-
-                                    textDecoration:
-                                      "none",
-                                  }}
-                                >
-                                  <ChevronRight size={16} />
-                                </Link>
-                              )
-                              : (
-                                <span
-                                  title={
-                                    t(
-                                      "cases.detailUnavailable"
-                                    )
-                                  }
-                                  style={{
-                                    width:
-                                      "31px",
-
-                                    height:
-                                      "31px",
-
-                                    borderRadius:
-                                      "9px",
-
-                                    display:
-                                      "grid",
-
-                                    placeItems:
-                                      "center",
-
-                                    border:
-                                      "1px solid rgba(255,255,255,0.045)",
-
-                                    background:
-                                      "rgba(255,255,255,0.015)",
-
-                                    color:
-                                      "#52647b",
-
-                                    cursor:
-                                      "default",
-                                  }}
-                                >
-                                  <ChevronRight size={16} />
-                                </span>
-                              )
+                            item.protective
                           }
-                        </td>
-                      </tr>
-                    )
+                        </span>
+                      </td>
+
+
+                      <td>
+                        <PriorityBadge
+                          priority={
+                            item.priority
+                          }
+                          t={t}
+                        />
+                      </td>
+
+
+                      <td>
+                        {item.hasDetail ? (
+                          <Link
+                            href={
+                              `/cases/${item.id}`
+                            }
+                            aria-label={`${t(
+                              "common.open"
+                            )} ${item.id}`}
+                            style={{
+                              width:
+                                "31px",
+
+                              height:
+                                "31px",
+
+                              borderRadius:
+                                "9px",
+
+                              display:
+                                "grid",
+
+                              placeItems:
+                                "center",
+
+                              border:
+                                "1px solid rgba(255,255,255,0.07)",
+
+                              background:
+                                "rgba(255,255,255,0.025)",
+
+                              color:
+                                "#79a5e6",
+
+                              textDecoration:
+                                "none",
+                            }}
+                          >
+                            <ChevronRight
+                              size={16}
+                              style={
+                                navigationArrowStyle
+                              }
+                              aria-hidden="true"
+                            />
+                          </Link>
+                        ) : (
+                          <span
+                            title={
+                              t(
+                                "cases.detailUnavailable"
+                              )
+                            }
+                            aria-label={
+                              t(
+                                "cases.detailUnavailable"
+                              )
+                            }
+                            style={{
+                              width:
+                                "31px",
+
+                              height:
+                                "31px",
+
+                              borderRadius:
+                                "9px",
+
+                              display:
+                                "grid",
+
+                              placeItems:
+                                "center",
+
+                              border:
+                                "1px solid rgba(255,255,255,0.045)",
+
+                              background:
+                                "rgba(255,255,255,0.015)",
+
+                              color:
+                                "#52647b",
+
+                              cursor:
+                                "default",
+                            }}
+                          >
+                            <ChevronRight
+                              size={16}
+                              style={
+                                navigationArrowStyle
+                              }
+                              aria-hidden="true"
+                            />
+                          </span>
+                        )}
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -1360,19 +1764,15 @@ export default function CasesPage() {
             }}
           >
             <span>
-              {
-                language === "ar"
-                  ? "عرض 12 حالة تمثيلية من أصل 53 حالة مجمعة"
-                  : "Showing 12 representative cases from 53 aggregated cases"
-              }
+              {isArabic
+                ? `عرض ${representativeCases.length} حالة تمثيلية من أصل ${PLATFORM_METRICS.aggregatedCases} حالة مجمعة`
+                : `Showing ${representativeCases.length} representative cases from ${PLATFORM_METRICS.aggregatedCases} aggregated cases`}
             </span>
 
             <span>
-              {
-                language === "ar"
-                  ? "الترتيب حسب الأولوية الوقائية ← الضرر ← المخاطر ← ثقة الذكاء الاصطناعي"
-                  : "Sorted by Protective Priority → Harm → Risk → AI Confidence"
-              }
+              {isArabic
+                ? "الترتيب حسب الأولوية الوقائية ← الضرر ← المخاطر ← ثقة الذكاء الاصطناعي"
+                : "Sorted by Protective Priority → Harm → Risk → AI Confidence"}
             </span>
           </div>
         </section>
@@ -1389,6 +1789,9 @@ export default function CasesPage() {
               "1fr 1fr",
           }}
         >
+
+          {/* EXECUTIVE GROUPING */}
+
           <div
             className="panel"
             style={{
@@ -1399,70 +1802,29 @@ export default function CasesPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {
-                    language === "ar"
-                      ? "التجميع التنفيذي للحالات"
-                      : "EXECUTIVE CASE GROUPING"
-                  }
+                  {isArabic
+                    ? "التجميع التنفيذي للحالات"
+                    : "EXECUTIVE CASE GROUPING"}
                 </div>
 
                 <h2>
-                  {
-                    language === "ar"
-                      ? "فئات سلامة الهوية"
-                      : "Identity Integrity Categories"
-                  }
+                  {isArabic
+                    ? "فئات سلامة الهوية"
+                    : "Identity Integrity Categories"}
                 </h2>
               </div>
 
-              <Fingerprint size={22} />
+              <Fingerprint
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
-            {[
-              [
-                t(
-                  "analytics.dataMismatch"
-                ),
-                15,
-              ],
-              [
-                t(
-                  "analytics.wrongMapping"
-                ),
-                11,
-              ],
-              [
-                t(
-                  "cases.protectiveHarmCases"
-                ),
-                9,
-              ],
-              [
-                t(
-                  "analytics.complexIdentityConflict"
-                ),
-                8,
-              ],
-              [
-                t(
-                  "analytics.duplicateIdentity"
-                ),
-                6,
-              ],
-              [
-                t(
-                  "analytics.orphan"
-                ),
-                4,
-              ],
-            ].map(
-              ([
-                label,
-                value,
-              ]) => (
+            {EXECUTIVE_CASE_BREAKDOWN.map(
+              (item) => (
                 <div
-                  key={label}
+                  key={item.type}
                   className="detailRow"
                   style={{
                     margin:
@@ -1470,11 +1832,14 @@ export default function CasesPage() {
                   }}
                 >
                   <span>
-                    {label}
+                    {getExecutiveGroupLabel(
+                      item.type,
+                      t
+                    )}
                   </span>
 
                   <strong>
-                    {value}
+                    {item.count}
                   </strong>
                 </div>
               )
@@ -1496,14 +1861,14 @@ export default function CasesPage() {
                   1.6,
               }}
             >
-              {
-                language === "ar"
-                  ? "الحالات الوقائية وحالات الضرر هي تجميع تنفيذي يجمع حالات تأثير الضرر وتعارضات الهوية الحرجة المرتبطة بالشخص الخطأ."
-                  : "Protective / Harm Cases is an executive grouping combining harm-impact and critical wrong-person identity conflicts."
-              }
+              {isArabic
+                ? "الحالات الوقائية وحالات الضرر هي تجميع تنفيذي يجمع حالات تأثير الضرر وتعارضات الهوية الحرجة المرتبطة بالشخص الخطأ."
+                : "Protective / Harm Cases is an executive grouping combining harm-impact and critical wrong-person identity conflicts."}
             </div>
           </div>
 
+
+          {/* SAFETY CONTROLS */}
 
           <div
             className="panel"
@@ -1515,23 +1880,22 @@ export default function CasesPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {
-                    language === "ar"
-                      ? "نموذج سلامة الحالات"
-                      : "CASE SAFETY MODEL"
-                  }
+                  {isArabic
+                    ? "نموذج سلامة الحالات"
+                    : "CASE SAFETY MODEL"}
                 </div>
 
                 <h2>
-                  {
-                    language === "ar"
-                      ? "ضوابط الذكاء الاصطناعي الوقائية"
-                      : "Protective AI Controls"
-                  }
+                  {isArabic
+                    ? "ضوابط الذكاء الاصطناعي الوقائية"
+                    : "Protective AI Controls"}
                 </h2>
               </div>
 
-              <ShieldCheck size={22} />
+              <ShieldCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1542,92 +1906,88 @@ export default function CasesPage() {
                   "16px",
               }}
             >
-              <ShieldCheck size={21} />
+              <ShieldCheck
+                size={21}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
-                  {
-                    language === "ar"
-                      ? "المرجع الرئيسي للقراءة فقط"
-                      : "Master Reference Read Only"
-                  }
+                  {isArabic
+                    ? "المرجع الرئيسي للقراءة فقط"
+                    : "Master Reference Read Only"}
                 </strong>
 
                 <span>
-                  {
-                    language === "ar"
-                      ? "لا يمكن للذكاء الاصطناعي تعديل مصدر الهوية المعتمد تلقائيًا."
-                      : "AI cannot automatically modify the authoritative identity source."
-                  }
+                  {isArabic
+                    ? "لا يمكن للذكاء الاصطناعي تعديل مصدر الهوية المعتمد تلقائيًا."
+                    : "AI cannot automatically modify the authoritative identity source."}
                 </span>
               </div>
             </div>
 
 
             <div className="integrityInfo">
-              <UserCheck size={21} />
+              <UserCheck
+                size={21}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
-                  {
-                    language === "ar"
-                      ? "اعتماد بشري من مستويين"
-                      : "Two-Level Human Approval"
-                  }
+                  {isArabic
+                    ? "اعتماد بشري من مستويين"
+                    : "Two-Level Human Approval"}
                 </strong>
 
                 <span>
-                  {
-                    language === "ar"
-                      ? "يلزم اعتماد ضابط المراقبة والمدير قبل تنفيذ أي تصحيح حساس."
-                      : "Monitoring Officer and Manager approval are required before sensitive correction execution."
-                  }
+                  {isArabic
+                    ? "يلزم اعتماد ضابط المراقبة والمدير قبل تنفيذ أي تصحيح حساس."
+                    : "Monitoring Officer and Manager approval are required before sensitive correction execution."}
                 </span>
               </div>
             </div>
 
 
             <div className="integrityInfo">
-              <BadgeCheck size={21} />
+              <BadgeCheck
+                size={21}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
-                  {
-                    language === "ar"
-                      ? "التحقق بعد التصحيح"
-                      : "Post-Correction Verification"
-                  }
+                  {isArabic
+                    ? "التحقق بعد التصحيح"
+                    : "Post-Correction Verification"}
                 </strong>
 
                 <span>
-                  {
-                    language === "ar"
-                      ? "يجب أن ينجح كل تصحيح منفذ في التحقق قبل إمكانية إغلاق الحالة."
-                      : "Every executed correction must pass verification before the case can be closed."
-                  }
+                  {isArabic
+                    ? "يجب أن ينجح كل تصحيح منفذ في التحقق قبل إمكانية إغلاق الحالة."
+                    : "Every executed correction must pass verification before the case can be closed."}
                 </span>
               </div>
             </div>
 
 
             <div className="integrityInfo">
-              <CheckCircle2 size={21} />
+              <CheckCircle2
+                size={21}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
-                  {
-                    language === "ar"
-                      ? "يلزم الإغلاق بعد التحقق"
-                      : "Verified Closure Required"
-                  }
+                  {isArabic
+                    ? "يلزم الإغلاق بعد التحقق"
+                    : "Verified Closure Required"}
                 </strong>
 
                 <span>
-                  {
-                    language === "ar"
-                      ? "نجاح التنفيذ وحده لا يغلق الحالة؛ يجب أن يؤكد التحقق صحة علاقة الهوية المصححة."
-                      : "Successful execution alone does not close a case. Verification must confirm the corrected identity relationship."
-                  }
+                  {isArabic
+                    ? "نجاح التنفيذ وحده لا يغلق الحالة؛ يجب أن يؤكد التحقق صحة علاقة الهوية المصححة."
+                    : "Successful execution alone does not close a case. Verification must confirm the corrected identity relationship."}
                 </span>
               </div>
             </div>
@@ -1641,15 +2001,26 @@ export default function CasesPage() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
-            {t("footer.demo")}
+
+            {t(
+              "footer.demo"
+            )}
           </span>
 
           <div>
-            <Activity size={15} />
+            <Activity
+              size={15}
+              aria-hidden="true"
+            />
 
-            {t("footer.monitoring")}
+            {t(
+              "footer.monitoring"
+            )}
           </div>
         </footer>
 

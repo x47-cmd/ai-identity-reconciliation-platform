@@ -1,21 +1,19 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
   Activity,
   AlertTriangle,
-  BadgeCheck,
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
   CircleAlert,
   Database,
-  FileCheck2,
   FileSearch,
   Fingerprint,
   Gauge,
   GitCompareArrows,
-  HardDrive,
-  LayoutDashboard,
   Link2,
   LockKeyhole,
   RefreshCcw,
@@ -23,8 +21,6 @@ import {
   Server,
   ShieldAlert,
   ShieldCheck,
-  UserCheck,
-  Users,
 } from "lucide-react";
 
 
@@ -207,133 +203,6 @@ const integrityChecks = [
 
 
 /* =========================================================
-   SIDEBAR
-   ========================================================= */
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-          <span>Cases</span>
-
-          <span className="navCount">
-            53
-          </span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/cases"
-        >
-          <BrainCircuit size={19} />
-          <span>AI Investigations</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/officer-review"
-        >
-          <UserCheck size={19} />
-          <span>Officer Review</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/manager-approval"
-        >
-          <BadgeCheck size={19} />
-          <span>Manager Approval</span>
-        </Link>
-
-        <Link
-          className="navItem"
-          href="/corrections-verification"
-        >
-          <FileCheck2 size={19} />
-
-          <span>
-            Corrections & Verification
-          </span>
-        </Link>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/analytics"
-        >
-          <Gauge size={19} />
-          <span>Analytics</span>
-        </Link>
-
-        <Link
-          className="navItem active"
-          href="/data-integrity"
-        >
-          <Database size={19} />
-          <span>Data Integrity</span>
-        </Link>
-
-        <div className="navItem">
-          <Activity size={19} />
-          <span>Audit Trail</span>
-        </div>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
-
-
-/* =========================================================
    METRIC CARD
    ========================================================= */
 
@@ -454,6 +323,48 @@ function SeverityBadge({
 
 
 /* =========================================================
+   READ ONLY BADGE
+   ========================================================= */
+
+function ReadOnlyBadge() {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+
+        minHeight: "24px",
+
+        padding:
+          "0 9px",
+
+        borderRadius:
+          "7px",
+
+        color:
+          "#59cfa0",
+
+        background:
+          "rgba(52,211,153,0.07)",
+
+        border:
+          "1px solid rgba(52,211,153,0.13)",
+
+        fontSize:
+          "8px",
+
+        fontWeight:
+          800,
+      }}
+    >
+      READ ONLY
+    </span>
+  );
+}
+
+
+/* =========================================================
    STATUS
    ========================================================= */
 
@@ -488,7 +399,13 @@ function HealthStatus({
 export default function DataIntegrityPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
+
 
       <main className="mainContent">
 
@@ -726,9 +643,7 @@ export default function DataIntegrityPage() {
                   marginTop: "16px",
                 }}
               >
-                <SeverityBadge
-                  severity="MEDIUM"
-                />
+                <ReadOnlyBadge />
               </div>
 
               <div
@@ -742,7 +657,7 @@ export default function DataIntegrityPage() {
                   marginTop: "9px",
                 }}
               >
-                READ ONLY · SOURCE OF TRUTH
+                SOURCE OF TRUTH · PROTECTED
               </div>
             </div>
 
@@ -1351,6 +1266,7 @@ export default function DataIntegrityPage() {
                               textDecoration:
                                 "none",
                             }}
+                            aria-label={`View ${issue.label} cases`}
                           >
                             <ChevronRight size={15} />
                           </Link>
@@ -1504,6 +1420,8 @@ export default function DataIntegrityPage() {
             marginTop: "14px",
           }}
         >
+
+          {/* RECONCILIATION RUNS */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -1835,6 +1753,10 @@ export default function DataIntegrityPage() {
         </section>
 
 
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
             AI Identity Reconciliation Platform
@@ -1843,9 +1765,11 @@ export default function DataIntegrityPage() {
 
           <div>
             <Activity size={15} />
+
             Continuous Reconciliation Active
           </div>
         </footer>
+
       </main>
     </div>
   );

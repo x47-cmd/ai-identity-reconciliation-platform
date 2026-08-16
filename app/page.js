@@ -3,9 +3,14 @@ import Link from "next/link";
 import Sidebar from "./components/Sidebar";
 
 import {
+  VERIFIED_DEMO_CASE,
+} from "./lib/demo-data";
+
+import {
   Activity,
   AlertTriangle,
   BrainCircuit,
+  CheckCircle2,
   ChevronRight,
   CircleAlert,
   Clock3,
@@ -19,46 +24,50 @@ import {
 } from "lucide-react";
 
 
+/* =========================================================
+   COMMAND CENTER DEMO METRICS
+
+   Synthetic Demo Only
+   ========================================================= */
+
 const stats = [
   {
-    title: "Active Cases",
+    title: "Total Cases",
     value: "53",
-    subtitle: "AI-generated investigation cases",
+    subtitle: "Aggregated identity integrity cases",
     icon: FileSearch,
   },
   {
     title: "Immediate Priority",
     value: "9",
-    subtitle: "Protective intervention required",
+    subtitle: "Protective intervention priority",
     icon: CircleAlert,
   },
   {
     title: "High Priority",
     value: "23",
-    subtitle: "Require accelerated review",
+    subtitle: "Require accelerated human review",
     icon: AlertTriangle,
   },
   {
     title: "Unresolved Identity",
     value: "0",
-    subtitle: "All cases have identity candidates",
+    subtitle: "All cases have canonical candidates",
     icon: UserCheck,
   },
 ];
 
 
+/* =========================================================
+   CURRENT ATTENTION QUEUE
+
+   CASE-2026-00001 is intentionally excluded because the
+   verified E2E demonstration case is already VERIFIED_CLOSED.
+
+   Only cases with implemented detail routes are linked.
+   ========================================================= */
+
 const cases = [
-  {
-    id: "CASE-2026-00001",
-    type: "HARM IMPACT",
-    biometric: "BIO-000166",
-    current: "REF-002711",
-    proposed: "REF-001009",
-    confidence: "99.99%",
-    priority: "IMMEDIATE",
-    status: "Ready for Review",
-    protective: "98.0",
-  },
   {
     id: "CASE-2026-00002",
     type: "CRITICAL HARM CONFLICT",
@@ -67,8 +76,9 @@ const cases = [
     proposed: "REF-000621",
     confidence: "99.98%",
     priority: "IMMEDIATE",
-    status: "Ready for Review",
+    status: "Awaiting Human Review",
     protective: "97.5",
+    hasDetail: false,
   },
   {
     id: "CASE-2026-00003",
@@ -78,8 +88,9 @@ const cases = [
     proposed: "REF-001337",
     confidence: "99.97%",
     priority: "IMMEDIATE",
-    status: "Ready for Review",
+    status: "AI Investigated",
     protective: "97.0",
+    hasDetail: false,
   },
   {
     id: "CASE-2026-00014",
@@ -91,6 +102,7 @@ const cases = [
     priority: "HIGH",
     status: "AI Investigated",
     protective: "85.0",
+    hasDetail: true,
   },
 ];
 
@@ -124,8 +136,15 @@ const agents = [
 ];
 
 
-function MetricCard({ item }) {
-  const Icon = item.icon;
+/* =========================================================
+   SMALL COMPONENTS
+   ========================================================= */
+
+function MetricCard({
+  item,
+}) {
+  const Icon =
+    item.icon;
 
   return (
     <div className="metricCard">
@@ -135,7 +154,7 @@ function MetricCard({ item }) {
         </div>
 
         <span className="metricStatus">
-          LIVE
+          DEMO KPI
         </span>
       </div>
 
@@ -155,7 +174,9 @@ function MetricCard({ item }) {
 }
 
 
-function PriorityBadge({ priority }) {
+function PriorityBadge({
+  priority,
+}) {
   const className =
     priority === "IMMEDIATE"
       ? "priority immediate"
@@ -170,6 +191,10 @@ function PriorityBadge({ priority }) {
   );
 }
 
+
+/* =========================================================
+   PAGE
+   ========================================================= */
 
 export default function Home() {
   return (
@@ -252,10 +277,10 @@ export default function Home() {
             </strong>
 
             <span>
-              9 cases are currently prioritized
-              because another person may be
-              wrongly affected by an identity
-              conflict.
+              9 protective cases were identified
+              in the current synthetic demo dataset
+              where identity conflicts may create
+              potential wrong-person impact.
             </span>
           </div>
 
@@ -263,7 +288,8 @@ export default function Home() {
             href="/cases"
             className="bannerButton"
             style={{
-              textDecoration: "none",
+              textDecoration:
+                "none",
             }}
           >
             Review Cases
@@ -278,12 +304,20 @@ export default function Home() {
             ================================================ */}
 
         <section className="statsGrid">
-          {stats.map((item) => (
-            <MetricCard
-              key={item.title}
-              item={item}
-            />
-          ))}
+          {
+            stats.map(
+              (item) => (
+                <MetricCard
+                  key={
+                    item.title
+                  }
+                  item={
+                    item
+                  }
+                />
+              )
+            )
+          }
         </section>
 
 
@@ -313,7 +347,8 @@ export default function Home() {
                 href="/cases"
                 className="textButton"
                 style={{
-                  textDecoration: "none",
+                  textDecoration:
+                    "none",
                 }}
               >
                 View all cases
@@ -337,60 +372,87 @@ export default function Home() {
                 </thead>
 
                 <tbody>
-                  {cases.map((item) => (
-                    <tr key={item.id}>
-                      <td>
-                        <Link
-                          href={`/cases/${item.id}`}
-                          className="caseId"
-                          style={{
-                            textDecoration: "none",
-                            display: "inline-block",
-                          }}
-                        >
-                          {item.id}
-                        </Link>
+                  {
+                    cases.map(
+                      (item) => (
+                        <tr key={item.id}>
+                          <td>
+                            {
+                              item.hasDetail
+                                ? (
+                                  <Link
+                                    href={
+                                      `/cases/${item.id}`
+                                    }
+                                    className="caseId"
+                                    style={{
+                                      textDecoration:
+                                        "none",
 
-                        <div className="caseStatus">
-                          {item.status}
-                        </div>
-                      </td>
+                                      display:
+                                        "inline-block",
+                                    }}
+                                  >
+                                    {item.id}
+                                  </Link>
+                                )
+                                : (
+                                  <span
+                                    className="caseId"
+                                    style={{
+                                      display:
+                                        "inline-block",
+                                    }}
+                                  >
+                                    {item.id}
+                                  </span>
+                                )
+                            }
 
-                      <td>
-                        {item.type}
-                      </td>
+                            <div className="caseStatus">
+                              {item.status}
+                            </div>
+                          </td>
 
-                      <td className="mono">
-                        {item.biometric}
-                      </td>
+                          <td>
+                            {item.type}
+                          </td>
 
-                      <td>
-                        <div className="identityChange">
-                          <span className="oldIdentity">
-                            {item.current}
-                          </span>
+                          <td className="mono">
+                            {item.biometric}
+                          </td>
 
-                          <ChevronRight size={14} />
+                          <td>
+                            <div className="identityChange">
+                              <span className="oldIdentity">
+                                {item.current}
+                              </span>
 
-                          <span className="newIdentity">
-                            {item.proposed}
-                          </span>
-                        </div>
-                      </td>
+                              <ChevronRight size={14} />
 
-                      <td>
-                        <span className="confidence">
-                          {item.confidence}
-                        </span>
-                      </td>
+                              <span className="newIdentity">
+                                {item.proposed}
+                              </span>
+                            </div>
+                          </td>
 
-                      <td>
-                        <PriorityBadge
-                          priority={item.priority}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+                          <td>
+                            <span className="confidence">
+                              {item.confidence}
+                            </span>
+                          </td>
+
+                          <td>
+                            <PriorityBadge
+                              priority={
+                                item.priority
+                              }
+                            />
+                          </td>
+                        </tr>
+                      )
+                    )
+                  }
                 </tbody>
               </table>
             </div>
@@ -418,49 +480,56 @@ export default function Home() {
 
 
             <div className="agentList">
-              {agents.map((agent) => {
-                const Icon = agent.icon;
+              {
+                agents.map(
+                  (agent) => {
+                    const Icon =
+                      agent.icon;
 
-                return (
-                  <div
-                    className="agentItem"
-                    key={agent.name}
-                  >
-                    <div className="agentLeft">
-                      <div className="agentIcon">
-                        <Icon size={18} />
+                    return (
+                      <div
+                        className="agentItem"
+                        key={
+                          agent.name
+                        }
+                      >
+                        <div className="agentLeft">
+                          <div className="agentIcon">
+                            <Icon size={18} />
+                          </div>
+
+                          <div>
+                            <strong>
+                              {agent.name}
+                            </strong>
+
+                            <span>
+                              Operational
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="agentStatus">
+                          <div className="greenDot" />
+
+                          {agent.status}
+                        </div>
                       </div>
-
-                      <div>
-                        <strong>
-                          {agent.name}
-                        </strong>
-
-                        <span>
-                          Operational
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="agentStatus">
-                      <div className="greenDot" />
-
-                      {agent.status}
-                    </div>
-                  </div>
-                );
-              })}
+                    );
+                  }
+                )
+              }
             </div>
 
 
             <div className="agentFooter">
               <div>
                 <span>
-                  Last reconciliation
+                  Environment
                 </span>
 
                 <strong>
-                  Just now
+                  Synthetic Demo
                 </strong>
               </div>
 
@@ -470,7 +539,7 @@ export default function Home() {
                 </span>
 
                 <strong>
-                  Healthy
+                  Operational
                 </strong>
               </div>
             </div>
@@ -479,30 +548,93 @@ export default function Home() {
 
 
         {/* ================================================
-            HIGHEST PRIORITY CASE + PLATFORM HEALTH
+            VERIFIED DEMO CASE + PLATFORM HEALTH
             ================================================ */}
 
         <section className="lowerGrid">
 
           {/* ==============================================
-              HIGHEST PRIORITY CASE
+              LATEST VERIFIED PROTECTIVE CASE
               ============================================== */}
 
           <div className="panel selectedCase">
             <div className="caseHeroHeader">
               <div>
                 <div className="panelEyebrow">
-                  HIGHEST PROTECTIVE PRIORITY
+                  LATEST VERIFIED PROTECTIVE CASE
                 </div>
 
                 <h2>
-                  CASE-2026-00001
+                  {VERIFIED_DEMO_CASE.id}
                 </h2>
               </div>
 
-              <PriorityBadge
-                priority="IMMEDIATE"
-              />
+              <div
+                style={{
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  gap:
+                    "8px",
+
+                  flexWrap:
+                    "wrap",
+
+                  justifyContent:
+                    "flex-end",
+                }}
+              >
+                <PriorityBadge
+                  priority={
+                    VERIFIED_DEMO_CASE.priority
+                  }
+                />
+
+                <span
+                  style={{
+                    display:
+                      "inline-flex",
+
+                    alignItems:
+                      "center",
+
+                    justifyContent:
+                      "center",
+
+                    minHeight:
+                      "25px",
+
+                    padding:
+                      "0 10px",
+
+                    borderRadius:
+                      "7px",
+
+                    color:
+                      "#59cfa0",
+
+                    background:
+                      "rgba(52,211,153,0.07)",
+
+                    border:
+                      "1px solid rgba(52,211,153,0.13)",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      850,
+
+                    letterSpacing:
+                      "0.45px",
+                  }}
+                >
+                  VERIFIED CLOSED
+                </span>
+              </div>
             </div>
 
 
@@ -510,11 +642,14 @@ export default function Home() {
               <div className="caseScore">
                 <div className="scoreRing">
                   <strong>
-                    98
+                    {
+                      VERIFIED_DEMO_CASE
+                        .protectivePriority
+                    }
                   </strong>
 
                   <span>
-                    Priority
+                    Protective
                   </span>
                 </div>
               </div>
@@ -527,27 +662,36 @@ export default function Home() {
                   </span>
 
                   <strong>
-                    BIO-000166
+                    {
+                      VERIFIED_DEMO_CASE
+                        .biometricId
+                    }
                   </strong>
                 </div>
 
                 <div className="detailRow">
                   <span>
-                    Current identity
+                    Previous identity
                   </span>
 
                   <strong className="dangerText">
-                    REF-002711
+                    {
+                      VERIFIED_DEMO_CASE
+                        .currentIdentity
+                    }
                   </strong>
                 </div>
 
                 <div className="detailRow">
                   <span>
-                    AI proposed identity
+                    Verified identity
                   </span>
 
                   <strong className="successText">
-                    REF-001009
+                    {
+                      VERIFIED_DEMO_CASE
+                        .canonicalIdentity
+                    }
                   </strong>
                 </div>
 
@@ -557,7 +701,10 @@ export default function Home() {
                   </span>
 
                   <strong>
-                    99.99%
+                    {
+                      VERIFIED_DEMO_CASE
+                        .aiConfidence
+                    }%
                   </strong>
                 </div>
 
@@ -567,7 +714,29 @@ export default function Home() {
                   </span>
 
                   <strong>
-                    97.5 / 100
+                    {
+                      VERIFIED_DEMO_CASE
+                        .harm
+                    }
+                    {" / 100"}
+                  </strong>
+                </div>
+
+                <div className="detailRow">
+                  <span>
+                    Verification
+                  </span>
+
+                  <strong className="successText">
+                    {
+                      VERIFIED_DEMO_CASE
+                        .verification.status
+                    }
+                    {" · "}
+                    {
+                      VERIFIED_DEMO_CASE
+                        .verification.score
+                    }
                   </strong>
                 </div>
               </div>
@@ -579,28 +748,56 @@ export default function Home() {
 
               <div>
                 <strong>
-                  Potential wrong-person impact detected
+                  Protective wrong-person impact
+                  was detected
                 </strong>
 
                 <span>
-                  AI evidence indicates that
-                  adverse information may be
-                  affecting an unrelated identity.
-                  Immediate human review is
-                  recommended.
+                  The identity conflict was assigned
+                  immediate protective priority,
+                  reviewed by both required human
+                  approval levels, corrected in the
+                  permitted target and subsequently
+                  verified closed.
+                </span>
+              </div>
+            </div>
+
+
+            <div
+              className="integrityInfo"
+              style={{
+                margin:
+                  "14px 0 0",
+              }}
+            >
+              <CheckCircle2 size={21} />
+
+              <div>
+                <strong>
+                  End-to-End Verification Passed
+                </strong>
+
+                <span>
+                  The approved correction passed
+                  post-correction verification and
+                  reached VERIFIED_CLOSED status.
                 </span>
               </div>
             </div>
 
 
             <Link
-              href="/cases/CASE-2026-00001"
+              href={
+                `/cases/${VERIFIED_DEMO_CASE.id}`
+              }
               className="primaryButton"
               style={{
-                textDecoration: "none",
+                textDecoration:
+                  "none",
               }}
             >
-              Open AI Investigation
+              View Verified Case Lifecycle
 
               <ChevronRight size={18} />
             </Link>
@@ -630,11 +827,11 @@ export default function Home() {
             <div className="healthScore">
               <div>
                 <span>
-                  Identity resolution
+                  Canonical case resolution
                 </span>
 
                 <strong>
-                  100%
+                  53 / 53
                 </strong>
               </div>
 
@@ -664,7 +861,7 @@ export default function Home() {
             <div className="healthScore">
               <div>
                 <span>
-                  Unexplained false alerts
+                  Unexplained false positives
                 </span>
 
                 <strong>
@@ -687,9 +884,12 @@ export default function Home() {
                 </strong>
 
                 <span>
-                  AI agents operate in read-only
-                  mode against the authoritative
-                  identity source.
+                  The authoritative Master
+                  Reference remains read only.
+                  Automated corrections target
+                  only the permitted Biometric
+                  System runtime dataset after
+                  required human approval.
                 </span>
               </div>
             </div>
@@ -699,9 +899,17 @@ export default function Home() {
               href="/data-integrity"
               className="textButton"
               style={{
-                textDecoration: "none",
-                marginTop: "14px",
-                width: "fit-content",
+                textDecoration:
+                  "none",
+
+                marginTop:
+                  "14px",
+
+                marginLeft:
+                  "18px",
+
+                width:
+                  "fit-content",
               }}
             >
               Open Data Integrity Center

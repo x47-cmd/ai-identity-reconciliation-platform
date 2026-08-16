@@ -41,7 +41,7 @@ jobs:
         run: |
           echo "============================================"
           echo " AI Identity Reconciliation Platform"
-          echo " Full Automated Demo"
+          echo " Full Automated End-to-End Demo"
           echo "============================================"
           echo ""
           python --version
@@ -272,6 +272,7 @@ jobs:
               "Priority Breakdown:"
           )
 
+
           for priority, count in (
               summary[
                   "priority_breakdown"
@@ -287,6 +288,7 @@ jobs:
           print(
               "Case Type Breakdown:"
           )
+
 
           for case_type, count in (
               summary[
@@ -354,21 +356,6 @@ jobs:
                   )
 
                   print(
-                      f"Primary Biometric: "
-                      f"{case['primary_biometric_id']}"
-                  )
-
-                  print(
-                      f"Affected Biometrics: "
-                      f"{case['affected_biometric_ids']}"
-                  )
-
-                  print(
-                      f"Current Master IDs: "
-                      f"{case['current_master_ids']}"
-                  )
-
-                  print(
                       f"Canonical Identity: "
                       f"{case['canonical_master_id']}"
                   )
@@ -379,33 +366,8 @@ jobs:
                   )
 
                   print(
-                      f"Identity Support Count: "
-                      f"{case['identity_support_count']}"
-                  )
-
-                  print(
                       f"Finding Count: "
                       f"{case['finding_count']}"
-                  )
-
-                  print(
-                      f"Finding Types: "
-                      f"{case['finding_types']}"
-                  )
-
-                  print(
-                      f"Risk: "
-                      f"{case['risk_score']}"
-                  )
-
-                  print(
-                      f"Harm: "
-                      f"{case['harm_impact_score']}"
-                  )
-
-                  print(
-                      f"Protective Priority: "
-                      f"{case['protective_priority_score']}"
                   )
 
 
@@ -415,7 +377,420 @@ jobs:
 
 
       # ======================================================
-      # 15. DISPLAY EXECUTIVE PERFORMANCE
+      # 15. RUN COMPLETE END-TO-END DEMO
+      # ======================================================
+
+      - name: Run end-to-end AI case lifecycle
+        run: |
+          echo ""
+          echo "============================================"
+          echo " STEP 6 - END-TO-END AI CASE LIFECYCLE"
+          echo "============================================"
+          echo ""
+          echo "AI Investigation"
+          echo "→ Officer Review"
+          echo "→ Manager Approval"
+          echo "→ Authorized Execution"
+          echo "→ Verification"
+          echo "→ Case Closure"
+          echo ""
+
+          python demo/run_end_to_end_demo.py
+
+
+      # ======================================================
+      # 16. VERIFY END-TO-END OUTPUT
+      # ======================================================
+
+      - name: Verify end-to-end demo
+        run: |
+          test -f demo/output/end_to_end_demo_report.json
+          test -f demo/output/end_to_end_audit_timeline.csv
+          test -f demo/output/selected_demo_case.json
+
+          test -f ai-agents/investigation-agent/output/investigations.json
+          test -f ai-agents/investigation-agent/output/investigation_summary.json
+
+          test -f ai-agents/approval-workflow-agent/output/approval_state.json
+          test -f ai-agents/approval-workflow-agent/output/approval_audit.json
+
+          test -f ai-agents/execution-agent/output/execution_results.csv
+          test -f ai-agents/execution-agent/output/execution_summary.json
+
+          test -f ai-agents/verification-agent/output/verification_results.csv
+          test -f ai-agents/verification-agent/output/verification_summary.json
+
+          python - <<'PY'
+
+          import json
+          from pathlib import Path
+
+
+          report_path = Path(
+              "demo/output/end_to_end_demo_report.json"
+          )
+
+
+          with report_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              report = json.load(file)
+
+
+          if not report.get(
+              "demo_success"
+          ):
+
+              raise SystemExit(
+                  "End-to-end demo did not reach "
+                  "VERIFIED_CLOSED status."
+              )
+
+
+          if (
+              report.get(
+                  "final_case_status"
+              )
+              !=
+              "VERIFIED_CLOSED"
+          ):
+
+              raise SystemExit(
+                  "Selected case was not closed "
+                  "after verification."
+              )
+
+
+          verification = (
+              report.get(
+                  "verification"
+              )
+              or {}
+          )
+
+
+          if (
+              verification.get(
+                  "verification_status"
+              )
+              !=
+              "PASSED"
+          ):
+
+              raise SystemExit(
+                  "Post-correction verification "
+                  "did not pass."
+              )
+
+
+          print(
+              "End-to-end lifecycle verified successfully."
+          )
+
+          PY
+
+
+      # ======================================================
+      # 17. DISPLAY END-TO-END DEMO RESULT
+      # ======================================================
+
+      - name: Display end-to-end case lifecycle
+        run: |
+          python - <<'PY'
+
+          import json
+          from pathlib import Path
+
+
+          path = Path(
+              "demo/output/end_to_end_demo_report.json"
+          )
+
+
+          with path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              report = json.load(file)
+
+
+          selected = (
+              report[
+                  "selected_case"
+              ]
+          )
+
+          approval = (
+              report[
+                  "human_approval"
+              ]
+          )
+
+          execution = (
+              report.get(
+                  "execution"
+              )
+              or {}
+          )
+
+          verification = (
+              report.get(
+                  "verification"
+              )
+              or {}
+          )
+
+
+          print()
+          print(
+              "============================================"
+          )
+
+          print(
+              " END-TO-END AI CASE LIFECYCLE"
+          )
+
+          print(
+              "============================================"
+          )
+
+
+          print()
+          print(
+              "SELECTED HIGH-PRIORITY CASE"
+          )
+
+          print(
+              "--------------------------------------------"
+          )
+
+
+          print(
+              f"Case ID: "
+              f"{selected['case_id']}"
+          )
+
+          print(
+              f"Case Type: "
+              f"{selected['case_type']}"
+          )
+
+          print(
+              f"Priority: "
+              f"{selected['priority']}"
+          )
+
+          print(
+              f"Wrongly Affected Person: "
+              f"{selected['wrongly_affected_person']}"
+          )
+
+          print(
+              f"Biometric Record: "
+              f"{selected['primary_biometric_id']}"
+          )
+
+          print(
+              f"Current Identity: "
+              f"{selected['current_identity']}"
+          )
+
+          print(
+              f"AI Proposed Identity: "
+              f"{selected['ai_proposed_identity']}"
+          )
+
+          print(
+              f"AI Confidence: "
+              f"{selected['ai_confidence']}"
+          )
+
+          print(
+              f"Risk Score: "
+              f"{selected['risk_score']}"
+          )
+
+          print(
+              f"Harm Impact: "
+              f"{selected['harm_impact_score']}"
+          )
+
+          print(
+              f"Protective Priority: "
+              f"{selected['protective_priority_score']}"
+          )
+
+
+          print()
+          print(
+              "HUMAN-IN-THE-LOOP APPROVAL"
+          )
+
+          print(
+              "--------------------------------------------"
+          )
+
+
+          print(
+              f"Monitoring Officer: "
+              f"{approval['monitoring_officer']}"
+          )
+
+          print(
+              f"Officer Decision: "
+              f"{approval['monitoring_officer_decision']}"
+          )
+
+          print(
+              f"Manager: "
+              f"{approval['manager']}"
+          )
+
+          print(
+              f"Manager Decision: "
+              f"{approval['manager_decision']}"
+          )
+
+
+          print()
+          print(
+              "AUTHORIZED CORRECTION"
+          )
+
+          print(
+              "--------------------------------------------"
+          )
+
+
+          print(
+              f"Execution Status: "
+              f"{execution.get('execution_status')}"
+          )
+
+          print(
+              f"Target Record: "
+              f"{execution.get('target_record')}"
+          )
+
+          print(
+              f"Before: "
+              f"{execution.get('before')}"
+          )
+
+          print(
+              f"After: "
+              f"{execution.get('after')}"
+          )
+
+
+          print()
+          print(
+              "POST-CORRECTION VERIFICATION"
+          )
+
+          print(
+              "--------------------------------------------"
+          )
+
+
+          print(
+              f"Verification Status: "
+              f"{verification.get('verification_status')}"
+          )
+
+          print(
+              f"Verification Score: "
+              f"{verification.get('verification_score')}"
+          )
+
+          print(
+              f"Biometric Match Score: "
+              f"{verification.get('biometric_match_score')}"
+          )
+
+          print(
+              f"Identity Mapping Valid: "
+              f"{verification.get('identity_mapping_valid')}"
+          )
+
+          print(
+              f"Conflict Resolved: "
+              f"{verification.get('original_conflict_resolved')}"
+          )
+
+          print(
+              f"Secondary Conflict: "
+              f"{verification.get('secondary_conflict_created')}"
+          )
+
+
+          print()
+          print(
+              "FINAL RESULT"
+          )
+
+          print(
+              "--------------------------------------------"
+          )
+
+
+          print(
+              f"Final Case Status: "
+              f"{report['final_case_status']}"
+          )
+
+          print(
+              f"Audit Trail Events: "
+              f"{report['audit_timeline_events']}"
+          )
+
+          print(
+              f"Master Reference Modified: "
+              f"{report['master_reference_modified']}"
+          )
+
+          print(
+              f"Original Biometric Dataset Modified: "
+              f"{report['original_biometric_dataset_modified']}"
+          )
+
+
+          print()
+
+
+          if report[
+              "demo_success"
+          ]:
+
+              print(
+                  "DEMO STATUS:"
+              )
+
+              print(
+                  "SUCCESS - CASE VERIFIED AND CLOSED"
+              )
+
+          else:
+
+              print(
+                  "DEMO STATUS:"
+              )
+
+              print(
+                  "ATTENTION REQUIRED"
+              )
+
+
+          print()
+
+          PY
+
+
+      # ======================================================
+      # 18. DISPLAY EXECUTIVE PERFORMANCE
       # ======================================================
 
       - name: Display executive metrics
@@ -425,9 +800,11 @@ jobs:
           import json
           from pathlib import Path
 
+
           performance_path = Path(
               "evaluation/output/performance_report.json"
           )
+
 
           with performance_path.open(
               "r",
@@ -435,6 +812,7 @@ jobs:
           ) as file:
 
               report = json.load(file)
+
 
           overall = report[
               "overall_performance"
@@ -447,6 +825,7 @@ jobs:
           protective = report[
               "protective_priority"
           ]
+
 
           print()
           print(
@@ -461,8 +840,9 @@ jobs:
               "============================================"
           )
 
+
           print(
-              f"Precision: "
+              f"Raw Precision: "
               f"{overall['precision']}%"
           )
 
@@ -477,7 +857,7 @@ jobs:
           )
 
           print(
-              f"Identity Resolution Accuracy: "
+              f"Raw Identity Resolution Accuracy: "
               f"{identity['accuracy']}%"
           )
 
@@ -511,13 +891,14 @@ jobs:
               f"{overall['false_positive_findings']}"
           )
 
+
           print()
 
           PY
 
 
       # ======================================================
-      # 16. DISPLAY DIAGNOSTIC RESULTS
+      # 19. DISPLAY DIAGNOSTIC RESULTS
       # ======================================================
 
       - name: Display false positive diagnostics
@@ -527,9 +908,11 @@ jobs:
           import json
           from pathlib import Path
 
+
           path = Path(
               "evaluation/output/diagnostic_report.json"
           )
+
 
           with path.open(
               "r",
@@ -537,6 +920,7 @@ jobs:
           ) as file:
 
               report = json.load(file)
+
 
           finding_analysis = report[
               "finding_level_analysis"
@@ -550,6 +934,7 @@ jobs:
               "identity_resolution_analysis"
           ]
 
+
           print()
           print(
               "============================================"
@@ -562,6 +947,7 @@ jobs:
           print(
               "============================================"
           )
+
 
           print(
               f"Original False Positive Findings: "
@@ -583,10 +969,12 @@ jobs:
               f"{finding_analysis['diagnostic_precision_excluding_secondary_findings']}%"
           )
 
+
           print()
           print(
-              "CASE LEVEL - RAW FINDING EVALUATOR"
+              "RAW FINDING-LEVEL CASE METRICS"
           )
+
 
           print(
               f"Case-Level Precision: "
@@ -599,31 +987,10 @@ jobs:
           )
 
           print(
-              f"False Alert Case IDs: "
-              f"{case_analysis['false_alert_case_ids']}"
-          )
-
-          print()
-          print(
-              "IDENTITY RESOLUTION - RAW FINDING EVALUATOR"
-          )
-
-          print(
-              f"Resolution Errors: "
+              f"Raw Identity Resolution Errors: "
               f"{resolution['resolution_errors']}"
           )
 
-          print()
-
-          print(
-              "NOTE:"
-          )
-
-          print(
-              "Raw finding-level case metrics are retained "
-              "for diagnostics. The Case Aggregation Engine "
-              "provides the operational case representation."
-          )
 
           print()
 
@@ -631,7 +998,7 @@ jobs:
 
 
       # ======================================================
-      # 17. DISPLAY IDENTITY RESOLUTION ERRORS
+      # 20. DISPLAY IDENTITY RESOLUTION ERRORS
       # ======================================================
 
       - name: Display identity resolution errors
@@ -641,9 +1008,11 @@ jobs:
           import json
           from pathlib import Path
 
+
           path = Path(
               "evaluation/output/diagnostic_report.json"
           )
+
 
           with path.open(
               "r",
@@ -652,11 +1021,13 @@ jobs:
 
               report = json.load(file)
 
+
           errors = report[
               "identity_resolution_analysis"
           ][
               "error_records"
           ]
+
 
           print()
           print(
@@ -664,23 +1035,25 @@ jobs:
           )
 
           print(
-              " IDENTITY RESOLUTION ERROR DETAILS"
+              " RAW IDENTITY RESOLUTION ERROR DETAILS"
           )
 
           print(
               "============================================"
           )
 
+
           if not errors:
 
               print(
-                  "No raw finding-level identity "
-                  "resolution errors detected."
+                  "No raw identity resolution errors detected."
               )
+
 
           for error in errors:
 
               print()
+
               print(
                   f"Biometric ID: "
                   f"{error['biometric_id']}"
@@ -716,12 +1089,19 @@ jobs:
                   f"{error['ai_confidence']}"
               )
 
+
           print()
+          print(
+              "NOTE:"
+          )
 
           print(
-              "These results are evaluated before "
-              "Case Aggregation. Canonical case-level "
-              "identity resolution is displayed separately."
+              "These are pre-aggregation raw finding metrics."
+          )
+
+          print(
+              "Case-level canonical identity resolution "
+              "is handled by the Case Aggregation Engine."
           )
 
           print()
@@ -730,7 +1110,7 @@ jobs:
 
 
       # ======================================================
-      # 18. DISPLAY PROTECTIVE PRIORITY CASES
+      # 21. DISPLAY PROTECTIVE PRIORITY CASES
       # ======================================================
 
       - name: Display protective priority cases
@@ -740,9 +1120,11 @@ jobs:
           import csv
           from pathlib import Path
 
+
           path = Path(
               "case-engine/output/cases.csv"
           )
+
 
           with path.open(
               "r",
@@ -753,6 +1135,7 @@ jobs:
               cases = list(
                   csv.DictReader(file)
               )
+
 
           protective_cases = [
 
@@ -768,6 +1151,7 @@ jobs:
 
           ]
 
+
           protective_cases.sort(
 
               key=lambda case:
@@ -782,6 +1166,7 @@ jobs:
               reverse=True
           )
 
+
           print()
           print(
               "============================================"
@@ -795,10 +1180,12 @@ jobs:
               "============================================"
           )
 
+
           print(
               f"Total Wrongly Affected Cases: "
               f"{len(protective_cases)}"
           )
+
 
           for case in protective_cases:
 
@@ -811,7 +1198,7 @@ jobs:
               )
 
               print(
-                  f"Primary Biometric: "
+                  f"Biometric: "
                   f"{case['primary_biometric_id']}"
               )
 
@@ -835,13 +1222,14 @@ jobs:
                   f"{case['protective_priority_score']}"
               )
 
+
           print()
 
           PY
 
 
       # ======================================================
-      # 19. DISPLAY ANOMALY BREAKDOWN
+      # 22. DISPLAY ANOMALY BREAKDOWN
       # ======================================================
 
       - name: Display anomaly detection breakdown
@@ -851,9 +1239,11 @@ jobs:
           import json
           from pathlib import Path
 
+
           path = Path(
               "evaluation/output/performance_report.json"
           )
+
 
           with path.open(
               "r",
@@ -862,9 +1252,11 @@ jobs:
 
               report = json.load(file)
 
+
           breakdown = report[
               "anomaly_type_breakdown"
           ]
+
 
           print()
           print(
@@ -879,6 +1271,7 @@ jobs:
               "============================================"
           )
 
+
           for anomaly, result in breakdown.items():
 
               print(
@@ -889,13 +1282,14 @@ jobs:
                   f"{result['recall']}%"
               )
 
+
           print()
 
           PY
 
 
       # ======================================================
-      # 20. CREATE FINAL COMBINED REPORT
+      # 23. CREATE FINAL COMBINED REPORT
       # ======================================================
 
       - name: Create final demo run summary
@@ -904,7 +1298,6 @@ jobs:
 
           python - <<'PY'
 
-          import csv
           import json
           from pathlib import Path
           from datetime import datetime
@@ -930,8 +1323,16 @@ jobs:
               "case-engine/output/case_summary.json"
           )
 
-          cases_path = Path(
-              "case-engine/output/cases.csv"
+          investigation_summary_path = Path(
+              "ai-agents/investigation-agent/output/investigation_summary.json"
+          )
+
+          verification_summary_path = Path(
+              "ai-agents/verification-agent/output/verification_summary.json"
+          )
+
+          end_to_end_path = Path(
+              "demo/output/end_to_end_demo_report.json"
           )
 
 
@@ -975,69 +1376,28 @@ jobs:
               case_summary = json.load(file)
 
 
-          with cases_path.open(
+          with investigation_summary_path.open(
               "r",
-              encoding="utf-8",
-              newline=""
+              encoding="utf-8"
           ) as file:
 
-              cases = list(
-                  csv.DictReader(file)
-              )
+              investigation = json.load(file)
 
 
-          bio_795_cases = [
+          with verification_summary_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
 
-              case
-
-              for case in cases
-
-              if "BIO-000795" in (
-                  case[
-                      "affected_biometric_ids"
-                  ]
-              ).split(",")
-
-          ]
+              verification = json.load(file)
 
 
-          bio_795_validation = {
+          with end_to_end_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
 
-              "found":
-                  bool(
-                      bio_795_cases
-                  ),
-
-              "expected_identity":
-                  "REF-002343",
-
-              "canonical_identity":
-                  (
-                      bio_795_cases[
-                          0
-                      ][
-                          "canonical_master_id"
-                      ]
-
-                      if bio_795_cases
-
-                      else ""
-                  ),
-
-              "case_id":
-                  (
-                      bio_795_cases[
-                          0
-                      ][
-                          "case_id"
-                      ]
-
-                      if bio_795_cases
-
-                      else ""
-                  ),
-
-          }
+              end_to_end = json.load(file)
 
 
           final_report = {
@@ -1072,113 +1432,28 @@ jobs:
                       demo[
                           "intentional_anomalies"
                       ],
-
               },
 
-              "reconciliation": {
-
-                  "total_findings":
-                      reconciliation[
-                          "total_findings"
-                      ],
-
-                  "wrongly_affected_findings":
-                      reconciliation[
-                          "wrongly_affected_person_cases"
-                      ],
-
-                  "immediate_protective_priority_findings":
-                      reconciliation[
-                          "immediate_protective_priority_cases"
-                      ],
-
-              },
+              "reconciliation":
+                  reconciliation,
 
               "performance":
-                  performance[
-                      "overall_performance"
-                  ],
+                  performance,
 
-              "identity_resolution":
-                  performance[
-                      "identity_resolution"
-                  ],
+              "diagnostics":
+                  diagnostic,
 
-              "protective_priority":
-                  performance[
-                      "protective_priority"
-                  ],
+              "case_aggregation":
+                  case_summary,
 
-              "anomaly_detection":
-                  performance[
-                      "anomaly_type_breakdown"
-                  ],
+              "investigation_agent":
+                  investigation,
 
-              "diagnostics": {
+              "verification_agent":
+                  verification,
 
-                  "finding_level":
-                      diagnostic[
-                          "finding_level_analysis"
-                      ],
-
-                  "raw_case_level":
-                      diagnostic[
-                          "case_level_analysis"
-                      ],
-
-                  "raw_identity_resolution":
-                      diagnostic[
-                          "identity_resolution_analysis"
-                      ],
-
-              },
-
-              "case_aggregation": {
-
-                  "raw_findings":
-                      case_summary[
-                          "raw_findings"
-                      ],
-
-                  "aggregated_cases":
-                      case_summary[
-                          "aggregated_cases"
-                      ],
-
-                  "findings_collapsed":
-                      case_summary[
-                          "findings_collapsed_into_existing_cases"
-                      ],
-
-                  "multi_finding_cases":
-                      case_summary[
-                          "multi_finding_cases"
-                      ],
-
-                  "wrongly_affected_cases":
-                      case_summary[
-                          "wrongly_affected_cases"
-                      ],
-
-                  "unresolved_identity_cases":
-                      case_summary[
-                          "unresolved_identity_cases"
-                      ],
-
-                  "priority_breakdown":
-                      case_summary[
-                          "priority_breakdown"
-                      ],
-
-                  "case_type_breakdown":
-                      case_summary[
-                          "case_type_breakdown"
-                      ],
-
-              },
-
-              "bio_000795_validation":
-                  bio_795_validation,
+              "end_to_end_demo":
+                  end_to_end,
 
           }
 
@@ -1201,24 +1476,24 @@ jobs:
 
 
           print(
-              json.dumps(
-                  final_report,
-                  indent=4
-              )
+              "Final combined report created successfully."
+          )
+
+          print(
+              f"Output: {output}"
           )
 
           PY
 
 
       # ======================================================
-      # 21. CREATE GITHUB EXECUTIVE SUMMARY
+      # 24. CREATE GITHUB EXECUTIVE SUMMARY
       # ======================================================
 
       - name: Create GitHub executive summary
         run: |
           python - <<'PY'
 
-          import csv
           import json
           import os
           from pathlib import Path
@@ -1236,8 +1511,16 @@ jobs:
               "case-engine/output/case_summary.json"
           )
 
-          cases_path = Path(
-              "case-engine/output/cases.csv"
+          investigation_path = Path(
+              "ai-agents/investigation-agent/output/investigation_summary.json"
+          )
+
+          verification_path = Path(
+              "ai-agents/verification-agent/output/verification_summary.json"
+          )
+
+          end_to_end_path = Path(
+              "demo/output/end_to_end_demo_report.json"
           )
 
 
@@ -1265,15 +1548,28 @@ jobs:
               case_summary = json.load(file)
 
 
-          with cases_path.open(
+          with investigation_path.open(
               "r",
-              encoding="utf-8",
-              newline=""
+              encoding="utf-8"
           ) as file:
 
-              cases_data = list(
-                  csv.DictReader(file)
-              )
+              investigation = json.load(file)
+
+
+          with verification_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              verification = json.load(file)
+
+
+          with end_to_end_path.open(
+              "r",
+              encoding="utf-8"
+          ) as file:
+
+              end_to_end = json.load(file)
 
 
           overall = performance[
@@ -1292,69 +1588,43 @@ jobs:
               "finding_level_analysis"
           ]
 
-          raw_cases = diagnostic[
-              "case_level_analysis"
-          ]
 
-          resolution = diagnostic[
-              "identity_resolution_analysis"
+          selected = end_to_end[
+              "selected_case"
           ]
 
 
-          matching_cases = [
-
-              case
-
-              for case in cases_data
-
-              if "BIO-000795" in (
-                  case[
-                      "affected_biometric_ids"
-                  ]
-              ).split(",")
-
-          ]
+          execution = (
+              end_to_end.get(
+                  "execution"
+              )
+              or {}
+          )
 
 
-          canonical_795 = (
-
-              matching_cases[
-                  0
-              ][
-                  "canonical_master_id"
-              ]
-
-              if matching_cases
-
-              else "NOT FOUND"
+          verification_result = (
+              end_to_end.get(
+                  "verification"
+              )
+              or {}
           )
 
 
           summary = f"""
-          # AI Identity Reconciliation Demo
+          # AI Identity Reconciliation Platform
 
-          ## Detection Performance
+          ## Detection & Reconciliation
 
           | Metric | Result |
           |---|---:|
-          | Raw Precision | {overall['precision']}% |
+          | Synthetic Issues | {overall['total_ground_truth_cases']} |
+          | Detected Issues | {overall['detected_ground_truth_cases']} |
           | Recall | {overall['recall']}% |
-          | F1 Score | {overall['f1_score']}% |
-          | Raw Identity Resolution Accuracy | {identity['accuracy']}% |
+          | Diagnostic Precision | {findings['diagnostic_precision_excluding_secondary_findings']}% |
+          | Unexplained False Positives | {findings['unexplained_false_positive_findings']} |
           | Protective Detection Recall | {protective['detection_recall']}% |
           | Protective Priority Accuracy | {protective['priority_accuracy']}% |
-
-          ## Diagnostic Analysis
-
-          | Metric | Result |
-          |---|---:|
-          | Original False Positive Findings | {findings['original_false_positive_findings']} |
-          | Secondary / Corroborating Findings | {findings['secondary_or_corroborating_findings']} |
-          | Unexplained False Positives | {findings['unexplained_false_positive_findings']} |
-          | Diagnostic Precision | {findings['diagnostic_precision_excluding_secondary_findings']}% |
-          | Raw Case-Level Precision | {raw_cases['case_level_precision']}% |
-          | Raw Case-Level Recall | {raw_cases['case_level_recall']}% |
-          | Raw Identity Resolution Errors | {resolution['resolution_errors']} |
+          | Raw Identity Resolution Accuracy | {identity['accuracy']}% |
 
           ## Case Aggregation
 
@@ -1367,19 +1637,50 @@ jobs:
           | Wrongly Affected Cases | {case_summary['wrongly_affected_cases']} |
           | Unresolved Identity Cases | {case_summary['unresolved_identity_cases']} |
 
-          ## BIO-000795 Validation
+          ## AI Investigation
 
-          **Expected canonical identity:** REF-002343
+          | Metric | Result |
+          |---|---:|
+          | Investigations Created | {investigation['investigations_created']} |
+          | Ready for Officer Review | {investigation['ready_for_officer_review']} |
+          | Immediate Priority Cases | {investigation['immediate_priority_cases']} |
+          | Wrongly Affected Cases | {investigation['wrongly_affected_cases']} |
 
-          **Case-level canonical identity:** {canonical_795}
+          ## End-to-End Case Demo
 
-          ## Protective Priority
+          | Stage | Result |
+          |---|---|
+          | Case | {selected['case_id']} |
+          | Priority | {selected['priority']} |
+          | Wrongly Affected | {selected['wrongly_affected_person']} |
+          | Biometric Record | {selected['primary_biometric_id']} |
+          | Before | {selected['current_identity']} |
+          | AI Proposed Identity | {selected['ai_proposed_identity']} |
+          | Officer Approval | {end_to_end['human_approval']['monitoring_officer_decision']} |
+          | Manager Approval | {end_to_end['human_approval']['manager_decision']} |
+          | Execution | {execution.get('execution_status')} |
+          | Verification | {verification_result.get('verification_status')} |
+          | Verification Score | {verification_result.get('verification_score')} |
+          | Final Status | {end_to_end['final_case_status']} |
+          | Audit Events | {end_to_end['audit_timeline_events']} |
 
-          **Expected harm-impact cases:** {protective['expected_harm_cases']}
+          ## Verification
 
-          **Detected harm-impact cases:** {protective['detected_harm_cases']}
+          **Cases checked:** {verification['executions_checked']}
 
-          **Correctly prioritized:** {protective['correctly_prioritized']}
+          **Passed:** {verification['verification_passed']}
+
+          **Failed:** {verification['verification_failed']}
+
+          **Closed:** {verification['cases_closed']}
+
+          ## Final Demo Status
+
+          **SUCCESS:** {end_to_end['demo_success']}
+
+          **Master Reference Modified:** {end_to_end['master_reference_modified']}
+
+          **Original Biometric Dataset Modified:** {end_to_end['original_biometric_dataset_modified']}
           """
 
 
@@ -1394,13 +1695,15 @@ jobs:
               encoding="utf-8"
           ) as file:
 
-              file.write(summary)
+              file.write(
+                  summary
+              )
 
           PY
 
 
       # ======================================================
-      # 22. UPLOAD COMPLETE RESULTS
+      # 25. UPLOAD COMPLETE RESULTS
       # ======================================================
 
       - name: Upload complete AI demo results
@@ -1412,6 +1715,11 @@ jobs:
             reconciliation-engine/output/
             evaluation/output/
             case-engine/output/
+            ai-agents/investigation-agent/output/
+            ai-agents/approval-workflow-agent/output/
+            ai-agents/execution-agent/output/
+            ai-agents/verification-agent/output/
+            demo/output/
             demo-output/
           if-no-files-found: error
           retention-days: 7

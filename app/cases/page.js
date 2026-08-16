@@ -3,9 +3,16 @@ import Link from "next/link";
 import Sidebar from "../components/Sidebar";
 
 import {
+  COMPLEX_DEMO_CASE,
+  PLATFORM_METRICS,
+  VERIFIED_DEMO_CASE,
+} from "../lib/demo-data";
+
+import {
   Activity,
   AlertTriangle,
   BadgeCheck,
+  CheckCircle2,
   ChevronRight,
   CircleAlert,
   FileSearch,
@@ -17,23 +24,70 @@ import {
 } from "lucide-react";
 
 
+/* =========================================================
+   CASE WORKSPACE
+
+   Synthetic Demo Only
+
+   Backend-confirmed detail pages currently available:
+   - CASE-2026-00001
+   - CASE-2026-00014
+
+   Other rows are representative workspace records and are
+   intentionally not deep-linked until their case detail
+   payloads are implemented.
+   ========================================================= */
+
+
 const cases = [
   {
-    id: "CASE-2026-00001",
-    type: "HARM_IMPACT",
-    title: "Potential Wrong-Person Harm",
-    biometric: "BIO-000166",
-    current: "REF-002711",
-    proposed: "REF-001009",
-    confidence: 99.99,
-    risk: 94.99,
-    harm: 97.5,
-    protective: 98.0,
-    priority: "IMMEDIATE",
-    status: "READY_FOR_OFFICER_REVIEW",
-    affected: true,
-    findings: 2,
+    id:
+      VERIFIED_DEMO_CASE.id,
+
+    type:
+      VERIFIED_DEMO_CASE.caseType,
+
+    title:
+      VERIFIED_DEMO_CASE.title,
+
+    biometric:
+      VERIFIED_DEMO_CASE.biometricId,
+
+    current:
+      VERIFIED_DEMO_CASE.currentIdentity,
+
+    proposed:
+      VERIFIED_DEMO_CASE.canonicalIdentity,
+
+    confidence:
+      VERIFIED_DEMO_CASE.aiConfidence,
+
+    risk:
+      VERIFIED_DEMO_CASE.risk,
+
+    harm:
+      VERIFIED_DEMO_CASE.harm,
+
+    protective:
+      VERIFIED_DEMO_CASE.protectivePriority,
+
+    priority:
+      VERIFIED_DEMO_CASE.priority,
+
+    status:
+      VERIFIED_DEMO_CASE.finalStatus,
+
+    affected:
+      VERIFIED_DEMO_CASE.wronglyAffected,
+
+    findings:
+      2,
+
+    hasDetail:
+      true,
   },
+
+
   {
     id: "CASE-2026-00002",
     type: "HARM_IMPACT",
@@ -49,7 +103,10 @@ const cases = [
     status: "READY_FOR_OFFICER_REVIEW",
     affected: true,
     findings: 2,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00003",
     type: "CRITICAL_HARM_IDENTITY_CONFLICT",
@@ -65,7 +122,10 @@ const cases = [
     status: "AI_INVESTIGATED",
     affected: true,
     findings: 5,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00004",
     type: "HARM_IMPACT",
@@ -81,7 +141,10 @@ const cases = [
     status: "READY_FOR_OFFICER_REVIEW",
     affected: true,
     findings: 2,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00005",
     type: "CRITICAL_HARM_IDENTITY_CONFLICT",
@@ -97,7 +160,10 @@ const cases = [
     status: "AWAITING_MANAGER_APPROVAL",
     affected: true,
     findings: 4,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00006",
     type: "HARM_IMPACT",
@@ -113,7 +179,10 @@ const cases = [
     status: "READY_FOR_OFFICER_REVIEW",
     affected: true,
     findings: 2,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00007",
     type: "WRONG_MAPPING",
@@ -129,7 +198,10 @@ const cases = [
     status: "AI_INVESTIGATED",
     affected: false,
     findings: 2,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00008",
     type: "COMPLEX_IDENTITY_CONFLICT",
@@ -145,7 +217,10 @@ const cases = [
     status: "READY_FOR_OFFICER_REVIEW",
     affected: false,
     findings: 5,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00009",
     type: "DUPLICATE_IDENTITY",
@@ -161,23 +236,58 @@ const cases = [
     status: "AI_INVESTIGATED",
     affected: false,
     findings: 3,
+    hasDetail: false,
   },
+
+
   {
-    id: "CASE-2026-00014",
-    type: "COMPLEX_IDENTITY_CONFLICT",
-    title: "Complex Identity Conflict",
-    biometric: "BIO-000795",
-    current: "REF-001183",
-    proposed: "REF-002343",
-    confidence: 99.99,
-    risk: 90.0,
-    harm: 60.0,
-    protective: 85.0,
-    priority: "HIGH",
-    status: "AI_INVESTIGATED",
-    affected: false,
-    findings: 5,
+    id:
+      COMPLEX_DEMO_CASE.id,
+
+    type:
+      COMPLEX_DEMO_CASE.caseType,
+
+    title:
+      COMPLEX_DEMO_CASE.title,
+
+    biometric:
+      COMPLEX_DEMO_CASE.primaryBiometricId,
+
+    current:
+      COMPLEX_DEMO_CASE.currentMasterIdentities[0],
+
+    proposed:
+      COMPLEX_DEMO_CASE.canonicalIdentity,
+
+    confidence:
+      COMPLEX_DEMO_CASE.aiConfidence,
+
+    risk:
+      COMPLEX_DEMO_CASE.risk,
+
+    harm:
+      COMPLEX_DEMO_CASE.harm,
+
+    protective:
+      COMPLEX_DEMO_CASE.protectivePriority,
+
+    priority:
+      COMPLEX_DEMO_CASE.priority,
+
+    status:
+      "AI_INVESTIGATED",
+
+    affected:
+      COMPLEX_DEMO_CASE.wronglyAffected,
+
+    findings:
+      COMPLEX_DEMO_CASE.findingCount,
+
+    hasDetail:
+      true,
   },
+
+
   {
     id: "CASE-2026-00011",
     type: "DATA_MISMATCH",
@@ -193,7 +303,10 @@ const cases = [
     status: "READY_FOR_OFFICER_REVIEW",
     affected: false,
     findings: 1,
+    hasDetail: false,
   },
+
+
   {
     id: "CASE-2026-00012",
     type: "ORPHAN_RECORD",
@@ -209,11 +322,18 @@ const cases = [
     status: "AI_INVESTIGATED",
     affected: false,
     findings: 1,
+    hasDetail: false,
   },
 ];
 
 
-function PriorityBadge({ priority }) {
+/* =========================================================
+   SMALL COMPONENTS
+   ========================================================= */
+
+function PriorityBadge({
+  priority,
+}) {
   const className =
     priority === "IMMEDIATE"
       ? "priority immediate"
@@ -229,7 +349,9 @@ function PriorityBadge({ priority }) {
 }
 
 
-function StatusBadge({ status }) {
+function StatusBadge({
+  status,
+}) {
   const labels = {
     READY_FOR_OFFICER_REVIEW:
       "Officer Review",
@@ -241,37 +363,91 @@ function StatusBadge({ status }) {
       "AI Investigated",
 
     VERIFIED_CLOSED:
-      "Closed",
+      "Verified Closed",
   };
+
+
+  const styles = {
+    READY_FOR_OFFICER_REVIEW: {
+      color: "#79a9ff",
+      dot: "#5c99ff",
+    },
+
+    AWAITING_MANAGER_APPROVAL: {
+      color: "#ffbb5d",
+      dot: "#ffbb5d",
+    },
+
+    AI_INVESTIGATED: {
+      color: "#79a9ff",
+      dot: "#5c99ff",
+    },
+
+    VERIFIED_CLOSED: {
+      color: "#59cfa0",
+      dot: "#34d399",
+    },
+  };
+
+
+  const style =
+    styles[status]
+    ||
+    styles.AI_INVESTIGATED;
+
 
   return (
     <span
       style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: "6px",
+        display:
+          "inline-flex",
+
+        alignItems:
+          "center",
+
+        gap:
+          "6px",
+
         color:
-          status === "AWAITING_MANAGER_APPROVAL"
-            ? "#ffbb5d"
-            : "#79a9ff",
-        fontSize: "9px",
-        fontWeight: 700,
-        marginTop: "5px",
+          style.color,
+
+        fontSize:
+          "10px",
+
+        lineHeight:
+          1.4,
+
+        fontWeight:
+          700,
+
+        marginTop:
+          "5px",
+
+        whiteSpace:
+          "nowrap",
       }}
     >
       <span
         style={{
-          width: "5px",
-          height: "5px",
-          borderRadius: "50%",
+          width:
+            "6px",
+
+          height:
+            "6px",
+
+          borderRadius:
+            "50%",
+
           background:
-            status === "AWAITING_MANAGER_APPROVAL"
-              ? "#ffbb5d"
-              : "#5c99ff",
+            style.dot,
         }}
       />
 
-      {labels[status] || status}
+      {
+        labels[status]
+        ||
+        status
+      }
     </span>
   );
 }
@@ -289,6 +465,10 @@ function MiniMetric({
         <div className="metricIcon">
           <Icon size={19} />
         </div>
+
+        <span className="metricStatus">
+          DEMO KPI
+        </span>
       </div>
 
       <div className="metricValue">
@@ -307,13 +487,13 @@ function MiniMetric({
 }
 
 
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 export default function CasesPage() {
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -384,25 +564,30 @@ export default function CasesPage() {
 
           <div className="alertText">
             <strong>
-              Wrong-Person Protection Queue
+              Wrong-Person Protection Model
             </strong>
 
             <span>
-              Cases where an unrelated person
-              may be negatively affected are
-              automatically moved to the top of
-              the investigation queue.
+              The synthetic demo dataset contains
+              9 protective cases where identity
+              conflicts may create potential
+              wrong-person impact. These cases
+              receive elevated protective
+              priority.
             </span>
           </div>
 
           <div
             className="priority immediate"
             style={{
-              height: "31px",
-              padding: "0 12px",
+              height:
+                "31px",
+
+              padding:
+                "0 12px",
             }}
           >
-            9 IMMEDIATE
+            9 PROTECTIVE
           </div>
         </section>
 
@@ -415,29 +600,43 @@ export default function CasesPage() {
           <MiniMetric
             icon={FileSearch}
             label="Total Cases"
-            value="53"
-            description="Aggregated AI investigation cases"
+            value={
+              PLATFORM_METRICS
+                .aggregatedCases
+            }
+            description="Aggregated identity integrity cases"
           />
 
           <MiniMetric
             icon={CircleAlert}
             label="Immediate"
-            value="9"
+            value={
+              PLATFORM_METRICS
+                .priority
+                .immediate
+            }
             description="Protective intervention priority"
           />
 
           <MiniMetric
             icon={AlertTriangle}
             label="High Priority"
-            value="23"
+            value={
+              PLATFORM_METRICS
+                .priority
+                .high
+            }
             description="Accelerated human review"
           />
 
           <MiniMetric
             icon={ShieldCheck}
             label="Identity Resolved"
-            value="53"
-            description="Canonical identity candidate identified"
+            value={
+              PLATFORM_METRICS
+                .aggregatedCases
+            }
+            description="Cases with canonical identity candidates"
           />
         </section>
 
@@ -449,60 +648,112 @@ export default function CasesPage() {
         <section
           className="panel"
           style={{
-            marginBottom: "14px",
-            padding: "14px 16px",
+            marginBottom:
+              "16px",
+
+            padding:
+              "14px 16px",
           }}
         >
           <div
             style={{
-              display: "flex",
-              gap: "8px",
-              flexWrap: "wrap",
-              alignItems: "center",
+              display:
+                "flex",
+
+              gap:
+                "8px",
+
+              flexWrap:
+                "wrap",
+
+              alignItems:
+                "center",
             }}
           >
             <button
               className="primaryButton"
               style={{
-                width: "auto",
-                marginTop: 0,
-                padding: "0 17px",
+                width:
+                  "auto",
+
+                marginTop:
+                  0,
+
+                padding:
+                  "0 17px",
               }}
             >
               All Cases
 
               <span
                 style={{
-                  opacity: 0.7,
+                  opacity:
+                    0.7,
                 }}
               >
-                53
+                {
+                  PLATFORM_METRICS
+                    .aggregatedCases
+                }
               </span>
             </button>
 
+
             <button className="searchButton">
               Immediate
-              <span>9</span>
+
+              <span>
+                {
+                  PLATFORM_METRICS
+                    .priority
+                    .immediate
+                }
+              </span>
             </button>
+
 
             <button className="searchButton">
               High
-              <span>23</span>
+
+              <span>
+                {
+                  PLATFORM_METRICS
+                    .priority
+                    .high
+                }
+              </span>
             </button>
+
 
             <button className="searchButton">
               Medium
-              <span>21</span>
+
+              <span>
+                {
+                  PLATFORM_METRICS
+                    .priority
+                    .medium
+                }
+              </span>
             </button>
 
+
             <button className="searchButton">
-              Wrong Person Impact
-              <span>9</span>
+              Wrong-Person Impact
+
+              <span>
+                {
+                  PLATFORM_METRICS
+                    .wronglyAffectedCases
+                }
+              </span>
             </button>
+
 
             <button className="searchButton">
               Waiting Officer
             </button>
+
 
             <button className="searchButton">
               Waiting Manager
@@ -519,7 +770,7 @@ export default function CasesPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                AI PRIORITY QUEUE
+                AI PRIORITY WORKSPACE
               </div>
 
               <h2>
@@ -529,16 +780,25 @@ export default function CasesPage() {
 
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                color: "#62758e",
-                fontSize: "9px",
+                display:
+                  "flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "8px",
+
+                color:
+                  "#71839b",
+
+                fontSize:
+                  "10px",
               }}
             >
               <Activity size={15} />
 
-              Continuously monitored
+              Synthetic monitoring view
             </div>
           </div>
 
@@ -546,7 +806,8 @@ export default function CasesPage() {
           <div className="tableWrap">
             <table
               style={{
-                minWidth: "1180px",
+                minWidth:
+                  "1180px",
               }}
             >
               <thead>
@@ -564,201 +825,323 @@ export default function CasesPage() {
                 </tr>
               </thead>
 
+
               <tbody>
-                {cases.map((item) => (
-                  <tr key={item.id}>
+                {
+                  cases.map(
+                    (item) => (
+                      <tr key={item.id}>
 
-                    {/* CASE */}
+                        {/* CASE */}
 
-                    <td>
-                      <Link
-                        href={`/cases/${item.id}`}
-                        className="caseId"
-                        style={{
-                          textDecoration: "none",
-                          display: "inline-block",
-                        }}
-                      >
-                        {item.id}
-                      </Link>
+                        <td>
+                          {
+                            item.hasDetail
+                              ? (
+                                <Link
+                                  href={
+                                    `/cases/${item.id}`
+                                  }
+                                  className="caseId"
+                                  style={{
+                                    textDecoration:
+                                      "none",
 
-                      <StatusBadge
-                        status={item.status}
-                      />
-                    </td>
+                                    display:
+                                      "inline-block",
+                                  }}
+                                >
+                                  {item.id}
+                                </Link>
+                              )
+                              : (
+                                <span
+                                  className="caseId"
+                                  style={{
+                                    display:
+                                      "inline-block",
+                                  }}
+                                >
+                                  {item.id}
+                                </span>
+                              )
+                          }
 
-
-                    {/* ERROR TYPE */}
-
-                    <td>
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        {item.affected ? (
-                          <ShieldAlert
-                            size={15}
-                            color="#ff6f7e"
+                          <StatusBadge
+                            status={
+                              item.status
+                            }
                           />
-                        ) : (
-                          <Fingerprint
-                            size={15}
-                            color="#609aff"
-                          />
-                        )}
+                        </td>
 
-                        <div>
+
+                        {/* ERROR TYPE */}
+
+                        <td>
                           <div
                             style={{
-                              color: "#d2deec",
-                              fontWeight: 650,
-                              fontSize: "9px",
+                              display:
+                                "flex",
+
+                              alignItems:
+                                "center",
+
+                              gap:
+                                "8px",
                             }}
                           >
-                            {item.title}
-                          </div>
+                            {
+                              item.affected
+                                ? (
+                                  <ShieldAlert
+                                    size={15}
+                                    color="#ff6f7e"
+                                  />
+                                )
+                                : (
+                                  <Fingerprint
+                                    size={15}
+                                    color="#609aff"
+                                  />
+                                )
+                            }
 
-                          <div
+                            <div>
+                              <div
+                                style={{
+                                  color:
+                                    "#d2deec",
+
+                                  fontWeight:
+                                    650,
+
+                                  fontSize:
+                                    "11px",
+
+                                  lineHeight:
+                                    1.45,
+                                }}
+                              >
+                                {item.title}
+                              </div>
+
+                              <div
+                                style={{
+                                  color:
+                                    "#71839a",
+
+                                  fontSize:
+                                    "10px",
+
+                                  lineHeight:
+                                    1.4,
+
+                                  marginTop:
+                                    "4px",
+                                }}
+                              >
+                                {item.type}
+
+                                {" · "}
+
+                                {item.findings}
+
+                                {" findings"}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+
+                        {/* BIOMETRIC */}
+
+                        <td className="mono">
+                          {item.biometric}
+                        </td>
+
+
+                        {/* IDENTITY RESOLUTION */}
+
+                        <td>
+                          <div className="identityChange">
+                            <span className="oldIdentity">
+                              {item.current}
+                            </span>
+
+                            <ChevronRight size={14} />
+
+                            <span className="newIdentity">
+                              {item.proposed}
+                            </span>
+                          </div>
+                        </td>
+
+
+                        {/* AI CONFIDENCE */}
+
+                        <td>
+                          <span className="confidence">
+                            {item.confidence}%
+                          </span>
+                        </td>
+
+
+                        {/* RISK */}
+
+                        <td>
+                          <span
                             style={{
-                              color: "#566a84",
-                              fontSize: "8px",
-                              marginTop: "4px",
+                              color:
+                                item.risk >= 90
+                                  ? "#ff7d8b"
+                                  : item.risk >= 80
+                                    ? "#ffbd67"
+                                    : "#aab9ca",
+
+                              fontWeight:
+                                750,
                             }}
                           >
-                            {item.type}
-                            {" · "}
-                            {item.findings}
-                            {" findings"}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
+                            {item.risk}
+                          </span>
+                        </td>
 
 
-                    {/* BIOMETRIC */}
+                        {/* HARM */}
 
-                    <td className="mono">
-                      {item.biometric}
-                    </td>
+                        <td>
+                          <span
+                            style={{
+                              color:
+                                item.harm >= 90
+                                  ? "#ff7d8b"
+                                  : "#aab9ca",
 
-
-                    {/* IDENTITY RESOLUTION */}
-
-                    <td>
-                      <div className="identityChange">
-                        <span className="oldIdentity">
-                          {item.current}
-                        </span>
-
-                        <ChevronRight size={14} />
-
-                        <span className="newIdentity">
-                          {item.proposed}
-                        </span>
-                      </div>
-                    </td>
+                              fontWeight:
+                                750,
+                            }}
+                          >
+                            {item.harm}
+                          </span>
+                        </td>
 
 
-                    {/* AI CONFIDENCE */}
+                        {/* PROTECTIVE */}
 
-                    <td>
-                      <span className="confidence">
-                        {item.confidence}%
-                      </span>
-                    </td>
+                        <td>
+                          <span
+                            style={{
+                              color:
+                                item.protective >= 95
+                                  ? "#ff7d8b"
+                                  : "#82aeff",
 
-
-                    {/* RISK */}
-
-                    <td>
-                      <span
-                        style={{
-                          color:
-                            item.risk >= 90
-                              ? "#ff7d8b"
-                              : item.risk >= 80
-                                ? "#ffbd67"
-                                : "#9eafc3",
-                          fontWeight: 750,
-                        }}
-                      >
-                        {item.risk}
-                      </span>
-                    </td>
+                              fontWeight:
+                                750,
+                            }}
+                          >
+                            {item.protective}
+                          </span>
+                        </td>
 
 
-                    {/* HARM */}
+                        {/* PRIORITY */}
 
-                    <td>
-                      <span
-                        style={{
-                          color:
-                            item.harm >= 90
-                              ? "#ff7d8b"
-                              : "#9eafc3",
-                          fontWeight: 750,
-                        }}
-                      >
-                        {item.harm}
-                      </span>
-                    </td>
+                        <td>
+                          <PriorityBadge
+                            priority={
+                              item.priority
+                            }
+                          />
+                        </td>
 
 
-                    {/* PROTECTIVE PRIORITY */}
+                        {/* OPEN CASE */}
 
-                    <td>
-                      <span
-                        style={{
-                          color:
-                            item.protective >= 95
-                              ? "#ff7d8b"
-                              : "#77aaff",
-                          fontWeight: 750,
-                        }}
-                      >
-                        {item.protective}
-                      </span>
-                    </td>
+                        <td>
+                          {
+                            item.hasDetail
+                              ? (
+                                <Link
+                                  href={
+                                    `/cases/${item.id}`
+                                  }
+                                  aria-label={
+                                    `Open ${item.id}`
+                                  }
+                                  style={{
+                                    width:
+                                      "31px",
 
+                                    height:
+                                      "31px",
 
-                    {/* PRIORITY */}
+                                    borderRadius:
+                                      "9px",
 
-                    <td>
-                      <PriorityBadge
-                        priority={item.priority}
-                      />
-                    </td>
+                                    display:
+                                      "grid",
 
+                                    placeItems:
+                                      "center",
 
-                    {/* OPEN CASE */}
+                                    border:
+                                      "1px solid rgba(255,255,255,0.07)",
 
-                    <td>
-                      <Link
-                        href={`/cases/${item.id}`}
-                        aria-label={`Open ${item.id}`}
-                        style={{
-                          width: "31px",
-                          height: "31px",
-                          borderRadius: "9px",
-                          display: "grid",
-                          placeItems: "center",
-                          border:
-                            "1px solid rgba(255,255,255,0.07)",
-                          background:
-                            "rgba(255,255,255,0.025)",
-                          color: "#7098d6",
-                          textDecoration: "none",
-                        }}
-                      >
-                        <ChevronRight size={16} />
-                      </Link>
-                    </td>
+                                    background:
+                                      "rgba(255,255,255,0.025)",
 
-                  </tr>
-                ))}
+                                    color:
+                                      "#79a5e6",
+
+                                    textDecoration:
+                                      "none",
+                                  }}
+                                >
+                                  <ChevronRight size={16} />
+                                </Link>
+                              )
+                              : (
+                                <span
+                                  title="Detailed case view not included in the current frontend demo"
+                                  style={{
+                                    width:
+                                      "31px",
+
+                                    height:
+                                      "31px",
+
+                                    borderRadius:
+                                      "9px",
+
+                                    display:
+                                      "grid",
+
+                                    placeItems:
+                                      "center",
+
+                                    border:
+                                      "1px solid rgba(255,255,255,0.045)",
+
+                                    background:
+                                      "rgba(255,255,255,0.015)",
+
+                                    color:
+                                      "#52647b",
+
+                                    cursor:
+                                      "default",
+                                  }}
+                                >
+                                  <ChevronRight size={16} />
+                                </span>
+                              )
+                          }
+                        </td>
+                      </tr>
+                    )
+                  )
+                }
               </tbody>
             </table>
           </div>
@@ -766,18 +1149,37 @@ export default function CasesPage() {
 
           <div
             style={{
-              padding: "14px 18px",
+              padding:
+                "14px 18px",
+
               borderTop:
                 "1px solid rgba(255,255,255,0.05)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              color: "#53667f",
-              fontSize: "9px",
+
+              display:
+                "flex",
+
+              alignItems:
+                "center",
+
+              justifyContent:
+                "space-between",
+
+              gap:
+                "16px",
+
+              color:
+                "#687b93",
+
+              fontSize:
+                "10px",
+
+              lineHeight:
+                1.5,
             }}
           >
             <span>
-              Showing 12 of 53 cases
+              Showing 12 representative cases
+              from 53 aggregated cases
             </span>
 
             <span>
@@ -789,64 +1191,113 @@ export default function CasesPage() {
 
 
         {/* ================================================
-            ERROR TYPE SUMMARY
+            SUMMARY
             ================================================ */}
 
         <section
           className="lowerGrid"
           style={{
-            gridTemplateColumns: "1fr 1fr",
+            gridTemplateColumns:
+              "1fr 1fr",
           }}
         >
 
           {/* ==============================================
-              ERROR CLASSIFICATION
+              EXECUTIVE CASE GROUPING
               ============================================== */}
 
           <div
             className="panel"
             style={{
-              paddingBottom: "18px",
+              paddingBottom:
+                "18px",
             }}
           >
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  ERROR CLASSIFICATION
+                  EXECUTIVE CASE GROUPING
                 </div>
 
                 <h2>
-                  Detected Registration Errors
+                  Identity Integrity Categories
                 </h2>
               </div>
 
               <Fingerprint size={22} />
             </div>
 
-            {[
-              ["Harm Impact", 9],
-              ["Wrong Mapping", 11],
-              ["Complex Identity Conflict", 8],
-              ["Duplicate Identity", 6],
-              ["Data Mismatch", 15],
-              ["Orphan Record", 4],
-            ].map(([label, value]) => (
-              <div
-                key={label}
-                className="detailRow"
-                style={{
-                  margin: "0 19px",
-                }}
-              >
-                <span>
-                  {label}
-                </span>
 
-                <strong>
-                  {value}
-                </strong>
-              </div>
-            ))}
+            {[
+              [
+                "Data Mismatch",
+                15,
+              ],
+              [
+                "Wrong Mapping",
+                11,
+              ],
+              [
+                "Protective / Harm Cases",
+                9,
+              ],
+              [
+                "Complex Identity Conflict",
+                8,
+              ],
+              [
+                "Duplicate Identity",
+                6,
+              ],
+              [
+                "Orphan Record",
+                4,
+              ],
+            ].map(
+              ([
+                label,
+                value,
+              ]) => (
+                <div
+                  key={label}
+                  className="detailRow"
+                  style={{
+                    margin:
+                      "0 19px",
+                  }}
+                >
+                  <span>
+                    {label}
+                  </span>
+
+                  <strong>
+                    {value}
+                  </strong>
+                </div>
+              )
+            )}
+
+
+            <div
+              style={{
+                margin:
+                  "14px 19px 0",
+
+                color:
+                  "#71839a",
+
+                fontSize:
+                  "10px",
+
+                lineHeight:
+                  1.6,
+              }}
+            >
+              Protective / Harm Cases is an
+              executive grouping combining
+              harm-impact and critical
+              wrong-person identity conflicts.
+            </div>
           </div>
 
 
@@ -857,7 +1308,8 @@ export default function CasesPage() {
           <div
             className="panel"
             style={{
-              paddingBottom: "18px",
+              paddingBottom:
+                "18px",
             }}
           >
             <div className="panelHeader">
@@ -878,7 +1330,8 @@ export default function CasesPage() {
             <div
               className="integrityInfo"
               style={{
-                marginTop: "16px",
+                marginTop:
+                  "16px",
               }}
             >
               <ShieldCheck size={21} />
@@ -926,6 +1379,24 @@ export default function CasesPage() {
                   Every executed correction must
                   pass verification before the
                   case can be closed.
+                </span>
+              </div>
+            </div>
+
+
+            <div className="integrityInfo">
+              <CheckCircle2 size={21} />
+
+              <div>
+                <strong>
+                  Verified Closure Required
+                </strong>
+
+                <span>
+                  Successful execution alone does
+                  not close a case. Verification
+                  must confirm the corrected
+                  identity relationship.
                 </span>
               </div>
             </div>

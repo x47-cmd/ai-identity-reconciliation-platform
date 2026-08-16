@@ -6,6 +6,9 @@ on:
 permissions:
   contents: read
 
+env:
+  CI: "true"
+
 jobs:
   visual-qa:
     name: Capture Static Frontend Screenshots
@@ -20,27 +23,48 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "22"
-          cache: "npm"
+          package-manager-cache: false
 
       - name: Install dependencies
+        shell: bash
         run: |
+          set -euo pipefail
+
           if [ -f package-lock.json ]; then
-            npm ci
+            echo "package-lock.json found — using npm ci"
+            npm ci --no-audit --no-fund
           else
-            npm install
+            echo "package-lock.json not found — using npm install"
+            npm install --no-audit --no-fund
           fi
 
       - name: Install Playwright
+        shell: bash
         run: |
-          npm install --no-save playwright
+          set -euo pipefail
+
+          npm install \
+            --no-save \
+            --no-package-lock \
+            --no-audit \
+            --no-fund \
+            playwright
+
           npx playwright install --with-deps chromium
 
       - name: Build static frontend
-        run: npm run build
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run build
 
       - name: Verify static export
+        shell: bash
         run: |
+          set -euo pipefail
+
           test -d out
+
           test -f out/index.html
           test -f out/cases/index.html
           test -f out/cases/CASE-2026-00001/index.html
@@ -55,28 +79,47 @@ jobs:
           echo "Static export verified"
 
       - name: Start static test server
+        shell: bash
         run: |
-          python3 -m http.server 3000 --directory out > /tmp/frontend.log 2>&1 &
+          set -euo pipefail
+
+          python3 \
+            -m http.server 3000 \
+            --directory out \
+            > /tmp/frontend.log 2>&1 &
+
           echo $! > /tmp/frontend.pid
 
       - name: Wait for frontend
+        shell: bash
         run: |
+          set -euo pipefail
+
           for i in {1..30}; do
-            if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
+            if curl \
+              --fail \
+              --silent \
+              --show-error \
+              http://127.0.0.1:3000/ \
+              > /dev/null
+            then
               echo "Static frontend is ready"
               exit 0
             fi
 
-            echo "Waiting for frontend..."
+            echo "Waiting for frontend... attempt $i/30"
             sleep 2
           done
 
           echo "Frontend failed to start"
-          cat /tmp/frontend.log
+          cat /tmp/frontend.log || true
           exit 1
 
       - name: Capture screenshots
+        shell: bash
         run: |
+          set -euo pipefail
+
           mkdir -p visual-qa
 
           cat > capture.mjs <<'EOF'
@@ -144,8 +187,7 @@ jobs:
 
             page.on("pageerror", (error) => {
               console.error(
-                `[PAGE ERROR] ${item.route}:`,
-                error.message
+                `[PAGE ERROR] ${item.route}: ${error.message}`
               );
 
               failed = true;
@@ -154,8 +196,7 @@ jobs:
             page.on("console", (message) => {
               if (message.type() === "error") {
                 console.error(
-                  `[CONSOLE ERROR] ${item.route}:`,
-                  message.text()
+                  `[CONSOLE ERROR] ${item.route}: ${message.text()}`
                 );
 
                 failed = true;
@@ -166,43 +207,47 @@ jobs:
               `Opening ${item.route}`
             );
 
-            const response = await page.goto(
-              `http://127.0.0.1:3000${item.route}`,
-              {
-                waitUntil: "networkidle",
-                timeout: 30000,
-              }
-            );
+            try {
+              const response = await page.goto(
+                `http://127.0.0.1:3000${item.route}`,
+                {
+                  waitUntil: "networkidle",
+                  timeout: 30000,
+                }
+              );
 
-            if (
-              !response
-              ||
-              !response.ok()
-            ) {
+              if (
+                !response ||
+                !response.ok()
+              ) {
+                console.error(
+                  `Failed ${item.route}: HTTP ${
+                    response
+                      ? response.status()
+                      : "NO RESPONSE"
+                  }`
+                );
+
+                failed = true;
+              }
+
+              await page.screenshot({
+                path: `visual-qa/${item.name}.png`,
+                fullPage: true,
+              });
+
+              console.log(
+                `Captured ${item.name}.png`
+              );
+            } catch (error) {
               console.error(
-                `Failed ${item.route}: HTTP ${
-                  response
-                    ? response.status()
-                    : "NO RESPONSE"
-                }`
+                `[CAPTURE ERROR] ${item.route}: ${error.message}`
               );
 
               failed = true;
+            } finally {
+              await page.close();
             }
-
-            await page.screenshot({
-              path:
-                `visual-qa/${item.name}.png`,
-
-              fullPage:
-                true,
-            });
-
-            console.log(
-              `Captured ${item.name}.png`
-            );
-
-            await page.close();
           }
 
           await browser.close();
@@ -221,15 +266,18 @@ jobs:
           name: frontend-visual-qa
           path: visual-qa/
           retention-days: 14
+          if-no-files-found: warn
 
       - name: Show static server log on failure
         if: failure()
+        shell: bash
         run: |
           echo "===== STATIC FRONTEND SERVER LOG ====="
           cat /tmp/frontend.log || true
 
       - name: Stop static test server
         if: always()
+        shell: bash
         run: |
           if [ -f /tmp/frontend.pid ]; then
             kill "$(cat /tmp/frontend.pid)" || true

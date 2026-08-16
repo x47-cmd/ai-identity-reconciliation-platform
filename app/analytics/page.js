@@ -22,21 +22,26 @@ import {
 
 
 /* =========================================================
-   EXECUTIVE DEMO METRICS
+   EXECUTIVE ANALYTICS
 
    Synthetic Demo Only
 
-   These numbers reflect the current project demo:
+   Confirmed demo metrics:
+   - 3,000 Master Reference identities
+   - 1,000 biometric records
+   - 103 raw findings
    - 53 aggregated cases
-   - 9 Immediate
-   - 23 High
-   - 21 Medium
-   - 9 Wrong-person impact cases
-   - 100% recall on seeded synthetic anomalies
-   - 100% diagnostic precision after excluding
-     corroborating / secondary findings
-   - 100% protective detection
-   - 100% protective priority accuracy
+   - 50 corroborating findings collapsed
+   - 17 multi-finding cases
+   - 9 protective / wrong-person cases
+   - 9 Immediate / 23 High / 21 Medium
+   - Detection Recall: 100%
+   - Raw Finding Precision: 72.82%
+   - F1: 84.27%
+   - Diagnostic Precision: 100%
+   - Unexplained False Positives: 0
+   - Protective Detection: 100%
+   - Protective Priority Accuracy: 100%
    ========================================================= */
 
 
@@ -47,15 +52,15 @@ const executiveMetrics = [
     description:
       "Aggregated identity integrity cases",
     icon: FileSearch,
-    trend: "+53",
-    trendLabel: "current demo run",
+    trend: "103",
+    trendLabel: "raw findings",
     tone: "blue",
   },
   {
-    label: "Wrong-Person Impact",
+    label: "Protective Cases",
     value: "9",
     description:
-      "Cases requiring protective attention",
+      "Wrong-person / harm protection grouping",
     icon: ShieldAlert,
     trend: "17.0%",
     trendLabel: "of all cases",
@@ -68,14 +73,14 @@ const executiveMetrics = [
       "Seeded synthetic issues detected",
     icon: ShieldCheck,
     trend: "53 / 53",
-    trendLabel: "issues detected",
+    trendLabel: "expected issues",
     tone: "green",
   },
   {
     label: "Diagnostic Precision",
     value: "100%",
     description:
-      "After corroborating findings analysis",
+      "After corroborating finding analysis",
     icon: Gauge,
     trend: "0",
     trendLabel: "unexplained false positives",
@@ -85,7 +90,7 @@ const executiveMetrics = [
     label: "Protective Detection",
     value: "100%",
     description:
-      "Synthetic harm-impact cases detected",
+      "Protective synthetic cases detected",
     icon: UserCheck,
     trend: "100%",
     trendLabel: "priority accuracy",
@@ -126,6 +131,12 @@ const priorityBreakdown = [
 ];
 
 
+/* =========================================================
+   PRIMARY BACKEND CASE TAXONOMY
+
+   Total = 53
+   ========================================================= */
+
 const errorBreakdown = [
   {
     label: "Data Mismatch",
@@ -138,11 +149,6 @@ const errorBreakdown = [
     percentage: 20.8,
   },
   {
-    label: "Harm Impact",
-    value: 9,
-    percentage: 17.0,
-  },
-  {
     label: "Complex Identity Conflict",
     value: 8,
     percentage: 15.1,
@@ -153,22 +159,38 @@ const errorBreakdown = [
     percentage: 11.3,
   },
   {
+    label: "Harm Impact",
+    value: 6,
+    percentage: 11.3,
+  },
+  {
     label: "Orphan Record",
     value: 4,
     percentage: 7.5,
   },
+  {
+    label: "Critical Harm Identity Conflict",
+    value: 3,
+    percentage: 5.7,
+  },
 ];
 
 
+/* =========================================================
+   CURRENT WORKFLOW SNAPSHOT
+
+   Queue counts reflect the cleaned frontend demo state.
+   ========================================================= */
+
 const workflowBreakdown = [
   {
-    label: "AI Investigated",
+    label: "Cases Generated",
     value: 53,
     total: 53,
   },
   {
     label: "Awaiting Officer",
-    value: 6,
+    value: 5,
     total: 53,
   },
   {
@@ -177,7 +199,7 @@ const workflowBreakdown = [
     total: 53,
   },
   {
-    label: "Authorized",
+    label: "Correction Executed",
     value: 1,
     total: 53,
   },
@@ -189,31 +211,48 @@ const workflowBreakdown = [
 ];
 
 
-const trendData = [
+/* =========================================================
+   RECONCILIATION EVIDENCE FLOW
+
+   No fabricated timestamps are used.
+   ========================================================= */
+
+const pipelineStages = [
   {
-    label: "08:00",
-    cases: 8,
-    harm: 1,
+    label: "Biometric Records",
+    value: "1,000",
+    description:
+      "Synthetic source records monitored",
   },
   {
-    label: "09:00",
-    cases: 17,
-    harm: 2,
+    label: "Raw Findings",
+    value: "103",
+    description:
+      "Reconciliation findings produced",
   },
   {
-    label: "10:00",
-    cases: 29,
-    harm: 4,
+    label: "Aggregated Cases",
+    value: "53",
+    description:
+      "Canonical investigation cases",
   },
   {
-    label: "11:00",
-    cases: 41,
-    harm: 7,
+    label: "Corroborating Findings",
+    value: "50",
+    description:
+      "Secondary evidence collapsed",
   },
   {
-    label: "12:00",
-    cases: 53,
-    harm: 9,
+    label: "Multi-Finding Cases",
+    value: "17",
+    description:
+      "Cases supported by multiple findings",
+  },
+  {
+    label: "Protective Cases",
+    value: "9",
+    description:
+      "Wrong-person / harm protection group",
   },
 ];
 
@@ -221,38 +260,38 @@ const trendData = [
 const agentMetrics = [
   {
     name: "Monitoring Agent",
-    status: "ACTIVE",
+    status: "VALIDATED",
     processed: "1,000",
-    output: "Changes monitored",
+    output: "Biometric records monitored",
   },
   {
     name: "Reconciliation Agent",
-    status: "ACTIVE",
+    status: "VALIDATED",
     processed: "1,000",
-    output: "103 findings",
+    output: "103 raw findings",
   },
   {
     name: "Case Aggregation Engine",
-    status: "ACTIVE",
+    status: "VALIDATED",
     processed: "103",
-    output: "53 cases",
+    output: "53 aggregated cases",
   },
   {
-    name: "Investigation Agent",
-    status: "ACTIVE",
-    processed: "53",
-    output: "53 investigations",
+    name: "Investigation Workflow",
+    status: "DEMO READY",
+    processed: "53 cases",
+    output: "Investigation-ready case set",
   },
   {
     name: "Approval Workflow",
-    status: "READY",
-    processed: "53",
-    output: "Human review queues",
+    status: "VALIDATED",
+    processed: "1 E2E case",
+    output: "Officer + Manager approval passed",
   },
   {
     name: "Verification Agent",
-    status: "ACTIVE",
-    processed: "1",
+    status: "VALIDATED",
+    processed: "1 correction",
     output: "1 verified closed",
   },
 ];
@@ -261,45 +300,41 @@ const agentMetrics = [
 const powerBiDatasets = [
   {
     name: "Case Performance",
-    source: "cases.csv",
-    records: "53",
-    status: "READY",
+    source: "Case and priority metrics",
+    status: "PLANNED",
   },
   {
     name: "AI Findings",
-    source: "findings.csv",
-    records: "103",
-    status: "READY",
+    source: "Reconciliation finding metrics",
+    status: "PLANNED",
   },
   {
     name: "Investigation Results",
-    source: "investigations.csv",
-    records: "53",
-    status: "READY",
+    source: "AI investigation outputs",
+    status: "PLANNED",
   },
   {
     name: "Approval Workflow",
-    source: "approval_state.json",
-    records: "53",
-    status: "READY",
+    source: "Human decision and approval state",
+    status: "PLANNED",
   },
   {
     name: "Verification Results",
-    source: "verification_results.csv",
-    records: "1+",
-    status: "READY",
+    source: "Post-correction verification data",
+    status: "PLANNED",
   },
 ];
 
 
 /* =========================================================
-   METRIC CARD
+   EXECUTIVE METRIC CARD
    ========================================================= */
 
 function ExecutiveMetric({
   item,
 }) {
-  const Icon = item.icon;
+  const Icon =
+    item.icon;
 
   const colors = {
     red: {
@@ -323,7 +358,6 @@ function ExecutiveMetric({
       trend: "#77aaff",
     },
   };
-
 
   const tone =
     colors[item.tone]
@@ -349,15 +383,13 @@ function ExecutiveMetric({
           style={{
             color:
               tone.trend,
-
             fontSize:
-              "8px",
-
+              "10px",
             fontWeight:
               800,
           }}
         >
-          LIVE KPI
+          DEMO KPI
         </span>
       </div>
 
@@ -377,30 +409,26 @@ function ExecutiveMetric({
         style={{
           marginTop:
             "12px",
-
           paddingTop:
             "11px",
-
           borderTop:
             "1px solid rgba(255,255,255,0.045)",
-
           display:
             "flex",
-
           justifyContent:
             "space-between",
-
           alignItems:
             "center",
+          gap:
+            "12px",
         }}
       >
         <strong
           style={{
             color:
               tone.trend,
-
             fontSize:
-              "9px",
+              "10px",
           }}
         >
           {item.trend}
@@ -409,10 +437,11 @@ function ExecutiveMetric({
         <span
           style={{
             color:
-              "#50637b",
-
+              "#6c7f97",
             fontSize:
-              "8px",
+              "10px",
+            textAlign:
+              "right",
           }}
         >
           {item.trendLabel}
@@ -448,13 +477,10 @@ function PriorityBar({
         style={{
           display:
             "flex",
-
           justifyContent:
             "space-between",
-
           alignItems:
             "center",
-
           marginBottom:
             "8px",
         }}
@@ -463,10 +489,8 @@ function PriorityBar({
           style={{
             display:
               "flex",
-
             alignItems:
               "center",
-
             gap:
               "8px",
           }}
@@ -475,13 +499,10 @@ function PriorityBar({
             style={{
               width:
                 "7px",
-
               height:
                 "7px",
-
               borderRadius:
                 "50%",
-
               background:
                 tones[item.tone],
             }}
@@ -490,10 +511,9 @@ function PriorityBar({
           <span
             style={{
               color:
-                "#8597ad",
-
+                "#8b9db3",
               fontSize:
-                "10px",
+                "11px",
             }}
           >
             {item.label}
@@ -505,7 +525,6 @@ function PriorityBar({
             style={{
               color:
                 "#d1ddeb",
-
               fontSize:
                 "11px",
             }}
@@ -516,11 +535,9 @@ function PriorityBar({
           <span
             style={{
               color:
-                "#566a82",
-
+                "#71839a",
               fontSize:
-                "8px",
-
+                "10px",
               marginLeft:
                 "7px",
             }}
@@ -535,13 +552,10 @@ function PriorityBar({
           style={{
             width:
               `${item.percentage}%`,
-
             height:
               "100%",
-
             borderRadius:
               "inherit",
-
             background:
               tones[item.tone],
           }}
@@ -575,43 +589,54 @@ function ErrorBar({
       style={{
         display:
           "grid",
-
         gridTemplateColumns:
-          "160px 1fr 45px",
-
+          "210px 1fr 50px",
         gap:
           "12px",
-
         alignItems:
           "center",
-
         padding:
-          "10px 0",
+          "11px 0",
       }}
     >
-      <span
-        style={{
-          color:
-            "#8294aa",
+      <div>
+        <span
+          style={{
+            display:
+              "block",
+            color:
+              "#8b9db3",
+            fontSize:
+              "11px",
+          }}
+        >
+          {item.label}
+        </span>
 
-          fontSize:
-            "9px",
-        }}
-      >
-        {item.label}
-      </span>
+        <span
+          style={{
+            display:
+              "block",
+            color:
+              "#61738c",
+            fontSize:
+              "10px",
+            marginTop:
+              "3px",
+          }}
+        >
+          {item.percentage}% of cases
+        </span>
+      </div>
 
       <div
         style={{
           height:
             "8px",
-
           borderRadius:
             "8px",
-
           background:
             "rgba(255,255,255,0.045)",
-
           overflow:
             "hidden",
         }}
@@ -620,13 +645,10 @@ function ErrorBar({
           style={{
             width:
               `${width}%`,
-
             height:
               "100%",
-
             borderRadius:
               "8px",
-
             background:
               "linear-gradient(90deg,#286fe6,#5e9cff)",
           }}
@@ -637,12 +659,10 @@ function ErrorBar({
         style={{
           color:
             "#cbd7e7",
-
           textAlign:
             "right",
-
           fontSize:
-            "10px",
+            "11px",
         }}
       >
         {item.value}
@@ -653,155 +673,139 @@ function ErrorBar({
 
 
 /* =========================================================
-   TREND CHART
+   RECONCILIATION PIPELINE
    ========================================================= */
 
-function TrendChart() {
-  const maxCases =
-    Math.max(
-      ...trendData.map(
-        (item) =>
-          item.cases
-      )
-    );
-
-
+function PipelineFlow() {
   return (
     <div
       style={{
         padding:
-          "19px 20px 18px",
+          "20px",
       }}
     >
       <div
         style={{
-          height:
-            "210px",
-
           display:
-            "flex",
-
-          alignItems:
-            "flex-end",
-
+            "grid",
+          gridTemplateColumns:
+            "repeat(3,minmax(0,1fr))",
           gap:
-            "20px",
-
-          borderBottom:
-            "1px solid rgba(255,255,255,0.06)",
-
-          position:
-            "relative",
+            "11px",
         }}
       >
         {
-          trendData.map(
-            (item) => {
-              const height =
-                (
-                  item.cases
-                  /
-                  maxCases
-                )
-                *
-                170;
-
-              const harmHeight =
-                (
-                  item.harm
-                  /
-                  9
-                )
-                *
-                170;
-
-
-              return (
-                <div
-                  key={
-                    item.label
-                  }
+          pipelineStages.map(
+            (item, index) => (
+              <div
+                key={
+                  item.label
+                }
+                style={{
+                  minHeight:
+                    "118px",
+                  padding:
+                    "16px",
+                  borderRadius:
+                    "12px",
+                  background:
+                    "rgba(255,255,255,0.025)",
+                  border:
+                    "1px solid rgba(255,255,255,0.055)",
+                  position:
+                    "relative",
+                }}
+              >
+                <span
                   style={{
-                    flex:
-                      1,
-
-                    height:
-                      "100%",
-
                     display:
                       "flex",
-
                     alignItems:
-                      "flex-end",
-
-                    justifyContent:
                       "center",
-
-                    gap:
-                      "5px",
-
-                    position:
-                      "relative",
+                    justifyContent:
+                      "space-between",
+                    color:
+                      "#6d8098",
+                    fontSize:
+                      "10px",
+                    fontWeight:
+                      800,
                   }}
                 >
-                  <div
-                    style={{
-                      width:
-                        "22px",
-
-                      height:
-                        `${height}px`,
-
-                      minHeight:
-                        "10px",
-
-                      borderRadius:
-                        "7px 7px 0 0",
-
-                      background:
-                        "linear-gradient(180deg,#4e96ff,#225dc0)",
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      width:
-                        "9px",
-
-                      height:
-                        `${harmHeight}px`,
-
-                      minHeight:
-                        "5px",
-
-                      borderRadius:
-                        "5px 5px 0 0",
-
-                      background:
-                        "#ff697a",
-                    }}
-                  />
+                  STAGE {index + 1}
 
                   <span
                     style={{
-                      position:
-                        "absolute",
-
-                      bottom:
-                        "-22px",
-
+                      width:
+                        "22px",
+                      height:
+                        "22px",
+                      borderRadius:
+                        "7px",
+                      display:
+                        "grid",
+                      placeItems:
+                        "center",
+                      background:
+                        "rgba(70,140,255,0.08)",
                       color:
-                        "#52657e",
-
-                      fontSize:
-                        "8px",
+                        "#74a8ff",
                     }}
                   >
-                    {item.label}
+                    {index + 1}
                   </span>
-                </div>
-              );
-            }
+                </span>
+
+                <strong
+                  style={{
+                    display:
+                      "block",
+                    color:
+                      "#e1eaf6",
+                    fontSize:
+                      "22px",
+                    marginTop:
+                      "10px",
+                  }}
+                >
+                  {item.value}
+                </strong>
+
+                <span
+                  style={{
+                    display:
+                      "block",
+                    color:
+                      "#91a2b7",
+                    fontSize:
+                      "11px",
+                    fontWeight:
+                      700,
+                    marginTop:
+                      "2px",
+                  }}
+                >
+                  {item.label}
+                </span>
+
+                <span
+                  style={{
+                    display:
+                      "block",
+                    color:
+                      "#63768e",
+                    fontSize:
+                      "10px",
+                    lineHeight:
+                      1.5,
+                    marginTop:
+                      "5px",
+                  }}
+                >
+                  {item.description}
+                </span>
+              </div>
+            )
           )
         }
       </div>
@@ -809,91 +813,28 @@ function TrendChart() {
       <div
         style={{
           marginTop:
-            "35px",
-
-          display:
-            "flex",
-
-          gap:
-            "18px",
-
-          alignItems:
-            "center",
+            "14px",
+          padding:
+            "12px 14px",
+          borderRadius:
+            "10px",
+          background:
+            "rgba(70,140,255,0.035)",
+          border:
+            "1px solid rgba(70,140,255,0.07)",
+          color:
+            "#71849c",
+          fontSize:
+            "10px",
+          lineHeight:
+            1.6,
         }}
       >
-        <div
-          style={{
-            display:
-              "flex",
-
-            alignItems:
-              "center",
-
-            gap:
-              "6px",
-
-            color:
-              "#657890",
-
-            fontSize:
-              "8px",
-          }}
-        >
-          <span
-            style={{
-              width:
-                "8px",
-
-              height:
-                "8px",
-
-              borderRadius:
-                "3px",
-
-              background:
-                "#4e96ff",
-            }}
-          />
-
-          Total Cases
-        </div>
-
-        <div
-          style={{
-            display:
-              "flex",
-
-            alignItems:
-              "center",
-
-            gap:
-              "6px",
-
-            color:
-              "#657890",
-
-            fontSize:
-              "8px",
-          }}
-        >
-          <span
-            style={{
-              width:
-                "8px",
-
-              height:
-                "8px",
-
-              borderRadius:
-                "3px",
-
-              background:
-                "#ff697a",
-            }}
-          />
-
-          Wrong-Person Impact
-        </div>
+        Raw findings are reconciled and aggregated
+        into case-level investigations. Corroborating
+        findings strengthen existing cases rather
+        than being counted as unexplained false
+        positives.
       </div>
     </div>
   );
@@ -907,10 +848,6 @@ function TrendChart() {
 export default function AnalyticsPage() {
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -936,8 +873,8 @@ export default function AnalyticsPage() {
             <p>
               Executive visibility into identity
               integrity, protective risk,
-              AI performance, workflow efficiency
-              and correction outcomes.
+              AI performance, workflow governance
+              and verified correction outcomes.
             </p>
           </div>
 
@@ -978,7 +915,6 @@ export default function AnalyticsPage() {
           style={{
             margin:
               "0 0 20px",
-
             padding:
               "17px",
           }}
@@ -987,17 +923,17 @@ export default function AnalyticsPage() {
 
           <div>
             <strong>
-              Identity Integrity Intelligence
-              Operational
+              Synthetic Demo Validation Passed
             </strong>
 
             <span>
-              All seeded synthetic identity
-              integrity issues were detected in
-              the current demonstration run.
-              Protective harm-impact detection
-              and priority classification both
-              reached 100%.
+              All 53 seeded synthetic identity
+              issues were detected. Protective
+              detection and protective priority
+              accuracy both reached 100%, while
+              unexplained false positives remained
+              at zero after corroborating evidence
+              analysis.
             </span>
           </div>
         </section>
@@ -1011,15 +947,12 @@ export default function AnalyticsPage() {
           style={{
             display:
               "grid",
-
             gridTemplateColumns:
               "repeat(3,minmax(0,1fr))",
-
             gap:
-              "14px",
-
+              "16px",
             marginBottom:
-              "14px",
+              "16px",
           }}
         >
           {
@@ -1087,13 +1020,10 @@ export default function AnalyticsPage() {
                 style={{
                   display:
                     "grid",
-
                   gridTemplateColumns:
                     "repeat(3,1fr)",
-
                   gap:
                     "8px",
-
                   marginTop:
                     "13px",
                 }}
@@ -1108,13 +1038,10 @@ export default function AnalyticsPage() {
                         style={{
                           padding:
                             "12px",
-
                           borderRadius:
                             "10px",
-
                           background:
                             "rgba(255,255,255,0.024)",
-
                           border:
                             "1px solid rgba(255,255,255,0.05)",
                         }}
@@ -1123,12 +1050,10 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "block",
-
                             color:
-                              "#596c84",
-
+                              "#71839a",
                             fontSize:
-                              "8px",
+                              "10px",
                           }}
                         >
                           {item.label}
@@ -1138,13 +1063,10 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "block",
-
                             color:
                               "#d1ddec",
-
                             fontSize:
                               "18px",
-
                             marginTop:
                               "4px",
                           }}
@@ -1170,7 +1092,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <h2>
-                  Wrong-Person Risk
+                  Wrong-Person Protection
                 </h2>
               </div>
 
@@ -1187,31 +1109,22 @@ export default function AnalyticsPage() {
                 style={{
                   width:
                     "145px",
-
                   height:
                     "145px",
-
                   borderRadius:
                     "50%",
-
                   margin:
                     "0 auto",
-
                   border:
                     "13px solid rgba(255,85,105,0.10)",
-
                   outline:
                     "4px solid rgba(255,85,105,0.21)",
-
                   display:
                     "flex",
-
                   flexDirection:
                     "column",
-
                   justifyContent:
                     "center",
-
                   alignItems:
                     "center",
                 }}
@@ -1220,7 +1133,6 @@ export default function AnalyticsPage() {
                   style={{
                     color:
                       "#ff7b89",
-
                     fontSize:
                       "34px",
                   }}
@@ -1231,10 +1143,11 @@ export default function AnalyticsPage() {
                 <span
                   style={{
                     color:
-                      "#8e6068",
-
+                      "#a56d76",
                     fontSize:
-                      "8px",
+                      "10px",
+                    fontWeight:
+                      750,
                   }}
                 >
                   PROTECTIVE CASES
@@ -1249,7 +1162,7 @@ export default function AnalyticsPage() {
               >
                 <div className="detailRow">
                   <span>
-                    Detection Recall
+                    Protective Detection
                   </span>
 
                   <strong
@@ -1279,13 +1192,31 @@ export default function AnalyticsPage() {
 
                 <div className="detailRow">
                   <span>
-                    Immediate Protection
+                    Protective Cases
                   </span>
 
                   <strong>
                     9
                   </strong>
                 </div>
+              </div>
+
+              <div
+                style={{
+                  marginTop:
+                    "13px",
+                  color:
+                    "#71839a",
+                  fontSize:
+                    "10px",
+                  lineHeight:
+                    1.6,
+                }}
+              >
+                Protective Cases is an executive
+                grouping for wrong-person and
+                harm-sensitive cases. It is not
+                a single backend case type.
               </div>
             </div>
           </div>
@@ -1300,17 +1231,17 @@ export default function AnalyticsPage() {
           className="panel"
           style={{
             marginTop:
-              "14px",
+              "16px",
           }}
         >
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                ROOT CAUSE INTELLIGENCE
+                PRIMARY CASE TAXONOMY
               </div>
 
               <h2>
-                Cases by Error Type
+                Cases by Backend Error Type
               </h2>
             </div>
 
@@ -1333,9 +1264,7 @@ export default function AnalyticsPage() {
                     item={
                       item
                     }
-                    maxValue={
-                      15
-                    }
+                    maxValue={15}
                   />
                 )
               )
@@ -1345,35 +1274,35 @@ export default function AnalyticsPage() {
 
 
         {/* ================================================
-            TREND + WORKFLOW
+            PIPELINE + WORKFLOW
             ================================================ */}
 
         <section
           className="dashboardGrid"
           style={{
             marginTop:
-              "14px",
+              "16px",
           }}
         >
 
-          {/* TREND */}
+          {/* PIPELINE */}
 
           <div className="panel">
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  MONITORING TREND
+                  RECONCILIATION PIPELINE
                 </div>
 
                 <h2>
-                  Case Detection Over Time
+                  Evidence & Case Flow
                 </h2>
               </div>
 
               <TrendingUp size={22} />
             </div>
 
-            <TrendChart />
+            <PipelineFlow />
           </div>
 
 
@@ -1387,7 +1316,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <h2>
-                  Workflow Position
+                  Workflow Snapshot
                 </h2>
               </div>
 
@@ -1412,7 +1341,6 @@ export default function AnalyticsPage() {
                       *
                       100;
 
-
                     return (
                       <div
                         key={
@@ -1427,10 +1355,10 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "flex",
-
                             justifyContent:
                               "space-between",
-
+                            gap:
+                              "12px",
                             marginBottom:
                               "7px",
                           }}
@@ -1438,10 +1366,9 @@ export default function AnalyticsPage() {
                           <span
                             style={{
                               color:
-                                "#8193aa",
-
+                                "#8b9db3",
                               fontSize:
-                                "9px",
+                                "11px",
                             }}
                           >
                             {item.label}
@@ -1451,9 +1378,8 @@ export default function AnalyticsPage() {
                             style={{
                               color:
                                 "#d0dbea",
-
                               fontSize:
-                                "10px",
+                                "11px",
                             }}
                           >
                             {item.value}
@@ -1474,45 +1400,59 @@ export default function AnalyticsPage() {
                   }
                 )
               }
+
+              <div
+                style={{
+                  marginTop:
+                    "11px",
+                  color:
+                    "#687b93",
+                  fontSize:
+                    "10px",
+                  lineHeight:
+                    1.6,
+                }}
+              >
+                Queue and milestone values are a
+                workflow snapshot and are not
+                mutually exclusive totals.
+              </div>
             </div>
           </div>
         </section>
 
 
         {/* ================================================
-            OPERATIONAL KPI
+            OPERATIONAL DATA
             ================================================ */}
 
         <section
           style={{
             display:
               "grid",
-
             gridTemplateColumns:
               "repeat(4,minmax(0,1fr))",
-
             gap:
-              "14px",
-
+              "16px",
             marginTop:
-              "14px",
+              "16px",
           }}
         >
           <div className="metricCard">
             <div className="metricIcon">
-              <Timer size={20} />
+              <ShieldCheck size={20} />
             </div>
 
             <div className="metricValue">
-              10s
+              PASSED
             </div>
 
             <div className="metricTitle">
-              Demo Run Time
+              E2E Demo Workflow
             </div>
 
             <div className="metricSubtitle">
-              Full automated GitHub workflow
+              Officer → Manager → Execution → Verification
             </div>
           </div>
 
@@ -1531,7 +1471,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="metricSubtitle">
-              Read-only reference records
+              Authoritative read-only reference
             </div>
           </div>
 
@@ -1550,7 +1490,7 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="metricSubtitle">
-              Continuously reconciled dataset
+              Synthetic reconciliation dataset
             </div>
           </div>
 
@@ -1565,11 +1505,11 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="metricTitle">
-              AI Findings
+              Raw AI Findings
             </div>
 
             <div className="metricSubtitle">
-              Consolidated into 53 cases
+              Aggregated into 53 cases
             </div>
           </div>
         </section>
@@ -1583,7 +1523,7 @@ export default function AnalyticsPage() {
           className="panel"
           style={{
             marginTop:
-              "14px",
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -1593,7 +1533,7 @@ export default function AnalyticsPage() {
               </div>
 
               <h2>
-                Agent Performance
+                Validated Demo Components
               </h2>
             </div>
 
@@ -1605,8 +1545,8 @@ export default function AnalyticsPage() {
             <table>
               <thead>
                 <tr>
-                  <th>AGENT</th>
-                  <th>STATUS</th>
+                  <th>COMPONENT</th>
+                  <th>DEMO STATUS</th>
                   <th>INPUT / PROCESSED</th>
                   <th>RESULT</th>
                 </tr>
@@ -1626,10 +1566,8 @@ export default function AnalyticsPage() {
                             style={{
                               display:
                                 "flex",
-
                               alignItems:
                                 "center",
-
                               gap:
                                 "9px",
                             }}
@@ -1644,9 +1582,8 @@ export default function AnalyticsPage() {
                               style={{
                                 color:
                                   "#cbd7e7",
-
                                 fontSize:
-                                  "9px",
+                                  "11px",
                               }}
                             >
                               {agent.name}
@@ -1659,19 +1596,14 @@ export default function AnalyticsPage() {
                             style={{
                               display:
                                 "inline-flex",
-
                               alignItems:
                                 "center",
-
                               gap:
                                 "6px",
-
                               color:
                                 "#59cfa0",
-
                               fontSize:
-                                "8px",
-
+                                "10px",
                               fontWeight:
                                 800,
                             }}
@@ -1707,7 +1639,7 @@ export default function AnalyticsPage() {
           className="panel"
           style={{
             marginTop:
-              "14px",
+              "16px",
           }}
         >
           <div className="panelHeader">
@@ -1729,13 +1661,10 @@ export default function AnalyticsPage() {
             style={{
               display:
                 "grid",
-
               gridTemplateColumns:
                 "1.15fr 0.85fr",
-
               gap:
-                "14px",
-
+                "16px",
               padding:
                 "20px",
             }}
@@ -1747,25 +1676,18 @@ export default function AnalyticsPage() {
               style={{
                 minHeight:
                   "330px",
-
                 borderRadius:
                   "14px",
-
                 background:
                   "linear-gradient(135deg,rgba(31,100,210,0.11),rgba(10,22,39,0.35))",
-
                 border:
                   "1px solid rgba(90,150,255,0.11)",
-
                 padding:
                   "22px",
-
                 display:
                   "flex",
-
                 flexDirection:
                   "column",
-
                 justifyContent:
                   "space-between",
               }}
@@ -1775,10 +1697,8 @@ export default function AnalyticsPage() {
                   style={{
                     display:
                       "flex",
-
                     alignItems:
                       "center",
-
                     gap:
                       "10px",
                   }}
@@ -1792,12 +1712,10 @@ export default function AnalyticsPage() {
                       style={{
                         display:
                           "block",
-
                         color:
                           "#d3dfed",
-
                         fontSize:
-                          "11px",
+                          "12px",
                       }}
                     >
                       Executive Power BI Report
@@ -1807,18 +1725,15 @@ export default function AnalyticsPage() {
                       style={{
                         display:
                           "block",
-
                         color:
-                          "#60738d",
-
+                          "#71839a",
                         fontSize:
-                          "8px",
-
+                          "10px",
                         marginTop:
                           "4px",
                       }}
                     >
-                      Embedded reporting workspace
+                      Planned secured reporting integration
                     </span>
                   </div>
                 </div>
@@ -1828,13 +1743,10 @@ export default function AnalyticsPage() {
                   style={{
                     display:
                       "grid",
-
                     gridTemplateColumns:
                       "repeat(3,1fr)",
-
                     gap:
                       "9px",
-
                     marginTop:
                       "25px",
                   }}
@@ -1864,13 +1776,10 @@ export default function AnalyticsPage() {
                         style={{
                           padding:
                             "15px",
-
                           borderRadius:
                             "11px",
-
                           background:
                             "rgba(255,255,255,0.025)",
-
                           border:
                             "1px solid rgba(255,255,255,0.055)",
                         }}
@@ -1879,12 +1788,10 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "block",
-
                             color:
-                              "#596c84",
-
+                              "#71839a",
                             fontSize:
-                              "8px",
+                              "10px",
                           }}
                         >
                           {label}
@@ -1894,10 +1801,8 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "block",
-
                             marginTop:
                               "5px",
-
                             fontSize:
                               "20px",
                           }}
@@ -1915,13 +1820,10 @@ export default function AnalyticsPage() {
                 style={{
                   padding:
                     "16px",
-
                   borderRadius:
                     "11px",
-
                   background:
                     "rgba(255,185,65,0.045)",
-
                   border:
                     "1px solid rgba(255,185,65,0.09)",
                 }}
@@ -1930,12 +1832,10 @@ export default function AnalyticsPage() {
                   style={{
                     display:
                       "block",
-
                     color:
                       "#d4ac63",
-
                     fontSize:
-                      "9px",
+                      "11px",
                   }}
                 >
                   Power BI Integration Ready
@@ -1945,26 +1845,21 @@ export default function AnalyticsPage() {
                   style={{
                     display:
                       "block",
-
                     color:
-                      "#826e4d",
-
+                      "#927b54",
                     fontSize:
-                      "8px",
-
+                      "10px",
                     lineHeight:
                       1.6,
-
                     marginTop:
                       "5px",
                   }}
                 >
-                  The final production version can
-                  embed a secured Power BI report
-                  here. The current page uses
-                  frontend demo visualizations
-                  until the Power BI dataset and
-                  workspace are connected.
+                  Power BI is a planned production
+                  integration. The current frontend
+                  uses native demonstration
+                  visualizations and does not claim
+                  an active Power BI connection.
                 </span>
               </div>
             </div>
@@ -1974,14 +1869,13 @@ export default function AnalyticsPage() {
 
             <div>
               <div className="panelEyebrow">
-                REPORT DATASETS
+                PLANNED REPORT DATASETS
               </div>
 
               <h3
                 style={{
                   margin:
                     "6px 0 15px",
-
                   fontSize:
                     "13px",
                 }}
@@ -1999,25 +1893,18 @@ export default function AnalyticsPage() {
                       style={{
                         padding:
                           "13px",
-
                         borderRadius:
                           "10px",
-
                         background:
                           "rgba(255,255,255,0.024)",
-
                         border:
                           "1px solid rgba(255,255,255,0.05)",
-
                         marginBottom:
                           "8px",
-
                         display:
                           "flex",
-
                         alignItems:
                           "center",
-
                         gap:
                           "10px",
                       }}
@@ -2037,12 +1924,10 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "block",
-
                             color:
                               "#c9d6e5",
-
                             fontSize:
-                              "9px",
+                              "11px",
                           }}
                         >
                           {dataset.name}
@@ -2052,32 +1937,24 @@ export default function AnalyticsPage() {
                           style={{
                             display:
                               "block",
-
                             color:
-                              "#566a82",
-
+                              "#71839a",
                             fontSize:
-                              "8px",
-
+                              "10px",
                             marginTop:
                               "3px",
                           }}
                         >
                           {dataset.source}
-                          {" · "}
-                          {dataset.records}
-                          {" records"}
                         </span>
                       </div>
 
                       <span
                         style={{
                           color:
-                            "#59cfa0",
-
+                            "#d4ac63",
                           fontSize:
-                            "8px",
-
+                            "10px",
                           fontWeight:
                             800,
                         }}
@@ -2102,9 +1979,8 @@ export default function AnalyticsPage() {
           style={{
             gridTemplateColumns:
               "1fr 1fr",
-
             marginTop:
-              "14px",
+              "16px",
           }}
         >
 
@@ -2118,7 +1994,7 @@ export default function AnalyticsPage() {
                 </div>
 
                 <h2>
-                  Workflow Efficiency
+                  Workflow Snapshot
                 </h2>
               </div>
 
@@ -2134,14 +2010,14 @@ export default function AnalyticsPage() {
               {[
                 [
                   "Cases Awaiting Officer",
-                  "6",
+                  "5",
                 ],
                 [
                   "Cases Awaiting Manager",
                   "3",
                 ],
                 [
-                  "Authorized Corrections",
+                  "Completed Demo Correction",
                   "1",
                 ],
                 [
@@ -2214,15 +2090,27 @@ export default function AnalyticsPage() {
                   "53",
                 ],
                 [
-                  "Missed Issues",
-                  "0",
+                  "Detection Recall",
+                  "100%",
+                ],
+                [
+                  "Raw Finding Precision",
+                  "72.82%",
+                ],
+                [
+                  "Raw Finding F1",
+                  "84.27%",
+                ],
+                [
+                  "Diagnostic Precision",
+                  "100%",
                 ],
                 [
                   "Unexplained False Positives",
                   "0",
                 ],
                 [
-                  "Protective Detection Recall",
+                  "Protective Detection",
                   "100%",
                 ],
                 [
@@ -2272,8 +2160,7 @@ export default function AnalyticsPage() {
           className="alertBanner"
           style={{
             marginTop:
-              "14px",
-
+              "16px",
             marginBottom:
               0,
           }}
@@ -2288,13 +2175,15 @@ export default function AnalyticsPage() {
             </strong>
 
             <span>
-              Data mismatch is currently the
-              largest case category, while
-              wrong-person impact represents
-              the highest protective urgency.
-              Management reporting should
-              therefore monitor both error
-              volume and human harm separately.
+              Data mismatch is the largest
+              individual backend case type.
+              Separately, the protective grouping
+              contains 9 wrong-person and
+              harm-sensitive cases requiring
+              elevated human attention. Volume
+              and protective harm should therefore
+              be monitored as different management
+              dimensions.
             </span>
           </div>
 
@@ -2326,7 +2215,7 @@ export default function AnalyticsPage() {
           <div>
             <Activity size={15} />
 
-            Intelligence Monitoring Active
+            Synthetic Intelligence View
           </div>
         </footer>
 

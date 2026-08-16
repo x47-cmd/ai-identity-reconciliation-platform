@@ -11,17 +11,19 @@ const translations = {
       ready: "Ready",
       operational: "Operational",
       environment: "Environment",
-      processingState: "Processing state",
-      viewDetails: "View details",
+      processingState: "Processing State",
+      viewDetails: "View Details",
       review: "Review",
       open: "Open",
       approved: "Approved",
       completed: "Completed",
       passed: "Passed",
+      failed: "Failed",
       pending: "Pending",
       immediate: "Immediate",
       high: "High",
       medium: "Medium",
+      low: "Low",
       total: "Total",
       case: "Case",
       type: "Type",
@@ -40,6 +42,13 @@ const translations = {
       verifiedIdentity: "Verified Identity",
       biometricRecord: "Biometric Record",
       verification: "Verification",
+      execution: "Execution",
+      before: "Before",
+      after: "After",
+      score: "Score",
+      action: "Action",
+      recommendation: "Recommendation",
+      decision: "Decision",
       no: "No",
       yes: "Yes",
       notStarted: "Not Started",
@@ -51,7 +60,7 @@ const translations = {
       managerApproval: "Manager Approval",
       readOnly: "Read-only",
       masterProtected: "Master Protected",
-      readOnlyReference: "Read-only reference",
+      readOnlyReference: "Read-only Reference",
       syntheticDemonstration: "Synthetic Demonstration",
       continuousMonitoringActive: "Continuous Monitoring Active",
       language: "Language",
@@ -101,7 +110,7 @@ const translations = {
       demoKpi: "DEMO KPI",
       aiPriorityQueue: "AI PRIORITY QUEUE",
       casesRequiringAttention: "Cases Requiring Attention",
-      viewAllCases: "View all cases",
+      viewAllCases: "View All Cases",
       aiIdentity: "AI Identity",
 
       agenticAi: "AGENTIC AI",
@@ -115,7 +124,7 @@ const translations = {
       latestVerifiedProtectiveCase:
         "LATEST VERIFIED PROTECTIVE CASE",
 
-      harmImpact: "Harm impact",
+      harmImpact: "Harm Impact",
       endToEndVerificationPassed:
         "End-to-End Verification Passed",
 
@@ -123,7 +132,7 @@ const translations = {
         "The approved correction passed post-correction verification and reached VERIFIED_CLOSED status.",
 
       protectiveWrongPersonDetected:
-        "Protective wrong-person impact was detected",
+        "Protective Wrong-Person Impact Detected",
 
       protectiveWrongPersonMessage:
         "The identity conflict was assigned immediate protective priority, reviewed by both required human approval levels, corrected in the permitted target and subsequently verified closed.",
@@ -132,15 +141,15 @@ const translations = {
         "View Verified Case Lifecycle",
 
       platformHealth: "Platform Health",
-      canonicalCaseResolution: "Canonical case resolution",
-      protectiveDetection: "Protective detection",
-      unexplainedFalsePositives: "Unexplained false positives",
+      canonicalCaseResolution: "Canonical Case Resolution",
+      protectiveDetection: "Protective Detection",
+      unexplainedFalsePositives: "Unexplained False Positives",
 
       masterReferenceProtected:
-        "Master Reference protected",
+        "Master Reference Protected",
 
       masterProtectionMessage:
-        "The authoritative Master Reference remains read only. Automated corrections target only the permitted Biometric System runtime dataset after required human approval.",
+        "The authoritative Master Reference remains read-only. Automated corrections target only the permitted Biometric System runtime dataset after required human approval.",
 
       openDataIntegrityCenter:
         "Open Data Integrity Center",
@@ -170,7 +179,7 @@ const translations = {
       protectiveScore: "Protective Score",
 
       openInvestigation: "Open Investigation",
-      detailUnavailable: "Detail unavailable in demo",
+      detailUnavailable: "Detail Unavailable in Demo",
 
       verifiedClosed: "VERIFIED CLOSED",
       aiInvestigated: "AI INVESTIGATED",
@@ -258,7 +267,7 @@ const translations = {
         "Next Recommended Review",
 
       humanApprovalRequired:
-        "Human approval required before any correction can proceed.",
+        "Human approval is required before any correction can proceed.",
     },
 
     managerApproval: {
@@ -386,9 +395,10 @@ const translations = {
       biometricSystem: "Biometric System",
 
       authoritativeSource:
-        "Authoritative source",
+        "Authoritative Source",
+
       controlledCorrectionTarget:
-        "Controlled correction target",
+        "Controlled Correction Target",
 
       records: "Records",
       identities: "Identities",
@@ -413,7 +423,7 @@ const translations = {
         "Protective Priority Accuracy",
 
       masterReadOnly:
-        "Master Reference is read-only",
+        "Master Reference Is Read-Only",
 
       masterReadOnlyMessage:
         "The reconciliation platform can compare against the authoritative Master Reference but cannot automatically modify it.",
@@ -483,6 +493,7 @@ const translations = {
       IMMEDIATE: "IMMEDIATE",
       HIGH: "HIGH",
       MEDIUM: "MEDIUM",
+      LOW: "LOW",
     },
 
     statuses: {
@@ -492,21 +503,33 @@ const translations = {
       APPROVED: "APPROVED",
       COMPLETED: "COMPLETED",
       PASSED: "PASSED",
+      FAILED: "FAILED",
       NOT_READY: "NOT READY",
       NOT_STARTED: "NOT STARTED",
       NOT_AUTHORIZED: "NOT AUTHORIZED",
+      AWAITING_OFFICER: "AWAITING OFFICER",
+      AWAITING_MANAGER: "AWAITING MANAGER",
+      OFFICER_APPROVED: "OFFICER APPROVED",
+      EXECUTION_AUTHORIZED: "EXECUTION AUTHORIZED",
     },
 
     caseTypes: {
       HARM_IMPACT: "HARM IMPACT",
+
       CRITICAL_HARM_CONFLICT:
         "CRITICAL HARM CONFLICT",
+
+      CRITICAL_HARM_IDENTITY_CONFLICT:
+        "CRITICAL HARM IDENTITY CONFLICT",
+
       COMPLEX_IDENTITY_CONFLICT:
         "COMPLEX IDENTITY CONFLICT",
+
       DATA_MISMATCH: "DATA MISMATCH",
       WRONG_MAPPING: "WRONG MAPPING",
       DUPLICATE_IDENTITY: "DUPLICATE IDENTITY",
       ORPHAN: "ORPHAN",
+      ORPHAN_RECORD: "ORPHAN RECORD",
     },
 
     footer: {
@@ -518,13 +541,12 @@ const translations = {
     },
   },
 
-
   ar: {
     common: {
       searchCase: "البحث عن حالة",
       monitoringOfficer: "ضابط المراقبة",
       operations: "العمليات",
-      syntheticDemo: "بيئة تجريبية اصطناعية",
+      syntheticDemo: "عرض تجريبي اصطناعي",
       syntheticDemoEnvironment: "بيئة تجريبية اصطناعية",
       systemOperational: "النظام يعمل",
       active: "نشط",
@@ -538,10 +560,12 @@ const translations = {
       approved: "معتمد",
       completed: "مكتمل",
       passed: "ناجح",
+      failed: "فشل",
       pending: "قيد الانتظار",
       immediate: "فوري",
       high: "مرتفع",
       medium: "متوسط",
+      low: "منخفض",
       total: "الإجمالي",
       case: "الحالة",
       type: "النوع",
@@ -560,6 +584,13 @@ const translations = {
       verifiedIdentity: "الهوية المتحقق منها",
       biometricRecord: "السجل البيومتري",
       verification: "التحقق",
+      execution: "التنفيذ",
+      before: "قبل",
+      after: "بعد",
+      score: "الدرجة",
+      action: "الإجراء",
+      recommendation: "التوصية",
+      decision: "القرار",
       no: "لا",
       yes: "نعم",
       notStarted: "لم يبدأ",
@@ -907,6 +938,7 @@ const translations = {
 
       authoritativeSource:
         "المصدر المعتمد",
+
       controlledCorrectionTarget:
         "هدف التصحيح الخاضع للتحكم",
 
@@ -950,7 +982,8 @@ const translations = {
 
       auditEvents: "أحداث التدقيق",
       humanDecisions: "القرارات البشرية",
-      controlledAiStages: "مراحل الذكاء الاصطناعي الخاضعة للتحكم",
+      controlledAiStages:
+        "مراحل الذكاء الاصطناعي الخاضعة للتحكم",
       verifiedClosed: "تم التحقق والإغلاق",
 
       selectedAuditCase:
@@ -1003,6 +1036,7 @@ const translations = {
       IMMEDIATE: "فوري",
       HIGH: "مرتفع",
       MEDIUM: "متوسط",
+      LOW: "منخفض",
     },
 
     statuses: {
@@ -1012,21 +1046,33 @@ const translations = {
       APPROVED: "معتمد",
       COMPLETED: "مكتمل",
       PASSED: "ناجح",
+      FAILED: "فشل",
       NOT_READY: "غير جاهز",
       NOT_STARTED: "لم يبدأ",
       NOT_AUTHORIZED: "غير مصرح",
+      AWAITING_OFFICER: "بانتظار الضابط",
+      AWAITING_MANAGER: "بانتظار المدير",
+      OFFICER_APPROVED: "معتمد من الضابط",
+      EXECUTION_AUTHORIZED: "مصرح بالتنفيذ",
     },
 
     caseTypes: {
       HARM_IMPACT: "تأثير ضرر",
+
       CRITICAL_HARM_CONFLICT:
         "تعارض ذو ضرر حرج",
+
+      CRITICAL_HARM_IDENTITY_CONFLICT:
+        "تعارض هوية ذو ضرر حرج",
+
       COMPLEX_IDENTITY_CONFLICT:
         "تعارض هوية معقد",
+
       DATA_MISMATCH: "اختلاف بيانات",
       WRONG_MAPPING: "ربط خاطئ",
       DUPLICATE_IDENTITY: "هوية مكررة",
       ORPHAN: "سجل دون مرجع",
+      ORPHAN_RECORD: "سجل دون مرجع",
     },
 
     footer: {
@@ -1038,6 +1084,5 @@ const translations = {
     },
   },
 };
-
 
 export default translations;

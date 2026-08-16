@@ -1148,6 +1148,19 @@ html[dir="rtl"] table {
   direction: rtl;
 }
 
+/* Move sidebar to the right in Arabic */
+html[dir="rtl"] .sidebar {
+  inset: 0 0 0 auto;
+  border-right: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Move main content away from right sidebar */
+html[dir="rtl"] .mainContent {
+  margin-left: 0;
+  margin-right: 265px;
+}
+
 html[dir="rtl"] .topbar,
 html[dir="rtl"] .panelHeader,
 html[dir="rtl"] .caseHeroHeader,
@@ -1158,6 +1171,23 @@ html[dir="rtl"] .healthScore > div:first-child {
   direction: rtl;
 }
 
+/* Table alignment */
+html[dir="rtl"] th {
+  text-align: right;
+}
+
+/* Sidebar counters */
+html[dir="rtl"] .navCount {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Detail values */
+html[dir="rtl"] .detailRow strong {
+  text-align: left;
+}
+
+/* Reverse directional arrows */
 html[dir="rtl"] .identityChange svg,
 html[dir="rtl"] .textButton svg,
 html[dir="rtl"] .bannerButton svg,
@@ -1165,6 +1195,7 @@ html[dir="rtl"] .primaryButton svg {
   transform: rotate(180deg);
 }
 
+/* Language selector */
 .languageSwitcher {
   display: flex;
   align-items: center;
@@ -1187,6 +1218,11 @@ html[dir="rtl"] .primaryButton svg {
   cursor: pointer;
 }
 
+.languageButton:hover {
+  color: #dbeafe;
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .languageButton.active {
   background: rgba(59, 130, 246, 0.12);
   color: #93c5fd;
@@ -1195,4 +1231,12 @@ html[dir="rtl"] .primaryButton svg {
 html[dir="rtl"] input,
 html[dir="rtl"] textarea {
   text-align: right;
+}
+
+/* Mobile layout has no fixed sidebar */
+@media (max-width: 800px) {
+  html[dir="rtl"] .mainContent {
+    margin-right: 0;
+    margin-left: 0;
+  }
 }

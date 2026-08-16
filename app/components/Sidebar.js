@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  useLanguage,
-} from "./LanguageProvider";
+import { useLanguage } from "./LanguageProvider";
 
 import {
   BadgeCheck,
@@ -21,6 +19,10 @@ import {
   UserCheck,
 } from "lucide-react";
 
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
 
 const navigationGroups = [
   {
@@ -45,6 +47,15 @@ const navigationGroups = [
         labelKey: "sidebar.aiInvestigations",
         href: "/cases",
         icon: BrainCircuit,
+
+        /*
+         * Dedicated AI Investigations index route
+         * is not implemented yet.
+         *
+         * This entry intentionally opens Cases
+         * but does not take ownership of the
+         * /cases active navigation state.
+         */
         secondary: true,
       },
 
@@ -63,7 +74,8 @@ const navigationGroups = [
       },
 
       {
-        labelKey: "sidebar.correctionsVerification",
+        labelKey:
+          "sidebar.correctionsVerification",
         href: "/corrections-verification",
         icon: CircleCheckBig,
         count: "1",
@@ -97,34 +109,39 @@ const navigationGroups = [
 ];
 
 
+/* =========================================================
+   ACTIVE ROUTE HELPER
+   ========================================================= */
+
 function isItemActive(
   pathname,
   item
 ) {
-  if (
-    item.href === "/"
-  ) {
+  if (!pathname) {
+    return false;
+  }
+
+  if (item.href === "/") {
     return pathname === "/";
   }
 
-
-  if (
-    item.matchPrefix
-  ) {
+  if (item.matchPrefix) {
     return pathname.startsWith(
       item.matchPrefix
     );
   }
 
-
   return pathname === item.href;
 }
 
 
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
 export default function Sidebar() {
   const pathname =
     usePathname();
-
 
   const {
     language,
@@ -147,6 +164,9 @@ export default function Sidebar() {
           textDecoration: "none",
           color: "inherit",
         }}
+        aria-label={t(
+          "sidebar.commandCenter"
+        )}
       >
         <div className="brandIcon">
           <Fingerprint size={25} />
@@ -154,11 +174,15 @@ export default function Sidebar() {
 
         <div>
           <div className="brandTitle">
-            {t("sidebar.platformName")}
+            {t(
+              "sidebar.platformName"
+            )}
           </div>
 
           <div className="brandSubtitle">
-            {t("sidebar.platformSubtitle")}
+            {t(
+              "sidebar.platformSubtitle"
+            )}
           </div>
         </div>
       </Link>
@@ -168,96 +192,95 @@ export default function Sidebar() {
           NAVIGATION
           ================================================== */}
 
-      <nav className="navigation">
-
-        {
-          navigationGroups.map(
-            (
-              group,
-              groupIndex
-            ) => (
+      <nav
+        className="navigation"
+        aria-label={t(
+          "sidebar.workspace"
+        )}
+      >
+        {navigationGroups.map(
+          (
+            group,
+            groupIndex
+          ) => (
+            <div
+              key={group.labelKey}
+            >
               <div
-                key={group.labelKey}
-              >
-                <div
-                  className={
-                    groupIndex === 0
-                      ? "navLabel"
-                      : "navLabel navSecond"
-                  }
-                >
-                  {t(group.labelKey)}
-                </div>
-
-
-                {
-                  group.items.map(
-                    (item) => {
-                      const Icon =
-                        item.icon;
-
-
-                      const active =
-                        isItemActive(
-                          pathname,
-                          item
-                        );
-
-
-                      /*
-                       * AI Investigations currently uses
-                       * the Cases workspace until its
-                       * dedicated investigation index
-                       * page is added.
-                       *
-                       * We do not mark it active while
-                       * the user is on /cases because
-                       * Cases owns that route.
-                       */
-
-                      const forceInactive =
-                        item.secondary;
-
-
-                      return (
-                        <Link
-                          key={item.labelKey}
-                          href={item.href}
-                          className={
-                            active
-                            &&
-                            !forceInactive
-                              ? "navItem active"
-                              : "navItem"
-                          }
-                        >
-                          <Icon size={19} />
-
-                          <span>
-                            {t(item.labelKey)}
-                          </span>
-
-
-                          {
-                            item.count
-                            &&
-                            (
-                              <span className="navCount">
-                                {item.count}
-                              </span>
-                            )
-                          }
-                        </Link>
-                      );
-                    }
-                  )
+                className={
+                  groupIndex === 0
+                    ? "navLabel"
+                    : "navLabel navSecond"
                 }
-
+              >
+                {t(group.labelKey)}
               </div>
-            )
-          )
-        }
 
+
+              {group.items.map(
+                (item) => {
+                  const Icon =
+                    item.icon;
+
+                  const active =
+                    isItemActive(
+                      pathname,
+                      item
+                    );
+
+                  const forceInactive =
+                    Boolean(
+                      item.secondary
+                    );
+
+                  const isCurrentPage =
+                    active &&
+                    !forceInactive;
+
+
+                  return (
+                    <Link
+                      key={
+                        item.labelKey
+                      }
+                      href={item.href}
+                      className={
+                        isCurrentPage
+                          ? "navItem active"
+                          : "navItem"
+                      }
+                      aria-current={
+                        isCurrentPage
+                          ? "page"
+                          : undefined
+                      }
+                    >
+                      <Icon
+                        size={19}
+                        aria-hidden="true"
+                      />
+
+                      <span>
+                        {t(
+                          item.labelKey
+                        )}
+                      </span>
+
+                      {item.count && (
+                        <span
+                          className="navCount"
+                          aria-label={`${item.count}`}
+                        >
+                          {item.count}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                }
+              )}
+            </div>
+          )
+        )}
       </nav>
 
 
@@ -267,9 +290,10 @@ export default function Sidebar() {
 
       <div
         className="languageSwitcher"
-        aria-label={
-          t("common.language")
-        }
+        role="group"
+        aria-label={t(
+          "common.language"
+        )}
       >
         <button
           type="button"
@@ -281,6 +305,10 @@ export default function Sidebar() {
           onClick={() =>
             changeLanguage("en")
           }
+          aria-pressed={
+            language === "en"
+          }
+          aria-label="English"
         >
           EN
         </button>
@@ -295,6 +323,10 @@ export default function Sidebar() {
           onClick={() =>
             changeLanguage("ar")
           }
+          aria-pressed={
+            language === "ar"
+          }
+          aria-label="العربية"
         >
           عربي
         </button>
@@ -306,11 +338,16 @@ export default function Sidebar() {
           ================================================== */}
 
       <div className="sidebarFooter">
-        <div className="systemDot" />
+        <div
+          className="systemDot"
+          aria-hidden="true"
+        />
 
         <div>
           <div className="systemTitle">
-            {t("common.systemOperational")}
+            {t(
+              "common.systemOperational"
+            )}
           </div>
 
           <div className="systemSubtitle">
@@ -329,9 +366,7 @@ export default function Sidebar() {
       <div
         style={{
           marginTop: "9px",
-
           padding: "11px 12px",
-
           borderRadius: "11px",
 
           border:
@@ -341,15 +376,14 @@ export default function Sidebar() {
             "rgba(52,211,153,0.025)",
 
           display: "flex",
-
           alignItems: "center",
-
           gap: "9px",
         }}
       >
         <ShieldCheck
           size={15}
           color="#59cfa0"
+          aria-hidden="true"
         />
 
         <div>
@@ -360,7 +394,9 @@ export default function Sidebar() {
               fontWeight: 750,
             }}
           >
-            {t("common.masterProtected")}
+            {t(
+              "common.masterProtected"
+            )}
           </div>
 
           <div
@@ -370,7 +406,9 @@ export default function Sidebar() {
               marginTop: "2px",
             }}
           >
-            {t("common.readOnlyReference")}
+            {t(
+              "common.readOnlyReference"
+            )}
           </div>
         </div>
       </div>

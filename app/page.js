@@ -3,12 +3,11 @@
 import Link from "next/link";
 
 import Sidebar from "./components/Sidebar";
+import { useLanguage } from "./components/LanguageProvider";
 
 import {
-  useLanguage,
-} from "./components/LanguageProvider";
-
-import {
+  COMPLEX_DEMO_CASE,
+  PLATFORM_METRICS,
   VERIFIED_DEMO_CASE,
 } from "./lib/demo-data";
 
@@ -31,126 +30,291 @@ import {
 
 
 /* =========================================================
-   COMMAND CENTER DEMO METRICS
+   COMMAND CENTER METRICS
+
+   All authoritative values are derived from demo-data.js.
    ========================================================= */
 
 const stats = [
   {
-    titleKey: "commandCenter.totalCases",
-    value: "53",
+    titleKey:
+      "commandCenter.totalCases",
+
+    value:
+      String(
+        PLATFORM_METRICS.aggregatedCases
+      ),
+
     subtitleKey:
       "commandCenter.totalCasesSubtitle",
-    icon: FileSearch,
+
+    icon:
+      FileSearch,
   },
+
   {
     titleKey:
       "commandCenter.immediatePriority",
-    value: "9",
+
+    value:
+      String(
+        PLATFORM_METRICS.priority.immediate
+      ),
+
     subtitleKey:
       "commandCenter.immediatePrioritySubtitle",
-    icon: CircleAlert,
+
+    icon:
+      CircleAlert,
   },
+
   {
     titleKey:
       "commandCenter.highPriority",
-    value: "23",
+
+    value:
+      String(
+        PLATFORM_METRICS.priority.high
+      ),
+
     subtitleKey:
       "commandCenter.highPrioritySubtitle",
-    icon: AlertTriangle,
+
+    icon:
+      AlertTriangle,
   },
+
   {
     titleKey:
       "commandCenter.unresolvedIdentity",
-    value: "0",
+
+    value:
+      String(
+        PLATFORM_METRICS.unresolvedIdentityCases
+      ),
+
     subtitleKey:
       "commandCenter.unresolvedIdentitySubtitle",
-    icon: UserCheck,
+
+    icon:
+      UserCheck,
   },
 ];
 
 
 /* =========================================================
    CURRENT ATTENTION QUEUE
+
+   CASE-2026-00014 is linked directly to the authoritative
+   shared complex demo case.
+
+   Other rows are illustrative queue records used only
+   for the frontend demonstration.
    ========================================================= */
 
-const cases = [
+const attentionCases = [
   {
-    id: "CASE-2026-00002",
-    typeKey: "caseTypes.HARM_IMPACT",
-    biometric: "BIO-000341",
-    current: "REF-000882",
-    proposed: "REF-001704",
-    confidence: "99.98%",
-    priority: "IMMEDIATE",
-    statusKey: "common.officerReview",
-    protective: "97.5",
-    hasDetail: false,
-  },
-  {
-    id: "CASE-2026-00003",
-    typeKey:
-      "caseTypes.CRITICAL_HARM_CONFLICT",
-    biometric: "BIO-000492",
-    current: "REF-001547",
-    proposed: "REF-000621",
-    confidence: "99.98%",
-    priority: "IMMEDIATE",
-    statusKey: "common.aiInvestigated",
-    protective: "97.0",
-    hasDetail: false,
-  },
-  {
-    id: "CASE-2026-00014",
-    typeKey:
-      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
-    biometric: "BIO-000795",
-    current: "REF-001183",
-    proposed: "REF-002343",
-    confidence: "99.99%",
-    priority: "HIGH",
-    statusKey: "common.aiInvestigated",
-    protective: "85.0",
-    hasDetail: true,
-  },
-];
+    id:
+      "CASE-2026-00002",
 
+    type:
+      "HARM_IMPACT",
 
-const agents = [
-  {
-    nameKey:
-      "commandCenter.monitoringAgent",
-    statusKey: "common.active",
-    icon: Activity,
+    biometric:
+      "BIO-000341",
+
+    current:
+      "REF-000882",
+
+    proposed:
+      "REF-001704",
+
+    confidence:
+      "99.98%",
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "OFFICER_REVIEW",
+
+    hasDetail:
+      false,
   },
+
   {
-    nameKey:
-      "commandCenter.reconciliationAgent",
-    statusKey: "common.active",
-    icon: Fingerprint,
+    id:
+      "CASE-2026-00003",
+
+    type:
+      "CRITICAL_HARM_IDENTITY_CONFLICT",
+
+    biometric:
+      "BIO-000492",
+
+    current:
+      "REF-001547",
+
+    proposed:
+      "REF-000621",
+
+    confidence:
+      "99.98%",
+
+    priority:
+      "IMMEDIATE",
+
+    status:
+      "AI_INVESTIGATED",
+
+    hasDetail:
+      false,
   },
+
   {
-    nameKey:
-      "commandCenter.investigationAgent",
-    statusKey: "common.active",
-    icon: BrainCircuit,
-  },
-  {
-    nameKey:
-      "commandCenter.approvalWorkflow",
-    statusKey: "common.ready",
-    icon: UserCheck,
-  },
-  {
-    nameKey:
-      "commandCenter.verificationAgent",
-    statusKey: "common.active",
-    icon: ShieldCheck,
+    id:
+      COMPLEX_DEMO_CASE.id,
+
+    type:
+      COMPLEX_DEMO_CASE.caseType,
+
+    biometric:
+      COMPLEX_DEMO_CASE.primaryBiometricId,
+
+    current:
+      COMPLEX_DEMO_CASE.currentIdentity,
+
+    proposed:
+      COMPLEX_DEMO_CASE.proposedIdentity,
+
+    confidence:
+      `${COMPLEX_DEMO_CASE.aiConfidence}%`,
+
+    priority:
+      COMPLEX_DEMO_CASE.priority,
+
+    status:
+      COMPLEX_DEMO_CASE.finalStatus,
+
+    hasDetail:
+      true,
   },
 ];
 
 
 /* =========================================================
-   SMALL COMPONENTS
+   AGENT OPERATIONS
+   ========================================================= */
+
+const agents = [
+  {
+    nameKey:
+      "commandCenter.monitoringAgent",
+
+    statusKey:
+      "common.active",
+
+    icon:
+      Activity,
+  },
+
+  {
+    nameKey:
+      "commandCenter.reconciliationAgent",
+
+    statusKey:
+      "common.active",
+
+    icon:
+      Fingerprint,
+  },
+
+  {
+    nameKey:
+      "commandCenter.investigationAgent",
+
+    statusKey:
+      "common.active",
+
+    icon:
+      BrainCircuit,
+  },
+
+  {
+    nameKey:
+      "commandCenter.approvalWorkflow",
+
+    statusKey:
+      "common.ready",
+
+    icon:
+      UserCheck,
+  },
+
+  {
+    nameKey:
+      "commandCenter.verificationAgent",
+
+    statusKey:
+      "common.active",
+
+    icon:
+      ShieldCheck,
+  },
+];
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function getCaseTypeLabel(
+  type,
+  t
+) {
+  const key =
+    `caseTypes.${type}`;
+
+  return t(
+    key,
+    type
+  );
+}
+
+
+function getPriorityLabel(
+  priority,
+  t
+) {
+  return t(
+    `priorities.${priority}`,
+    priority
+  );
+}
+
+
+function getStatusLabel(
+  status,
+  t
+) {
+  if (
+    status ===
+    "OFFICER_REVIEW"
+  ) {
+    return t(
+      "common.officerReview"
+    );
+  }
+
+  return t(
+    `statuses.${status}`,
+    status
+  );
+}
+
+
+/* =========================================================
+   METRIC CARD
    ========================================================= */
 
 function MetricCard({
@@ -164,11 +328,16 @@ function MetricCard({
     <div className="metricCard">
       <div className="metricTop">
         <div className="metricIcon">
-          <Icon size={20} />
+          <Icon
+            size={20}
+            aria-hidden="true"
+          />
         </div>
 
         <span className="metricStatus">
-          {t("commandCenter.demoKpi")}
+          {t(
+            "commandCenter.demoKpi"
+          )}
         </span>
       </div>
 
@@ -188,6 +357,10 @@ function MetricCard({
 }
 
 
+/* =========================================================
+   PRIORITY BADGE
+   ========================================================= */
+
 function PriorityBadge({
   priority,
   t,
@@ -201,7 +374,10 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {t(`priorities.${priority}`)}
+      {getPriorityLabel(
+        priority,
+        t
+      )}
     </span>
   );
 }
@@ -213,8 +389,19 @@ function PriorityBadge({
 
 export default function Home() {
   const {
+    language,
     t,
   } = useLanguage();
+
+  const isArabic =
+    language === "ar";
+
+  const arrowStyle = {
+    transform:
+      isArabic
+        ? "rotate(180deg)"
+        : "none",
+  };
 
 
   return (
@@ -232,29 +419,50 @@ export default function Home() {
         <header className="topbar">
           <div>
             <div className="eyebrow">
-              <Sparkles size={15} />
+              <Sparkles
+                size={15}
+                aria-hidden="true"
+              />
 
-              {t("commandCenter.eyebrow")}
+              {t(
+                "commandCenter.eyebrow"
+              )}
             </div>
 
             <h1>
-              {t("commandCenter.title")}
+              {t(
+                "commandCenter.title"
+              )}
             </h1>
 
             <p>
-              {t("commandCenter.subtitle")}
+              {t(
+                "commandCenter.subtitle"
+              )}
             </p>
           </div>
 
 
           <div className="topbarActions">
-            <button className="searchButton">
-              <Search size={18} />
+            <Link
+              href="/cases"
+              className="searchButton"
+              style={{
+                textDecoration:
+                  "none",
+              }}
+            >
+              <Search
+                size={18}
+                aria-hidden="true"
+              />
 
               <span>
-                {t("common.searchCase")}
+                {t(
+                  "common.searchCase"
+                )}
               </span>
-            </button>
+            </Link>
 
 
             <div className="profile">
@@ -270,7 +478,9 @@ export default function Home() {
                 </strong>
 
                 <span>
-                  {t("common.operations")}
+                  {t(
+                    "common.operations"
+                  )}
                 </span>
               </div>
             </div>
@@ -284,7 +494,10 @@ export default function Home() {
 
         <section className="alertBanner">
           <div className="alertIcon">
-            <ShieldCheck size={24} />
+            <ShieldCheck
+              size={24}
+              aria-hidden="true"
+            />
           </div>
 
           <div className="alertText">
@@ -305,12 +518,19 @@ export default function Home() {
             href="/cases"
             className="bannerButton"
             style={{
-              textDecoration: "none",
+              textDecoration:
+                "none",
             }}
           >
-            {t("commandCenter.reviewCases")}
+            {t(
+              "commandCenter.reviewCases"
+            )}
 
-            <ChevronRight size={17} />
+            <ChevronRight
+              size={17}
+              style={arrowStyle}
+              aria-hidden="true"
+            />
           </Link>
         </section>
 
@@ -320,17 +540,17 @@ export default function Home() {
             ================================================ */}
 
         <section className="statsGrid">
-          {
-            stats.map(
-              (item) => (
-                <MetricCard
-                  key={item.titleKey}
-                  item={item}
-                  t={t}
-                />
-              )
+          {stats.map(
+            (item) => (
+              <MetricCard
+                key={
+                  item.titleKey
+                }
+                item={item}
+                t={t}
+              />
             )
-          }
+          )}
         </section>
 
 
@@ -360,14 +580,19 @@ export default function Home() {
                 href="/cases"
                 className="textButton"
                 style={{
-                  textDecoration: "none",
+                  textDecoration:
+                    "none",
                 }}
               >
                 {t(
                   "commandCenter.viewAllCases"
                 )}
 
-                <ChevronRight size={16} />
+                <ChevronRight
+                  size={16}
+                  style={arrowStyle}
+                  aria-hidden="true"
+                />
               </Link>
             </div>
 
@@ -377,15 +602,21 @@ export default function Home() {
                 <thead>
                   <tr>
                     <th>
-                      {t("common.case")}
+                      {t(
+                        "common.case"
+                      )}
                     </th>
 
                     <th>
-                      {t("common.type")}
+                      {t(
+                        "common.type"
+                      )}
                     </th>
 
                     <th>
-                      {t("common.biometric")}
+                      {t(
+                        "common.biometric"
+                      )}
                     </th>
 
                     <th>
@@ -395,97 +626,121 @@ export default function Home() {
                     </th>
 
                     <th>
-                      {t("common.confidence")}
+                      {t(
+                        "common.confidence"
+                      )}
                     </th>
 
                     <th>
-                      {t("common.priority")}
+                      {t(
+                        "common.priority"
+                      )}
                     </th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {
-                    cases.map(
-                      (item) => (
-                        <tr key={item.id}>
-                          <td>
-                            {
-                              item.hasDetail
-                                ? (
-                                  <Link
-                                    href={
-                                      `/cases/${item.id}`
-                                    }
-                                    className="caseId"
-                                    style={{
-                                      textDecoration:
-                                        "none",
-                                      display:
-                                        "inline-block",
-                                    }}
-                                  >
-                                    {item.id}
-                                  </Link>
-                                )
-                                : (
-                                  <span
-                                    className="caseId"
-                                    style={{
-                                      display:
-                                        "inline-block",
-                                    }}
-                                  >
-                                    {item.id}
-                                  </span>
-                                )
-                            }
-
-                            <div className="caseStatus">
-                              {t(item.statusKey)}
-                            </div>
-                          </td>
-
-                          <td>
-                            {t(item.typeKey)}
-                          </td>
-
-                          <td className="mono">
-                            {item.biometric}
-                          </td>
-
-                          <td>
-                            <div className="identityChange">
-                              <span className="oldIdentity">
-                                {item.current}
-                              </span>
-
-                              <ChevronRight size={14} />
-
-                              <span className="newIdentity">
-                                {item.proposed}
-                              </span>
-                            </div>
-                          </td>
-
-                          <td>
-                            <span className="confidence">
-                              {item.confidence}
-                            </span>
-                          </td>
-
-                          <td>
-                            <PriorityBadge
-                              priority={
-                                item.priority
+                  {attentionCases.map(
+                    (item) => (
+                      <tr
+                        key={item.id}
+                      >
+                        <td>
+                          {item.hasDetail ? (
+                            <Link
+                              href={
+                                `/cases/${item.id}`
                               }
-                              t={t}
+                              className="caseId"
+                              style={{
+                                textDecoration:
+                                  "none",
+
+                                display:
+                                  "inline-block",
+                              }}
+                            >
+                              <span dir="ltr">
+                                {item.id}
+                              </span>
+                            </Link>
+                          ) : (
+                            <span
+                              className="caseId"
+                              style={{
+                                display:
+                                  "inline-block",
+                              }}
+                              dir="ltr"
+                            >
+                              {item.id}
+                            </span>
+                          )}
+
+                          <div className="caseStatus">
+                            {getStatusLabel(
+                              item.status,
+                              t
+                            )}
+                          </div>
+                        </td>
+
+
+                        <td>
+                          {getCaseTypeLabel(
+                            item.type,
+                            t
+                          )}
+                        </td>
+
+
+                        <td
+                          className="mono"
+                          dir="ltr"
+                        >
+                          {item.biometric}
+                        </td>
+
+
+                        <td>
+                          <div
+                            className="identityChange"
+                            dir="ltr"
+                          >
+                            <span className="oldIdentity">
+                              {item.current}
+                            </span>
+
+                            <ChevronRight
+                              size={14}
+                              aria-hidden="true"
                             />
-                          </td>
-                        </tr>
-                      )
+
+                            <span className="newIdentity">
+                              {item.proposed}
+                            </span>
+                          </div>
+                        </td>
+
+
+                        <td>
+                          <span className="confidence">
+                            {item.confidence}
+                          </span>
+                        </td>
+
+
+                        <td>
+                          <PriorityBadge
+                            priority={
+                              item.priority
+                            }
+                            t={t}
+                          />
+                        </td>
+                      </tr>
                     )
-                  }
+                  )}
                 </tbody>
               </table>
             </div>
@@ -512,63 +767,78 @@ export default function Home() {
                 </h2>
               </div>
 
-              <BrainCircuit size={22} />
+              <BrainCircuit
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
             <div className="agentList">
-              {
-                agents.map(
-                  (agent) => {
-                    const Icon =
-                      agent.icon;
+              {agents.map(
+                (agent) => {
+                  const Icon =
+                    agent.icon;
 
-                    return (
-                      <div
-                        className="agentItem"
-                        key={agent.nameKey}
-                      >
-                        <div className="agentLeft">
-                          <div className="agentIcon">
-                            <Icon size={18} />
-                          </div>
-
-                          <div>
-                            <strong>
-                              {t(
-                                agent.nameKey
-                              )}
-                            </strong>
-
-                            <span>
-                              {t(
-                                "common.operational"
-                              )}
-                            </span>
-                          </div>
+                  return (
+                    <div
+                      className="agentItem"
+                      key={
+                        agent.nameKey
+                      }
+                    >
+                      <div className="agentLeft">
+                        <div className="agentIcon">
+                          <Icon
+                            size={18}
+                            aria-hidden="true"
+                          />
                         </div>
 
-                        <div className="agentStatus">
-                          <div className="greenDot" />
+                        <div>
+                          <strong>
+                            {t(
+                              agent.nameKey
+                            )}
+                          </strong>
 
-                          {t(agent.statusKey)}
+                          <span>
+                            {t(
+                              "common.operational"
+                            )}
+                          </span>
                         </div>
                       </div>
-                    );
-                  }
-                )
-              }
+
+                      <div className="agentStatus">
+                        <div
+                          className="greenDot"
+                          aria-hidden="true"
+                        />
+
+                        {t(
+                          agent.statusKey
+                        )}
+                      </div>
+                    </div>
+                  );
+                }
+              )}
             </div>
 
 
             <div className="agentFooter">
               <div>
                 <span>
-                  {t("common.environment")}
+                  {t(
+                    "common.environment"
+                  )}
                 </span>
 
                 <strong>
-                  {t("common.syntheticDemo")}
+                  {t(
+                    "common.syntheticDemo"
+                  )}
                 </strong>
               </div>
 
@@ -580,7 +850,9 @@ export default function Home() {
                 </span>
 
                 <strong>
-                  {t("common.operational")}
+                  {t(
+                    "common.operational"
+                  )}
                 </strong>
               </div>
             </div>
@@ -603,17 +875,22 @@ export default function Home() {
                   )}
                 </div>
 
-                <h2>
-                  {VERIFIED_DEMO_CASE.id}
+                <h2 dir="ltr">
+                  {
+                    VERIFIED_DEMO_CASE.id
+                  }
                 </h2>
               </div>
+
 
               <div
                 style={{
                   display: "flex",
-                  alignItems: "center",
+                  alignItems:
+                    "center",
                   gap: "8px",
-                  flexWrap: "wrap",
+                  flexWrap:
+                    "wrap",
                   justifyContent:
                     "flex-end",
                 }}
@@ -629,32 +906,44 @@ export default function Home() {
                   style={{
                     display:
                       "inline-flex",
+
                     alignItems:
                       "center",
+
                     justifyContent:
                       "center",
+
                     minHeight:
                       "25px",
+
                     padding:
                       "0 10px",
+
                     borderRadius:
                       "7px",
+
                     color:
                       "#59cfa0",
+
                     background:
                       "rgba(52,211,153,0.07)",
+
                     border:
                       "1px solid rgba(52,211,153,0.13)",
+
                     fontSize:
                       "10px",
+
                     fontWeight:
                       850,
+
                     letterSpacing:
                       "0.45px",
                   }}
                 >
                   {t(
-                    "statuses.VERIFIED_CLOSED"
+                    `statuses.${VERIFIED_DEMO_CASE.finalStatus}`,
+                    VERIFIED_DEMO_CASE.finalStatus
                   )}
                 </span>
               </div>
@@ -666,8 +955,7 @@ export default function Home() {
                 <div className="scoreRing">
                   <strong>
                     {
-                      VERIFIED_DEMO_CASE
-                        .protectivePriority
+                      VERIFIED_DEMO_CASE.protectivePriority
                     }
                   </strong>
 
@@ -688,13 +976,13 @@ export default function Home() {
                     )}
                   </span>
 
-                  <strong>
+                  <strong dir="ltr">
                     {
-                      VERIFIED_DEMO_CASE
-                        .biometricId
+                      VERIFIED_DEMO_CASE.biometricId
                     }
                   </strong>
                 </div>
+
 
                 <div className="detailRow">
                   <span>
@@ -703,13 +991,16 @@ export default function Home() {
                     )}
                   </span>
 
-                  <strong className="dangerText">
+                  <strong
+                    className="dangerText"
+                    dir="ltr"
+                  >
                     {
-                      VERIFIED_DEMO_CASE
-                        .currentIdentity
+                      VERIFIED_DEMO_CASE.currentIdentity
                     }
                   </strong>
                 </div>
+
 
                 <div className="detailRow">
                   <span>
@@ -718,26 +1009,31 @@ export default function Home() {
                     )}
                   </span>
 
-                  <strong className="successText">
+                  <strong
+                    className="successText"
+                    dir="ltr"
+                  >
                     {
-                      VERIFIED_DEMO_CASE
-                        .canonicalIdentity
+                      VERIFIED_DEMO_CASE.canonicalIdentity
                     }
                   </strong>
                 </div>
 
+
                 <div className="detailRow">
                   <span>
-                    {t("common.confidence")}
+                    {t(
+                      "common.confidence"
+                    )}
                   </span>
 
                   <strong>
                     {
-                      VERIFIED_DEMO_CASE
-                        .aiConfidence
+                      VERIFIED_DEMO_CASE.aiConfidence
                     }%
                   </strong>
                 </div>
+
 
                 <div className="detailRow">
                   <span>
@@ -748,27 +1044,30 @@ export default function Home() {
 
                   <strong>
                     {
-                      VERIFIED_DEMO_CASE
-                        .harm
+                      VERIFIED_DEMO_CASE.harm
                     }
                     {" / 100"}
                   </strong>
                 </div>
 
+
                 <div className="detailRow">
                   <span>
-                    {t("common.verification")}
+                    {t(
+                      "common.verification"
+                    )}
                   </span>
 
                   <strong className="successText">
-                    {
-                      VERIFIED_DEMO_CASE
-                        .verification.status
-                    }
+                    {t(
+                      `statuses.${VERIFIED_DEMO_CASE.verification.status}`,
+                      VERIFIED_DEMO_CASE.verification.status
+                    )}
+
                     {" · "}
+
                     {
-                      VERIFIED_DEMO_CASE
-                        .verification.score
+                      VERIFIED_DEMO_CASE.verification.score
                     }
                   </strong>
                 </div>
@@ -777,7 +1076,10 @@ export default function Home() {
 
 
             <div className="caseWarning">
-              <AlertTriangle size={20} />
+              <AlertTriangle
+                size={20}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
@@ -798,10 +1100,14 @@ export default function Home() {
             <div
               className="integrityInfo"
               style={{
-                margin: "14px 0 0",
+                margin:
+                  "14px 0 0",
               }}
             >
-              <CheckCircle2 size={21} />
+              <CheckCircle2
+                size={21}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
@@ -825,14 +1131,19 @@ export default function Home() {
               }
               className="primaryButton"
               style={{
-                textDecoration: "none",
+                textDecoration:
+                  "none",
               }}
             >
               {t(
                 "commandCenter.viewVerifiedLifecycle"
               )}
 
-              <ChevronRight size={18} />
+              <ChevronRight
+                size={18}
+                style={arrowStyle}
+                aria-hidden="true"
+              />
             </Link>
           </div>
 
@@ -845,7 +1156,9 @@ export default function Home() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  {t("dataIntegrity.title")}
+                  {t(
+                    "dataIntegrity.title"
+                  )}
                 </div>
 
                 <h2>
@@ -855,7 +1168,10 @@ export default function Home() {
                 </h2>
               </div>
 
-              <Database size={22} />
+              <Database
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -868,7 +1184,13 @@ export default function Home() {
                 </span>
 
                 <strong>
-                  53 / 53
+                  {
+                    PLATFORM_METRICS.aggregatedCases
+                  }
+                  {" / "}
+                  {
+                    PLATFORM_METRICS.aggregatedCases
+                  }
                 </strong>
               </div>
 
@@ -887,7 +1209,9 @@ export default function Home() {
                 </span>
 
                 <strong>
-                  100%
+                  {
+                    PLATFORM_METRICS.evaluation.protectiveDetectionRecall
+                  }%
                 </strong>
               </div>
 
@@ -906,7 +1230,9 @@ export default function Home() {
                 </span>
 
                 <strong>
-                  0
+                  {
+                    PLATFORM_METRICS.evaluation.unexplainedFalsePositives
+                  }
                 </strong>
               </div>
 
@@ -917,7 +1243,10 @@ export default function Home() {
 
 
             <div className="integrityInfo">
-              <ShieldCheck size={21} />
+              <ShieldCheck
+                size={21}
+                aria-hidden="true"
+              />
 
               <div>
                 <strong>
@@ -939,17 +1268,28 @@ export default function Home() {
               href="/data-integrity"
               className="textButton"
               style={{
-                textDecoration: "none",
-                marginTop: "14px",
-                marginLeft: "18px",
-                width: "fit-content",
+                textDecoration:
+                  "none",
+
+                marginTop:
+                  "14px",
+
+                marginInlineStart:
+                  "18px",
+
+                width:
+                  "fit-content",
               }}
             >
               {t(
                 "commandCenter.openDataIntegrityCenter"
               )}
 
-              <ChevronRight size={16} />
+              <ChevronRight
+                size={16}
+                style={arrowStyle}
+                aria-hidden="true"
+              />
             </Link>
           </div>
         </section>
@@ -961,15 +1301,26 @@ export default function Home() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
-            {t("footer.demo")}
+
+            {t(
+              "footer.demo"
+            )}
           </span>
 
           <div>
-            <Clock3 size={15} />
+            <Clock3
+              size={15}
+              aria-hidden="true"
+            />
 
-            {t("footer.monitoring")}
+            {t(
+              "footer.monitoring"
+            )}
           </div>
         </footer>
 

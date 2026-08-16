@@ -22,6 +22,8 @@ body {
     "Segoe UI",
     Arial,
     sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 button,
@@ -31,6 +33,15 @@ input {
 
 button {
   cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
 }
 
 .appShell {
@@ -83,8 +94,9 @@ button {
 }
 
 .brandSubtitle {
-  color: #71829a;
+  color: #7a8ba3;
   font-size: 11px;
+  line-height: 1.45;
   margin-top: 3px;
 }
 
@@ -99,7 +111,7 @@ button {
     12px
     12px
     8px;
-  color: #52647e;
+  color: #61738d;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1.3px;
@@ -116,15 +128,18 @@ button {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #8293aa;
+  color: #8b9cb2;
   text-decoration: none;
   font-size: 13px;
-  transition: 0.2s ease;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
 }
 
 .navItem:hover {
-  background: rgba(255, 255, 255, 0.04);
-  color: white;
+  background: rgba(255, 255, 255, 0.045);
+  color: #ffffff;
 }
 
 .navItem.active {
@@ -145,11 +160,12 @@ button {
   margin-left: auto;
   min-width: 26px;
   height: 21px;
+  padding: 0 7px;
   border-radius: 10px;
   display: grid;
   place-items: center;
   background: rgba(77, 145, 255, 0.14);
-  color: #6fa3ff;
+  color: #79aaff;
   font-size: 10px;
   font-weight: 800;
 }
@@ -181,8 +197,9 @@ button {
 }
 
 .systemSubtitle {
-  color: #65768e;
-  font-size: 9px;
+  color: #71839a;
+  font-size: 10px;
+  line-height: 1.4;
   margin-top: 3px;
 }
 
@@ -196,7 +213,7 @@ button {
   padding:
     32px
     34px
-    28px;
+    30px;
   max-width: 1800px;
 }
 
@@ -213,8 +230,9 @@ button {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #5f97f8;
+  color: #659dfb;
   font-size: 10px;
+  line-height: 1.4;
   letter-spacing: 1.4px;
   font-weight: 800;
 }
@@ -225,15 +243,16 @@ button {
     0
     5px;
   font-size: 30px;
+  line-height: 1.15;
   letter-spacing: -1px;
 }
 
 .topbar p {
-  color: #6f819a;
+  color: #7d8fa7;
   margin: 0;
-  max-width: 650px;
+  max-width: 680px;
   font-size: 13px;
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 .topbarActions {
@@ -243,16 +262,33 @@ button {
 }
 
 .searchButton {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.035);
-  color: #71839c;
-  height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.045);
+  color: #8b9bb1;
+  min-height: 42px;
   padding: 0 16px;
   border-radius: 11px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 9px;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 650;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    opacity 0.18s ease;
+}
+
+.searchButton:hover:not(:disabled) {
+  color: #dce8f8;
+  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(112, 164, 255, 0.2);
+}
+
+.searchButton:disabled {
+  opacity: 0.52;
 }
 
 .profile {
@@ -283,8 +319,9 @@ button {
 }
 
 .profileText span {
-  color: #62738c;
+  color: #71829a;
   font-size: 10px;
+  line-height: 1.4;
   margin-top: 3px;
 }
 
@@ -327,26 +364,38 @@ button {
 
 .alertText strong {
   font-size: 13px;
+  line-height: 1.45;
   margin-bottom: 5px;
 }
 
 .alertText span {
-  color: #a97880;
+  color: #b17f87;
   font-size: 11px;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 .bannerButton {
-  border: 1px solid rgba(255, 94, 110, 0.2);
-  background: rgba(255, 78, 97, 0.09);
-  color: #ff8290;
-  padding: 10px 13px;
+  border: 1px solid rgba(255, 94, 110, 0.23);
+  background: rgba(255, 78, 97, 0.1);
+  color: #ff8996;
+  min-height: 40px;
+  padding: 0 14px;
   border-radius: 10px;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 750;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 5px;
+  text-decoration: none;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.bannerButton:hover {
+  background: rgba(255, 78, 97, 0.15);
+  border-color: rgba(255, 94, 110, 0.32);
 }
 
 /* =========================================================
@@ -358,7 +407,7 @@ button {
   grid-template-columns:
     repeat(4, minmax(0, 1fr));
   gap: 14px;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
 .metricCard,
@@ -391,10 +440,10 @@ button {
 }
 
 .metricStatus {
-  color: #4fc99b;
+  color: #55d3a3;
   font-weight: 800;
-  font-size: 8px;
-  letter-spacing: 1px;
+  font-size: 10px;
+  letter-spacing: 0.8px;
 }
 
 .metricValue {
@@ -411,8 +460,9 @@ button {
 }
 
 .metricSubtitle {
-  font-size: 9px;
-  color: #5f718b;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #71839b;
   margin-top: 5px;
 }
 
@@ -425,7 +475,7 @@ button {
   grid-template-columns:
     minmax(0, 2fr)
     minmax(280px, 0.75fr);
-  gap: 14px;
+  gap: 16px;
 }
 
 .lowerGrid {
@@ -433,8 +483,8 @@ button {
   grid-template-columns:
     minmax(0, 1.4fr)
     minmax(280px, 0.6fr);
-  gap: 14px;
-  margin-top: 14px;
+  gap: 16px;
+  margin-top: 16px;
 }
 
 .panel {
@@ -443,10 +493,11 @@ button {
 }
 
 .panelHeader {
-  padding: 18px 20px;
+  padding: 19px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.055);
 }
 
@@ -457,17 +508,23 @@ button {
     0
     0;
   font-size: 15px;
+  line-height: 1.35;
   letter-spacing: -0.2px;
 }
 
 .textButton {
   border: 0;
   background: transparent;
-  color: #669dfb;
+  color: #71a5ff;
   display: flex;
   align-items: center;
-  gap: 3px;
-  font-size: 10px;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.textButton:hover {
+  color: #9bc1ff;
 }
 
 /* =========================================================
@@ -476,6 +533,10 @@ button {
 
 .tableWrap {
   overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(100, 148, 220, 0.28)
+    rgba(255, 255, 255, 0.025);
 }
 
 table {
@@ -484,40 +545,50 @@ table {
   border-collapse: collapse;
 }
 
-th {
-  color: #51637b;
-  font-size: 8px;
-  letter-spacing: 1px;
-  font-weight: 800;
-  text-align: left;
-  padding: 13px 17px;
+thead {
   background: rgba(255, 255, 255, 0.012);
 }
 
-td {
-  padding: 15px 17px;
-  border-top: 1px solid rgba(255, 255, 255, 0.045);
-  color: #a9b6c8;
+th {
+  color: #667991;
   font-size: 10px;
+  line-height: 1.35;
+  letter-spacing: 0.9px;
+  font-weight: 800;
+  text-align: left;
+  padding: 14px 17px;
+  white-space: nowrap;
+}
+
+td {
+  padding: 17px 17px;
+  border-top: 1px solid rgba(255, 255, 255, 0.045);
+  color: #b1becf;
+  font-size: 11px;
+  line-height: 1.55;
+  vertical-align: middle;
 }
 
 tbody tr {
-  transition: 0.15s ease;
+  transition:
+    background 0.15s ease;
 }
 
 tbody tr:hover {
-  background: rgba(255, 255, 255, 0.025);
+  background: rgba(255, 255, 255, 0.028);
 }
 
 .caseId {
   color: #eef4ff;
-  font-weight: 750;
-  font-size: 10px;
+  font-weight: 760;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .caseStatus {
-  color: #60718a;
-  font-size: 8px;
+  color: #73849c;
+  font-size: 10px;
+  line-height: 1.4;
   margin-top: 4px;
 }
 
@@ -531,7 +602,7 @@ tbody tr:hover {
 .identityChange {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-family:
     "SFMono-Regular",
     Consolas,
@@ -539,28 +610,34 @@ tbody tr:hover {
 }
 
 .oldIdentity {
-  color: #9b6b74;
+  color: #ae737d;
 }
 
 .newIdentity {
-  color: #55c99c;
+  color: #59d0a0;
 }
 
 .confidence {
-  color: #82aefb;
-  font-weight: 750;
+  color: #8bb5ff;
+  font-weight: 760;
 }
+
+/* =========================================================
+   PRIORITY / STATUS BADGES
+   ========================================================= */
 
 .priority {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 23px;
-  padding: 0 9px;
+  min-height: 25px;
+  padding: 0 10px;
   border-radius: 7px;
-  font-size: 8px;
+  font-size: 10px;
+  line-height: 1;
   font-weight: 850;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.45px;
+  white-space: nowrap;
 }
 
 .priority.immediate {
@@ -576,8 +653,9 @@ tbody tr:hover {
 }
 
 .priority.medium {
-  color: #76a9ff;
+  color: #7badff;
   background: rgba(76, 139, 255, 0.09);
+  border: 1px solid rgba(76, 139, 255, 0.13);
 }
 
 /* =========================================================
@@ -594,10 +672,11 @@ tbody tr:hover {
 }
 
 .agentItem {
-  padding: 12px 17px;
+  padding: 13px 17px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .agentLeft {
@@ -622,12 +701,14 @@ tbody tr:hover {
 }
 
 .agentLeft strong {
-  font-size: 10px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .agentLeft span {
-  color: #596c85;
-  font-size: 8px;
+  color: #6f829b;
+  font-size: 10px;
+  line-height: 1.4;
   margin-top: 3px;
 }
 
@@ -635,8 +716,10 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: 7px;
-  color: #65bb99;
-  font-size: 8px;
+  color: #65cfa2;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .greenDot {
@@ -659,13 +742,14 @@ tbody tr:hover {
 }
 
 .agentFooter span {
-  color: #596b83;
-  font-size: 8px;
+  color: #6b7d95;
+  font-size: 10px;
+  line-height: 1.4;
 }
 
 .agentFooter strong {
   margin-top: 4px;
-  font-size: 9px;
+  font-size: 10px;
 }
 
 /* =========================================================
@@ -680,6 +764,7 @@ tbody tr:hover {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 16px;
 }
 
 .caseHeroBody {
@@ -713,8 +798,9 @@ tbody tr:hover {
 }
 
 .scoreRing span {
-  color: #7a5961;
-  font-size: 8px;
+  color: #8a6870;
+  font-size: 10px;
+  line-height: 1.35;
 }
 
 .caseDetails {
@@ -723,21 +809,24 @@ tbody tr:hover {
 }
 
 .detailRow {
-  min-height: 35px;
-  padding: 8px 0;
+  min-height: 39px;
+  padding: 9px 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.045);
-  font-size: 10px;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 .detailRow span {
-  color: #65778f;
+  color: #75879f;
 }
 
 .detailRow strong {
-  color: #cbd7e7;
+  color: #d0dbea;
+  text-align: right;
 }
 
 .dangerText {
@@ -753,7 +842,7 @@ tbody tr:hover {
   border-radius: 12px;
   background: rgba(255, 80, 97, 0.07);
   border: 1px solid rgba(255, 80, 97, 0.11);
-  padding: 14px;
+  padding: 15px;
   display: flex;
   gap: 12px;
   color: #ec6d7b;
@@ -765,14 +854,15 @@ tbody tr:hover {
 }
 
 .caseWarning strong {
-  font-size: 10px;
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .caseWarning span {
   margin-top: 4px;
-  color: #8e6269;
-  font-size: 9px;
-  line-height: 1.5;
+  color: #9c7077;
+  font-size: 10px;
+  line-height: 1.6;
 }
 
 .primaryButton {
@@ -780,19 +870,38 @@ tbody tr:hover {
   width: 100%;
   border: 0;
   border-radius: 11px;
-  height: 42px;
+  min-height: 42px;
+  padding: 0 15px;
   color: white;
   background: linear-gradient(
     90deg,
     #1b69e3,
     #327fff
   );
-  font-size: 10px;
-  font-weight: 750;
+  box-shadow:
+    0 10px 24px rgba(38, 113, 237, 0.12);
+  font-size: 11px;
+  font-weight: 760;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 6px;
+  transition:
+    filter 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+.primaryButton:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.primaryButton:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
 }
 
 /* =========================================================
@@ -810,19 +919,21 @@ tbody tr:hover {
 .healthScore > div:first-child {
   display: flex;
   justify-content: space-between;
-  color: #71839a;
-  font-size: 9px;
+  gap: 14px;
+  color: #7c8ea5;
+  font-size: 10px;
+  line-height: 1.45;
 }
 
 .healthScore strong {
-  color: #cad7e7;
+  color: #d0dbea;
 }
 
 .progress {
   margin-top: 8px;
-  height: 5px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.05);
+  height: 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.055);
   overflow: hidden;
 }
 
@@ -843,7 +954,7 @@ tbody tr:hover {
 
 .integrityInfo {
   margin: 20px 18px 0;
-  padding: 14px;
+  padding: 15px;
   border-radius: 11px;
   background: rgba(37, 180, 133, 0.055);
   border: 1px solid rgba(50, 203, 152, 0.09);
@@ -858,14 +969,31 @@ tbody tr:hover {
 }
 
 .integrityInfo strong {
-  font-size: 9px;
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .integrityInfo span {
-  color: #648a7c;
-  font-size: 8px;
-  line-height: 1.5;
+  color: #70998a;
+  font-size: 10px;
+  line-height: 1.6;
   margin-top: 4px;
+}
+
+/* =========================================================
+   ACCESSIBILITY / INTERACTION
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(90, 156, 255, 0.85);
+  outline-offset: 2px;
+}
+
+::selection {
+  background: rgba(61, 137, 255, 0.35);
+  color: #ffffff;
 }
 
 /* =========================================================
@@ -873,12 +1001,14 @@ tbody tr:hover {
    ========================================================= */
 
 .footer {
-  margin-top: 18px;
-  color: #42546d;
-  font-size: 8px;
+  margin-top: 22px;
+  color: #53657d;
+  font-size: 10px;
+  line-height: 1.4;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 14px;
 }
 
 .footer div {
@@ -915,6 +1045,7 @@ tbody tr:hover {
 
   .topbar {
     flex-direction: column;
+    gap: 18px;
   }
 
   .topbarActions {
@@ -933,6 +1064,22 @@ tbody tr:hover {
   .bannerButton {
     display: none;
   }
+
+  .panelHeader {
+    padding: 17px;
+  }
+
+  td {
+    padding:
+      15px
+      14px;
+  }
+
+  th {
+    padding:
+      13px
+      14px;
+  }
 }
 
 @media (max-width: 560px) {
@@ -949,6 +1096,14 @@ tbody tr:hover {
     font-size: 23px;
   }
 
+  .metricTitle {
+    font-size: 11px;
+  }
+
+  .metricSubtitle {
+    font-size: 10px;
+  }
+
   .profileText {
     display: none;
   }
@@ -959,6 +1114,10 @@ tbody tr:hover {
 
   .caseScore {
     justify-content: flex-start;
+  }
+
+  .detailRow {
+    gap: 12px;
   }
 
   .footer {

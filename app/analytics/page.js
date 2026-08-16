@@ -3,10 +3,12 @@
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
+import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  useLanguage,
-} from "../components/LanguageProvider";
+  CASE_TYPE_BREAKDOWN,
+  PLATFORM_METRICS,
+} from "../lib/demo-data";
 
 import {
   Activity,
@@ -43,357 +45,585 @@ function L(
 
 
 /* =========================================================
+   HELPERS
+   ========================================================= */
+
+function formatNumber(
+  value
+) {
+  return Number(
+    value
+  ).toLocaleString("en-US");
+}
+
+
+function percentageOfCases(
+  value
+) {
+  if (
+    !PLATFORM_METRICS.aggregatedCases
+  ) {
+    return 0;
+  }
+
+  return Number(
+    (
+      (
+        value
+        /
+        PLATFORM_METRICS.aggregatedCases
+      )
+      *
+      100
+    ).toFixed(1)
+  );
+}
+
+
+/* =========================================================
    EXECUTIVE ANALYTICS
    ========================================================= */
 
 const executiveMetrics = [
   {
-    label: "Total Cases",
-    value: "53",
+    label:
+      "TOTAL_CASES",
+
+    value:
+      PLATFORM_METRICS.aggregatedCases,
+
     description:
       "Aggregated identity integrity cases",
-    icon: FileSearch,
-    trend: "103",
-    trendLabel: "raw findings",
-    tone: "blue",
+
+    icon:
+      FileSearch,
+
+    trend:
+      PLATFORM_METRICS.rawFindings,
+
+    trendLabel:
+      "raw findings",
+
+    tone:
+      "blue",
   },
 
   {
-    label: "Protective Cases",
-    value: "9",
+    label:
+      "PROTECTIVE_CASES",
+
+    value:
+      PLATFORM_METRICS.wronglyAffectedCases,
+
     description:
       "Wrong-person / harm protection grouping",
-    icon: ShieldAlert,
-    trend: "17.0%",
-    trendLabel: "of all cases",
-    tone: "red",
+
+    icon:
+      ShieldAlert,
+
+    trend:
+      `${percentageOfCases(
+        PLATFORM_METRICS.wronglyAffectedCases
+      )}%`,
+
+    trendLabel:
+      "of all cases",
+
+    tone:
+      "red",
   },
 
   {
-    label: "Detection Recall",
-    value: "100%",
+    label:
+      "DETECTION_RECALL",
+
+    value:
+      `${PLATFORM_METRICS.evaluation.recall}%`,
+
     description:
       "Seeded synthetic issues detected",
-    icon: ShieldCheck,
-    trend: "53 / 53",
-    trendLabel: "expected issues",
-    tone: "green",
+
+    icon:
+      ShieldCheck,
+
+    trend:
+      `${PLATFORM_METRICS.evaluation.detectedIssues} / ${PLATFORM_METRICS.evaluation.expectedIssues}`,
+
+    trendLabel:
+      "expected issues",
+
+    tone:
+      "green",
   },
 
   {
-    label: "Diagnostic Precision",
-    value: "100%",
+    label:
+      "DIAGNOSTIC_PRECISION",
+
+    value:
+      `${PLATFORM_METRICS.evaluation.diagnosticPrecision}%`,
+
     description:
       "After corroborating finding analysis",
-    icon: Gauge,
-    trend: "0",
+
+    icon:
+      Gauge,
+
+    trend:
+      PLATFORM_METRICS.evaluation.unexplainedFalsePositives,
+
     trendLabel:
       "unexplained false positives",
-    tone: "green",
+
+    tone:
+      "green",
   },
 
   {
-    label: "Protective Detection",
-    value: "100%",
+    label:
+      "PROTECTIVE_DETECTION",
+
+    value:
+      `${PLATFORM_METRICS.evaluation.protectiveDetectionRecall}%`,
+
     description:
       "Protective synthetic cases detected",
-    icon: UserCheck,
-    trend: "100%",
-    trendLabel: "priority accuracy",
-    tone: "green",
+
+    icon:
+      UserCheck,
+
+    trend:
+      `${PLATFORM_METRICS.evaluation.protectivePriorityAccuracy}%`,
+
+    trendLabel:
+      "priority accuracy",
+
+    tone:
+      "green",
   },
 
   {
-    label: "Canonical Resolution",
-    value: "53",
+    label:
+      "CANONICAL_RESOLUTION",
+
+    value:
+      (
+        PLATFORM_METRICS.aggregatedCases
+        -
+        PLATFORM_METRICS.unresolvedIdentityCases
+      ),
+
     description:
-      "Cases with canonical identity candidate",
-    icon: BrainCircuit,
-    trend: "0",
-    trendLabel: "unresolved cases",
-    tone: "blue",
+      "Cases with canonical identity candidates",
+
+    icon:
+      BrainCircuit,
+
+    trend:
+      PLATFORM_METRICS.unresolvedIdentityCases,
+
+    trendLabel:
+      "unresolved cases",
+
+    tone:
+      "blue",
   },
 ];
 
+
+/* =========================================================
+   PRIORITY BREAKDOWN
+   ========================================================= */
 
 const priorityBreakdown = [
   {
-    label: "Immediate",
-    value: 9,
-    percentage: 17,
-    tone: "red",
+    key:
+      "IMMEDIATE",
+
+    value:
+      PLATFORM_METRICS.priority.immediate,
+
+    percentage:
+      percentageOfCases(
+        PLATFORM_METRICS.priority.immediate
+      ),
+
+    tone:
+      "red",
   },
 
   {
-    label: "High",
-    value: 23,
-    percentage: 43,
-    tone: "orange",
+    key:
+      "HIGH",
+
+    value:
+      PLATFORM_METRICS.priority.high,
+
+    percentage:
+      percentageOfCases(
+        PLATFORM_METRICS.priority.high
+      ),
+
+    tone:
+      "orange",
   },
 
   {
-    label: "Medium",
-    value: 21,
-    percentage: 40,
-    tone: "blue",
+    key:
+      "MEDIUM",
+
+    value:
+      PLATFORM_METRICS.priority.medium,
+
+    percentage:
+      percentageOfCases(
+        PLATFORM_METRICS.priority.medium
+      ),
+
+    tone:
+      "blue",
   },
 ];
 
 
-const errorBreakdown = [
-  {
-    label: "Data Mismatch",
-    value: 15,
-    percentage: 28.3,
-  },
+/* =========================================================
+   CASE TYPE BREAKDOWN
 
-  {
-    label: "Wrong Mapping",
-    value: 11,
-    percentage: 20.8,
-  },
+   Uses the authoritative aggregated taxonomy from
+   shared demo data.
+   ========================================================= */
 
-  {
-    label:
-      "Complex Identity Conflict",
-    value: 8,
-    percentage: 15.1,
-  },
+const caseTypeBreakdown =
+  CASE_TYPE_BREAKDOWN.map(
+    (item) => ({
+      ...item,
 
-  {
-    label: "Duplicate Identity",
-    value: 6,
-    percentage: 11.3,
-  },
+      percentage:
+        percentageOfCases(
+          item.count
+        ),
+    })
+  );
 
-  {
-    label: "Harm Impact",
-    value: 6,
-    percentage: 11.3,
-  },
 
-  {
-    label: "Orphan Record",
-    value: 4,
-    percentage: 7.5,
-  },
+/* =========================================================
+   WORKFLOW SNAPSHOT
 
-  {
-    label:
-      "Critical Harm Identity Conflict",
-    value: 3,
-    percentage: 5.7,
-  },
-];
-
+   These queue values are frontend workflow snapshot values.
+   They are not mutually exclusive totals.
+   ========================================================= */
 
 const workflowBreakdown = [
   {
-    label: "Cases Generated",
-    value: 53,
-    total: 53,
+    key:
+      "CASES_GENERATED",
+
+    value:
+      PLATFORM_METRICS.aggregatedCases,
+
+    total:
+      PLATFORM_METRICS.aggregatedCases,
   },
 
   {
-    label: "Awaiting Officer",
-    value: 5,
-    total: 53,
+    key:
+      "AWAITING_OFFICER",
+
+    value:
+      5,
+
+    total:
+      PLATFORM_METRICS.aggregatedCases,
   },
 
   {
-    label: "Awaiting Manager",
-    value: 3,
-    total: 53,
+    key:
+      "AWAITING_MANAGER",
+
+    value:
+      3,
+
+    total:
+      PLATFORM_METRICS.aggregatedCases,
   },
 
   {
-    label: "Correction Executed",
-    value: 1,
-    total: 53,
+    key:
+      "CORRECTION_EXECUTED",
+
+    value:
+      1,
+
+    total:
+      PLATFORM_METRICS.aggregatedCases,
   },
 
   {
-    label: "Verified Closed",
-    value: 1,
-    total: 53,
+    key:
+      "VERIFIED_CLOSED",
+
+    value:
+      1,
+
+    total:
+      PLATFORM_METRICS.aggregatedCases,
   },
 ];
 
 
+/* =========================================================
+   PIPELINE
+   ========================================================= */
+
 const pipelineStages = [
   {
-    label: "Biometric Records",
-    value: "1,000",
+    key:
+      "BIOMETRIC_RECORDS",
+
+    value:
+      PLATFORM_METRICS.biometricRecords,
+
     description:
       "Synthetic source records monitored",
   },
 
   {
-    label: "Raw Findings",
-    value: "103",
+    key:
+      "RAW_FINDINGS",
+
+    value:
+      PLATFORM_METRICS.rawFindings,
+
     description:
       "Reconciliation findings produced",
   },
 
   {
-    label: "Aggregated Cases",
-    value: "53",
+    key:
+      "AGGREGATED_CASES",
+
+    value:
+      PLATFORM_METRICS.aggregatedCases,
+
     description:
       "Canonical investigation cases",
   },
 
   {
-    label:
-      "Corroborating Findings",
-    value: "50",
+    key:
+      "CORROBORATING_FINDINGS",
+
+    value:
+      PLATFORM_METRICS.corroboratingFindingsCollapsed,
+
     description:
       "Secondary evidence collapsed",
   },
 
   {
-    label:
-      "Multi-Finding Cases",
-    value: "17",
+    key:
+      "MULTI_FINDING_CASES",
+
+    value:
+      PLATFORM_METRICS.multiFindingCases,
+
     description:
       "Cases supported by multiple findings",
   },
 
   {
-    label: "Protective Cases",
-    value: "9",
+    key:
+      "PROTECTIVE_CASES",
+
+    value:
+      PLATFORM_METRICS.wronglyAffectedCases,
+
     description:
       "Wrong-person / harm protection group",
   },
 ];
 
 
+/* =========================================================
+   AGENT / COMPONENT METRICS
+   ========================================================= */
+
 const agentMetrics = [
   {
-    name: "Monitoring Agent",
-    status: "VALIDATED",
-    processed: "1,000",
+    key:
+      "MONITORING_AGENT",
+
+    status:
+      "VALIDATED",
+
+    processed:
+      formatNumber(
+        PLATFORM_METRICS.biometricRecords
+      ),
+
     output:
       "Biometric records monitored",
   },
 
   {
-    name: "Reconciliation Agent",
-    status: "VALIDATED",
-    processed: "1,000",
-    output: "103 raw findings",
+    key:
+      "RECONCILIATION_AGENT",
+
+    status:
+      "VALIDATED",
+
+    processed:
+      formatNumber(
+        PLATFORM_METRICS.biometricRecords
+      ),
+
+    output:
+      `${PLATFORM_METRICS.rawFindings} raw findings`,
   },
 
   {
-    name:
-      "Case Aggregation Engine",
-    status: "VALIDATED",
-    processed: "103",
-    output: "53 aggregated cases",
+    key:
+      "CASE_AGGREGATION",
+
+    status:
+      "VALIDATED",
+
+    processed:
+      String(
+        PLATFORM_METRICS.rawFindings
+      ),
+
+    output:
+      `${PLATFORM_METRICS.aggregatedCases} aggregated cases`,
   },
 
   {
-    name:
-      "Investigation Workflow",
-    status: "DEMO READY",
-    processed: "53 cases",
+    key:
+      "INVESTIGATION_WORKFLOW",
+
+    status:
+      "DEMO_READY",
+
+    processed:
+      `${PLATFORM_METRICS.aggregatedCases} cases`,
+
     output:
       "Investigation-ready case set",
   },
 
   {
-    name: "Approval Workflow",
-    status: "VALIDATED",
-    processed: "1 E2E case",
+    key:
+      "APPROVAL_WORKFLOW",
+
+    status:
+      "VALIDATED",
+
+    processed:
+      "1 E2E case",
+
     output:
       "Officer + Manager approval passed",
   },
 
   {
-    name: "Verification Agent",
-    status: "VALIDATED",
-    processed: "1 correction",
-    output: "1 verified closed",
-  },
-];
+    key:
+      "VERIFICATION_AGENT",
 
+    status:
+      "VALIDATED",
 
-const powerBiDatasets = [
-  {
-    name: "Case Performance",
-    source:
-      "Case and priority metrics",
-    status: "PLANNED",
-  },
+    processed:
+      "1 correction",
 
-  {
-    name: "AI Findings",
-    source:
-      "Reconciliation finding metrics",
-    status: "PLANNED",
-  },
-
-  {
-    name:
-      "Investigation Results",
-    source:
-      "AI investigation outputs",
-    status: "PLANNED",
-  },
-
-  {
-    name:
-      "Approval Workflow",
-    source:
-      "Human decision and approval state",
-    status: "PLANNED",
-  },
-
-  {
-    name:
-      "Verification Results",
-    source:
-      "Post-correction verification data",
-    status: "PLANNED",
+    output:
+      "1 verified closed",
   },
 ];
 
 
 /* =========================================================
-   LOCALIZATION HELPERS
+   POWER BI DATASETS
+
+   Planned only. No live integration exists in this demo.
+   ========================================================= */
+
+const powerBiDatasets = [
+  {
+    key:
+      "CASE_PERFORMANCE",
+
+    source:
+      "Case and priority metrics",
+  },
+
+  {
+    key:
+      "AI_FINDINGS",
+
+    source:
+      "Reconciliation finding metrics",
+  },
+
+  {
+    key:
+      "INVESTIGATION_RESULTS",
+
+    source:
+      "AI investigation outputs",
+  },
+
+  {
+    key:
+      "APPROVAL_WORKFLOW",
+
+    source:
+      "Human decision and approval state",
+  },
+
+  {
+    key:
+      "VERIFICATION_RESULTS",
+
+    source:
+      "Post-correction verification data",
+  },
+];
+
+
+/* =========================================================
+   LOCALIZATION
    ========================================================= */
 
 function executiveLabel(
-  label,
-  language,
+  key,
   t
 ) {
   const keys = {
-    "Total Cases":
+    TOTAL_CASES:
       "commandCenter.totalCases",
 
-    "Protective Cases":
+    PROTECTIVE_CASES:
       "analytics.protectiveCases",
 
-    "Detection Recall":
+    DETECTION_RECALL:
       "analytics.detectionRecall",
 
-    "Diagnostic Precision":
+    DIAGNOSTIC_PRECISION:
       "analytics.diagnosticPrecision",
 
-    "Protective Detection":
+    PROTECTIVE_DETECTION:
       "analytics.protectiveDetection",
 
-    "Canonical Resolution":
+    CANONICAL_RESOLUTION:
       "dataIntegrity.canonicalResolution",
   };
 
-
-  if (keys[label]) {
-    return t(keys[label]);
-  }
-
-
-  return label;
+  return keys[key]
+    ? t(
+        keys[key],
+        key
+      )
+    : key;
 }
 
 
@@ -417,10 +647,9 @@ function executiveDescription(
     "Protective synthetic cases detected":
       "الحالات الوقائية الاصطناعية المكتشفة",
 
-    "Cases with canonical identity candidate":
+    "Cases with canonical identity candidates":
       "حالات لديها مرشح للهوية المرجعية",
   };
-
 
   return language === "ar"
     ? labels[text] || text
@@ -452,7 +681,6 @@ function executiveTrendLabel(
       "حالات غير محسومة",
   };
 
-
   return language === "ar"
     ? labels[text] || text
     : text;
@@ -460,133 +688,113 @@ function executiveTrendLabel(
 
 
 function priorityLabel(
-  label,
+  key,
   t
 ) {
-  const keys = {
-    Immediate:
-      "priorities.IMMEDIATE",
-
-    High:
-      "priorities.HIGH",
-
-    Medium:
-      "priorities.MEDIUM",
-  };
-
-
-  return keys[label]
-    ? t(keys[label])
-    : label;
+  return t(
+    `priorities.${key}`,
+    key
+  );
 }
 
 
-function errorLabel(
-  label,
-  language,
+function caseTypeLabel(
+  type,
   t
 ) {
-  const keys = {
-    "Data Mismatch":
-      "analytics.dataMismatch",
-
-    "Wrong Mapping":
-      "analytics.wrongMapping",
-
-    "Complex Identity Conflict":
-      "analytics.complexIdentityConflict",
-
-    "Duplicate Identity":
-      "analytics.duplicateIdentity",
-
-    "Harm Impact":
-      "analytics.harmImpact",
-
-    "Orphan Record":
-      "analytics.orphan",
-
-    "Critical Harm Identity Conflict":
-      "analytics.criticalHarmIdentityConflict",
-  };
-
-
-  if (keys[label]) {
-    return t(keys[label]);
-  }
-
-
-  return L(
-    language,
-    label,
-    label
+  return t(
+    `caseTypes.${type}`,
+    type
   );
 }
 
 
 function workflowLabel(
-  label,
+  key,
   language
 ) {
   const labels = {
-    "Cases Generated":
-      "الحالات المنشأة",
+    CASES_GENERATED: {
+      en:
+        "Cases Generated",
 
-    "Awaiting Officer":
-      "بانتظار الضابط",
+      ar:
+        "الحالات المنشأة",
+    },
 
-    "Awaiting Manager":
-      "بانتظار المدير",
+    AWAITING_OFFICER: {
+      en:
+        "Awaiting Officer",
 
-    "Correction Executed":
-      "تم تنفيذ التصحيح",
+      ar:
+        "بانتظار الضابط",
+    },
 
-    "Verified Closed":
-      "تم التحقق والإغلاق",
+    AWAITING_MANAGER: {
+      en:
+        "Awaiting Manager",
+
+      ar:
+        "بانتظار المدير",
+    },
+
+    CORRECTION_EXECUTED: {
+      en:
+        "Correction Executed",
+
+      ar:
+        "تم تنفيذ التصحيح",
+    },
+
+    VERIFIED_CLOSED: {
+      en:
+        "Verified Closed",
+
+      ar:
+        "تم التحقق والإغلاق",
+    },
   };
 
-
-  return language === "ar"
-    ? labels[label] || label
-    : label;
+  return (
+    labels[key]?.[
+      language
+    ] ||
+    labels[key]?.en ||
+    key
+  );
 }
 
 
 function pipelineLabel(
-  label,
-  language,
+  key,
   t
 ) {
   const keys = {
-    "Biometric Records":
+    BIOMETRIC_RECORDS:
       "analytics.totalBiometricRecords",
 
-    "Raw Findings":
+    RAW_FINDINGS:
       "analytics.rawFindings",
 
-    "Aggregated Cases":
+    AGGREGATED_CASES:
       "analytics.aggregatedCases",
 
-    "Corroborating Findings":
+    CORROBORATING_FINDINGS:
       "analytics.corroboratingFindings",
 
-    "Multi-Finding Cases":
+    MULTI_FINDING_CASES:
       "analytics.multifindingCases",
 
-    "Protective Cases":
+    PROTECTIVE_CASES:
       "analytics.protectiveCases",
   };
 
-
-  if (keys[label]) {
-    return t(keys[label]);
-  }
-
-
-  return L(
-    language,
-    label,
-    label
-  );
+  return keys[key]
+    ? t(
+        keys[key],
+        key
+      )
+    : key;
 }
 
 
@@ -602,7 +810,7 @@ function pipelineDescription(
       "نتائج المطابقة التي تم إنتاجها",
 
     "Canonical investigation cases":
-      "حالات التحقيق المرجعية",
+      "حالات التحقيق المجمعة",
 
     "Secondary evidence collapsed":
       "تم دمج الأدلة الثانوية",
@@ -614,7 +822,6 @@ function pipelineDescription(
       "مجموعة حماية الشخص الخطأ والضرر",
   };
 
-
   return language === "ar"
     ? labels[text] || text
     : text;
@@ -622,33 +829,66 @@ function pipelineDescription(
 
 
 function agentName(
-  name,
+  key,
   language
 ) {
   const labels = {
-    "Monitoring Agent":
-      "وكيل المراقبة",
+    MONITORING_AGENT: {
+      en:
+        "Monitoring Agent",
 
-    "Reconciliation Agent":
-      "وكيل المطابقة",
+      ar:
+        "وكيل المراقبة",
+    },
 
-    "Case Aggregation Engine":
-      "محرك تجميع الحالات",
+    RECONCILIATION_AGENT: {
+      en:
+        "Reconciliation Agent",
 
-    "Investigation Workflow":
-      "مسار التحقيق",
+      ar:
+        "وكيل المطابقة",
+    },
 
-    "Approval Workflow":
-      "مسار الاعتماد",
+    CASE_AGGREGATION: {
+      en:
+        "Case Aggregation Engine",
 
-    "Verification Agent":
-      "وكيل التحقق",
+      ar:
+        "محرك تجميع الحالات",
+    },
+
+    INVESTIGATION_WORKFLOW: {
+      en:
+        "Investigation Workflow",
+
+      ar:
+        "مسار التحقيق",
+    },
+
+    APPROVAL_WORKFLOW: {
+      en:
+        "Approval Workflow",
+
+      ar:
+        "مسار الاعتماد",
+    },
+
+    VERIFICATION_AGENT: {
+      en:
+        "Verification Agent",
+
+      ar:
+        "وكيل التحقق",
+    },
   };
 
-
-  return language === "ar"
-    ? labels[name] || name
-    : name;
+  return (
+    labels[key]?.[
+      language
+    ] ||
+    labels[key]?.en ||
+    key
+  );
 }
 
 
@@ -657,17 +897,30 @@ function agentStatus(
   language
 ) {
   const labels = {
-    VALIDATED:
-      "تم التحقق",
+    VALIDATED: {
+      en:
+        "VALIDATED",
 
-    "DEMO READY":
-      "جاهز للعرض",
+      ar:
+        "تم التحقق",
+    },
+
+    DEMO_READY: {
+      en:
+        "DEMO READY",
+
+      ar:
+        "جاهز للعرض",
+    },
   };
 
-
-  return language === "ar"
-    ? labels[status] || status
-    : status;
+  return (
+    labels[status]?.[
+      language
+    ] ||
+    labels[status]?.en ||
+    status
+  );
 }
 
 
@@ -679,11 +932,11 @@ function agentOutput(
     "Biometric records monitored":
       "تمت مراقبة السجلات البيومترية",
 
-    "103 raw findings":
-      "103 نتائج أولية",
+    [`${PLATFORM_METRICS.rawFindings} raw findings`]:
+      `${PLATFORM_METRICS.rawFindings} نتائج أولية`,
 
-    "53 aggregated cases":
-      "53 حالة مجمعة",
+    [`${PLATFORM_METRICS.aggregatedCases} aggregated cases`]:
+      `${PLATFORM_METRICS.aggregatedCases} حالة مجمعة`,
 
     "Investigation-ready case set":
       "مجموعة حالات جاهزة للتحقيق",
@@ -695,7 +948,6 @@ function agentOutput(
       "حالة واحدة تم التحقق منها وإغلاقها",
   };
 
-
   return language === "ar"
     ? labels[output] || output
     : output;
@@ -703,30 +955,58 @@ function agentOutput(
 
 
 function datasetName(
-  name,
+  key,
   language
 ) {
   const labels = {
-    "Case Performance":
-      "أداء الحالات",
+    CASE_PERFORMANCE: {
+      en:
+        "Case Performance",
 
-    "AI Findings":
-      "نتائج الذكاء الاصطناعي",
+      ar:
+        "أداء الحالات",
+    },
 
-    "Investigation Results":
-      "نتائج التحقيق",
+    AI_FINDINGS: {
+      en:
+        "AI Findings",
 
-    "Approval Workflow":
-      "مسار الاعتماد",
+      ar:
+        "نتائج الذكاء الاصطناعي",
+    },
 
-    "Verification Results":
-      "نتائج التحقق",
+    INVESTIGATION_RESULTS: {
+      en:
+        "Investigation Results",
+
+      ar:
+        "نتائج التحقيق",
+    },
+
+    APPROVAL_WORKFLOW: {
+      en:
+        "Approval Workflow",
+
+      ar:
+        "مسار الاعتماد",
+    },
+
+    VERIFICATION_RESULTS: {
+      en:
+        "Verification Results",
+
+      ar:
+        "نتائج التحقق",
+    },
   };
 
-
-  return language === "ar"
-    ? labels[name] || name
-    : name;
+  return (
+    labels[key]?.[
+      language
+    ] ||
+    labels[key]?.en ||
+    key
+  );
 }
 
 
@@ -751,7 +1031,6 @@ function datasetSource(
       "بيانات التحقق بعد التصحيح",
   };
 
-
   return language === "ar"
     ? labels[source] || source
     : source;
@@ -773,31 +1052,42 @@ function ExecutiveMetric({
 
   const colors = {
     red: {
-      icon: "#ff7887",
+      icon:
+        "#ff7887",
+
       background:
         "rgba(255,80,100,0.08)",
-      trend: "#ff8b97",
+
+      trend:
+        "#ff8b97",
     },
 
     green: {
-      icon: "#59cfa0",
+      icon:
+        "#59cfa0",
+
       background:
         "rgba(52,211,153,0.08)",
-      trend: "#60d5a6",
+
+      trend:
+        "#60d5a6",
     },
 
     blue: {
-      icon: "#69a2ff",
+      icon:
+        "#69a2ff",
+
       background:
         "rgba(70,140,255,0.08)",
-      trend: "#77aaff",
+
+      trend:
+        "#77aaff",
     },
   };
 
 
   const tone =
-    colors[item.tone]
-    ||
+    colors[item.tone] ||
     colors.blue;
 
 
@@ -807,12 +1097,17 @@ function ExecutiveMetric({
         <div
           className="metricIcon"
           style={{
-            color: tone.icon,
+            color:
+              tone.icon,
+
             background:
               tone.background,
           }}
         >
-          <Icon size={20} />
+          <Icon
+            size={20}
+            aria-hidden="true"
+          />
         </div>
 
         <span
@@ -840,23 +1135,18 @@ function ExecutiveMetric({
 
 
       <div className="metricTitle">
-        {
-          executiveLabel(
-            item.label,
-            language,
-            t
-          )
-        }
+        {executiveLabel(
+          item.label,
+          t
+        )}
       </div>
 
 
       <div className="metricSubtitle">
-        {
-          executiveDescription(
-            item.description,
-            language
-          )
-        }
+        {executiveDescription(
+          item.description,
+          language
+        )}
       </div>
 
 
@@ -910,12 +1200,10 @@ function ExecutiveMetric({
                 : "right",
           }}
         >
-          {
-            executiveTrendLabel(
-              item.trendLabel,
-              language
-            )
-          }
+          {executiveTrendLabel(
+            item.trendLabel,
+            language
+          )}
         </span>
       </div>
     </div>
@@ -932,9 +1220,14 @@ function PriorityBar({
   t,
 }) {
   const tones = {
-    red: "#ff697a",
-    orange: "#ffb55d",
-    blue: "#5f9cff",
+    red:
+      "#ff697a",
+
+    orange:
+      "#ffb55d",
+
+    blue:
+      "#5f9cff",
   };
 
 
@@ -997,12 +1290,10 @@ function PriorityBar({
                 "11px",
             }}
           >
-            {
-              priorityLabel(
-                item.label,
-                t
-              )
-            }
+            {priorityLabel(
+              item.key,
+              t
+            )}
           </span>
         </div>
 
@@ -1061,23 +1352,25 @@ function PriorityBar({
 
 
 /* =========================================================
-   ERROR BAR
+   CASE TYPE BAR
    ========================================================= */
 
-function ErrorBar({
+function CaseTypeBar({
   item,
   maxValue,
   language,
   t,
 }) {
   const width =
-    (
-      item.value
-      /
-      maxValue
-    )
-    *
-    100;
+    maxValue > 0
+      ? (
+          item.count
+          /
+          maxValue
+        )
+        *
+        100
+      : 0;
 
 
   return (
@@ -1112,13 +1405,10 @@ function ErrorBar({
               "11px",
           }}
         >
-          {
-            errorLabel(
-              item.label,
-              language,
-              t
-            )
-          }
+          {caseTypeLabel(
+            item.type,
+            t
+          )}
         </span>
 
         <span
@@ -1136,11 +1426,11 @@ function ErrorBar({
               "3px",
           }}
         >
-          {
-            language === "ar"
-              ? `${item.percentage}% من الحالات`
-              : `${item.percentage}% of cases`
-          }
+          {L(
+            language,
+            `${item.percentage}% of cases`,
+            `${item.percentage}% من الحالات`
+          )}
         </span>
       </div>
 
@@ -1190,7 +1480,7 @@ function ErrorBar({
             "11px",
         }}
       >
-        {item.value}
+        {item.count}
       </strong>
     </div>
   );
@@ -1224,170 +1514,163 @@ function PipelineFlow({
             "11px",
         }}
       >
-        {
-          pipelineStages.map(
-            (
-              item,
-              index
-            ) => (
-              <div
-                key={
-                  item.label
-                }
+        {pipelineStages.map(
+          (
+            item,
+            index
+          ) => (
+            <div
+              key={
+                item.key
+              }
+              style={{
+                minHeight:
+                  "118px",
+
+                padding:
+                  "16px",
+
+                borderRadius:
+                  "12px",
+
+                background:
+                  "rgba(255,255,255,0.025)",
+
+                border:
+                  "1px solid rgba(255,255,255,0.055)",
+
+                position:
+                  "relative",
+              }}
+            >
+              <span
                 style={{
-                  minHeight:
-                    "118px",
+                  display:
+                    "flex",
 
-                  padding:
-                    "16px",
+                  alignItems:
+                    "center",
 
-                  borderRadius:
-                    "12px",
+                  justifyContent:
+                    "space-between",
 
-                  background:
-                    "rgba(255,255,255,0.025)",
+                  color:
+                    "#6d8098",
 
-                  border:
-                    "1px solid rgba(255,255,255,0.055)",
+                  fontSize:
+                    "10px",
 
-                  position:
-                    "relative",
+                  fontWeight:
+                    800,
                 }}
               >
+                {L(
+                  language,
+                  `STAGE ${index + 1}`,
+                  `المرحلة ${index + 1}`
+                )}
+
                 <span
                   style={{
-                    display:
-                      "flex",
-
-                    alignItems:
-                      "center",
-
-                    justifyContent:
-                      "space-between",
-
-                    color:
-                      "#6d8098",
-
-                    fontSize:
-                      "10px",
-
-                    fontWeight:
-                      800,
-                  }}
-                >
-                  {
-                    L(
-                      language,
-                      `STAGE ${index + 1}`,
-                      `المرحلة ${index + 1}`
-                    )
-                  }
-
-                  <span
-                    style={{
-                      width:
-                        "22px",
-
-                      height:
-                        "22px",
-
-                      borderRadius:
-                        "7px",
-
-                      display:
-                        "grid",
-
-                      placeItems:
-                        "center",
-
-                      background:
-                        "rgba(70,140,255,0.08)",
-
-                      color:
-                        "#74a8ff",
-                    }}
-                  >
-                    {index + 1}
-                  </span>
-                </span>
-
-
-                <strong
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#e1eaf6",
-
-                    fontSize:
+                    width:
                       "22px",
 
-                    marginTop:
-                      "10px",
-                  }}
-                >
-                  {item.value}
-                </strong>
+                    height:
+                      "22px",
 
+                    borderRadius:
+                      "7px",
 
-                <span
-                  style={{
                     display:
-                      "block",
+                      "grid",
+
+                    placeItems:
+                      "center",
+
+                    background:
+                      "rgba(70,140,255,0.08)",
 
                     color:
-                      "#91a2b7",
-
-                    fontSize:
-                      "11px",
-
-                    fontWeight:
-                      700,
-
-                    marginTop:
-                      "2px",
+                      "#74a8ff",
                   }}
                 >
-                  {
-                    pipelineLabel(
-                      item.label,
-                      language,
-                      t
-                    )
-                  }
+                  {index + 1}
                 </span>
+              </span>
 
 
-                <span
-                  style={{
-                    display:
-                      "block",
+              <strong
+                style={{
+                  display:
+                    "block",
 
-                    color:
-                      "#63768e",
+                  color:
+                    "#e1eaf6",
 
-                    fontSize:
-                      "10px",
+                  fontSize:
+                    "22px",
 
-                    lineHeight:
-                      1.5,
+                  marginTop:
+                    "10px",
+                }}
+              >
+                {formatNumber(
+                  item.value
+                )}
+              </strong>
 
-                    marginTop:
-                      "5px",
-                  }}
-                >
-                  {
-                    pipelineDescription(
-                      item.description,
-                      language
-                    )
-                  }
-                </span>
-              </div>
-            )
+
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  color:
+                    "#91a2b7",
+
+                  fontSize:
+                    "11px",
+
+                  fontWeight:
+                    700,
+
+                  marginTop:
+                    "2px",
+                }}
+              >
+                {pipelineLabel(
+                  item.key,
+                  t
+                )}
+              </span>
+
+
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  color:
+                    "#63768e",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.5,
+
+                  marginTop:
+                    "5px",
+                }}
+              >
+                {pipelineDescription(
+                  item.description,
+                  language
+                )}
+              </span>
+            </div>
           )
-        }
+        )}
       </div>
 
 
@@ -1442,6 +1725,27 @@ export default function AnalyticsPage() {
   } = useLanguage();
 
 
+  const isArabic =
+    language === "ar";
+
+
+  const navigationArrowStyle = {
+    transform:
+      isArabic
+        ? "rotate(180deg)"
+        : "none",
+  };
+
+
+  const maxCaseTypeValue =
+    Math.max(
+      ...caseTypeBreakdown.map(
+        (item) =>
+          item.count
+      )
+    );
+
+
   return (
     <div className="appShell">
 
@@ -1457,7 +1761,10 @@ export default function AnalyticsPage() {
         <header className="topbar">
           <div>
             <div className="eyebrow">
-              <Gauge size={15} />
+              <Gauge
+                size={15}
+                aria-hidden="true"
+              />
 
               {t(
                 "analytics.eyebrow"
@@ -1479,8 +1786,14 @@ export default function AnalyticsPage() {
 
 
           <div className="topbarActions">
-            <button className="searchButton">
-              <Search size={18} />
+            <button
+              type="button"
+              className="searchButton"
+            >
+              <Search
+                size={18}
+                aria-hidden="true"
+              />
 
               <span>
                 {L(
@@ -1533,7 +1846,10 @@ export default function AnalyticsPage() {
               "17px",
           }}
         >
-          <ShieldCheck size={24} />
+          <ShieldCheck
+            size={24}
+            aria-hidden="true"
+          />
 
           <div>
             <strong>
@@ -1548,9 +1864,9 @@ export default function AnalyticsPage() {
               {L(
                 language,
 
-                "All 53 seeded synthetic identity issues were detected. Protective detection and protective priority accuracy both reached 100%, while unexplained false positives remained at zero after corroborating evidence analysis.",
+                `All ${PLATFORM_METRICS.evaluation.expectedIssues} seeded synthetic identity issues were detected. Protective detection and protective priority accuracy both reached 100%, while unexplained false positives remained at ${PLATFORM_METRICS.evaluation.unexplainedFalsePositives} after corroborating evidence analysis.`,
 
-                "تم اكتشاف جميع مشكلات الهوية الاصطناعية الـ53. ووصل كل من الاكتشاف الوقائي ودقة الأولوية الوقائية إلى 100%، بينما بقي عدد التنبيهات الخاطئة غير المفسرة عند صفر بعد تحليل الأدلة الداعمة."
+                `تم اكتشاف جميع مشكلات الهوية الاصطناعية الـ${PLATFORM_METRICS.evaluation.expectedIssues}. ووصل كل من الاكتشاف الوقائي ودقة الأولوية الوقائية إلى 100%، بينما بقي عدد التنبيهات الخاطئة غير المفسرة عند ${PLATFORM_METRICS.evaluation.unexplainedFalsePositives} بعد تحليل الأدلة الداعمة.`
               )}
             </span>
           </div>
@@ -1576,24 +1892,22 @@ export default function AnalyticsPage() {
               "16px",
           }}
         >
-          {
-            executiveMetrics.map(
-              (item) => (
-                <ExecutiveMetric
-                  key={
-                    item.label
-                  }
-                  item={
-                    item
-                  }
-                  language={
-                    language
-                  }
-                  t={t}
-                />
-              )
+          {executiveMetrics.map(
+            (item) => (
+              <ExecutiveMetric
+                key={
+                  item.label
+                }
+                item={
+                  item
+                }
+                language={
+                  language
+                }
+                t={t}
+              />
             )
-          }
+          )}
         </section>
 
 
@@ -1602,6 +1916,8 @@ export default function AnalyticsPage() {
             ================================================ */}
 
         <section className="dashboardGrid">
+
+          {/* PRIORITY */}
 
           <div className="panel">
             <div className="panelHeader">
@@ -1623,7 +1939,10 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <PieChart size={22} />
+              <PieChart
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1633,21 +1952,19 @@ export default function AnalyticsPage() {
                   "12px 20px 20px",
               }}
             >
-              {
-                priorityBreakdown.map(
-                  (item) => (
-                    <PriorityBar
-                      key={
-                        item.label
-                      }
-                      item={
-                        item
-                      }
-                      t={t}
-                    />
-                  )
+              {priorityBreakdown.map(
+                (item) => (
+                  <PriorityBar
+                    key={
+                      item.key
+                    }
+                    item={
+                      item
+                    }
+                    t={t}
+                  />
                 )
-              }
+              )}
 
 
               <div
@@ -1665,68 +1982,64 @@ export default function AnalyticsPage() {
                     "13px",
                 }}
               >
-                {
-                  priorityBreakdown.map(
-                    (item) => (
-                      <div
-                        key={
-                          item.label
-                        }
+                {priorityBreakdown.map(
+                  (item) => (
+                    <div
+                      key={
+                        item.key
+                      }
+                      style={{
+                        padding:
+                          "12px",
+
+                        borderRadius:
+                          "10px",
+
+                        background:
+                          "rgba(255,255,255,0.024)",
+
+                        border:
+                          "1px solid rgba(255,255,255,0.05)",
+                      }}
+                    >
+                      <span
                         style={{
-                          padding:
-                            "12px",
+                          display:
+                            "block",
 
-                          borderRadius:
+                          color:
+                            "#71839a",
+
+                          fontSize:
                             "10px",
-
-                          background:
-                            "rgba(255,255,255,0.024)",
-
-                          border:
-                            "1px solid rgba(255,255,255,0.05)",
                         }}
                       >
-                        <span
-                          style={{
-                            display:
-                              "block",
+                        {priorityLabel(
+                          item.key,
+                          t
+                        )}
+                      </span>
 
-                            color:
-                              "#71839a",
+                      <strong
+                        style={{
+                          display:
+                            "block",
 
-                            fontSize:
-                              "10px",
-                          }}
-                        >
-                          {
-                            priorityLabel(
-                              item.label,
-                              t
-                            )
-                          }
-                        </span>
+                          color:
+                            "#d1ddec",
 
-                        <strong
-                          style={{
-                            display:
-                              "block",
+                          fontSize:
+                            "18px",
 
-                            color:
-                              "#d1ddec",
-
-                            fontSize:
-                              "18px",
-
-                            marginTop:
-                              "4px",
-                          }}
-                        >
-                          {item.value}
-                        </strong>
-                      </div>
-                    )
+                          marginTop:
+                            "4px",
+                        }}
+                      >
+                        {item.value}
+                      </strong>
+                    </div>
                   )
-                }
+                )}
               </div>
             </div>
           </div>
@@ -1754,7 +2067,10 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <ShieldAlert size={22} />
+              <ShieldAlert
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -1806,7 +2122,9 @@ export default function AnalyticsPage() {
                       "34px",
                   }}
                 >
-                  9
+                  {
+                    PLATFORM_METRICS.wronglyAffectedCases
+                  }
                 </strong>
 
                 <span
@@ -1849,7 +2167,10 @@ export default function AnalyticsPage() {
                         "#59cfa0",
                     }}
                   >
-                    100%
+                    {
+                      PLATFORM_METRICS.evaluation.protectiveDetectionRecall
+                    }
+                    %
                   </strong>
                 </div>
 
@@ -1867,7 +2188,10 @@ export default function AnalyticsPage() {
                         "#59cfa0",
                     }}
                   >
-                    100%
+                    {
+                      PLATFORM_METRICS.evaluation.protectivePriorityAccuracy
+                    }
+                    %
                   </strong>
                 </div>
 
@@ -1880,7 +2204,9 @@ export default function AnalyticsPage() {
                   </span>
 
                   <strong>
-                    9
+                    {
+                      PLATFORM_METRICS.wronglyAffectedCases
+                    }
                   </strong>
                 </div>
               </div>
@@ -1915,7 +2241,7 @@ export default function AnalyticsPage() {
 
 
         {/* ================================================
-            ERROR CLASSIFICATION
+            CASE TAXONOMY
             ================================================ */}
 
         <section
@@ -1942,7 +2268,10 @@ export default function AnalyticsPage() {
               </h2>
             </div>
 
-            <BarChart3 size={22} />
+            <BarChart3
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -1952,25 +2281,25 @@ export default function AnalyticsPage() {
                 "12px 20px 20px",
             }}
           >
-            {
-              errorBreakdown.map(
-                (item) => (
-                  <ErrorBar
-                    key={
-                      item.label
-                    }
-                    item={
-                      item
-                    }
-                    maxValue={15}
-                    language={
-                      language
-                    }
-                    t={t}
-                  />
-                )
+            {caseTypeBreakdown.map(
+              (item) => (
+                <CaseTypeBar
+                  key={
+                    item.type
+                  }
+                  item={
+                    item
+                  }
+                  maxValue={
+                    maxCaseTypeValue
+                  }
+                  language={
+                    language
+                  }
+                  t={t}
+                />
               )
-            }
+            )}
           </div>
         </section>
 
@@ -2004,7 +2333,10 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <TrendingUp size={22} />
+              <TrendingUp
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
             <PipelineFlow
@@ -2034,7 +2366,10 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <Activity size={22} />
+              <Activity
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -2044,89 +2379,86 @@ export default function AnalyticsPage() {
                   "8px 18px 18px",
               }}
             >
-              {
-                workflowBreakdown.map(
-                  (item) => {
-                    const percentage =
-                      (
-                        item.value
-                        /
-                        item.total
-                      )
-                      *
-                      100;
+              {workflowBreakdown.map(
+                (item) => {
+                  const percentage =
+                    item.total > 0
+                      ? (
+                          item.value
+                          /
+                          item.total
+                        )
+                        *
+                        100
+                      : 0;
 
-
-                    return (
+                  return (
+                    <div
+                      key={
+                        item.key
+                      }
+                      style={{
+                        padding:
+                          "11px 0",
+                      }}
+                    >
                       <div
-                        key={
-                          item.label
-                        }
                         style={{
-                          padding:
-                            "11px 0",
+                          display:
+                            "flex",
+
+                          justifyContent:
+                            "space-between",
+
+                          gap:
+                            "12px",
+
+                          marginBottom:
+                            "7px",
                         }}
                       >
-                        <div
+                        <span
                           style={{
-                            display:
-                              "flex",
+                            color:
+                              "#8b9db3",
 
-                            justifyContent:
-                              "space-between",
-
-                            gap:
-                              "12px",
-
-                            marginBottom:
-                              "7px",
+                            fontSize:
+                              "11px",
                           }}
                         >
-                          <span
-                            style={{
-                              color:
-                                "#8b9db3",
+                          {workflowLabel(
+                            item.key,
+                            language
+                          )}
+                        </span>
 
-                              fontSize:
-                                "11px",
-                            }}
-                          >
-                            {
-                              workflowLabel(
-                                item.label,
-                                language
-                              )
-                            }
-                          </span>
+                        <strong
+                          style={{
+                            color:
+                              "#d0dbea",
 
-                          <strong
-                            style={{
-                              color:
-                                "#d0dbea",
-
-                              fontSize:
-                                "11px",
-                            }}
-                          >
-                            {item.value}
-                          </strong>
-                        </div>
-
-
-                        <div className="progress">
-                          <div
-                            className="progressFill"
-                            style={{
-                              width:
-                                `${percentage}%`,
-                            }}
-                          />
-                        </div>
+                            fontSize:
+                              "11px",
+                          }}
+                        >
+                          {item.value}
+                        </strong>
                       </div>
-                    );
-                  }
-                )
-              }
+
+
+                      <div className="progress">
+                        <div
+                          className="progressFill"
+                          style={{
+                            width:
+                              `${percentage}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                }
+              )}
 
 
               <div
@@ -2178,7 +2510,10 @@ export default function AnalyticsPage() {
         >
           <div className="metricCard">
             <div className="metricIcon">
-              <ShieldCheck size={20} />
+              <ShieldCheck
+                size={20}
+                aria-hidden="true"
+              />
             </div>
 
             <div className="metricValue">
@@ -2207,11 +2542,16 @@ export default function AnalyticsPage() {
 
           <div className="metricCard">
             <div className="metricIcon">
-              <Database size={20} />
+              <Database
+                size={20}
+                aria-hidden="true"
+              />
             </div>
 
             <div className="metricValue">
-              3,000
+              {formatNumber(
+                PLATFORM_METRICS.masterIdentities
+              )}
             </div>
 
             <div className="metricTitle">
@@ -2232,11 +2572,16 @@ export default function AnalyticsPage() {
 
           <div className="metricCard">
             <div className="metricIcon">
-              <Fingerprint size={20} />
+              <Fingerprint
+                size={20}
+                aria-hidden="true"
+              />
             </div>
 
             <div className="metricValue">
-              1,000
+              {formatNumber(
+                PLATFORM_METRICS.biometricRecords
+              )}
             </div>
 
             <div className="metricTitle">
@@ -2257,11 +2602,16 @@ export default function AnalyticsPage() {
 
           <div className="metricCard">
             <div className="metricIcon">
-              <BrainCircuit size={20} />
+              <BrainCircuit
+                size={20}
+                aria-hidden="true"
+              />
             </div>
 
             <div className="metricValue">
-              103
+              {
+                PLATFORM_METRICS.rawFindings
+              }
             </div>
 
             <div className="metricTitle">
@@ -2273,8 +2623,10 @@ export default function AnalyticsPage() {
             <div className="metricSubtitle">
               {L(
                 language,
-                "Aggregated into 53 cases",
-                "تم تجميعها داخل 53 حالة"
+
+                `Aggregated into ${PLATFORM_METRICS.aggregatedCases} cases`,
+
+                `تم تجميعها داخل ${PLATFORM_METRICS.aggregatedCases} حالة`
               )}
             </div>
           </div>
@@ -2311,7 +2663,10 @@ export default function AnalyticsPage() {
               </h2>
             </div>
 
-            <BrainCircuit size={22} />
+            <BrainCircuit
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -2355,104 +2710,97 @@ export default function AnalyticsPage() {
 
 
               <tbody>
-                {
-                  agentMetrics.map(
-                    (agent) => (
-                      <tr
-                        key={
-                          agent.name
-                        }
-                      >
-                        <td>
-                          <div
-                            style={{
-                              display:
-                                "flex",
+                {agentMetrics.map(
+                  (agent) => (
+                    <tr
+                      key={
+                        agent.key
+                      }
+                    >
+                      <td>
+                        <div
+                          style={{
+                            display:
+                              "flex",
 
-                              alignItems:
-                                "center",
+                            alignItems:
+                              "center",
 
-                              gap:
-                                "9px",
-                            }}
-                          >
-                            <div className="agentIcon">
-                              <BrainCircuit
-                                size={16}
-                              />
-                            </div>
-
-                            <strong
-                              style={{
-                                color:
-                                  "#cbd7e7",
-
-                                fontSize:
-                                  "11px",
-                              }}
-                            >
-                              {
-                                agentName(
-                                  agent.name,
-                                  language
-                                )
-                              }
-                            </strong>
+                            gap:
+                              "9px",
+                          }}
+                        >
+                          <div className="agentIcon">
+                            <BrainCircuit
+                              size={16}
+                              aria-hidden="true"
+                            />
                           </div>
-                        </td>
 
-
-                        <td>
-                          <span
+                          <strong
                             style={{
-                              display:
-                                "inline-flex",
-
-                              alignItems:
-                                "center",
-
-                              gap:
-                                "6px",
-
                               color:
-                                "#59cfa0",
+                                "#cbd7e7",
 
                               fontSize:
-                                "10px",
-
-                              fontWeight:
-                                800,
+                                "11px",
                             }}
                           >
-                            <span className="greenDot" />
-
-                            {
-                              agentStatus(
-                                agent.status,
-                                language
-                              )
-                            }
-                          </span>
-                        </td>
-
-
-                        <td>
-                          {agent.processed}
-                        </td>
-
-
-                        <td>
-                          {
-                            agentOutput(
-                              agent.output,
+                            {agentName(
+                              agent.key,
                               language
-                            )
-                          }
-                        </td>
-                      </tr>
-                    )
+                            )}
+                          </strong>
+                        </div>
+                      </td>
+
+
+                      <td>
+                        <span
+                          style={{
+                            display:
+                              "inline-flex",
+
+                            alignItems:
+                              "center",
+
+                            gap:
+                              "6px",
+
+                            color:
+                              "#59cfa0",
+
+                            fontSize:
+                              "10px",
+
+                            fontWeight:
+                              800,
+                          }}
+                        >
+                          <span className="greenDot" />
+
+                          {agentStatus(
+                            agent.status,
+                            language
+                          )}
+                        </span>
+                      </td>
+
+
+                      <td>
+                        {agent.processed}
+                      </td>
+
+
+                      <td>
+                        {agentOutput(
+                          agent.output,
+                          language
+                        )}
+                      </td>
+                    </tr>
                   )
-                }
+                )}
               </tbody>
             </table>
           </div>
@@ -2460,7 +2808,7 @@ export default function AnalyticsPage() {
 
 
         {/* ================================================
-            POWER BI
+            POWER BI — PLANNED
             ================================================ */}
 
         <section
@@ -2489,7 +2837,10 @@ export default function AnalyticsPage() {
               </h2>
             </div>
 
-            <BarChart3 size={22} />
+            <BarChart3
+              size={22}
+              aria-hidden="true"
+            />
           </div>
 
 
@@ -2549,7 +2900,10 @@ export default function AnalyticsPage() {
                   }}
                 >
                   <div className="metricIcon">
-                    <BarChart3 size={21} />
+                    <BarChart3
+                      size={21}
+                      aria-hidden="true"
+                    />
                   </div>
 
                   <div>
@@ -2589,8 +2943,8 @@ export default function AnalyticsPage() {
                     >
                       {L(
                         language,
-                        "Planned secured reporting integration",
-                        "تكامل تقارير آمن مخطط له"
+                        "Planned reporting integration",
+                        "تكامل تقارير مخطط له"
                       )}
                     </span>
                   </div>
@@ -2619,7 +2973,7 @@ export default function AnalyticsPage() {
                         "Cases",
                         "الحالات"
                       ),
-                      "53",
+                      PLATFORM_METRICS.aggregatedCases,
                     ],
 
                     [
@@ -2628,7 +2982,7 @@ export default function AnalyticsPage() {
                         "Protection",
                         "الحماية"
                       ),
-                      "9",
+                      PLATFORM_METRICS.wronglyAffectedCases,
                     ],
 
                     [
@@ -2637,7 +2991,7 @@ export default function AnalyticsPage() {
                         "Recall",
                         "الاستدعاء"
                       ),
-                      "100%",
+                      `${PLATFORM_METRICS.evaluation.recall}%`,
                     ],
                   ].map(
                     ([
@@ -2645,9 +2999,7 @@ export default function AnalyticsPage() {
                       value,
                     ]) => (
                       <div
-                        key={
-                          label
-                        }
+                        key={label}
                         style={{
                           padding:
                             "15px",
@@ -2726,7 +3078,7 @@ export default function AnalyticsPage() {
                   }}
                 >
                   {t(
-                    "analytics.integrationReady"
+                    "analytics.planned"
                   )}
                 </strong>
 
@@ -2782,114 +3134,109 @@ export default function AnalyticsPage() {
               </h3>
 
 
-              {
-                powerBiDatasets.map(
-                  (dataset) => (
+              {powerBiDatasets.map(
+                (dataset) => (
+                  <div
+                    key={
+                      dataset.key
+                    }
+                    style={{
+                      padding:
+                        "13px",
+
+                      borderRadius:
+                        "10px",
+
+                      background:
+                        "rgba(255,255,255,0.024)",
+
+                      border:
+                        "1px solid rgba(255,255,255,0.05)",
+
+                      marginBottom:
+                        "8px",
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      gap:
+                        "10px",
+                    }}
+                  >
+                    <Database
+                      size={17}
+                      color="#659eff"
+                      aria-hidden="true"
+                    />
+
                     <div
-                      key={
-                        dataset.name
-                      }
                       style={{
-                        padding:
-                          "13px",
-
-                        borderRadius:
-                          "10px",
-
-                        background:
-                          "rgba(255,255,255,0.024)",
-
-                        border:
-                          "1px solid rgba(255,255,255,0.05)",
-
-                        marginBottom:
-                          "8px",
-
-                        display:
-                          "flex",
-
-                        alignItems:
-                          "center",
-
-                        gap:
-                          "10px",
+                        flex:
+                          1,
                       }}
                     >
-                      <Database
-                        size={17}
-                        color="#659eff"
-                      />
-
-                      <div
+                      <strong
                         style={{
-                          flex:
-                            1,
+                          display:
+                            "block",
+
+                          color:
+                            "#c9d6e5",
+
+                          fontSize:
+                            "11px",
                         }}
                       >
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#c9d6e5",
-
-                            fontSize:
-                              "11px",
-                          }}
-                        >
-                          {
-                            datasetName(
-                              dataset.name,
-                              language
-                            )
-                          }
-                        </strong>
-
-                        <span
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#71839a",
-
-                            fontSize:
-                              "10px",
-
-                            marginTop:
-                              "3px",
-                          }}
-                        >
-                          {
-                            datasetSource(
-                              dataset.source,
-                              language
-                            )
-                          }
-                        </span>
-                      </div>
+                        {datasetName(
+                          dataset.key,
+                          language
+                        )}
+                      </strong>
 
                       <span
                         style={{
+                          display:
+                            "block",
+
                           color:
-                            "#d4ac63",
+                            "#71839a",
 
                           fontSize:
                             "10px",
 
-                          fontWeight:
-                            800,
+                          marginTop:
+                            "3px",
                         }}
                       >
-                        {t(
-                          "analytics.planned"
+                        {datasetSource(
+                          dataset.source,
+                          language
                         )}
                       </span>
                     </div>
-                  )
+
+                    <span
+                      style={{
+                        color:
+                          "#d4ac63",
+
+                        fontSize:
+                          "10px",
+
+                        fontWeight:
+                          800,
+                      }}
+                    >
+                      {t(
+                        "analytics.planned"
+                      )}
+                    </span>
+                  </div>
                 )
-              }
+              )}
             </div>
           </div>
         </section>
@@ -2909,6 +3256,8 @@ export default function AnalyticsPage() {
               "16px",
           }}
         >
+          {/* OPERATIONAL */}
+
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -2927,7 +3276,10 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <Timer size={22} />
+              <Timer
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -2944,7 +3296,7 @@ export default function AnalyticsPage() {
                     "Cases Awaiting Officer",
                     "حالات بانتظار الضابط"
                   ),
-                  "5",
+                  5,
                 ],
 
                 [
@@ -2953,7 +3305,7 @@ export default function AnalyticsPage() {
                     "Cases Awaiting Manager",
                     "حالات بانتظار المدير"
                   ),
-                  "3",
+                  3,
                 ],
 
                 [
@@ -2962,14 +3314,14 @@ export default function AnalyticsPage() {
                     "Completed Demo Correction",
                     "تصحيح تجريبي مكتمل"
                   ),
-                  "1",
+                  1,
                 ],
 
                 [
                   t(
                     "analytics.verifiedClosed"
                   ),
-                  "1",
+                  1,
                 ],
 
                 [
@@ -2978,7 +3330,7 @@ export default function AnalyticsPage() {
                     "Verification Failure",
                     "فشل التحقق"
                   ),
-                  "0",
+                  0,
                 ],
 
                 [
@@ -2987,7 +3339,7 @@ export default function AnalyticsPage() {
                     "Rollback Required",
                     "تراجع مطلوب"
                   ),
-                  "0",
+                  0,
                 ],
               ].map(
                 ([
@@ -3014,6 +3366,8 @@ export default function AnalyticsPage() {
           </div>
 
 
+          {/* QUALITY */}
+
           <div className="panel">
             <div className="panelHeader">
               <div>
@@ -3032,7 +3386,10 @@ export default function AnalyticsPage() {
                 </h2>
               </div>
 
-              <ShieldCheck size={22} />
+              <ShieldCheck
+                size={22}
+                aria-hidden="true"
+              />
             </div>
 
 
@@ -3047,95 +3404,152 @@ export default function AnalyticsPage() {
                   t(
                     "analytics.expectedAnomalies"
                   ),
-                  "53",
+                  PLATFORM_METRICS.evaluation.expectedIssues,
                 ],
 
                 [
                   t(
                     "analytics.detectedAnomalies"
                   ),
-                  "53",
+                  PLATFORM_METRICS.evaluation.detectedIssues,
+                ],
+
+                [
+                  t(
+                    "analytics.missedAnomalies"
+                  ),
+                  PLATFORM_METRICS.evaluation.missedIssues,
                 ],
 
                 [
                   t(
                     "analytics.detectionRecall"
                   ),
-                  "100%",
+                  `${PLATFORM_METRICS.evaluation.recall}%`,
                 ],
 
                 [
                   t(
                     "analytics.rawPrecision"
                   ),
-                  "72.82%",
+                  `${PLATFORM_METRICS.evaluation.rawPrecision}%`,
                 ],
 
                 [
                   t(
                     "analytics.f1Score"
                   ),
-                  "84.27%",
+                  `${PLATFORM_METRICS.evaluation.f1}%`,
                 ],
 
                 [
                   t(
                     "analytics.diagnosticPrecision"
                   ),
-                  "100%",
+                  `${PLATFORM_METRICS.evaluation.diagnosticPrecision}%`,
                 ],
 
                 [
                   t(
                     "analytics.unexplainedFalsePositives"
                   ),
-                  "0",
+                  PLATFORM_METRICS.evaluation.unexplainedFalsePositives,
                 ],
 
                 [
                   t(
                     "analytics.protectiveDetection"
                   ),
-                  "100%",
+                  `${PLATFORM_METRICS.evaluation.protectiveDetectionRecall}%`,
                 ],
 
                 [
                   t(
                     "analytics.protectivePriorityAccuracy"
                   ),
-                  "100%",
+                  `${PLATFORM_METRICS.evaluation.protectivePriorityAccuracy}%`,
                 ],
               ].map(
                 ([
                   label,
                   value,
-                ]) => (
-                  <div
-                    className="detailRow"
-                    key={
-                      label
-                    }
-                  >
-                    <span>
-                      {label}
-                    </span>
+                ]) => {
+                  const success =
+                    value === 0
+                    ||
+                    value === "100%";
 
-                    <strong
-                      style={{
-                        color:
-                          value === "0"
-                          ||
-                          value === "100%"
-                            ? "#59cfa0"
-                            : undefined,
-                      }}
+                  return (
+                    <div
+                      className="detailRow"
+                      key={
+                        label
+                      }
                     >
-                      {value}
-                    </strong>
-                  </div>
-                )
+                      <span>
+                        {label}
+                      </span>
+
+                      <strong
+                        style={{
+                          color:
+                            success
+                              ? "#59cfa0"
+                              : undefined,
+                        }}
+                      >
+                        {value}
+                      </strong>
+                    </div>
+                  );
+                }
               )}
             </div>
+          </div>
+        </section>
+
+
+        {/* ================================================
+            CANONICAL RESOLUTION NOTICE
+            ================================================ */}
+
+        <section
+          className="integrityInfo"
+          style={{
+            margin:
+              "16px 0 0",
+
+            padding:
+              "17px",
+          }}
+        >
+          <BrainCircuit
+            size={23}
+            aria-hidden="true"
+          />
+
+          <div>
+            <strong>
+              {t(
+                "dataIntegrity.canonicalResolution"
+              )}
+              {": "}
+              {
+                PLATFORM_METRICS.aggregatedCases
+                -
+                PLATFORM_METRICS.unresolvedIdentityCases
+              }
+              {" / "}
+              {
+                PLATFORM_METRICS.aggregatedCases
+              }
+            </strong>
+
+            <span>
+              {t(
+                "dataIntegrity.resolutionNotice"
+              )}
+            </span>
           </div>
         </section>
 
@@ -3155,7 +3569,10 @@ export default function AnalyticsPage() {
           }}
         >
           <div className="alertIcon">
-            <TrendingUp size={24} />
+            <TrendingUp
+              size={24}
+              aria-hidden="true"
+            />
           </div>
 
           <div className="alertText">
@@ -3171,9 +3588,9 @@ export default function AnalyticsPage() {
               {L(
                 language,
 
-                "Data mismatch is the largest individual backend case type. Separately, the protective grouping contains 9 wrong-person and harm-sensitive cases requiring elevated human attention. Volume and protective harm should therefore be monitored as different management dimensions.",
+                `Data mismatch is the largest individual backend case type. Separately, the protective grouping contains ${PLATFORM_METRICS.wronglyAffectedCases} wrong-person and harm-sensitive cases requiring elevated human attention. Volume and protective harm should therefore be monitored as different management dimensions.`,
 
-                "يمثل اختلاف البيانات أكبر نوع منفرد من الحالات في النظام الخلفي. وبشكل منفصل، تضم المجموعة الوقائية 9 حالات مرتبطة بالشخص الخطأ أو الحساسة للضرر وتتطلب اهتمامًا بشريًا أعلى. لذلك يجب مراقبة حجم الحالات والضرر الوقائي كأبعاد إدارية مختلفة."
+                `يمثل اختلاف البيانات أكبر نوع منفرد من الحالات في النظام الخلفي. وبشكل منفصل، تضم المجموعة الوقائية ${PLATFORM_METRICS.wronglyAffectedCases} حالات مرتبطة بالشخص الخطأ أو الحساسة للضرر وتتطلب اهتمامًا بشريًا أعلى. لذلك يجب مراقبة حجم الحالات والضرر الوقائي كأبعاد إدارية مختلفة.`
               )}
             </span>
           </div>
@@ -3192,7 +3609,13 @@ export default function AnalyticsPage() {
               "عرض الحالات"
             )}
 
-            <ChevronRight size={17} />
+            <ChevronRight
+              size={17}
+              style={
+                navigationArrowStyle
+              }
+              aria-hidden="true"
+            />
           </Link>
         </section>
 
@@ -3203,8 +3626,12 @@ export default function AnalyticsPage() {
 
         <footer className="footer">
           <span>
-            {t("footer.platform")}
+            {t(
+              "footer.platform"
+            )}
+
             {" · "}
+
             {L(
               language,
               "Executive Analytics Center",
@@ -3213,7 +3640,10 @@ export default function AnalyticsPage() {
           </span>
 
           <div>
-            <Activity size={15} />
+            <Activity
+              size={15}
+              aria-hidden="true"
+            />
 
             {L(
               language,

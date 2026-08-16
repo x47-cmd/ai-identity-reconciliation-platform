@@ -59,18 +59,18 @@ const completedReports = [
 
     issue: {
       en:
-        "Incorrect Identity Link",
+        "Incorrect Biometric Link",
 
       ar:
-        "ربط هوية غير صحيح",
+        "ربط بيومتري غير صحيح",
     },
 
     aiResult: {
       en:
-        "AI identified the correct identity and recommended reassignment.",
+        "AI identified the strongest matching reference and recommended correcting the biometric link.",
 
       ar:
-        "حدد الذكاء الاصطناعي الهوية الصحيحة وأوصى بإعادة الربط.",
+        "حدد الذكاء الاصطناعي أقوى مرجع مطابق وأوصى بتصحيح ربط السجل البيومتري.",
     },
 
     result: {
@@ -102,18 +102,18 @@ const completedReports = [
 
     issue: {
       en:
-        "Duplicate Identity",
+        "Duplicate Reference Record",
 
       ar:
-        "هوية مكررة",
+        "تكرار في السجل المرجعي",
     },
 
     aiResult: {
       en:
-        "AI detected a duplicate relationship and prepared a correction recommendation.",
+        "AI detected a duplicate record relationship and prepared a correction recommendation.",
 
       ar:
-        "اكتشف الذكاء الاصطناعي علاقة مكررة وجهز توصية بالتصحيح.",
+        "اكتشف الذكاء الاصطناعي علاقة مكررة بين السجلات وجهز توصية بالتصحيح.",
     },
 
     result: {
@@ -145,18 +145,18 @@ const completedReports = [
 
     issue: {
       en:
-        "Identity Data Mismatch",
+        "Reference Data Mismatch",
 
       ar:
-        "اختلاف في بيانات الهوية",
+        "اختلاف في البيانات المرجعية",
     },
 
     aiResult: {
       en:
-        "AI detected conflicting identity information and recommended the verified reference.",
+        "AI detected conflicting record information and recommended the verified reference.",
 
       ar:
-        "اكتشف الذكاء الاصطناعي اختلافًا في بيانات الهوية وأوصى بالمرجع المتحقق منه.",
+        "اكتشف الذكاء الاصطناعي اختلافًا بين بيانات السجلات وأوصى بالمرجع الذي تم التحقق منه.",
     },
 
     result: {
@@ -195,10 +195,10 @@ const auditHistory = [
 
     description: {
       en:
-        "AI analyzed the identity evidence and prepared the recommended correction.",
+        "AI analyzed the biometric and reference evidence and prepared the recommended link correction.",
 
       ar:
-        "حلل الذكاء الاصطناعي أدلة الهوية وجهز التصحيح الموصى به.",
+        "حلل الذكاء الاصطناعي الأدلة البيومترية والمرجعية وجهز تصحيح الربط الموصى به.",
     },
   },
 
@@ -216,10 +216,10 @@ const auditHistory = [
 
     description: {
       en:
-        "The Monitoring Officer reviewed the evidence and approved the recommendation.",
+        "The Monitoring Officer reviewed the evidence and approved the recommended correction.",
 
       ar:
-        "راجع ضابط المراقبة الأدلة واعتمد التوصية.",
+        "راجع ضابط المراقبة الأدلة واعتمد التصحيح الموصى به.",
     },
   },
 
@@ -237,10 +237,10 @@ const auditHistory = [
 
     description: {
       en:
-        "The Supervising Manager completed the second approval.",
+        "The Supervising Manager completed the required second human approval.",
 
       ar:
-        "أكمل المدير المشرف الاعتماد الثاني.",
+        "أكمل المدير المشرف الاعتماد البشري الثاني المطلوب.",
     },
   },
 
@@ -250,18 +250,18 @@ const auditHistory = [
 
     title: {
       en:
-        "Correction completed",
+        "Biometric link corrected",
 
       ar:
-        "تم تنفيذ التصحيح",
+        "تم تصحيح الربط البيومتري",
     },
 
     description: {
       en:
-        "The approved identity relationship was corrected in the permitted Biometric System.",
+        "The approved biometric record link was corrected in the permitted Biometric System.",
 
       ar:
-        "تم تصحيح علاقة الهوية المعتمدة داخل النظام البيومتري المسموح.",
+        "تم تصحيح ربط السجل البيومتري المعتمد داخل النظام البيومتري المسموح.",
     },
   },
 
@@ -271,18 +271,18 @@ const auditHistory = [
 
     title: {
       en:
-        "Verification passed",
+        "Post-correction verification passed",
 
       ar:
-        "نجح التحقق",
+        "نجح التحقق بعد التصحيح",
     },
 
     description: {
       en:
-        "The corrected relationship passed verification and the case was closed.",
+        "The corrected biometric-to-person relationship passed verification and the case was closed.",
 
       ar:
-        "اجتاز الربط المصحح عملية التحقق وتم إغلاق الحالة.",
+        "اجتازت العلاقة المصححة بين السجل البيومتري والشخص عملية التحقق وتم إغلاق الحالة.",
     },
   },
 ];
@@ -371,8 +371,8 @@ export default function ReportsAuditPage() {
 
               {L(
                 language,
-                "COMPLETED CASES & AUDIT HISTORY",
-                "الحالات المكتملة وسجل التدقيق"
+                "COMPLETED BIOMETRIC CASES & AUDIT HISTORY",
+                "الحالات البيومترية المكتملة وسجل التدقيق"
               )}
             </div>
 
@@ -389,8 +389,8 @@ export default function ReportsAuditPage() {
             <p>
               {L(
                 language,
-                "Review completed identity cases, AI findings, human approvals, corrections and final verification results.",
-                "راجع الحالات المكتملة ونتائج الذكاء الاصطناعي والاعتمادات البشرية والتصحيحات ونتائج التحقق النهائية."
+                "Review completed biometric cases, AI investigation results, human approvals, corrections and final verification.",
+                "راجع الحالات البيومترية المكتملة ونتائج تحقيق الذكاء الاصطناعي والاعتمادات البشرية والتصحيحات ونتائج التحقق النهائي."
               )}
             </p>
 
@@ -419,13 +419,14 @@ export default function ReportsAuditPage() {
             aria-hidden="true"
           />
 
+
           <div>
 
             <strong>
               {L(
                 language,
-                "Completed cases are preserved here for reference and audit",
-                "يتم حفظ الحالات المكتملة هنا للرجوع إليها والتدقيق"
+                "Completed cases remain available for audit and reference",
+                "يتم الاحتفاظ بالحالات المكتملة للرجوع إليها والتدقيق"
               )}
             </strong>
 
@@ -433,8 +434,8 @@ export default function ReportsAuditPage() {
             <span>
               {L(
                 language,
-                "Each completed case records what the AI detected, what humans approved, what was corrected and whether final verification passed.",
-                "تسجل كل حالة مكتملة ما اكتشفه الذكاء الاصطناعي وما تم اعتماده بشريًا وما تم تصحيحه ونتيجة التحقق النهائي."
+                "Each completed case records what the AI detected, the recommended biometric link, the human approvals, the correction performed and the final verification result.",
+                "تسجل كل حالة مكتملة ما اكتشفه الذكاء الاصطناعي، والربط البيومتري الموصى به، والاعتمادات البشرية، والتصحيح المنفذ، ونتيجة التحقق النهائي."
               )}
             </span>
 
@@ -462,8 +463,8 @@ export default function ReportsAuditPage() {
             description={
               L(
                 language,
-                "Synthetic case history available",
-                "سجل حالات تجريبي متوفر"
+                "Representative synthetic case history",
+                "سجل تمثيلي لحالات تجريبية"
               )
             }
           />
@@ -482,8 +483,8 @@ export default function ReportsAuditPage() {
             description={
               L(
                 language,
-                "Recorded in completed reports",
-                "مسجلة ضمن التقارير المكتملة"
+                "Recorded in completed case reports",
+                "مسجلة ضمن تقارير الحالات المكتملة"
               )
             }
           />
@@ -522,8 +523,8 @@ export default function ReportsAuditPage() {
             description={
               L(
                 language,
-                "End-to-end validated case",
-                "حالة مكتملة من البداية للنهاية"
+                "Full workflow completed successfully",
+                "اكتمل مسارها بالكامل بنجاح"
               )
             }
           />
@@ -540,13 +541,15 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "REPORT ARCHIVE",
-                  "أرشيف التقارير"
+                  "CASE ARCHIVE",
+                  "أرشيف الحالات"
                 )}
               </div>
+
 
               <h2>
                 {L(
@@ -555,6 +558,7 @@ export default function ReportsAuditPage() {
                   "الحالات المكتملة"
                 )}
               </h2>
+
             </div>
 
 
@@ -630,6 +634,7 @@ export default function ReportsAuditPage() {
                     {/* PERSON */}
 
                     <div>
+
                       <strong
                         style={{
                           display:
@@ -644,6 +649,7 @@ export default function ReportsAuditPage() {
                       >
                         {name}
                       </strong>
+
 
                       <span
                         dir="ltr"
@@ -663,12 +669,14 @@ export default function ReportsAuditPage() {
                       >
                         {item.id}
                       </span>
+
                     </div>
 
 
                     {/* ISSUE */}
 
                     <div>
+
                       <span
                         style={{
                           display:
@@ -683,10 +691,11 @@ export default function ReportsAuditPage() {
                       >
                         {L(
                           language,
-                          "Identity Issue",
-                          "المشكلة"
+                          "Detected Problem",
+                          "المشكلة المكتشفة"
                         )}
                       </span>
+
 
                       <strong
                         style={{
@@ -705,12 +714,14 @@ export default function ReportsAuditPage() {
                       >
                         {issue}
                       </strong>
+
                     </div>
 
 
                     {/* AI */}
 
                     <div>
+
                       <span
                         style={{
                           display:
@@ -736,10 +747,11 @@ export default function ReportsAuditPage() {
 
                         {L(
                           language,
-                          "AI Finding",
-                          "نتيجة الذكاء الاصطناعي"
+                          "AI Investigation Result",
+                          "نتيجة تحقيق الذكاء الاصطناعي"
                         )}
                       </span>
+
 
                       <span
                         style={{
@@ -761,12 +773,14 @@ export default function ReportsAuditPage() {
                       >
                         {aiResult}
                       </span>
+
                     </div>
 
 
                     {/* RESULT */}
 
                     <div>
+
                       <span
                         style={{
                           display:
@@ -786,6 +800,7 @@ export default function ReportsAuditPage() {
                         )}
                       </span>
 
+
                       <strong
                         style={{
                           display:
@@ -803,12 +818,14 @@ export default function ReportsAuditPage() {
                       >
                         {result}
                       </strong>
+
                     </div>
 
 
                     {/* OPEN */}
 
                     <div>
+
                       {item.hasDetail && (
                         <div
                           style={{
@@ -846,6 +863,7 @@ export default function ReportsAuditPage() {
                           />
                         </div>
                       )}
+
                     </div>
 
                   </div>
@@ -908,6 +926,7 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
@@ -916,6 +935,7 @@ export default function ReportsAuditPage() {
                 )}
               </div>
 
+
               <h2>
                 {L(
                   language,
@@ -923,6 +943,7 @@ export default function ReportsAuditPage() {
                   "سالم محمد الكعبي"
                 )}
               </h2>
+
 
               <span
                 dir="ltr"
@@ -941,7 +962,10 @@ export default function ReportsAuditPage() {
                 }}
               >
                 {VERIFIED_DEMO_CASE.id}
+                {" · "}
+                {VERIFIED_DEMO_CASE.biometricId}
               </span>
+
             </div>
 
 
@@ -978,6 +1002,7 @@ export default function ReportsAuditPage() {
                   "1px solid rgba(70,140,255,0.09)",
               }}
             >
+
               <strong
                 style={{
                   display:
@@ -1003,10 +1028,11 @@ export default function ReportsAuditPage() {
 
                 {L(
                   language,
-                  "AI Investigation Result",
-                  "نتيجة تحقيق الذكاء الاصطناعي"
+                  "AI Investigation & Identity Resolution",
+                  "تحقيق الذكاء الاصطناعي وحسم الهوية"
                 )}
               </strong>
+
 
               <p
                 style={{
@@ -1025,10 +1051,11 @@ export default function ReportsAuditPage() {
               >
                 {L(
                   language,
-                  "AI identified that the biometric record was linked to the wrong identity and recommended the verified identity reference with high confidence.",
-                  "حدد الذكاء الاصطناعي أن السجل البيومتري كان مرتبطًا بالهوية الخطأ، وأوصى بمرجع الهوية الصحيح بدرجة ثقة مرتفعة."
+                  "AI detected that the biometric record was linked to the wrong person and identified the strongest verified reference with high confidence.",
+                  "اكتشف الذكاء الاصطناعي أن السجل البيومتري كان مرتبطًا بالشخص الخطأ، وحدد أقوى مرجع صحيح بدرجة ثقة مرتفعة."
                 )}
               </p>
+
             </div>
 
 
@@ -1065,6 +1092,7 @@ export default function ReportsAuditPage() {
                     "1px solid rgba(255,80,100,0.08)",
                 }}
               >
+
                 <span
                   style={{
                     display:
@@ -1079,10 +1107,11 @@ export default function ReportsAuditPage() {
                 >
                   {L(
                     language,
-                    "Previous Incorrect Identity",
-                    "الهوية السابقة الخاطئة"
+                    "Previous Incorrect Reference",
+                    "المرجع السابق الخاطئ"
                   )}
                 </span>
+
 
                 <strong
                   dir="ltr"
@@ -1104,6 +1133,7 @@ export default function ReportsAuditPage() {
                     VERIFIED_DEMO_CASE.execution.before
                   }
                 </strong>
+
               </div>
 
 
@@ -1122,6 +1152,7 @@ export default function ReportsAuditPage() {
                     "1px solid rgba(52,211,153,0.08)",
                 }}
               >
+
                 <span
                   style={{
                     display:
@@ -1136,10 +1167,11 @@ export default function ReportsAuditPage() {
                 >
                   {L(
                     language,
-                    "Verified Identity",
-                    "الهوية الصحيحة بعد التحقق"
+                    "Verified Reference",
+                    "المرجع الصحيح بعد التحقق"
                   )}
                 </span>
+
 
                 <strong
                   dir="ltr"
@@ -1161,6 +1193,7 @@ export default function ReportsAuditPage() {
                     VERIFIED_DEMO_CASE.execution.after
                   }
                 </strong>
+
               </div>
 
             </div>
@@ -1176,6 +1209,7 @@ export default function ReportsAuditPage() {
             >
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1184,15 +1218,17 @@ export default function ReportsAuditPage() {
                   )}
                 </span>
 
-                <strong>
+                <strong dir="ltr">
                   {
                     VERIFIED_DEMO_CASE.aiConfidence
                   }%
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1208,10 +1244,12 @@ export default function ReportsAuditPage() {
                     "معتمد"
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
@@ -1227,15 +1265,17 @@ export default function ReportsAuditPage() {
                     "معتمد"
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
-                    "Correction",
-                    "التصحيح"
+                    "Biometric Link Correction",
+                    "تصحيح الربط البيومتري"
                   )}
                 </span>
 
@@ -1246,25 +1286,31 @@ export default function ReportsAuditPage() {
                     "مكتمل"
                   )}
                 </strong>
+
               </div>
 
 
               <div className="detailRow">
+
                 <span>
                   {L(
                     language,
-                    "Final Verification",
-                    "التحقق النهائي"
+                    "Post-Correction Verification",
+                    "التحقق بعد التصحيح"
                   )}
                 </span>
 
-                <strong className="successText">
+                <strong
+                  className="successText"
+                  dir="ltr"
+                >
                   {L(
                     language,
                     `Passed · Score ${VERIFIED_DEMO_CASE.verification.score}`,
                     `ناجح · الدرجة ${VERIFIED_DEMO_CASE.verification.score}`
                   )}
                 </strong>
+
               </div>
 
             </div>
@@ -1282,8 +1328,8 @@ export default function ReportsAuditPage() {
             >
               {L(
                 language,
-                "Open Full Case",
-                "فتح الحالة الكاملة"
+                "Open Full Case Investigation",
+                "فتح تحقيق الحالة الكامل"
               )}
 
               <ChevronRight
@@ -1315,13 +1361,15 @@ export default function ReportsAuditPage() {
           <div className="panelHeader">
 
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "AUDIT TRAIL",
-                  "سجل التدقيق"
+                  "TRACEABLE AUDIT HISTORY",
+                  "سجل التدقيق القابل للتتبع"
                 )}
               </div>
+
 
               <h2>
                 {L(
@@ -1330,7 +1378,9 @@ export default function ReportsAuditPage() {
                   "تاريخ الحالة المسجل"
                 )}
               </h2>
+
             </div>
+
 
             <History
               size={22}
@@ -1491,21 +1541,23 @@ export default function ReportsAuditPage() {
             aria-hidden="true"
           />
 
+
           <div>
 
             <strong>
               {L(
                 language,
-                "Formal PDF report",
-                "تقرير PDF رسمي"
+                "Formal PDF case report",
+                "تقرير حالة رسمي PDF"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
-                "The report data is ready in the demonstration model. Downloadable PDF generation is planned for a later implementation stage.",
-                "بيانات التقرير جاهزة داخل النموذج التجريبي، وسيتم إضافة إنشاء تقرير PDF قابل للتنزيل في مرحلة لاحقة."
+                "The structured report data is available in the demonstration model. Downloadable PDF generation is planned for a later implementation stage.",
+                "بيانات التقرير المنظمة متوفرة داخل النموذج التجريبي، وسيتم إضافة إنشاء تقرير PDF قابل للتنزيل في مرحلة تنفيذ لاحقة."
               )}
             </span>
 
@@ -1534,6 +1586,7 @@ export default function ReportsAuditPage() {
             aria-hidden="true"
           />
 
+
           <div>
 
             <strong>
@@ -1544,11 +1597,12 @@ export default function ReportsAuditPage() {
               )}
             </strong>
 
+
             <span>
               {L(
                 language,
-                "The history records AI analysis, human approvals, controlled correction and verification so completed cases can be reviewed later.",
-                "يسجل السجل تحليل الذكاء الاصطناعي والاعتمادات البشرية والتصحيح الخاضع للتحكم والتحقق حتى يمكن مراجعة الحالات لاحقًا."
+                "The audit history records AI investigation, human approvals, controlled biometric correction and final verification so completed cases can be reviewed later.",
+                "يسجل سجل التدقيق تحقيق الذكاء الاصطناعي والاعتمادات البشرية والتصحيح البيومتري الخاضع للتحكم والتحقق النهائي حتى يمكن مراجعة الحالات المكتملة لاحقًا."
               )}
             </span>
 
@@ -1566,13 +1620,14 @@ export default function ReportsAuditPage() {
           <span>
             {L(
               language,
-              "AI Identity Reconciliation Platform · Reports & History",
-              "منصة مطابقة الهوية بالذكاء الاصطناعي · التقارير والسجل"
+              "AI Biometric Reconciliation Platform · Reports & History",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · التقارير والسجل"
             )}
           </span>
 
 
           <div>
+
             <Activity
               size={15}
               aria-hidden="true"
@@ -1583,11 +1638,13 @@ export default function ReportsAuditPage() {
               "Audit history available",
               "سجل التدقيق متوفر"
             )}
+
           </div>
 
         </footer>
 
       </main>
+
     </div>
   );
 }

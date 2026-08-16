@@ -550,6 +550,7 @@ export default function CasesPage() {
               }}
             >
               All Cases
+
               <span
                 style={{
                   opacity: 0.7,
@@ -646,9 +647,16 @@ export default function CasesPage() {
                 {cases.map((item) => (
                   <tr key={item.id}>
                     <td>
-                      <div className="caseId">
+                      <Link
+                        href={`/cases/${item.id}`}
+                        className="caseId"
+                        style={{
+                          textDecoration: "none",
+                          display: "inline-block",
+                        }}
+                      >
                         {item.id}
-                      </div>
+                      </Link>
 
                       <StatusBadge
                         status={item.status}
@@ -777,7 +785,9 @@ export default function CasesPage() {
                     </td>
 
                     <td>
-                      <button
+                      <Link
+                        href={`/cases/${item.id}`}
+                        aria-label={`Open ${item.id}`}
                         style={{
                           width: "31px",
                           height: "31px",
@@ -789,10 +799,11 @@ export default function CasesPage() {
                           background:
                             "rgba(255,255,255,0.025)",
                           color: "#7098d6",
+                          textDecoration: "none",
                         }}
                       >
                         <ChevronRight size={16} />
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 ))}

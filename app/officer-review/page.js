@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import Sidebar from "../components/Sidebar";
 
 import {
@@ -10,7 +8,6 @@ import {
   CheckCircle2,
   ChevronRight,
   CircleAlert,
-  Clock3,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -18,23 +15,19 @@ import {
 } from "lucide-react";
 
 
+/* =========================================================
+   OFFICER REVIEW QUEUE
+
+   Synthetic Demo Only
+
+   CASE-2026-00001 is intentionally excluded because the
+   verified E2E demonstration case is already VERIFIED_CLOSED.
+
+   These records represent cases currently positioned at the
+   Level 1 human review stage in the frontend demonstration.
+   ========================================================= */
+
 const officerCases = [
-  {
-    id: "CASE-2026-00001",
-    title: "Potential Wrong-Person Harm",
-    type: "HARM_IMPACT",
-    biometric: "BIO-000166",
-    current: "REF-002711",
-    proposed: "REF-001009",
-    confidence: 99.99,
-    risk: 94.99,
-    harm: 97.5,
-    protective: 98.0,
-    priority: "IMMEDIATE",
-    affected: true,
-    age: "4 min",
-    findings: 2,
-  },
   {
     id: "CASE-2026-00002",
     title: "Potential Wrong-Person Harm",
@@ -48,9 +41,11 @@ const officerCases = [
     protective: 97.5,
     priority: "IMMEDIATE",
     affected: true,
-    age: "7 min",
     findings: 2,
+    queueOrder: 1,
+    hasDetail: false,
   },
+
   {
     id: "CASE-2026-00004",
     title: "Potential Wrong-Person Harm",
@@ -64,9 +59,11 @@ const officerCases = [
     protective: 96.5,
     priority: "IMMEDIATE",
     affected: true,
-    age: "11 min",
     findings: 2,
+    queueOrder: 2,
+    hasDetail: false,
   },
+
   {
     id: "CASE-2026-00006",
     title: "Potential Wrong-Person Harm",
@@ -80,9 +77,11 @@ const officerCases = [
     protective: 95.5,
     priority: "IMMEDIATE",
     affected: true,
-    age: "14 min",
     findings: 2,
+    queueOrder: 3,
+    hasDetail: false,
   },
+
   {
     id: "CASE-2026-00008",
     title: "Complex Identity Conflict",
@@ -96,9 +95,11 @@ const officerCases = [
     protective: 87.0,
     priority: "HIGH",
     affected: false,
-    age: "19 min",
     findings: 5,
+    queueOrder: 4,
+    hasDetail: false,
   },
+
   {
     id: "CASE-2026-00011",
     title: "Identity Data Mismatch",
@@ -112,11 +113,62 @@ const officerCases = [
     protective: 58.0,
     priority: "MEDIUM",
     affected: false,
-    age: "26 min",
     findings: 1,
+    queueOrder: 5,
+    hasDetail: false,
   },
 ];
 
+
+/* =========================================================
+   QUEUE METRICS
+
+   Derived from the queue to prevent frontend count drift.
+   ========================================================= */
+
+const queueMetrics = {
+  total:
+    officerCases.length,
+
+  immediate:
+    officerCases.filter(
+      (item) =>
+        item.priority === "IMMEDIATE"
+    ).length,
+
+  high:
+    officerCases.filter(
+      (item) =>
+        item.priority === "HIGH"
+    ).length,
+
+  medium:
+    officerCases.filter(
+      (item) =>
+        item.priority === "MEDIUM"
+    ).length,
+
+  wrongPerson:
+    officerCases.filter(
+      (item) =>
+        item.affected
+    ).length,
+
+  aiInvestigated:
+    officerCases.length,
+
+  sentToManager:
+    3,
+};
+
+
+const recommendedCase =
+  officerCases[0];
+
+
+/* =========================================================
+   SMALL COMPONENTS
+   ========================================================= */
 
 function PriorityBadge({
   priority,
@@ -148,6 +200,10 @@ function Metric({
         <div className="metricIcon">
           <Icon size={20} />
         </div>
+
+        <span className="metricStatus">
+          DEMO KPI
+        </span>
       </div>
 
       <div className="metricValue">
@@ -166,13 +222,13 @@ function Metric({
 }
 
 
+/* =========================================================
+   PAGE
+   ========================================================= */
+
 export default function OfficerReviewPage() {
   return (
     <div className="appShell">
-
-      {/* ================================================
-          SHARED PLATFORM SIDEBAR
-          ================================================ */}
 
       <Sidebar />
 
@@ -244,16 +300,18 @@ export default function OfficerReviewPage() {
 
           <div className="alertText">
             <strong>
-              4 Wrong-Person Impact Cases
+              {queueMetrics.wrongPerson}
+              {" "}
+              Wrong-Person Impact Cases
               Require Immediate Review
             </strong>
 
             <span>
-              Protective cases are placed ahead
-              of normal technical cases because
-              an unrelated person may currently
-              be affected by incorrect identity
-              data.
+              Protective cases are positioned
+              ahead of normal technical cases
+              because an unrelated person may
+              be affected by an incorrect
+              identity relationship.
             </span>
           </div>
 
@@ -277,29 +335,29 @@ export default function OfficerReviewPage() {
           <Metric
             icon={UserCheck}
             label="Awaiting Officer"
-            value="6"
-            description="Cases ready for Level 1 review"
+            value={queueMetrics.total}
+            description="Cases positioned for Level 1 review"
           />
 
           <Metric
             icon={CircleAlert}
             label="Immediate"
-            value="4"
-            description="Wrong-person protective cases"
+            value={queueMetrics.immediate}
+            description="Protective intervention cases"
           />
 
           <Metric
             icon={BrainCircuit}
             label="AI Investigated"
-            value="6"
-            description="Evidence packages completed"
+            value={queueMetrics.aiInvestigated}
+            description="Evidence packages prepared for review"
           />
 
           <Metric
             icon={BadgeCheck}
-            label="Sent to Manager"
-            value="1"
-            description="Officer-approved cases"
+            label="Awaiting Manager"
+            value={queueMetrics.sentToManager}
+            description="Officer-approved cases at Level 2"
           />
         </section>
 
@@ -311,7 +369,7 @@ export default function OfficerReviewPage() {
         <section
           className="panel"
           style={{
-            marginBottom: "14px",
+            marginBottom: "16px",
             padding: "16px 18px",
           }}
         >
@@ -349,8 +407,8 @@ export default function OfficerReviewPage() {
               <span
                 style={{
                   display: "block",
-                  color: "#63768f",
-                  fontSize: "9px",
+                  color: "#71839a",
+                  fontSize: "10px",
                   lineHeight: 1.6,
                   marginTop: "4px",
                 }}
@@ -366,8 +424,9 @@ export default function OfficerReviewPage() {
             <div
               style={{
                 color: "#57c99c",
-                fontSize: "9px",
+                fontSize: "10px",
                 fontWeight: 800,
+                whiteSpace: "nowrap",
               }}
             >
               HUMAN DECISION REQUIRED
@@ -383,7 +442,7 @@ export default function OfficerReviewPage() {
         <section
           className="panel"
           style={{
-            marginBottom: "14px",
+            marginBottom: "16px",
             padding: "13px 16px",
           }}
         >
@@ -410,28 +469,40 @@ export default function OfficerReviewPage() {
                   opacity: 0.7,
                 }}
               >
-                6
+                {queueMetrics.total}
               </span>
             </button>
 
             <button className="searchButton">
               Immediate
-              <span>4</span>
+
+              <span>
+                {queueMetrics.immediate}
+              </span>
             </button>
 
             <button className="searchButton">
               High
-              <span>1</span>
+
+              <span>
+                {queueMetrics.high}
+              </span>
             </button>
 
             <button className="searchButton">
               Medium
-              <span>1</span>
+
+              <span>
+                {queueMetrics.medium}
+              </span>
             </button>
 
             <button className="searchButton">
               Wrong-Person Impact
-              <span>4</span>
+
+              <span>
+                {queueMetrics.wrongPerson}
+              </span>
             </button>
           </div>
         </section>
@@ -458,13 +529,13 @@ export default function OfficerReviewPage() {
                 display: "flex",
                 alignItems: "center",
                 gap: "7px",
-                color: "#61738c",
-                fontSize: "9px",
+                color: "#71839a",
+                fontSize: "10px",
               }}
             >
               <Activity size={15} />
 
-              Live Queue
+              Synthetic Review Queue
             </div>
           </div>
 
@@ -485,220 +556,242 @@ export default function OfficerReviewPage() {
                   <th>HARM</th>
                   <th>PROTECTIVE</th>
                   <th>PRIORITY</th>
-                  <th>WAITING</th>
+                  <th>QUEUE</th>
                   <th></th>
                 </tr>
               </thead>
 
 
               <tbody>
-                {officerCases.map(
-                  (item) => (
-                    <tr key={item.id}>
+                {
+                  officerCases.map(
+                    (item) => (
+                      <tr key={item.id}>
 
-                      {/* CASE */}
+                        {/* CASE */}
 
-                      <td>
-                        <Link
-                          href={`/cases/${item.id}`}
-                          className="caseId"
-                          style={{
-                            textDecoration: "none",
-                            display: "inline-block",
-                          }}
-                        >
-                          {item.id}
-                        </Link>
+                        <td>
+                          <span
+                            className="caseId"
+                            style={{
+                              display: "inline-block",
+                            }}
+                          >
+                            {item.id}
+                          </span>
 
-                        <div className="caseStatus">
-                          {item.biometric}
-                        </div>
-                      </td>
+                          <div className="caseStatus">
+                            {item.biometric}
+                          </div>
+                        </td>
 
 
-                      {/* INVESTIGATION */}
+                        {/* INVESTIGATION */}
 
-                      <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "9px",
-                            alignItems: "center",
-                          }}
-                        >
-                          {item.affected ? (
-                            <ShieldAlert
-                              size={16}
-                              color="#ff7584"
-                            />
-                          ) : (
-                            <BrainCircuit
-                              size={16}
-                              color="#669fff"
-                            />
-                          )}
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "9px",
+                              alignItems: "center",
+                            }}
+                          >
+                            {
+                              item.affected
+                                ? (
+                                  <ShieldAlert
+                                    size={16}
+                                    color="#ff7584"
+                                  />
+                                )
+                                : (
+                                  <BrainCircuit
+                                    size={16}
+                                    color="#669fff"
+                                  />
+                                )
+                            }
 
-                          <div>
-                            <strong
-                              style={{
-                                display: "block",
-                                color: "#cbd8e7",
-                                fontSize: "9px",
-                              }}
-                            >
-                              {item.title}
-                            </strong>
+                            <div>
+                              <strong
+                                style={{
+                                  display: "block",
+                                  color: "#cbd8e7",
+                                  fontSize: "11px",
+                                  lineHeight: 1.45,
+                                }}
+                              >
+                                {item.title}
+                              </strong>
 
-                            <span
-                              style={{
-                                display: "block",
-                                color: "#566981",
-                                fontSize: "8px",
-                                marginTop: "4px",
-                              }}
-                            >
-                              {item.type}
-                              {" · "}
-                              {item.findings}
-                              {" findings"}
+                              <span
+                                style={{
+                                  display: "block",
+                                  color: "#71839a",
+                                  fontSize: "10px",
+                                  lineHeight: 1.4,
+                                  marginTop: "4px",
+                                }}
+                              >
+                                {item.type}
+                                {" · "}
+                                {item.findings}
+                                {" findings"}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+
+                        {/* IDENTITY CHANGE */}
+
+                        <td>
+                          <div className="identityChange">
+                            <span className="oldIdentity">
+                              {item.current}
+                            </span>
+
+                            <ChevronRight size={14} />
+
+                            <span className="newIdentity">
+                              {item.proposed}
                             </span>
                           </div>
-                        </div>
-                      </td>
+                        </td>
 
 
-                      {/* IDENTITY CHANGE */}
+                        {/* CONFIDENCE */}
 
-                      <td>
-                        <div className="identityChange">
-                          <span className="oldIdentity">
-                            {item.current}
+                        <td>
+                          <span className="confidence">
+                            {item.confidence}%
                           </span>
-
-                          <ChevronRight size={14} />
-
-                          <span className="newIdentity">
-                            {item.proposed}
-                          </span>
-                        </div>
-                      </td>
+                        </td>
 
 
-                      {/* CONFIDENCE */}
+                        {/* RISK */}
 
-                      <td>
-                        <span className="confidence">
-                          {item.confidence}%
-                        </span>
-                      </td>
+                        <td>
+                          <strong
+                            style={{
+                              color:
+                                item.risk >= 90
+                                  ? "#ff7d8b"
+                                  : item.risk >= 80
+                                    ? "#ffbd67"
+                                    : "#aab9ca",
 
-
-                      {/* RISK */}
-
-                      <td>
-                        <strong
-                          style={{
-                            color:
-                              item.risk >= 90
-                                ? "#ff7d8b"
-                                : item.risk >= 80
-                                  ? "#ffbd67"
-                                  : "#a4b2c4",
-                            fontSize: "10px",
-                          }}
-                        >
-                          {item.risk}
-                        </strong>
-                      </td>
+                              fontSize: "11px",
+                            }}
+                          >
+                            {item.risk}
+                          </strong>
+                        </td>
 
 
-                      {/* HARM */}
+                        {/* HARM */}
 
-                      <td>
-                        <strong
-                          style={{
-                            color:
-                              item.harm >= 90
-                                ? "#ff7d8b"
-                                : "#a4b2c4",
-                            fontSize: "10px",
-                          }}
-                        >
-                          {item.harm}
-                        </strong>
-                      </td>
+                        <td>
+                          <strong
+                            style={{
+                              color:
+                                item.harm >= 90
+                                  ? "#ff7d8b"
+                                  : "#aab9ca",
 
-
-                      {/* PROTECTIVE */}
-
-                      <td>
-                        <strong
-                          style={{
-                            color:
-                              item.protective >= 95
-                                ? "#ff7d8b"
-                                : "#70a5ff",
-                            fontSize: "10px",
-                          }}
-                        >
-                          {item.protective}
-                        </strong>
-                      </td>
+                              fontSize: "11px",
+                            }}
+                          >
+                            {item.harm}
+                          </strong>
+                        </td>
 
 
-                      {/* PRIORITY */}
+                        {/* PROTECTIVE */}
 
-                      <td>
-                        <PriorityBadge
-                          priority={item.priority}
-                        />
-                      </td>
+                        <td>
+                          <strong
+                            style={{
+                              color:
+                                item.protective >= 95
+                                  ? "#ff7d8b"
+                                  : "#82aeff",
 
-
-                      {/* WAITING */}
-
-                      <td>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            color: "#687b93",
-                            fontSize: "9px",
-                          }}
-                        >
-                          <Clock3 size={13} />
-
-                          {item.age}
-                        </div>
-                      </td>
+                              fontSize: "11px",
+                            }}
+                          >
+                            {item.protective}
+                          </strong>
+                        </td>
 
 
-                      {/* OPEN REVIEW */}
+                        {/* PRIORITY */}
 
-                      <td>
-                        <Link
-                          href={`/cases/${item.id}`}
-                          className="primaryButton"
-                          style={{
-                            width: "auto",
-                            minWidth: "105px",
-                            height: "34px",
-                            marginTop: 0,
-                            padding: "0 12px",
-                            textDecoration: "none",
-                            fontSize: "9px",
-                          }}
-                        >
-                          Review Case
+                        <td>
+                          <PriorityBadge
+                            priority={item.priority}
+                          />
+                        </td>
 
-                          <ChevronRight size={14} />
-                        </Link>
-                      </td>
 
-                    </tr>
+                        {/* QUEUE ORDER */}
+
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "7px",
+                              color: "#7b8da4",
+                              fontSize: "10px",
+                              fontWeight: 700,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: "24px",
+                                height: "24px",
+                                borderRadius: "7px",
+                                display: "grid",
+                                placeItems: "center",
+                                background:
+                                  "rgba(70,140,255,0.07)",
+                                border:
+                                  "1px solid rgba(70,140,255,0.1)",
+                                color: "#78a9ff",
+                              }}
+                            >
+                              {item.queueOrder}
+                            </span>
+
+                            Priority
+                          </div>
+                        </td>
+
+
+                        {/* REVIEW */}
+
+                        <td>
+                          <button
+                            className="searchButton"
+                            disabled
+                            title="Detailed case view is not included in the current frontend demo"
+                            style={{
+                              minWidth: "112px",
+                              minHeight: "36px",
+                              padding: "0 12px",
+                            }}
+                          >
+                            Review Case
+
+                            <ChevronRight size={14} />
+                          </button>
+                        </td>
+
+                      </tr>
+                    )
                   )
-                )}
+                }
               </tbody>
             </table>
           </div>
@@ -712,12 +805,16 @@ export default function OfficerReviewPage() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              color: "#52657d",
-              fontSize: "9px",
+              gap: "16px",
+              color: "#687b93",
+              fontSize: "10px",
+              lineHeight: 1.5,
             }}
           >
             <span>
-              6 cases awaiting human review
+              {queueMetrics.total}
+              {" "}
+              cases awaiting Level 1 human review
             </span>
 
             <span>
@@ -729,7 +826,7 @@ export default function OfficerReviewPage() {
 
 
         {/* ================================================
-            TOP CASE PREVIEW
+            RECOMMENDED REVIEW + DECISION MODEL
             ================================================ */}
 
         <section
@@ -769,30 +866,38 @@ export default function OfficerReviewPage() {
                     fontSize: "17px",
                   }}
                 >
-                  CASE-2026-00001
+                  {recommendedCase.id}
                 </h2>
 
                 <p
                   style={{
-                    color: "#71839b",
-                    fontSize: "10px",
+                    color: "#7b8da4",
+                    fontSize: "11px",
                     lineHeight: 1.7,
                     maxWidth: "650px",
                     marginTop: "9px",
                   }}
                 >
-                  AI detected a potential
-                  wrong-person identity mapping
-                  with high potential harm. The
-                  biometric evidence supports
-                  reassignment from REF-002711
-                  to REF-001009 with 99.99%
-                  confidence.
+                  The current highest-priority
+                  Officer review case contains a
+                  potential wrong-person identity
+                  conflict. The proposed identity
+                  relationship is
+                  {" "}
+                  {recommendedCase.proposed}
+                  {" "}
+                  with
+                  {" "}
+                  {recommendedCase.confidence}%
+                  {" "}
+                  AI confidence.
                 </p>
               </div>
 
               <PriorityBadge
-                priority="IMMEDIATE"
+                priority={
+                  recommendedCase.priority
+                }
               />
             </div>
 
@@ -809,19 +914,19 @@ export default function OfficerReviewPage() {
               {[
                 [
                   "AI Confidence",
-                  "99.99%",
+                  `${recommendedCase.confidence}%`,
                 ],
                 [
                   "Risk",
-                  "94.99",
+                  recommendedCase.risk,
                 ],
                 [
                   "Harm",
-                  "97.5",
+                  recommendedCase.harm,
                 ],
                 [
                   "Protective",
-                  "98.0",
+                  recommendedCase.protective,
                 ],
               ].map(
                 ([label, value]) => (
@@ -839,8 +944,8 @@ export default function OfficerReviewPage() {
                     <span
                       style={{
                         display: "block",
-                        color: "#5c6f87",
-                        fontSize: "8px",
+                        color: "#71839a",
+                        fontSize: "10px",
                       }}
                     >
                       {label}
@@ -862,18 +967,18 @@ export default function OfficerReviewPage() {
             </div>
 
 
-            <Link
-              href="/cases/CASE-2026-00001"
+            <button
               className="primaryButton"
+              disabled
+              title="Detailed case view is not included in the current frontend demo"
               style={{
-                textDecoration: "none",
                 marginTop: "18px",
               }}
             >
-              Open Full AI Investigation
+              Detailed Investigation View Planned
 
               <ChevronRight size={17} />
-            </Link>
+            </button>
           </div>
 
 
@@ -902,6 +1007,26 @@ export default function OfficerReviewPage() {
                 padding: "17px",
               }}
             >
+              <div
+                style={{
+                  marginBottom: "13px",
+                  padding: "11px 12px",
+                  borderRadius: "9px",
+                  background:
+                    "rgba(70,140,255,0.045)",
+                  border:
+                    "1px solid rgba(70,140,255,0.08)",
+                  color: "#8194ad",
+                  fontSize: "10px",
+                  lineHeight: 1.55,
+                }}
+              >
+                Decision controls shown below
+                apply to the selected Officer
+                review case after its evidence
+                package is opened.
+              </div>
+
 
               {/* APPROVE */}
 
@@ -914,7 +1039,7 @@ export default function OfficerReviewPage() {
                   </strong>
 
                   <span>
-                    Sends the AI correction
+                    Sends the reviewed correction
                     package to Manager approval.
                   </span>
                 </div>
@@ -927,9 +1052,9 @@ export default function OfficerReviewPage() {
                 className="integrityInfo"
                 style={{
                   borderColor:
-                    "rgba(255,180,80,0.09)",
+                    "rgba(255,180,80,0.12)",
                   background:
-                    "rgba(255,180,80,0.045)",
+                    "rgba(255,180,80,0.055)",
                 }}
               >
                 <BrainCircuit
@@ -940,7 +1065,7 @@ export default function OfficerReviewPage() {
                 <div>
                   <strong
                     style={{
-                      color: "#d2a65f",
+                      color: "#e0ad5f",
                     }}
                   >
                     More Investigation
@@ -948,8 +1073,8 @@ export default function OfficerReviewPage() {
 
                   <span>
                     Returns the case for
-                    additional AI or manual
-                    investigation.
+                    additional AI-assisted or
+                    manual investigation.
                   </span>
                 </div>
               </div>
@@ -961,9 +1086,9 @@ export default function OfficerReviewPage() {
                 className="integrityInfo"
                 style={{
                   borderColor:
-                    "rgba(255,90,105,0.09)",
+                    "rgba(255,90,105,0.11)",
                   background:
-                    "rgba(255,90,105,0.04)",
+                    "rgba(255,90,105,0.05)",
                 }}
               >
                 <AlertTriangle
@@ -974,7 +1099,7 @@ export default function OfficerReviewPage() {
                 <div>
                   <strong
                     style={{
-                      color: "#d56f7b",
+                      color: "#df7884",
                     }}
                   >
                     Reject
@@ -986,7 +1111,6 @@ export default function OfficerReviewPage() {
                   </span>
                 </div>
               </div>
-
             </div>
           </div>
         </section>
@@ -999,7 +1123,7 @@ export default function OfficerReviewPage() {
         <section
           className="integrityInfo"
           style={{
-            margin: "14px 0 0",
+            margin: "16px 0 0",
             padding: "17px",
           }}
         >
@@ -1015,7 +1139,7 @@ export default function OfficerReviewPage() {
               Officer and Manager decisions
               remain independent human controls.
               No sensitive identity correction
-              can be executed from this queue
+              can be executed from this workflow
               without both approvals.
             </span>
           </div>
@@ -1035,7 +1159,7 @@ export default function OfficerReviewPage() {
           <div>
             <Activity size={15} />
 
-            Protective Queue Active
+            Synthetic Review Queue
           </div>
         </footer>
 

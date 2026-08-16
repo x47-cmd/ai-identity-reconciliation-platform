@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
+
+import {
+  useLanguage,
+} from "../components/LanguageProvider";
 
 import {
   COMPLEX_DEMO_CASE,
@@ -26,18 +32,7 @@ import {
 
 /* =========================================================
    CASE WORKSPACE
-
-   Synthetic Demo Only
-
-   Backend-confirmed detail pages currently available:
-   - CASE-2026-00001
-   - CASE-2026-00014
-
-   Other rows are representative workspace records and are
-   intentionally not deep-linked until their case detail
-   payloads are implemented.
    ========================================================= */
-
 
 const cases = [
   {
@@ -87,7 +82,6 @@ const cases = [
       true,
   },
 
-
   {
     id: "CASE-2026-00002",
     type: "HARM_IMPACT",
@@ -105,7 +99,6 @@ const cases = [
     findings: 2,
     hasDetail: false,
   },
-
 
   {
     id: "CASE-2026-00003",
@@ -125,7 +118,6 @@ const cases = [
     hasDetail: false,
   },
 
-
   {
     id: "CASE-2026-00004",
     type: "HARM_IMPACT",
@@ -143,7 +135,6 @@ const cases = [
     findings: 2,
     hasDetail: false,
   },
-
 
   {
     id: "CASE-2026-00005",
@@ -163,7 +154,6 @@ const cases = [
     hasDetail: false,
   },
 
-
   {
     id: "CASE-2026-00006",
     type: "HARM_IMPACT",
@@ -181,7 +171,6 @@ const cases = [
     findings: 2,
     hasDetail: false,
   },
-
 
   {
     id: "CASE-2026-00007",
@@ -201,7 +190,6 @@ const cases = [
     hasDetail: false,
   },
 
-
   {
     id: "CASE-2026-00008",
     type: "COMPLEX_IDENTITY_CONFLICT",
@@ -220,7 +208,6 @@ const cases = [
     hasDetail: false,
   },
 
-
   {
     id: "CASE-2026-00009",
     type: "DUPLICATE_IDENTITY",
@@ -238,7 +225,6 @@ const cases = [
     findings: 3,
     hasDetail: false,
   },
-
 
   {
     id:
@@ -287,7 +273,6 @@ const cases = [
       true,
   },
 
-
   {
     id: "CASE-2026-00011",
     type: "DATA_MISMATCH",
@@ -305,7 +290,6 @@ const cases = [
     findings: 1,
     hasDetail: false,
   },
-
 
   {
     id: "CASE-2026-00012",
@@ -328,11 +312,105 @@ const cases = [
 
 
 /* =========================================================
+   HELPERS
+   ========================================================= */
+
+function getTypeLabel(
+  type,
+  language,
+  t
+) {
+  const keys = {
+    HARM_IMPACT:
+      "caseTypes.HARM_IMPACT",
+
+    CRITICAL_HARM_IDENTITY_CONFLICT:
+      "caseTypes.CRITICAL_HARM_CONFLICT",
+
+    WRONG_MAPPING:
+      "caseTypes.WRONG_MAPPING",
+
+    COMPLEX_IDENTITY_CONFLICT:
+      "caseTypes.COMPLEX_IDENTITY_CONFLICT",
+
+    DUPLICATE_IDENTITY:
+      "caseTypes.DUPLICATE_IDENTITY",
+
+    DATA_MISMATCH:
+      "caseTypes.DATA_MISMATCH",
+
+    ORPHAN_RECORD:
+      "caseTypes.ORPHAN",
+  };
+
+  if (keys[type]) {
+    return t(keys[type]);
+  }
+
+  return language === "ar"
+    ? "حالة هوية"
+    : type;
+}
+
+
+function getCaseTitle(
+  type,
+  language
+) {
+  const titles = {
+    HARM_IMPACT: {
+      en: "Potential Wrong-Person Harm",
+      ar: "ضرر محتمل على الشخص الخطأ",
+    },
+
+    CRITICAL_HARM_IDENTITY_CONFLICT: {
+      en: "Critical Cross-Identity Harm Conflict",
+      ar: "تعارض هوية حرج ذو تأثير ضار",
+    },
+
+    WRONG_MAPPING: {
+      en: "Incorrect Biometric Identity Mapping",
+      ar: "ربط بيومتري خاطئ بالهوية",
+    },
+
+    COMPLEX_IDENTITY_CONFLICT: {
+      en: "Complex Identity Conflict",
+      ar: "تعارض هوية معقد",
+    },
+
+    DUPLICATE_IDENTITY: {
+      en: "Duplicate Identity Registration",
+      ar: "تسجيل هوية مكررة",
+    },
+
+    DATA_MISMATCH: {
+      en: "Identity Data Mismatch",
+      ar: "اختلاف في بيانات الهوية",
+    },
+
+    ORPHAN_RECORD: {
+      en: "Orphan Biometric Record",
+      ar: "سجل بيومتري دون مرجع",
+    },
+  };
+
+  return (
+    titles[type]?.[language]
+    ||
+    titles[type]?.en
+    ||
+    type
+  );
+}
+
+
+/* =========================================================
    SMALL COMPONENTS
    ========================================================= */
 
 function PriorityBadge({
   priority,
+  t,
 }) {
   const className =
     priority === "IMMEDIATE"
@@ -343,7 +421,7 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {priority}
+      {t(`priorities.${priority}`)}
     </span>
   );
 }
@@ -351,19 +429,20 @@ function PriorityBadge({
 
 function StatusBadge({
   status,
+  t,
 }) {
   const labels = {
     READY_FOR_OFFICER_REVIEW:
-      "Officer Review",
+      t("common.officerReview"),
 
     AWAITING_MANAGER_APPROVAL:
-      "Manager Approval",
+      t("common.managerApproval"),
 
     AI_INVESTIGATED:
-      "AI Investigated",
+      t("common.aiInvestigated"),
 
     VERIFIED_CLOSED:
-      "Verified Closed",
+      t("common.verifiedClosed"),
   };
 
 
@@ -458,6 +537,7 @@ function MiniMetric({
   label,
   value,
   description,
+  t,
 }) {
   return (
     <div className="metricCard">
@@ -467,7 +547,7 @@ function MiniMetric({
         </div>
 
         <span className="metricStatus">
-          DEMO KPI
+          {t("commandCenter.demoKpi")}
         </span>
       </div>
 
@@ -492,6 +572,12 @@ function MiniMetric({
    ========================================================= */
 
 export default function CasesPage() {
+  const {
+    language,
+    t,
+  } = useLanguage();
+
+
   return (
     <div className="appShell">
 
@@ -509,18 +595,15 @@ export default function CasesPage() {
             <div className="eyebrow">
               <FileSearch size={15} />
 
-              IDENTITY INTEGRITY OPERATIONS
+              {t("cases.eyebrow")}
             </div>
 
             <h1>
-              Cases
+              {t("cases.title")}
             </h1>
 
             <p>
-              AI-detected identity integrity
-              issues prioritized by risk,
-              potential harm and protective
-              urgency.
+              {t("cases.subtitle")}
             </p>
           </div>
 
@@ -530,7 +613,7 @@ export default function CasesPage() {
               <Search size={18} />
 
               <span>
-                Search Case ID / Identity
+                {t("cases.searchPlaceholder")}
               </span>
             </button>
 
@@ -541,11 +624,17 @@ export default function CasesPage() {
 
               <div className="profileText">
                 <strong>
-                  Monitoring Officer
+                  {t(
+                    "common.monitoringOfficer"
+                  )}
                 </strong>
 
                 <span>
-                  Identity Operations
+                  {
+                    language === "ar"
+                      ? "عمليات الهوية"
+                      : "Identity Operations"
+                  }
                 </span>
               </div>
             </div>
@@ -564,16 +653,19 @@ export default function CasesPage() {
 
           <div className="alertText">
             <strong>
-              Wrong-Person Protection Model
+              {
+                language === "ar"
+                  ? "نموذج حماية الشخص الخطأ"
+                  : "Wrong-Person Protection Model"
+              }
             </strong>
 
             <span>
-              The synthetic demo dataset contains
-              9 protective cases where identity
-              conflicts may create potential
-              wrong-person impact. These cases
-              receive elevated protective
-              priority.
+              {
+                language === "ar"
+                  ? "تحتوي مجموعة البيانات التجريبية الاصطناعية على 9 حالات وقائية قد تؤدي فيها تعارضات الهوية إلى تأثير محتمل على الشخص الخطأ، ولذلك تحصل هذه الحالات على أولوية وقائية أعلى."
+                  : "The synthetic demo dataset contains 9 protective cases where identity conflicts may create potential wrong-person impact. These cases receive elevated protective priority."
+              }
             </span>
           </div>
 
@@ -587,7 +679,11 @@ export default function CasesPage() {
                 "0 12px",
             }}
           >
-            9 PROTECTIVE
+            {
+              language === "ar"
+                ? "9 وقائية"
+                : "9 PROTECTIVE"
+            }
           </div>
         </section>
 
@@ -599,44 +695,74 @@ export default function CasesPage() {
         <section className="statsGrid">
           <MiniMetric
             icon={FileSearch}
-            label="Total Cases"
+            label={
+              t("cases.totalCases")
+            }
             value={
               PLATFORM_METRICS
                 .aggregatedCases
             }
-            description="Aggregated identity integrity cases"
+            description={
+              language === "ar"
+                ? "حالات سلامة الهوية المجمعة"
+                : "Aggregated identity integrity cases"
+            }
+            t={t}
           />
 
           <MiniMetric
             icon={CircleAlert}
-            label="Immediate"
+            label={
+              t("cases.immediate")
+            }
             value={
               PLATFORM_METRICS
                 .priority
                 .immediate
             }
-            description="Protective intervention priority"
+            description={
+              language === "ar"
+                ? "أولوية التدخل الوقائي"
+                : "Protective intervention priority"
+            }
+            t={t}
           />
 
           <MiniMetric
             icon={AlertTriangle}
-            label="High Priority"
+            label={
+              t("cases.high")
+            }
             value={
               PLATFORM_METRICS
                 .priority
                 .high
             }
-            description="Accelerated human review"
+            description={
+              language === "ar"
+                ? "مراجعة بشرية عاجلة"
+                : "Accelerated human review"
+            }
+            t={t}
           />
 
           <MiniMetric
             icon={ShieldCheck}
-            label="Identity Resolved"
+            label={
+              language === "ar"
+                ? "تم حسم الهوية"
+                : "Identity Resolved"
+            }
             value={
               PLATFORM_METRICS
                 .aggregatedCases
             }
-            description="Cases with canonical identity candidates"
+            description={
+              language === "ar"
+                ? "حالات لديها هوية مرجعية مرجحة"
+                : "Cases with canonical identity candidates"
+            }
+            t={t}
           />
         </section>
 
@@ -683,7 +809,7 @@ export default function CasesPage() {
                   "0 17px",
               }}
             >
-              All Cases
+              {t("cases.allCases")}
 
               <span
                 style={{
@@ -700,7 +826,7 @@ export default function CasesPage() {
 
 
             <button className="searchButton">
-              Immediate
+              {t("cases.immediate")}
 
               <span>
                 {
@@ -713,7 +839,7 @@ export default function CasesPage() {
 
 
             <button className="searchButton">
-              High
+              {t("cases.high")}
 
               <span>
                 {
@@ -726,7 +852,7 @@ export default function CasesPage() {
 
 
             <button className="searchButton">
-              Medium
+              {t("cases.medium")}
 
               <span>
                 {
@@ -739,7 +865,11 @@ export default function CasesPage() {
 
 
             <button className="searchButton">
-              Wrong-Person Impact
+              {
+                language === "ar"
+                  ? "تأثير على الشخص الخطأ"
+                  : "Wrong-Person Impact"
+              }
 
               <span>
                 {
@@ -751,12 +881,20 @@ export default function CasesPage() {
 
 
             <button className="searchButton">
-              Waiting Officer
+              {
+                language === "ar"
+                  ? "بانتظار الضابط"
+                  : "Waiting Officer"
+              }
             </button>
 
 
             <button className="searchButton">
-              Waiting Manager
+              {
+                language === "ar"
+                  ? "بانتظار المدير"
+                  : "Waiting Manager"
+              }
             </button>
           </div>
         </section>
@@ -770,11 +908,19 @@ export default function CasesPage() {
           <div className="panelHeader">
             <div>
               <div className="panelEyebrow">
-                AI PRIORITY WORKSPACE
+                {
+                  language === "ar"
+                    ? "مساحة عمل أولويات الذكاء الاصطناعي"
+                    : "AI PRIORITY WORKSPACE"
+                }
               </div>
 
               <h2>
-                Identity Reconciliation Cases
+                {
+                  language === "ar"
+                    ? "حالات مطابقة الهوية"
+                    : "Identity Reconciliation Cases"
+                }
               </h2>
             </div>
 
@@ -798,7 +944,11 @@ export default function CasesPage() {
             >
               <Activity size={15} />
 
-              Synthetic monitoring view
+              {
+                language === "ar"
+                  ? "عرض المراقبة الاصطناعية"
+                  : "Synthetic monitoring view"
+              }
             </div>
           </div>
 
@@ -812,15 +962,44 @@ export default function CasesPage() {
             >
               <thead>
                 <tr>
-                  <th>CASE</th>
-                  <th>ERROR TYPE</th>
-                  <th>BIOMETRIC</th>
-                  <th>IDENTITY RESOLUTION</th>
-                  <th>AI CONFIDENCE</th>
-                  <th>RISK</th>
-                  <th>HARM</th>
-                  <th>PROTECTIVE</th>
-                  <th>PRIORITY</th>
+                  <th>
+                    {t("common.case")}
+                  </th>
+
+                  <th>
+                    {t("common.type")}
+                  </th>
+
+                  <th>
+                    {t("common.biometric")}
+                  </th>
+
+                  <th>
+                    {t("cases.identityChange")}
+                  </th>
+
+                  <th>
+                    {t("common.confidence")}
+                  </th>
+
+                  <th>
+                    {t("common.risk")}
+                  </th>
+
+                  <th>
+                    {t("common.harm")}
+                  </th>
+
+                  <th>
+                    {t(
+                      "common.protectivePriority"
+                    )}
+                  </th>
+
+                  <th>
+                    {t("common.priority")}
+                  </th>
+
                   <th></th>
                 </tr>
               </thead>
@@ -831,8 +1010,6 @@ export default function CasesPage() {
                   cases.map(
                     (item) => (
                       <tr key={item.id}>
-
-                        {/* CASE */}
 
                         <td>
                           {
@@ -871,11 +1048,10 @@ export default function CasesPage() {
                             status={
                               item.status
                             }
+                            t={t}
                           />
                         </td>
 
-
-                        {/* ERROR TYPE */}
 
                         <td>
                           <div
@@ -922,7 +1098,12 @@ export default function CasesPage() {
                                     1.45,
                                 }}
                               >
-                                {item.title}
+                                {
+                                  getCaseTitle(
+                                    item.type,
+                                    language
+                                  )
+                                }
                               </div>
 
                               <div
@@ -940,27 +1121,33 @@ export default function CasesPage() {
                                     "4px",
                                 }}
                               >
-                                {item.type}
+                                {
+                                  getTypeLabel(
+                                    item.type,
+                                    language,
+                                    t
+                                  )
+                                }
 
                                 {" · "}
 
                                 {item.findings}
 
-                                {" findings"}
+                                {
+                                  language === "ar"
+                                    ? " نتائج"
+                                    : " findings"
+                                }
                               </div>
                             </div>
                           </div>
                         </td>
 
 
-                        {/* BIOMETRIC */}
-
                         <td className="mono">
                           {item.biometric}
                         </td>
 
-
-                        {/* IDENTITY RESOLUTION */}
 
                         <td>
                           <div className="identityChange">
@@ -977,16 +1164,12 @@ export default function CasesPage() {
                         </td>
 
 
-                        {/* AI CONFIDENCE */}
-
                         <td>
                           <span className="confidence">
                             {item.confidence}%
                           </span>
                         </td>
 
-
-                        {/* RISK */}
 
                         <td>
                           <span
@@ -1007,8 +1190,6 @@ export default function CasesPage() {
                         </td>
 
 
-                        {/* HARM */}
-
                         <td>
                           <span
                             style={{
@@ -1025,8 +1206,6 @@ export default function CasesPage() {
                           </span>
                         </td>
 
-
-                        {/* PROTECTIVE */}
 
                         <td>
                           <span
@@ -1045,18 +1224,15 @@ export default function CasesPage() {
                         </td>
 
 
-                        {/* PRIORITY */}
-
                         <td>
                           <PriorityBadge
                             priority={
                               item.priority
                             }
+                            t={t}
                           />
                         </td>
 
-
-                        {/* OPEN CASE */}
 
                         <td>
                           {
@@ -1067,7 +1243,9 @@ export default function CasesPage() {
                                     `/cases/${item.id}`
                                   }
                                   aria-label={
-                                    `Open ${item.id}`
+                                    `${t(
+                                      "common.open"
+                                    )} ${item.id}`
                                   }
                                   style={{
                                     width:
@@ -1103,7 +1281,11 @@ export default function CasesPage() {
                               )
                               : (
                                 <span
-                                  title="Detailed case view not included in the current frontend demo"
+                                  title={
+                                    t(
+                                      "cases.detailUnavailable"
+                                    )
+                                  }
                                   style={{
                                     width:
                                       "31px",
@@ -1178,13 +1360,19 @@ export default function CasesPage() {
             }}
           >
             <span>
-              Showing 12 representative cases
-              from 53 aggregated cases
+              {
+                language === "ar"
+                  ? "عرض 12 حالة تمثيلية من أصل 53 حالة مجمعة"
+                  : "Showing 12 representative cases from 53 aggregated cases"
+              }
             </span>
 
             <span>
-              Sorted by Protective Priority
-              → Harm → Risk → AI Confidence
+              {
+                language === "ar"
+                  ? "الترتيب حسب الأولوية الوقائية ← الضرر ← المخاطر ← ثقة الذكاء الاصطناعي"
+                  : "Sorted by Protective Priority → Harm → Risk → AI Confidence"
+              }
             </span>
           </div>
         </section>
@@ -1201,11 +1389,6 @@ export default function CasesPage() {
               "1fr 1fr",
           }}
         >
-
-          {/* ==============================================
-              EXECUTIVE CASE GROUPING
-              ============================================== */}
-
           <div
             className="panel"
             style={{
@@ -1216,11 +1399,19 @@ export default function CasesPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  EXECUTIVE CASE GROUPING
+                  {
+                    language === "ar"
+                      ? "التجميع التنفيذي للحالات"
+                      : "EXECUTIVE CASE GROUPING"
+                  }
                 </div>
 
                 <h2>
-                  Identity Integrity Categories
+                  {
+                    language === "ar"
+                      ? "فئات سلامة الهوية"
+                      : "Identity Integrity Categories"
+                  }
                 </h2>
               </div>
 
@@ -1230,27 +1421,39 @@ export default function CasesPage() {
 
             {[
               [
-                "Data Mismatch",
+                t(
+                  "analytics.dataMismatch"
+                ),
                 15,
               ],
               [
-                "Wrong Mapping",
+                t(
+                  "analytics.wrongMapping"
+                ),
                 11,
               ],
               [
-                "Protective / Harm Cases",
+                t(
+                  "cases.protectiveHarmCases"
+                ),
                 9,
               ],
               [
-                "Complex Identity Conflict",
+                t(
+                  "analytics.complexIdentityConflict"
+                ),
                 8,
               ],
               [
-                "Duplicate Identity",
+                t(
+                  "analytics.duplicateIdentity"
+                ),
                 6,
               ],
               [
-                "Orphan Record",
+                t(
+                  "analytics.orphan"
+                ),
                 4,
               ],
             ].map(
@@ -1293,17 +1496,14 @@ export default function CasesPage() {
                   1.6,
               }}
             >
-              Protective / Harm Cases is an
-              executive grouping combining
-              harm-impact and critical
-              wrong-person identity conflicts.
+              {
+                language === "ar"
+                  ? "الحالات الوقائية وحالات الضرر هي تجميع تنفيذي يجمع حالات تأثير الضرر وتعارضات الهوية الحرجة المرتبطة بالشخص الخطأ."
+                  : "Protective / Harm Cases is an executive grouping combining harm-impact and critical wrong-person identity conflicts."
+              }
             </div>
           </div>
 
-
-          {/* ==============================================
-              PROTECTIVE AI CONTROLS
-              ============================================== */}
 
           <div
             className="panel"
@@ -1315,11 +1515,19 @@ export default function CasesPage() {
             <div className="panelHeader">
               <div>
                 <div className="panelEyebrow">
-                  CASE SAFETY MODEL
+                  {
+                    language === "ar"
+                      ? "نموذج سلامة الحالات"
+                      : "CASE SAFETY MODEL"
+                  }
                 </div>
 
                 <h2>
-                  Protective AI Controls
+                  {
+                    language === "ar"
+                      ? "ضوابط الذكاء الاصطناعي الوقائية"
+                      : "Protective AI Controls"
+                  }
                 </h2>
               </div>
 
@@ -1338,13 +1546,19 @@ export default function CasesPage() {
 
               <div>
                 <strong>
-                  Master Reference Read Only
+                  {
+                    language === "ar"
+                      ? "المرجع الرئيسي للقراءة فقط"
+                      : "Master Reference Read Only"
+                  }
                 </strong>
 
                 <span>
-                  AI cannot automatically modify
-                  the authoritative identity
-                  source.
+                  {
+                    language === "ar"
+                      ? "لا يمكن للذكاء الاصطناعي تعديل مصدر الهوية المعتمد تلقائيًا."
+                      : "AI cannot automatically modify the authoritative identity source."
+                  }
                 </span>
               </div>
             </div>
@@ -1355,13 +1569,19 @@ export default function CasesPage() {
 
               <div>
                 <strong>
-                  Two-Level Human Approval
+                  {
+                    language === "ar"
+                      ? "اعتماد بشري من مستويين"
+                      : "Two-Level Human Approval"
+                  }
                 </strong>
 
                 <span>
-                  Monitoring Officer and Manager
-                  approval are required before
-                  sensitive correction execution.
+                  {
+                    language === "ar"
+                      ? "يلزم اعتماد ضابط المراقبة والمدير قبل تنفيذ أي تصحيح حساس."
+                      : "Monitoring Officer and Manager approval are required before sensitive correction execution."
+                  }
                 </span>
               </div>
             </div>
@@ -1372,13 +1592,19 @@ export default function CasesPage() {
 
               <div>
                 <strong>
-                  Post-Correction Verification
+                  {
+                    language === "ar"
+                      ? "التحقق بعد التصحيح"
+                      : "Post-Correction Verification"
+                  }
                 </strong>
 
                 <span>
-                  Every executed correction must
-                  pass verification before the
-                  case can be closed.
+                  {
+                    language === "ar"
+                      ? "يجب أن ينجح كل تصحيح منفذ في التحقق قبل إمكانية إغلاق الحالة."
+                      : "Every executed correction must pass verification before the case can be closed."
+                  }
                 </span>
               </div>
             </div>
@@ -1389,14 +1615,19 @@ export default function CasesPage() {
 
               <div>
                 <strong>
-                  Verified Closure Required
+                  {
+                    language === "ar"
+                      ? "يلزم الإغلاق بعد التحقق"
+                      : "Verified Closure Required"
+                  }
                 </strong>
 
                 <span>
-                  Successful execution alone does
-                  not close a case. Verification
-                  must confirm the corrected
-                  identity relationship.
+                  {
+                    language === "ar"
+                      ? "نجاح التنفيذ وحده لا يغلق الحالة؛ يجب أن يؤكد التحقق صحة علاقة الهوية المصححة."
+                      : "Successful execution alone does not close a case. Verification must confirm the corrected identity relationship."
+                  }
                 </span>
               </div>
             </div>
@@ -1410,14 +1641,15 @@ export default function CasesPage() {
 
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform
-            · Synthetic Demonstration
+            {t("footer.platform")}
+            {" · "}
+            {t("footer.demo")}
           </span>
 
           <div>
             <Activity size={15} />
 
-            Continuous Monitoring Active
+            {t("footer.monitoring")}
           </div>
         </footer>
 

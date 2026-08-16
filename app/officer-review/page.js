@@ -16,7 +16,6 @@ import {
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
-  Clock3,
   FileCheck2,
   ShieldCheck,
   UserCheck,
@@ -41,7 +40,7 @@ function L(
 /* =========================================================
    APPROVAL CASES
 
-   Names are synthetic demo identities.
+   Synthetic demonstration identities only.
    Only supported detail routes are linked.
    ========================================================= */
 
@@ -60,18 +59,18 @@ const approvalCases = [
 
     issue: {
       en:
-        "Complex Identity Conflict",
+        "Complex Biometric Record Conflict",
 
       ar:
-        "تعارض هوية معقد",
+        "تعارض معقد في السجلات البيومترية",
     },
 
     aiRecommendation: {
       en:
-        "AI recommends linking the biometric record to REF-002343.",
+        "AI recommends linking the biometric record to reference REF-002343.",
 
       ar:
-        "يوصي الذكاء الاصطناعي بربط السجل البيومتري بالهوية REF-002343.",
+        "يوصي الذكاء الاصطناعي بربط السجل البيومتري بالمرجع REF-002343.",
     },
 
     confidence:
@@ -114,18 +113,18 @@ const approvalCases = [
 
     issue: {
       en:
-        "Critical Identity Conflict",
+        "Critical Biometric Link Conflict",
 
       ar:
-        "تعارض هوية حرج",
+        "تعارض حرج في الربط البيومتري",
     },
 
     aiRecommendation: {
       en:
-        "AI analysis recommends correcting the current identity relationship.",
+        "AI analysis recommends correcting the current biometric-to-person relationship.",
 
       ar:
-        "يوصي تحليل الذكاء الاصطناعي بتصحيح علاقة الهوية الحالية.",
+        "يوصي تحليل الذكاء الاصطناعي بتصحيح الربط الحالي بين السجل البيومتري والشخص.",
     },
 
     confidence:
@@ -176,10 +175,10 @@ const approvalCases = [
 
     aiRecommendation: {
       en:
-        "AI found a stronger identity candidate and recommends human review.",
+        "AI identified a stronger reference match for the biometric record and recommends human review.",
 
       ar:
-        "حدد الذكاء الاصطناعي هوية أكثر تطابقًا ويوصي بالمراجعة البشرية.",
+        "حدد الذكاء الاصطناعي مرجعًا أكثر تطابقًا مع السجل البيومتري ويوصي بالمراجعة البشرية.",
     },
 
     confidence:
@@ -222,18 +221,18 @@ const approvalCases = [
 
     issue: {
       en:
-        "Duplicate Identity",
+        "Duplicate Reference Record",
 
       ar:
-        "هوية مكررة",
+        "تكرار في السجل المرجعي",
     },
 
     aiRecommendation: {
       en:
-        "AI recommendation was approved by both human reviewers.",
+        "The AI recommendation was approved by both human reviewers and is ready for controlled correction.",
 
       ar:
-        "تم اعتماد توصية الذكاء الاصطناعي من المراجعين البشريين.",
+        "تم اعتماد توصية الذكاء الاصطناعي من المراجعين البشريين وأصبحت الحالة جاهزة للتصحيح الخاضع للتحكم.",
     },
 
     confidence:
@@ -276,18 +275,18 @@ const approvalCases = [
 
     issue: {
       en:
-        "Incorrect Identity Link",
+        "Incorrect Biometric Link",
 
       ar:
-        "ربط هوية غير صحيح",
+        "ربط بيومتري غير صحيح",
     },
 
     aiRecommendation: {
       en:
-        "AI recommendation was approved, corrected and successfully verified.",
+        "The AI recommendation was approved, the biometric link was corrected and final verification passed.",
 
       ar:
-        "تم اعتماد توصية الذكاء الاصطناعي وتنفيذ التصحيح والتحقق منه بنجاح.",
+        "تم اعتماد توصية الذكاء الاصطناعي وتصحيح الربط البيومتري واجتاز التحقق النهائي بنجاح.",
     },
 
     confidence:
@@ -328,7 +327,7 @@ function statusLabel(
   const labels = {
     PENDING: {
       en:
-        "Waiting",
+        "Waiting for Decision",
 
       ar:
         "بانتظار القرار",
@@ -336,7 +335,7 @@ function statusLabel(
 
     WAITING: {
       en:
-        "Not Available Yet",
+        "Waiting for Previous Step",
 
       ar:
         "بانتظار المرحلة السابقة",
@@ -368,7 +367,7 @@ function statusLabel(
 
     COMPLETED: {
       en:
-        "Completed",
+        "Correction Completed",
 
       ar:
         "تم التصحيح",
@@ -384,7 +383,7 @@ function statusLabel(
 
     PASSED: {
       en:
-        "Passed",
+        "Verification Passed",
 
       ar:
         "تم التحقق",
@@ -632,8 +631,8 @@ export default function ApprovalsPage() {
 
               {L(
                 language,
-                "HUMAN APPROVAL WORKFLOW",
-                "مسار الاعتماد البشري"
+                "BIOMETRIC CASE APPROVAL WORKFLOW",
+                "مسار اعتماد الحالات البيومترية"
               )}
             </div>
 
@@ -650,8 +649,8 @@ export default function ApprovalsPage() {
             <p>
               {L(
                 language,
-                "Follow AI recommendations through Officer review, Manager approval, correction and final verification.",
-                "تابع توصيات الذكاء الاصطناعي من مراجعة الضابط واعتماد المدير وحتى التصحيح والتحقق النهائي."
+                "Review AI recommendations and follow each biometric case through Officer review, Manager approval, controlled correction and final verification.",
+                "راجع توصيات الذكاء الاصطناعي وتابع كل حالة بيومترية من مراجعة الضابط واعتماد المدير وحتى التصحيح الخاضع للتحكم والتحقق النهائي."
               )}
             </p>
 
@@ -680,22 +679,26 @@ export default function ApprovalsPage() {
           />
 
           <div>
+
             <strong>
               {L(
                 language,
-                "AI recommends — authorized staff decide",
-                "الذكاء الاصطناعي يوصي — والموظفون المخولون يقررون"
+                "AI investigates and recommends — authorized staff approve",
+                "الذكاء الاصطناعي يحقق ويوصي — والموظفون المخولون يعتمدون"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
-                "The AI investigation prepares the recommended correction. Officer and Manager approval are both required before a sensitive identity correction can be executed.",
-                "يجهز تحقيق الذكاء الاصطناعي التصحيح الموصى به. ويلزم اعتماد الضابط والمدير قبل تنفيذ أي تصحيح حساس للهوية."
+                "AI Investigation and Identity Resolution prepare the recommended biometric link correction. Officer and Manager approval are both required before execution.",
+                "يجهز تحقيق الذكاء الاصطناعي وحسم الهوية تصحيح الربط البيومتري الموصى به، ويلزم اعتماد الضابط والمدير قبل التنفيذ."
               )}
             </span>
+
           </div>
+
         </section>
 
 
@@ -758,8 +761,8 @@ export default function ApprovalsPage() {
             description={
               L(
                 language,
-                "Both approvals completed",
-                "اكتمل الاعتمادان"
+                "Both human approvals completed",
+                "اكتمل الاعتمادان البشريان"
               )
             }
           />
@@ -824,26 +827,26 @@ export default function ApprovalsPage() {
             {[
               L(
                 language,
-                "AI Analysis",
-                "تحليل الذكاء الاصطناعي"
+                "AI Investigation",
+                "تحقيق الذكاء الاصطناعي"
               ),
 
               L(
                 language,
-                "Officer",
-                "الضابط"
+                "Officer Review",
+                "مراجعة الضابط"
               ),
 
               L(
                 language,
-                "Manager",
-                "المدير"
+                "Manager Approval",
+                "اعتماد المدير"
               ),
 
               L(
                 language,
-                "Correction",
-                "التصحيح"
+                "Biometric Correction",
+                "التصحيح البيومتري"
               ),
 
               L(
@@ -940,7 +943,7 @@ export default function ApprovalsPage() {
               <h2>
                 {L(
                   language,
-                  "Cases in the Approval Process",
+                  "Cases in the Approval Workflow",
                   "الحالات ضمن مسار الاعتماد"
                 )}
               </h2>
@@ -1020,6 +1023,7 @@ export default function ApprovalsPage() {
                     >
 
                       <div>
+
                         <strong
                           style={{
                             display:
@@ -1034,6 +1038,7 @@ export default function ApprovalsPage() {
                         >
                           {name}
                         </strong>
+
 
                         <span
                           dir="ltr"
@@ -1053,6 +1058,7 @@ export default function ApprovalsPage() {
                         >
                           {item.id}
                         </span>
+
                       </div>
 
 
@@ -1071,6 +1077,7 @@ export default function ApprovalsPage() {
                             "wrap",
                         }}
                       >
+
                         <PriorityBadge
                           priority={
                             item.priority
@@ -1079,6 +1086,7 @@ export default function ApprovalsPage() {
                             language
                           }
                         />
+
 
                         <span
                           style={{
@@ -1103,6 +1111,7 @@ export default function ApprovalsPage() {
                             language
                           )}
                         </span>
+
                       </div>
 
                     </div>
@@ -1127,6 +1136,7 @@ export default function ApprovalsPage() {
                     >
 
                       <div>
+
                         <span
                           style={{
                             display:
@@ -1141,10 +1151,11 @@ export default function ApprovalsPage() {
                         >
                           {L(
                             language,
-                            "Identity Issue",
-                            "المشكلة"
+                            "Detected Problem",
+                            "المشكلة المكتشفة"
                           )}
                         </span>
+
 
                         <strong
                           style={{
@@ -1163,10 +1174,12 @@ export default function ApprovalsPage() {
                         >
                           {issue}
                         </strong>
+
                       </div>
 
 
                       <div>
+
                         <span
                           style={{
                             display:
@@ -1197,6 +1210,7 @@ export default function ApprovalsPage() {
                           )}
                         </span>
 
+
                         <strong
                           style={{
                             display:
@@ -1217,6 +1231,7 @@ export default function ApprovalsPage() {
                         >
                           {recommendation}
                         </strong>
+
 
                         <span
                           style={{
@@ -1239,6 +1254,7 @@ export default function ApprovalsPage() {
                             `ثقة الذكاء الاصطناعي ${item.confidence}`
                           )}
                         </span>
+
                       </div>
 
                     </div>
@@ -1267,8 +1283,8 @@ export default function ApprovalsPage() {
                           label:
                             L(
                               language,
-                              "Officer",
-                              "الضابط"
+                              "Officer Review",
+                              "مراجعة الضابط"
                             ),
 
                           value:
@@ -1279,8 +1295,8 @@ export default function ApprovalsPage() {
                           label:
                             L(
                               language,
-                              "Manager",
-                              "المدير"
+                              "Manager Approval",
+                              "اعتماد المدير"
                             ),
 
                           value:
@@ -1291,8 +1307,8 @@ export default function ApprovalsPage() {
                           label:
                             L(
                               language,
-                              "Correction",
-                              "التصحيح"
+                              "Biometric Correction",
+                              "التصحيح البيومتري"
                             ),
 
                           value:
@@ -1303,8 +1319,8 @@ export default function ApprovalsPage() {
                           label:
                             L(
                               language,
-                              "Verification",
-                              "التحقق"
+                              "Final Verification",
+                              "التحقق النهائي"
                             ),
 
                           value:
@@ -1330,6 +1346,7 @@ export default function ApprovalsPage() {
                                 "1px solid rgba(255,255,255,0.05)",
                             }}
                           >
+
                             <span
                               style={{
                                 display:
@@ -1347,6 +1364,7 @@ export default function ApprovalsPage() {
                               }
                             </span>
 
+
                             <div
                               style={{
                                 marginTop:
@@ -1362,6 +1380,7 @@ export default function ApprovalsPage() {
                                 }
                               />
                             </div>
+
                           </div>
                         )
                       )}
@@ -1386,6 +1405,7 @@ export default function ApprovalsPage() {
                               : "flex-end",
                         }}
                       >
+
                         <div
                           className="textButton"
                           style={{
@@ -1395,8 +1415,8 @@ export default function ApprovalsPage() {
                         >
                           {L(
                             language,
-                            "View Case Details",
-                            "عرض تفاصيل الحالة"
+                            "View Case Investigation",
+                            "عرض تحقيق الحالة"
                           )}
 
                           <ChevronRight
@@ -1407,6 +1427,7 @@ export default function ApprovalsPage() {
                             aria-hidden="true"
                           />
                         </div>
+
                       </div>
                     )}
 
@@ -1469,30 +1490,34 @@ export default function ApprovalsPage() {
               "18px",
           }}
         >
+
           <ShieldCheck
             size={23}
             aria-hidden="true"
           />
+
 
           <div>
 
             <strong>
               {L(
                 language,
-                "Two human approvals are required",
+                "Two human approvals are mandatory",
                 "يلزم اعتمادان بشريان"
               )}
             </strong>
 
+
             <span>
               {L(
                 language,
-                "AI can analyze the evidence and recommend a correction, but it cannot approve or execute the correction independently. Officer approval and Manager approval are mandatory.",
-                "يمكن للذكاء الاصطناعي تحليل الأدلة واقتراح التصحيح، لكنه لا يستطيع اعتماد أو تنفيذ التصحيح بشكل مستقل. اعتماد الضابط والمدير إلزامي."
+                "AI can investigate the evidence, perform Identity Resolution and recommend a biometric link correction. It cannot approve or execute the correction independently. Officer and Manager approval are mandatory.",
+                "يمكن للذكاء الاصطناعي التحقيق في الأدلة وتنفيذ حسم الهوية واقتراح تصحيح للربط البيومتري، لكنه لا يستطيع اعتماد أو تنفيذ التصحيح بشكل مستقل. اعتماد الضابط والمدير إلزامي."
               )}
             </span>
 
           </div>
+
         </section>
 
 
@@ -1505,13 +1530,14 @@ export default function ApprovalsPage() {
           <span>
             {L(
               language,
-              "AI Identity Reconciliation Platform · Approvals",
-              "منصة مطابقة الهوية بالذكاء الاصطناعي · الموافقات"
+              "AI Biometric Reconciliation Platform · Approvals",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · الموافقات"
             )}
           </span>
 
 
           <div>
+
             <ShieldCheck
               size={15}
               aria-hidden="true"
@@ -1522,11 +1548,13 @@ export default function ApprovalsPage() {
               "Human approval controls active",
               "ضوابط الاعتماد البشري نشطة"
             )}
+
           </div>
 
         </footer>
 
       </main>
+
     </div>
   );
 }

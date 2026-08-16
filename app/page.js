@@ -1,7 +1,10 @@
+import Link from "next/link";
+
+import Sidebar from "./components/Sidebar";
+
 import {
   Activity,
   AlertTriangle,
-  BadgeCheck,
   BrainCircuit,
   ChevronRight,
   CircleAlert,
@@ -9,14 +12,12 @@ import {
   Database,
   FileSearch,
   Fingerprint,
-  Gauge,
-  LayoutDashboard,
   Search,
   ShieldCheck,
   Sparkles,
   UserCheck,
-  Users,
 } from "lucide-react";
+
 
 const stats = [
   {
@@ -44,6 +45,7 @@ const stats = [
     icon: UserCheck,
   },
 ];
+
 
 const cases = [
   {
@@ -92,6 +94,7 @@ const cases = [
   },
 ];
 
+
 const agents = [
   {
     name: "Monitoring Agent",
@@ -120,78 +123,6 @@ const agents = [
   },
 ];
 
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">Identity AI</div>
-          <div className="brandSubtitle">Reconciliation Platform</div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">WORKSPACE</div>
-
-        <a className="navItem active">
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </a>
-
-        <a className="navItem">
-          <FileSearch size={19} />
-          <span>Cases</span>
-          <span className="navCount">53</span>
-        </a>
-
-        <a className="navItem">
-          <BrainCircuit size={19} />
-          <span>AI Investigations</span>
-        </a>
-
-        <a className="navItem">
-          <UserCheck size={19} />
-          <span>Officer Review</span>
-        </a>
-
-        <a className="navItem">
-          <BadgeCheck size={19} />
-          <span>Manager Approval</span>
-        </a>
-
-        <div className="navLabel navSecond">INTELLIGENCE</div>
-
-        <a className="navItem">
-          <Gauge size={19} />
-          <span>Analytics</span>
-        </a>
-
-        <a className="navItem">
-          <Database size={19} />
-          <span>Data Integrity</span>
-        </a>
-
-        <a className="navItem">
-          <Activity size={19} />
-          <span>Audit Trail</span>
-        </a>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">System Operational</div>
-          <div className="systemSubtitle">Synthetic Demo Environment</div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 function MetricCard({ item }) {
   const Icon = item.icon;
@@ -203,15 +134,26 @@ function MetricCard({ item }) {
           <Icon size={20} />
         </div>
 
-        <span className="metricStatus">LIVE</span>
+        <span className="metricStatus">
+          LIVE
+        </span>
       </div>
 
-      <div className="metricValue">{item.value}</div>
-      <div className="metricTitle">{item.title}</div>
-      <div className="metricSubtitle">{item.subtitle}</div>
+      <div className="metricValue">
+        {item.value}
+      </div>
+
+      <div className="metricTitle">
+        {item.title}
+      </div>
+
+      <div className="metricSubtitle">
+        {item.subtitle}
+      </div>
     </div>
   );
 }
+
 
 function PriorityBadge({ priority }) {
   const className =
@@ -221,46 +163,83 @@ function PriorityBadge({ priority }) {
         ? "priority high"
         : "priority medium";
 
-  return <span className={className}>{priority}</span>;
+  return (
+    <span className={className}>
+      {priority}
+    </span>
+  );
 }
+
 
 export default function Home() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
 
+
       <main className="mainContent">
+
+        {/* ================================================
+            HEADER
+            ================================================ */}
+
         <header className="topbar">
           <div>
             <div className="eyebrow">
               <Sparkles size={15} />
+
               AI IDENTITY OPERATIONS
             </div>
 
-            <h1>Command Center</h1>
+            <h1>
+              Command Center
+            </h1>
 
             <p>
-              Continuous identity reconciliation, protective risk detection and
+              Continuous identity reconciliation,
+              protective risk detection and
               AI-assisted investigation.
             </p>
           </div>
 
+
           <div className="topbarActions">
             <button className="searchButton">
               <Search size={18} />
-              <span>Search case</span>
+
+              <span>
+                Search case
+              </span>
             </button>
 
+
             <div className="profile">
-              <div className="avatar">MO</div>
+              <div className="avatar">
+                MO
+              </div>
 
               <div className="profileText">
-                <strong>Monitoring Officer</strong>
-                <span>Operations</span>
+                <strong>
+                  Monitoring Officer
+                </strong>
+
+                <span>
+                  Operations
+                </span>
               </div>
             </div>
           </div>
         </header>
+
+
+        {/* ================================================
+            PROTECTIVE PRIORITY ALERT
+            ================================================ */}
 
         <section className="alertBanner">
           <div className="alertIcon">
@@ -268,39 +247,81 @@ export default function Home() {
           </div>
 
           <div className="alertText">
-            <strong>Protective Priority Engine Active</strong>
+            <strong>
+              Protective Priority Engine Active
+            </strong>
 
             <span>
-              9 cases are currently prioritized because another person may be
-              wrongly affected by an identity conflict.
+              9 cases are currently prioritized
+              because another person may be
+              wrongly affected by an identity
+              conflict.
             </span>
           </div>
 
-          <button className="bannerButton">
+          <Link
+            href="/cases"
+            className="bannerButton"
+            style={{
+              textDecoration: "none",
+            }}
+          >
             Review Cases
+
             <ChevronRight size={17} />
-          </button>
+          </Link>
         </section>
+
+
+        {/* ================================================
+            KPI CARDS
+            ================================================ */}
 
         <section className="statsGrid">
           {stats.map((item) => (
-            <MetricCard key={item.title} item={item} />
+            <MetricCard
+              key={item.title}
+              item={item}
+            />
           ))}
         </section>
 
+
+        {/* ================================================
+            PRIORITY CASES + AGENT OPERATIONS
+            ================================================ */}
+
         <section className="dashboardGrid">
+
+          {/* ==============================================
+              CASE PRIORITY QUEUE
+              ============================================== */}
+
           <div className="panel casesPanel">
             <div className="panelHeader">
               <div>
-                <div className="panelEyebrow">AI PRIORITY QUEUE</div>
-                <h2>Cases Requiring Attention</h2>
+                <div className="panelEyebrow">
+                  AI PRIORITY QUEUE
+                </div>
+
+                <h2>
+                  Cases Requiring Attention
+                </h2>
               </div>
 
-              <button className="textButton">
+              <Link
+                href="/cases"
+                className="textButton"
+                style={{
+                  textDecoration: "none",
+                }}
+              >
                 View all cases
+
                 <ChevronRight size={16} />
-              </button>
+              </Link>
             </div>
+
 
             <div className="tableWrap">
               <table>
@@ -319,19 +340,41 @@ export default function Home() {
                   {cases.map((item) => (
                     <tr key={item.id}>
                       <td>
-                        <div className="caseId">{item.id}</div>
-                        <div className="caseStatus">{item.status}</div>
+                        <Link
+                          href={`/cases/${item.id}`}
+                          className="caseId"
+                          style={{
+                            textDecoration: "none",
+                            display: "inline-block",
+                          }}
+                        >
+                          {item.id}
+                        </Link>
+
+                        <div className="caseStatus">
+                          {item.status}
+                        </div>
                       </td>
 
-                      <td>{item.type}</td>
+                      <td>
+                        {item.type}
+                      </td>
 
-                      <td className="mono">{item.biometric}</td>
+                      <td className="mono">
+                        {item.biometric}
+                      </td>
 
                       <td>
                         <div className="identityChange">
-                          <span className="oldIdentity">{item.current}</span>
+                          <span className="oldIdentity">
+                            {item.current}
+                          </span>
+
                           <ChevronRight size={14} />
-                          <span className="newIdentity">{item.proposed}</span>
+
+                          <span className="newIdentity">
+                            {item.proposed}
+                          </span>
                         </div>
                       </td>
 
@@ -342,7 +385,9 @@ export default function Home() {
                       </td>
 
                       <td>
-                        <PriorityBadge priority={item.priority} />
+                        <PriorityBadge
+                          priority={item.priority}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -351,35 +396,55 @@ export default function Home() {
             </div>
           </div>
 
+
+          {/* ==============================================
+              AGENT OPERATIONS
+              ============================================== */}
+
           <div className="panel agentPanel">
             <div className="panelHeader">
               <div>
-                <div className="panelEyebrow">AGENTIC AI</div>
-                <h2>Agent Operations</h2>
+                <div className="panelEyebrow">
+                  AGENTIC AI
+                </div>
+
+                <h2>
+                  Agent Operations
+                </h2>
               </div>
 
               <BrainCircuit size={22} />
             </div>
+
 
             <div className="agentList">
               {agents.map((agent) => {
                 const Icon = agent.icon;
 
                 return (
-                  <div className="agentItem" key={agent.name}>
+                  <div
+                    className="agentItem"
+                    key={agent.name}
+                  >
                     <div className="agentLeft">
                       <div className="agentIcon">
                         <Icon size={18} />
                       </div>
 
                       <div>
-                        <strong>{agent.name}</strong>
-                        <span>Operational</span>
+                        <strong>
+                          {agent.name}
+                        </strong>
+
+                        <span>
+                          Operational
+                        </span>
                       </div>
                     </div>
 
                     <div className="agentStatus">
                       <div className="greenDot" />
+
                       {agent.status}
                     </div>
                   </div>
@@ -387,21 +452,42 @@ export default function Home() {
               })}
             </div>
 
+
             <div className="agentFooter">
               <div>
-                <span>Last reconciliation</span>
-                <strong>Just now</strong>
+                <span>
+                  Last reconciliation
+                </span>
+
+                <strong>
+                  Just now
+                </strong>
               </div>
 
               <div>
-                <span>Processing state</span>
-                <strong>Healthy</strong>
+                <span>
+                  Processing state
+                </span>
+
+                <strong>
+                  Healthy
+                </strong>
               </div>
             </div>
           </div>
         </section>
 
+
+        {/* ================================================
+            HIGHEST PRIORITY CASE + PLATFORM HEALTH
+            ================================================ */}
+
         <section className="lowerGrid">
+
+          {/* ==============================================
+              HIGHEST PRIORITY CASE
+              ============================================== */}
+
           <div className="panel selectedCase">
             <div className="caseHeroHeader">
               <div>
@@ -409,82 +495,147 @@ export default function Home() {
                   HIGHEST PROTECTIVE PRIORITY
                 </div>
 
-                <h2>CASE-2026-00001</h2>
+                <h2>
+                  CASE-2026-00001
+                </h2>
               </div>
 
-              <PriorityBadge priority="IMMEDIATE" />
+              <PriorityBadge
+                priority="IMMEDIATE"
+              />
             </div>
+
 
             <div className="caseHeroBody">
               <div className="caseScore">
                 <div className="scoreRing">
-                  <strong>98</strong>
-                  <span>Priority</span>
+                  <strong>
+                    98
+                  </strong>
+
+                  <span>
+                    Priority
+                  </span>
                 </div>
               </div>
+
 
               <div className="caseDetails">
                 <div className="detailRow">
-                  <span>Biometric record</span>
-                  <strong>BIO-000166</strong>
+                  <span>
+                    Biometric record
+                  </span>
+
+                  <strong>
+                    BIO-000166
+                  </strong>
                 </div>
 
                 <div className="detailRow">
-                  <span>Current identity</span>
-                  <strong className="dangerText">REF-002711</strong>
+                  <span>
+                    Current identity
+                  </span>
+
+                  <strong className="dangerText">
+                    REF-002711
+                  </strong>
                 </div>
 
                 <div className="detailRow">
-                  <span>AI proposed identity</span>
-                  <strong className="successText">REF-001009</strong>
+                  <span>
+                    AI proposed identity
+                  </span>
+
+                  <strong className="successText">
+                    REF-001009
+                  </strong>
                 </div>
 
                 <div className="detailRow">
-                  <span>AI confidence</span>
-                  <strong>99.99%</strong>
+                  <span>
+                    AI confidence
+                  </span>
+
+                  <strong>
+                    99.99%
+                  </strong>
                 </div>
 
                 <div className="detailRow">
-                  <span>Harm impact</span>
-                  <strong>97.5 / 100</strong>
+                  <span>
+                    Harm impact
+                  </span>
+
+                  <strong>
+                    97.5 / 100
+                  </strong>
                 </div>
               </div>
             </div>
+
 
             <div className="caseWarning">
               <AlertTriangle size={20} />
 
               <div>
-                <strong>Potential wrong-person impact detected</strong>
+                <strong>
+                  Potential wrong-person impact detected
+                </strong>
 
                 <span>
-                  AI evidence indicates that adverse information may be
-                  affecting an unrelated identity. Immediate human review is
+                  AI evidence indicates that
+                  adverse information may be
+                  affecting an unrelated identity.
+                  Immediate human review is
                   recommended.
                 </span>
               </div>
             </div>
 
-            <button className="primaryButton">
+
+            <Link
+              href="/cases/CASE-2026-00001"
+              className="primaryButton"
+              style={{
+                textDecoration: "none",
+              }}
+            >
               Open AI Investigation
+
               <ChevronRight size={18} />
-            </button>
+            </Link>
           </div>
+
+
+          {/* ==============================================
+              DATA INTEGRITY HEALTH
+              ============================================== */}
 
           <div className="panel integrityPanel">
             <div className="panelHeader">
               <div>
-                <div className="panelEyebrow">DATA INTEGRITY</div>
-                <h2>Platform Health</h2>
+                <div className="panelEyebrow">
+                  DATA INTEGRITY
+                </div>
+
+                <h2>
+                  Platform Health
+                </h2>
               </div>
 
               <Database size={22} />
             </div>
 
+
             <div className="healthScore">
               <div>
-                <span>Identity resolution</span>
-                <strong>100%</strong>
+                <span>
+                  Identity resolution
+                </span>
+
+                <strong>
+                  100%
+                </strong>
               </div>
 
               <div className="progress">
@@ -492,10 +643,16 @@ export default function Home() {
               </div>
             </div>
 
+
             <div className="healthScore">
               <div>
-                <span>Protective detection</span>
-                <strong>100%</strong>
+                <span>
+                  Protective detection
+                </span>
+
+                <strong>
+                  100%
+                </strong>
               </div>
 
               <div className="progress">
@@ -503,10 +660,16 @@ export default function Home() {
               </div>
             </div>
 
+
             <div className="healthScore">
               <div>
-                <span>Unexplained false alerts</span>
-                <strong>0</strong>
+                <span>
+                  Unexplained false alerts
+                </span>
+
+                <strong>
+                  0
+                </strong>
               </div>
 
               <div className="progress">
@@ -514,30 +677,58 @@ export default function Home() {
               </div>
             </div>
 
+
             <div className="integrityInfo">
               <ShieldCheck size={21} />
 
               <div>
-                <strong>Master Reference protected</strong>
+                <strong>
+                  Master Reference protected
+                </strong>
+
                 <span>
-                  AI agents operate in read-only mode against the authoritative
+                  AI agents operate in read-only
+                  mode against the authoritative
                   identity source.
                 </span>
               </div>
             </div>
+
+
+            <Link
+              href="/data-integrity"
+              className="textButton"
+              style={{
+                textDecoration: "none",
+                marginTop: "14px",
+                width: "fit-content",
+              }}
+            >
+              Open Data Integrity Center
+
+              <ChevronRight size={16} />
+            </Link>
           </div>
         </section>
 
+
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
-            AI Identity Reconciliation Platform · Synthetic Demonstration
+            AI Identity Reconciliation Platform
+            · Synthetic Demonstration
           </span>
 
           <div>
             <Clock3 size={15} />
+
             Continuous Monitoring Active
           </div>
         </footer>
+
       </main>
     </div>
   );

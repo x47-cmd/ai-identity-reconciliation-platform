@@ -4,6 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import {
+  useLanguage,
+} from "./LanguageProvider";
+
+import {
   BadgeCheck,
   BarChart3,
   BrainCircuit,
@@ -20,17 +24,17 @@ import {
 
 const navigationGroups = [
   {
-    label: "WORKSPACE",
+    labelKey: "sidebar.workspace",
 
     items: [
       {
-        label: "Command Center",
+        labelKey: "sidebar.commandCenter",
         href: "/",
         icon: LayoutDashboard,
       },
 
       {
-        label: "Cases",
+        labelKey: "sidebar.cases",
         href: "/cases",
         icon: FileSearch,
         count: "53",
@@ -38,28 +42,28 @@ const navigationGroups = [
       },
 
       {
-        label: "AI Investigations",
+        labelKey: "sidebar.aiInvestigations",
         href: "/cases",
         icon: BrainCircuit,
         secondary: true,
       },
 
       {
-        label: "Officer Review",
+        labelKey: "sidebar.officerReview",
         href: "/officer-review",
         icon: UserCheck,
         count: "5",
       },
 
       {
-        label: "Manager Approval",
+        labelKey: "sidebar.managerApproval",
         href: "/manager-approval",
         icon: BadgeCheck,
         count: "3",
       },
 
       {
-        label: "Corrections & Verification",
+        labelKey: "sidebar.correctionsVerification",
         href: "/corrections-verification",
         icon: CircleCheckBig,
         count: "1",
@@ -68,23 +72,23 @@ const navigationGroups = [
   },
 
   {
-    label: "INTELLIGENCE",
+    labelKey: "sidebar.intelligence",
 
     items: [
       {
-        label: "Analytics",
+        labelKey: "sidebar.analytics",
         href: "/analytics",
         icon: BarChart3,
       },
 
       {
-        label: "Data Integrity",
+        labelKey: "sidebar.dataIntegrity",
         href: "/data-integrity",
         icon: Database,
       },
 
       {
-        label: "Reports & Audit",
+        labelKey: "sidebar.reportsAudit",
         href: "/reports-audit",
         icon: History,
       },
@@ -118,7 +122,15 @@ function isItemActive(
 
 
 export default function Sidebar() {
-  const pathname = usePathname();
+  const pathname =
+    usePathname();
+
+
+  const {
+    language,
+    changeLanguage,
+    t,
+  } = useLanguage();
 
 
   return (
@@ -142,11 +154,11 @@ export default function Sidebar() {
 
         <div>
           <div className="brandTitle">
-            Identity AI
+            {t("sidebar.platformName")}
           </div>
 
           <div className="brandSubtitle">
-            Reconciliation Platform
+            {t("sidebar.platformSubtitle")}
           </div>
         </div>
       </Link>
@@ -165,7 +177,7 @@ export default function Sidebar() {
               groupIndex
             ) => (
               <div
-                key={group.label}
+                key={group.labelKey}
               >
                 <div
                   className={
@@ -174,7 +186,7 @@ export default function Sidebar() {
                       : "navLabel navSecond"
                   }
                 >
-                  {group.label}
+                  {t(group.labelKey)}
                 </div>
 
 
@@ -209,7 +221,7 @@ export default function Sidebar() {
 
                       return (
                         <Link
-                          key={item.label}
+                          key={item.labelKey}
                           href={item.href}
                           className={
                             active
@@ -222,7 +234,7 @@ export default function Sidebar() {
                           <Icon size={19} />
 
                           <span>
-                            {item.label}
+                            {t(item.labelKey)}
                           </span>
 
 
@@ -250,6 +262,46 @@ export default function Sidebar() {
 
 
       {/* ==================================================
+          LANGUAGE SWITCHER
+          ================================================== */}
+
+      <div
+        className="languageSwitcher"
+        aria-label={
+          t("common.language")
+        }
+      >
+        <button
+          type="button"
+          className={
+            language === "en"
+              ? "languageButton active"
+              : "languageButton"
+          }
+          onClick={() =>
+            changeLanguage("en")
+          }
+        >
+          EN
+        </button>
+
+        <button
+          type="button"
+          className={
+            language === "ar"
+              ? "languageButton active"
+              : "languageButton"
+          }
+          onClick={() =>
+            changeLanguage("ar")
+          }
+        >
+          عربي
+        </button>
+      </div>
+
+
+      {/* ==================================================
           PLATFORM STATUS
           ================================================== */}
 
@@ -258,11 +310,13 @@ export default function Sidebar() {
 
         <div>
           <div className="systemTitle">
-            System Operational
+            {t("common.systemOperational")}
           </div>
 
           <div className="systemSubtitle">
-            Synthetic Demo Environment
+            {t(
+              "common.syntheticDemoEnvironment"
+            )}
           </div>
         </div>
       </div>
@@ -306,7 +360,7 @@ export default function Sidebar() {
               fontWeight: 750,
             }}
           >
-            Master Protected
+            {t("common.masterProtected")}
           </div>
 
           <div
@@ -316,7 +370,7 @@ export default function Sidebar() {
               marginTop: "2px",
             }}
           >
-            Read-only reference
+            {t("common.readOnlyReference")}
           </div>
         </div>
       </div>

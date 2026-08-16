@@ -1,17 +1,15 @@
 import Link from "next/link";
 
+import Sidebar from "../components/Sidebar";
+
 import {
   Activity,
   AlertTriangle,
   BadgeCheck,
-  BrainCircuit,
   ChevronRight,
   CircleAlert,
-  Database,
   FileSearch,
   Fingerprint,
-  Gauge,
-  LayoutDashboard,
   Search,
   ShieldAlert,
   ShieldCheck,
@@ -203,7 +201,7 @@ const cases = [
     biometric: "BIO-000909",
     current: "REF-INVALID",
     proposed: "REF-001567",
-    confidence: 99.90,
+    confidence: 99.9,
     risk: 76.0,
     harm: 45.0,
     protective: 70.0,
@@ -213,100 +211,6 @@ const cases = [
     findings: 1,
   },
 ];
-
-
-function Sidebar() {
-  return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brandIcon">
-          <Fingerprint size={25} />
-        </div>
-
-        <div>
-          <div className="brandTitle">
-            Identity AI
-          </div>
-
-          <div className="brandSubtitle">
-            Reconciliation Platform
-          </div>
-        </div>
-      </div>
-
-      <nav className="navigation">
-        <div className="navLabel">
-          WORKSPACE
-        </div>
-
-        <Link
-          className="navItem"
-          href="/"
-        >
-          <LayoutDashboard size={19} />
-          <span>Command Center</span>
-        </Link>
-
-        <Link
-          className="navItem active"
-          href="/cases"
-        >
-          <FileSearch size={19} />
-          <span>Cases</span>
-          <span className="navCount">53</span>
-        </Link>
-
-        <div className="navItem">
-          <BrainCircuit size={19} />
-          <span>AI Investigations</span>
-        </div>
-
-        <div className="navItem">
-          <UserCheck size={19} />
-          <span>Officer Review</span>
-        </div>
-
-        <div className="navItem">
-          <BadgeCheck size={19} />
-          <span>Manager Approval</span>
-        </div>
-
-        <div className="navLabel navSecond">
-          INTELLIGENCE
-        </div>
-
-        <div className="navItem">
-          <Gauge size={19} />
-          <span>Analytics</span>
-        </div>
-
-        <div className="navItem">
-          <Database size={19} />
-          <span>Data Integrity</span>
-        </div>
-
-        <div className="navItem">
-          <Activity size={19} />
-          <span>Audit Trail</span>
-        </div>
-      </nav>
-
-      <div className="sidebarFooter">
-        <div className="systemDot" />
-
-        <div>
-          <div className="systemTitle">
-            System Operational
-          </div>
-
-          <div className="systemSubtitle">
-            Synthetic Demo Environment
-          </div>
-        </div>
-      </div>
-    </aside>
-  );
-}
 
 
 function PriorityBadge({ priority }) {
@@ -406,17 +310,31 @@ function MiniMetric({
 export default function CasesPage() {
   return (
     <div className="appShell">
+
+      {/* ================================================
+          SHARED PLATFORM SIDEBAR
+          ================================================ */}
+
       <Sidebar />
 
+
       <main className="mainContent">
+
+        {/* ================================================
+            HEADER
+            ================================================ */}
+
         <header className="topbar">
           <div>
             <div className="eyebrow">
               <FileSearch size={15} />
+
               IDENTITY INTEGRITY OPERATIONS
             </div>
 
-            <h1>Cases</h1>
+            <h1>
+              Cases
+            </h1>
 
             <p>
               AI-detected identity integrity
@@ -426,9 +344,11 @@ export default function CasesPage() {
             </p>
           </div>
 
+
           <div className="topbarActions">
             <button className="searchButton">
               <Search size={18} />
+
               <span>
                 Search Case ID / Identity
               </span>
@@ -622,6 +542,7 @@ export default function CasesPage() {
             </div>
           </div>
 
+
           <div className="tableWrap">
             <table
               style={{
@@ -646,6 +567,9 @@ export default function CasesPage() {
               <tbody>
                 {cases.map((item) => (
                   <tr key={item.id}>
+
+                    {/* CASE */}
+
                     <td>
                       <Link
                         href={`/cases/${item.id}`}
@@ -662,6 +586,9 @@ export default function CasesPage() {
                         status={item.status}
                       />
                     </td>
+
+
+                    {/* ERROR TYPE */}
 
                     <td>
                       <div
@@ -710,9 +637,15 @@ export default function CasesPage() {
                       </div>
                     </td>
 
+
+                    {/* BIOMETRIC */}
+
                     <td className="mono">
                       {item.biometric}
                     </td>
+
+
+                    {/* IDENTITY RESOLUTION */}
 
                     <td>
                       <div className="identityChange">
@@ -728,11 +661,17 @@ export default function CasesPage() {
                       </div>
                     </td>
 
+
+                    {/* AI CONFIDENCE */}
+
                     <td>
                       <span className="confidence">
                         {item.confidence}%
                       </span>
                     </td>
+
+
+                    {/* RISK */}
 
                     <td>
                       <span
@@ -750,6 +689,9 @@ export default function CasesPage() {
                       </span>
                     </td>
 
+
+                    {/* HARM */}
+
                     <td>
                       <span
                         style={{
@@ -763,6 +705,9 @@ export default function CasesPage() {
                         {item.harm}
                       </span>
                     </td>
+
+
+                    {/* PROTECTIVE PRIORITY */}
 
                     <td>
                       <span
@@ -778,11 +723,17 @@ export default function CasesPage() {
                       </span>
                     </td>
 
+
+                    {/* PRIORITY */}
+
                     <td>
                       <PriorityBadge
                         priority={item.priority}
                       />
                     </td>
+
+
+                    {/* OPEN CASE */}
 
                     <td>
                       <Link
@@ -805,11 +756,13 @@ export default function CasesPage() {
                         <ChevronRight size={16} />
                       </Link>
                     </td>
+
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
+
 
           <div
             style={{
@@ -842,10 +795,14 @@ export default function CasesPage() {
         <section
           className="lowerGrid"
           style={{
-            gridTemplateColumns:
-              "1fr 1fr",
+            gridTemplateColumns: "1fr 1fr",
           }}
         >
+
+          {/* ==============================================
+              ERROR CLASSIFICATION
+              ============================================== */}
+
           <div
             className="panel"
             style={{
@@ -881,13 +838,21 @@ export default function CasesPage() {
                   margin: "0 19px",
                 }}
               >
-                <span>{label}</span>
+                <span>
+                  {label}
+                </span>
 
-                <strong>{value}</strong>
+                <strong>
+                  {value}
+                </strong>
               </div>
             ))}
           </div>
 
+
+          {/* ==============================================
+              PROTECTIVE AI CONTROLS
+              ============================================== */}
 
           <div
             className="panel"
@@ -908,6 +873,7 @@ export default function CasesPage() {
 
               <ShieldCheck size={22} />
             </div>
+
 
             <div
               className="integrityInfo"
@@ -930,6 +896,7 @@ export default function CasesPage() {
               </div>
             </div>
 
+
             <div className="integrityInfo">
               <UserCheck size={21} />
 
@@ -945,6 +912,7 @@ export default function CasesPage() {
                 </span>
               </div>
             </div>
+
 
             <div className="integrityInfo">
               <BadgeCheck size={21} />
@@ -965,6 +933,10 @@ export default function CasesPage() {
         </section>
 
 
+        {/* ================================================
+            FOOTER
+            ================================================ */}
+
         <footer className="footer">
           <span>
             AI Identity Reconciliation Platform
@@ -973,9 +945,11 @@ export default function CasesPage() {
 
           <div>
             <Activity size={15} />
+
             Continuous Monitoring Active
           </div>
         </footer>
+
       </main>
     </div>
   );

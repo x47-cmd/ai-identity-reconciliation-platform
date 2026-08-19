@@ -15,6 +15,13 @@ from datetime import date, datetime, timedelta
 # IMPORTANT:
 # This script generates SYNTHETIC DEMO DATA ONLY.
 # It does not use real identities or real biometric information.
+#
+# DEMO NAME POLICY:
+# All synthetic person names contain exactly two parts:
+# First Name + Second Name.
+#
+# No third name, family name, surname, or tribe name is
+# exported or displayed as part of a synthetic identity.
 # ============================================================
 
 
@@ -66,7 +73,7 @@ FIRST_NAMES = [
     "Fahad",
 ]
 
-MIDDLE_NAMES = [
+SECOND_NAMES = [
     "Ali",
     "Mohammed",
     "Ahmed",
@@ -79,7 +86,12 @@ MIDDLE_NAMES = [
     "Omar",
 ]
 
-FAMILY_NAMES = [
+# Legacy synthetic values retained ONLY to preserve the
+# deterministic random sequence produced by the existing SEED.
+#
+# These values are never included in generated person names,
+# exported records, reports, or user-facing identity data.
+LEGACY_FAMILY_NAMES_FOR_SEED_STABILITY = [
     "Al Noor",
     "Al Fahad",
     "Al Rashed",
@@ -114,11 +126,30 @@ ADVERSE_TYPES = [
 # ============================================================
 
 def generate_name():
-    return (
-        f"{random.choice(FIRST_NAMES)} "
-        f"{random.choice(MIDDLE_NAMES)} "
-        f"{random.choice(FAMILY_NAMES)}"
+    """
+    Generates a synthetic two-part demo name.
+
+    Format:
+        First Name + Second Name
+
+    No third name, family name, surname, or tribe name is
+    included in the generated identity.
+
+    A legacy family-name random selection is intentionally
+    consumed and discarded to preserve the original seeded
+    random sequence used by the existing demo dataset.
+    """
+
+    first_name = random.choice(FIRST_NAMES)
+    second_name = random.choice(SECOND_NAMES)
+
+    # Preserve the legacy RNG sequence without exposing,
+    # storing, or returning a family/tribe name.
+    random.choice(
+        LEGACY_FAMILY_NAMES_FOR_SEED_STABILITY
     )
+
+    return f"{first_name} {second_name}"
 
 
 def generate_birth_date():

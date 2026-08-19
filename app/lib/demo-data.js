@@ -5,6 +5,9 @@
    Synthetic demonstration data only.
 
    Principles:
+   - Synthetic identity names contain two parts only
+   - First Name + Second Name
+   - No third name, surname, family name or tribe name
    - Clear human-readable identity names in the UI
    - Technical IDs remain available for audit/reference
    - Master Reference remains read-only
@@ -67,6 +70,12 @@ export const PLATFORM_METRICS = {
 /* =========================================================
    SYNTHETIC DEMO IDENTITIES
 
+   NAME POLICY:
+   All synthetic identity names contain exactly two parts:
+   First Name + Second Name.
+
+   No third name, surname, family name or tribe name is used.
+
    Human-readable names are shown first in the interface.
    Reference IDs remain available for technical traceability.
    ========================================================= */
@@ -76,8 +85,8 @@ export const DEMO_IDENTITIES = {
     referenceId: "REF-001009",
 
     name: {
-      en: "Salem Mohammed Al Kaabi",
-      ar: "سالم محمد الكعبي",
+      en: "Salem Mohammed",
+      ar: "سالم محمد",
     },
   },
 
@@ -85,8 +94,8 @@ export const DEMO_IDENTITIES = {
     referenceId: "REF-002711",
 
     name: {
-      en: "Khalid Abdullah Al Mansoori",
-      ar: "خالد عبدالله المنصوري",
+      en: "Khalid Abdullah",
+      ar: "خالد عبدالله",
     },
   },
 
@@ -94,8 +103,8 @@ export const DEMO_IDENTITIES = {
     referenceId: "REF-002343",
 
     name: {
-      en: "Ali Saeed Al Dhaheri",
-      ar: "علي سعيد الظاهري",
+      en: "Ali Saeed",
+      ar: "علي سعيد",
     },
   },
 
@@ -103,8 +112,8 @@ export const DEMO_IDENTITIES = {
     referenceId: "REF-001183",
 
     name: {
-      en: "Ahmed Rashid Al Nuaimi",
-      ar: "أحمد راشد النعيمي",
+      en: "Ahmed Rashid",
+      ar: "أحمد راشد",
     },
   },
 };
@@ -220,8 +229,8 @@ export const VERIFIED_DEMO_CASE = {
   id: "CASE-2026-00001",
 
   person: {
-    en: "Salem Mohammed Al Kaabi",
-    ar: "سالم محمد الكعبي",
+    en: "Salem Mohammed",
+    ar: "سالم محمد",
   },
 
   caseType: "HARM_IMPACT",
@@ -237,22 +246,22 @@ export const VERIFIED_DEMO_CASE = {
   currentIdentity: "REF-002711",
 
   currentIdentityName: {
-    en: "Khalid Abdullah Al Mansoori",
-    ar: "خالد عبدالله المنصوري",
+    en: "Khalid Abdullah",
+    ar: "خالد عبدالله",
   },
 
   proposedIdentity: "REF-001009",
 
   proposedIdentityName: {
-    en: "Salem Mohammed Al Kaabi",
-    ar: "سالم محمد الكعبي",
+    en: "Salem Mohammed",
+    ar: "سالم محمد",
   },
 
   canonicalIdentity: "REF-001009",
 
   canonicalIdentityName: {
-    en: "Salem Mohammed Al Kaabi",
-    ar: "سالم محمد الكعبي",
+    en: "Salem Mohammed",
+    ar: "سالم محمد",
   },
 
   aiConfidence: 99.99,
@@ -270,10 +279,10 @@ export const VERIFIED_DEMO_CASE = {
 
   aiSummary: {
     en:
-      "AI detected that the biometric record was linked to the wrong identity and identified Salem Mohammed Al Kaabi as the strongest verified identity candidate.",
+      "AI detected that the biometric record was linked to the wrong identity and identified Salem Mohammed as the strongest verified identity candidate.",
 
     ar:
-      "اكتشف الذكاء الاصطناعي أن السجل البيومتري مرتبط بهوية غير صحيحة، وحدد سالم محمد الكعبي كأقوى مرشح للهوية الصحيحة.",
+      "اكتشف الذكاء الاصطناعي أن السجل البيومتري مرتبط بهوية غير صحيحة، وحدد سالم محمد كأقوى مرشح للهوية الصحيحة.",
   },
 
   officer: {
@@ -323,16 +332,16 @@ export const VERIFIED_DEMO_CASE = {
       "REF-002711",
 
     beforeName: {
-      en: "Khalid Abdullah Al Mansoori",
-      ar: "خالد عبدالله المنصوري",
+      en: "Khalid Abdullah",
+      ar: "خالد عبدالله",
     },
 
     after:
       "REF-001009",
 
     afterName: {
-      en: "Salem Mohammed Al Kaabi",
-      ar: "سالم محمد الكعبي",
+      en: "Salem Mohammed",
+      ar: "سالم محمد",
     },
   },
 
@@ -394,8 +403,8 @@ export const COMPLEX_DEMO_CASE = {
     "CASE-2026-00014",
 
   person: {
-    en: "Ali Saeed Al Dhaheri",
-    ar: "علي سعيد الظاهري",
+    en: "Ali Saeed",
+    ar: "علي سعيد",
   },
 
   caseType:
@@ -422,24 +431,24 @@ export const COMPLEX_DEMO_CASE = {
     "REF-001183",
 
   currentIdentityName: {
-    en: "Ahmed Rashid Al Nuaimi",
-    ar: "أحمد راشد النعيمي",
+    en: "Ahmed Rashid",
+    ar: "أحمد راشد",
   },
 
   proposedIdentity:
     "REF-002343",
 
   proposedIdentityName: {
-    en: "Ali Saeed Al Dhaheri",
-    ar: "علي سعيد الظاهري",
+    en: "Ali Saeed",
+    ar: "علي سعيد",
   },
 
   canonicalIdentity:
     "REF-002343",
 
   canonicalIdentityName: {
-    en: "Ali Saeed Al Dhaheri",
-    ar: "علي سعيد الظاهري",
+    en: "Ali Saeed",
+    ar: "علي سعيد",
   },
 
   currentMasterIdentities: [
@@ -470,10 +479,10 @@ export const COMPLEX_DEMO_CASE = {
 
   aiSummary: {
     en:
-      "AI combined five related findings and identified Ali Saeed Al Dhaheri as the strongest identity candidate.",
+      "AI combined five related findings and identified Ali Saeed as the strongest identity candidate.",
 
     ar:
-      "جمع الذكاء الاصطناعي خمس نتائج مترابطة وحدد علي سعيد الظاهري كأقوى مرشح للهوية.",
+      "جمع الذكاء الاصطناعي خمس نتائج مترابطة وحدد علي سعيد كأقوى مرشح للهوية.",
   },
 
   finalStatus:
@@ -612,6 +621,18 @@ export const GOVERNANCE = {
 
   sourceDataProtectionRequired:
     true,
+
+  syntheticIdentityNameFormat:
+    "FIRST_NAME_SECOND_NAME_ONLY",
+
+  thirdNameAllowed:
+    false,
+
+  familyNameAllowed:
+    false,
+
+  tribeNameAllowed:
+    false,
 };
 
 
@@ -907,6 +928,18 @@ export const SYNTHETIC_DATA_MODEL = {
     false,
 
   realBiometricData:
+    false,
+
+  identityNameFormat:
+    "FIRST_NAME_SECOND_NAME_ONLY",
+
+  thirdNameUsed:
+    false,
+
+  familyNameUsed:
+    false,
+
+  tribeNameUsed:
     false,
 };
 

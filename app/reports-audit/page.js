@@ -41,6 +41,14 @@ function L(
    COMPLETED REPORTS
 
    Synthetic demonstration history.
+
+   Identity-name policy:
+   - First Name + Second Name only
+   - No third name
+   - No surname
+   - No family name
+   - No tribe name
+
    Only the validated demo case has a detail route.
    ========================================================= */
 
@@ -49,13 +57,8 @@ const completedReports = [
     id:
       VERIFIED_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Salem Mohammed Al Kaabi",
-
-      ar:
-        "سالم محمد الكعبي",
-    },
+    person:
+      VERIFIED_DEMO_CASE.person,
 
     issue: {
       en:
@@ -94,10 +97,10 @@ const completedReports = [
 
     person: {
       en:
-        "Mariam Ahmed Al Nuaimi",
+        "Mariam Ahmed",
 
       ar:
-        "مريم أحمد النعيمي",
+        "مريم أحمد",
     },
 
     issue: {
@@ -137,10 +140,10 @@ const completedReports = [
 
     person: {
       en:
-        "Khalid Rashid Al Mansoori",
+        "Khalid Rashid",
 
       ar:
-        "خالد راشد المنصوري",
+        "خالد راشد",
     },
 
     issue: {
@@ -345,6 +348,16 @@ export default function ReportsAuditPage() {
         ? "rotate(180deg)"
         : "none",
   };
+
+
+  const verifiedPersonName =
+    VERIFIED_DEMO_CASE.person?.[
+      language
+    ]
+    ||
+    VERIFIED_DEMO_CASE.person?.en
+    ||
+    VERIFIED_DEMO_CASE.id;
 
 
   return (
@@ -937,11 +950,7 @@ export default function ReportsAuditPage() {
 
 
               <h2>
-                {L(
-                  language,
-                  "Salem Mohammed Al Kaabi",
-                  "سالم محمد الكعبي"
-                )}
+                {verifiedPersonName}
               </h2>
 
 

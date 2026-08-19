@@ -43,6 +43,14 @@ function L(
    REPRESENTATIVE CASES
 
    Synthetic demonstration names only.
+
+   Identity-name policy:
+   - First Name + Second Name only
+   - No third name
+   - No surname
+   - No family name
+   - No tribe name
+
    Only supported detail routes are linked.
    ========================================================= */
 
@@ -53,10 +61,10 @@ const cases = [
 
     person: {
       en:
-        "Khalid Rashid Al Mansoori",
+        "Khalid Rashid",
 
       ar:
-        "خالد راشد المنصوري",
+        "خالد راشد",
     },
 
     issue:
@@ -89,10 +97,10 @@ const cases = [
 
     person: {
       en:
-        "Maryam Ahmed Al Nuaimi",
+        "Maryam Ahmed",
 
       ar:
-        "مريم أحمد النعيمي",
+        "مريم أحمد",
     },
 
     issue:
@@ -125,10 +133,10 @@ const cases = [
 
     person: {
       en:
-        "Ahmed Saeed Al Shamsi",
+        "Ahmed Saeed",
 
       ar:
-        "أحمد سعيد الشامسي",
+        "أحمد سعيد",
     },
 
     issue:
@@ -161,10 +169,10 @@ const cases = [
 
     person: {
       en:
-        "Fatima Ali Al Suwaidi",
+        "Fatima Ali",
 
       ar:
-        "فاطمة علي السويدي",
+        "فاطمة علي",
     },
 
     issue:
@@ -195,13 +203,8 @@ const cases = [
     id:
       COMPLEX_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Ali Saeed Al Dhaheri",
-
-      ar:
-        "علي سعيد الظاهري",
-    },
+    person:
+      COMPLEX_DEMO_CASE.person,
 
     issue:
       COMPLEX_DEMO_CASE.caseType,
@@ -231,13 +234,8 @@ const cases = [
     id:
       VERIFIED_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Salem Mohammed Al Kaabi",
-
-      ar:
-        "سالم محمد الكعبي",
-    },
+    person:
+      VERIFIED_DEMO_CASE.person,
 
     issue:
       VERIFIED_DEMO_CASE.caseType,

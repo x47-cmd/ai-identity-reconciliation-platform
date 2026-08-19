@@ -1,17 +1,21 @@
 "use client";
 
+import {
+  useState,
+} from "react";
+
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
 import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  COMPLEX_DEMO_CASE,
   VERIFIED_DEMO_CASE,
 } from "../lib/demo-data";
 
 import {
   Activity,
+  AlertTriangle,
   BadgeCheck,
   BrainCircuit,
   CheckCircle2,
@@ -38,547 +42,350 @@ function L(
 
 
 /* =========================================================
-   APPROVAL CASES
-
-   Synthetic demonstration identities only.
-
-   Identity-name policy:
-   - First Name + Second Name only
-   - No third name
-   - No surname
-   - No family name
-   - No tribe name
-
-   Only supported detail routes are linked.
+   PRIMARY DEMO CASE
    ========================================================= */
 
-const approvalCases = [
+const DEMO_CASE = {
+  id:
+    VERIFIED_DEMO_CASE.id ||
+    "CASE-2026-00001",
+
+  person:
+    VERIFIED_DEMO_CASE.person || {
+      en:
+        "Salem Mohammed",
+
+      ar:
+        "سالم محمد",
+    },
+
+  biometricId:
+    VERIFIED_DEMO_CASE.biometricId ||
+    VERIFIED_DEMO_CASE.primaryBiometricId ||
+    "BIO-000166",
+
+  currentMasterId:
+    VERIFIED_DEMO_CASE.currentMasterId ||
+    VERIFIED_DEMO_CASE.currentIdentity ||
+    "REF-002711",
+
+  canonicalMasterId:
+    VERIFIED_DEMO_CASE.canonicalMasterId ||
+    VERIFIED_DEMO_CASE.proposedIdentity ||
+    "REF-001009",
+
+  caseType:
+    VERIFIED_DEMO_CASE.caseType ||
+    "HARM_IMPACT",
+
+  confidence:
+    VERIFIED_DEMO_CASE.aiConfidence ||
+    99.99,
+
+  risk:
+    VERIFIED_DEMO_CASE.riskScore ||
+    94.99,
+
+  harm:
+    VERIFIED_DEMO_CASE.harmScore ||
+    VERIFIED_DEMO_CASE.harmImpactScore ||
+    97.5,
+
+  protectivePriority:
+    VERIFIED_DEMO_CASE.protectivePriority ||
+    VERIFIED_DEMO_CASE.protectivePriorityScore ||
+    98.0,
+};
+
+
+/* =========================================================
+   WORKFLOW STEPS
+   ========================================================= */
+
+const workflowSteps = [
   {
-    id:
-      COMPLEX_DEMO_CASE.id,
+    number:
+      1,
 
-    person:
-      COMPLEX_DEMO_CASE.person,
+    en:
+      "Case Detection",
 
-    issue: {
-      en:
-        "Complex Biometric Record Conflict",
-
-      ar:
-        "تعارض معقد في السجلات البيومترية",
-    },
-
-    aiRecommendation: {
-      en:
-        "AI recommends linking the biometric record to reference REF-002343.",
-
-      ar:
-        "يوصي الذكاء الاصطناعي بربط السجل البيومتري بالمرجع REF-002343.",
-    },
-
-    confidence:
-      `${COMPLEX_DEMO_CASE.aiConfidence}%`,
-
-    priority:
-      "HIGH",
-
-    officer:
-      "PENDING",
-
-    manager:
-      "WAITING",
-
-    correction:
-      "NOT_AUTHORIZED",
-
-    verification:
-      "NOT_STARTED",
-
-    stage:
-      "OFFICER",
-
-    hasDetail:
-      true,
+    ar:
+      "اكتشاف الحالة",
   },
 
-
   {
-    id:
-      "CASE-2026-00005",
+    number:
+      2,
 
-    person: {
-      en:
-        "Ahmed Saeed",
+    en:
+      "Officer Review",
 
-      ar:
-        "أحمد سعيد",
-    },
-
-    issue: {
-      en:
-        "Critical Biometric Link Conflict",
-
-      ar:
-        "تعارض حرج في الربط البيومتري",
-    },
-
-    aiRecommendation: {
-      en:
-        "AI analysis recommends correcting the current biometric-to-person relationship.",
-
-      ar:
-        "يوصي تحليل الذكاء الاصطناعي بتصحيح الربط الحالي بين السجل البيومتري والشخص.",
-    },
-
-    confidence:
-      "99.96%",
-
-    priority:
-      "IMMEDIATE",
-
-    officer:
-      "APPROVED",
-
-    manager:
-      "PENDING",
-
-    correction:
-      "NOT_AUTHORIZED",
-
-    verification:
-      "NOT_STARTED",
-
-    stage:
-      "MANAGER",
-
-    hasDetail:
-      false,
+    ar:
+      "تدقيق الموظف",
   },
 
-
   {
-    id:
-      "CASE-2026-00006",
+    number:
+      3,
 
-    person: {
-      en:
-        "Mariam Khalid",
+    en:
+      "AI Correction Proposal",
 
-      ar:
-        "مريم خالد",
-    },
-
-    issue: {
-      en:
-        "Possible Wrong-Person Impact",
-
-      ar:
-        "احتمال تأثير على شخص آخر",
-    },
-
-    aiRecommendation: {
-      en:
-        "AI identified a stronger reference match for the biometric record and recommends human review.",
-
-      ar:
-        "حدد الذكاء الاصطناعي مرجعًا أكثر تطابقًا مع السجل البيومتري ويوصي بالمراجعة البشرية.",
-    },
-
-    confidence:
-      "99.96%",
-
-    priority:
-      "IMMEDIATE",
-
-    officer:
-      "PENDING",
-
-    manager:
-      "WAITING",
-
-    correction:
-      "NOT_AUTHORIZED",
-
-    verification:
-      "NOT_STARTED",
-
-    stage:
-      "OFFICER",
-
-    hasDetail:
-      false,
+    ar:
+      "اقتراح التعديل",
   },
 
-
   {
-    id:
-      "CASE-2026-00009",
+    number:
+      4,
 
-    person: {
-      en:
-        "Fatima Ali",
+    en:
+      "Manager Approval",
 
-      ar:
-        "فاطمة علي",
-    },
-
-    issue: {
-      en:
-        "Duplicate Reference Record",
-
-      ar:
-        "تكرار في السجل المرجعي",
-    },
-
-    aiRecommendation: {
-      en:
-        "The AI recommendation was approved by both human reviewers and is ready for controlled correction.",
-
-      ar:
-        "تم اعتماد توصية الذكاء الاصطناعي من المراجعين البشريين وأصبحت الحالة جاهزة للتصحيح الخاضع للتحكم.",
-    },
-
-    confidence:
-      "99.92%",
-
-    priority:
-      "HIGH",
-
-    officer:
-      "APPROVED",
-
-    manager:
-      "APPROVED",
-
-    correction:
-      "READY",
-
-    verification:
-      "NOT_STARTED",
-
-    stage:
-      "CORRECTION",
-
-    hasDetail:
-      false,
+    ar:
+      "موافقة المدير",
   },
 
-
   {
-    id:
-      VERIFIED_DEMO_CASE.id,
+    number:
+      5,
 
-    person:
-      VERIFIED_DEMO_CASE.person,
+    en:
+      "Execution & Verification",
 
-    issue: {
-      en:
-        "Incorrect Biometric Link",
-
-      ar:
-        "ربط بيومتري غير صحيح",
-    },
-
-    aiRecommendation: {
-      en:
-        "The AI recommendation was approved, the biometric link was corrected and final verification passed.",
-
-      ar:
-        "تم اعتماد توصية الذكاء الاصطناعي وتصحيح الربط البيومتري واجتاز التحقق النهائي بنجاح.",
-    },
-
-    confidence:
-      `${VERIFIED_DEMO_CASE.aiConfidence}%`,
-
-    priority:
-      "IMMEDIATE",
-
-    officer:
-      "APPROVED",
-
-    manager:
-      "APPROVED",
-
-    correction:
-      "COMPLETED",
-
-    verification:
-      "PASSED",
-
-    stage:
-      "COMPLETED",
-
-    hasDetail:
-      true,
+    ar:
+      "التنفيذ والتحقق",
   },
 ];
 
 
 /* =========================================================
-   STATUS LABELS
+   INFO VALUE
    ========================================================= */
 
-function statusLabel(
-  status,
-  language
-) {
-  const labels = {
-    PENDING: {
-      en:
-        "Waiting for Decision",
-
-      ar:
-        "بانتظار القرار",
-    },
-
-    WAITING: {
-      en:
-        "Waiting for Previous Step",
-
-      ar:
-        "بانتظار المرحلة السابقة",
-    },
-
-    APPROVED: {
-      en:
-        "Approved",
-
-      ar:
-        "معتمد",
-    },
-
-    NOT_AUTHORIZED: {
-      en:
-        "Not Authorized",
-
-      ar:
-        "غير مصرح بالتنفيذ",
-    },
-
-    READY: {
-      en:
-        "Ready for Correction",
-
-      ar:
-        "جاهز للتصحيح",
-    },
-
-    COMPLETED: {
-      en:
-        "Correction Completed",
-
-      ar:
-        "تم التصحيح",
-    },
-
-    NOT_STARTED: {
-      en:
-        "Not Started",
-
-      ar:
-        "لم يبدأ",
-    },
-
-    PASSED: {
-      en:
-        "Verification Passed",
-
-      ar:
-        "تم التحقق",
-    },
-  };
-
-
-  return (
-    labels[status]?.[
-      language
-    ] ||
-    labels[status]?.en ||
-    status
-  );
-}
-
-
-/* =========================================================
-   STAGE
-   ========================================================= */
-
-function stageLabel(
-  stage,
-  language
-) {
-  const labels = {
-    OFFICER: {
-      en:
-        "Waiting for Officer",
-
-      ar:
-        "بانتظار الضابط",
-    },
-
-    MANAGER: {
-      en:
-        "Waiting for Manager",
-
-      ar:
-        "بانتظار المدير",
-    },
-
-    CORRECTION: {
-      en:
-        "Approved for Correction",
-
-      ar:
-        "معتمد للتصحيح",
-    },
-
-    COMPLETED: {
-      en:
-        "Resolved & Verified",
-
-      ar:
-        "تم الحل والتحقق",
-    },
-  };
-
-
-  return (
-    labels[stage]?.[
-      language
-    ] ||
-    labels[stage]?.en ||
-    stage
-  );
-}
-
-
-/* =========================================================
-   PRIORITY
-   ========================================================= */
-
-function PriorityBadge({
-  priority,
-  language,
+function InfoValue({
+  label,
+  value,
+  color = "#dce7f3",
+  dir,
 }) {
-  const className =
-    priority === "IMMEDIATE"
-      ? "priority immediate"
-      : priority === "HIGH"
-        ? "priority high"
-        : "priority medium";
-
-
-  const label =
-    priority === "IMMEDIATE"
-      ? L(
-          language,
-          "Urgent",
-          "فوري"
-        )
-      : priority === "HIGH"
-        ? L(
-            language,
-            "High",
-            "مرتفع"
-          )
-        : L(
-            language,
-            "Medium",
-            "متوسط"
-          );
-
-
   return (
-    <span className={className}>
-      {label}
-    </span>
-  );
-}
-
-
-/* =========================================================
-   STATUS VALUE
-   ========================================================= */
-
-function StatusValue({
-  status,
-  language,
-}) {
-  const success = [
-    "APPROVED",
-    "COMPLETED",
-    "PASSED",
-  ].includes(status);
-
-
-  const warning = [
-    "PENDING",
-    "READY",
-  ].includes(status);
-
-
-  return (
-    <strong
+    <div
       style={{
-        color:
-          success
-            ? "#59cfa0"
-            : warning
-              ? "#ffbd67"
-              : "#8496ac",
+        padding:
+          "13px",
 
-        fontSize:
-          "10px",
+        borderRadius:
+          "11px",
 
-        lineHeight:
-          1.45,
+        border:
+          "1px solid rgba(255,255,255,0.055)",
+
+        background:
+          "rgba(255,255,255,0.022)",
       }}
     >
-      {statusLabel(
-        status,
-        language
-      )}
-    </strong>
+      <span
+        style={{
+          display:
+            "block",
+
+          marginBottom:
+            "6px",
+
+          color:
+            "#687b93",
+
+          fontSize:
+            "9px",
+        }}
+      >
+        {label}
+      </span>
+
+      <strong
+        dir={
+          dir
+        }
+        style={{
+          display:
+            "block",
+
+          color,
+
+          fontSize:
+            "12px",
+
+          lineHeight:
+            1.45,
+        }}
+      >
+        {value}
+      </strong>
+    </div>
   );
 }
 
 
 /* =========================================================
-   METRIC
+   WORKFLOW STEPPER
    ========================================================= */
 
-function Metric({
-  icon: Icon,
-  value,
-  title,
-  description,
+function WorkflowStepper({
+  language,
 }) {
   return (
-    <div className="metricCard">
+    <section
+      style={{
+        marginBottom:
+          "18px",
 
-      <div className="metricIcon">
-        <Icon
-          size={20}
-          aria-hidden="true"
-        />
+        padding:
+          "20px 18px",
+
+        borderRadius:
+          "18px",
+
+        border:
+          "1px solid rgba(121,169,255,0.12)",
+
+        background:
+          "linear-gradient(135deg, rgba(12,32,54,0.90), rgba(8,24,43,0.92))",
+      }}
+    >
+      <div
+        className="workflowGrid"
+        style={{
+          display:
+            "grid",
+
+          gridTemplateColumns:
+            "repeat(5,minmax(0,1fr))",
+
+          gap:
+            "10px",
+        }}
+      >
+        {workflowSteps.map(
+          (
+            step
+          ) => {
+
+            const completed =
+              step.number <
+              2;
+
+            const active =
+              step.number ===
+              2;
+
+
+            return (
+              <div
+                key={
+                  step.number
+                }
+                style={{
+                  position:
+                    "relative",
+
+                  textAlign:
+                    "center",
+                }}
+              >
+                <div
+                  style={{
+                    width:
+                      "36px",
+
+                    height:
+                      "36px",
+
+                    margin:
+                      "0 auto 9px",
+
+                    display:
+                      "grid",
+
+                    placeItems:
+                      "center",
+
+                    borderRadius:
+                      "50%",
+
+                    border:
+                      active
+                        ? "2px solid #59cfa0"
+                        : completed
+                          ? "1px solid rgba(89,207,160,0.5)"
+                          : "1px solid rgba(121,169,255,0.25)",
+
+                    color:
+                      active ||
+                      completed
+                        ? "#59cfa0"
+                        : "#8497ae",
+
+                    background:
+                      active
+                        ? "rgba(89,207,160,0.12)"
+                        : completed
+                          ? "rgba(89,207,160,0.06)"
+                          : "rgba(121,169,255,0.04)",
+
+                    boxShadow:
+                      active
+                        ? "0 0 20px rgba(89,207,160,0.13)"
+                        : "none",
+
+                    fontSize:
+                      "11px",
+
+                    fontWeight:
+                      850,
+                  }}
+                >
+                  {completed ? (
+                    <CheckCircle2
+                      size={18}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    step.number
+                  )}
+                </div>
+
+
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      active
+                        ? "#59cfa0"
+                        : "#c3d0df",
+
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.45,
+                  }}
+                >
+                  {L(
+                    language,
+                    step.en,
+                    step.ar
+                  )}
+                </strong>
+              </div>
+            );
+          }
+        )}
       </div>
-
-
-      <div className="metricValue">
-        {value}
-      </div>
-
-
-      <div className="metricTitle">
-        {title}
-      </div>
-
-
-      <div className="metricSubtitle">
-        {description}
-      </div>
-
-    </div>
+    </section>
   );
 }
 
@@ -587,14 +394,42 @@ function Metric({
    PAGE
    ========================================================= */
 
-export default function ApprovalsPage() {
+export default function OfficerReviewPage() {
   const {
     language,
   } = useLanguage();
 
 
   const isArabic =
-    language === "ar";
+    language ===
+    "ar";
+
+
+  const personName =
+    DEMO_CASE.person[
+      language
+    ] ||
+    DEMO_CASE.person.en;
+
+
+  const [
+    comments,
+    setComments,
+  ] = useState(
+    L(
+      language,
+      "Evidence reviewed. The proposed correction is supported and can be submitted for manager approval.",
+      "تمت مراجعة الأدلة واعتماد التوصية المقترحة، ويمكن رفع الحالة إلى المدير للموافقة."
+    )
+  );
+
+
+  const [
+    decision,
+    setDecision,
+  ] = useState(
+    "REVIEWING"
+  );
 
 
   const arrowStyle = {
@@ -603,6 +438,22 @@ export default function ApprovalsPage() {
         ? "rotate(180deg)"
         : "none",
   };
+
+
+  const approveCase =
+    () => {
+      setDecision(
+        "APPROVED"
+      );
+    };
+
+
+  const requestInvestigation =
+    () => {
+      setDecision(
+        "FURTHER_INVESTIGATION"
+      );
+    };
 
 
   return (
@@ -622,6 +473,7 @@ export default function ApprovalsPage() {
           <div>
 
             <div className="eyebrow">
+
               <BadgeCheck
                 size={15}
                 aria-hidden="true"
@@ -629,17 +481,18 @@ export default function ApprovalsPage() {
 
               {L(
                 language,
-                "BIOMETRIC CASE APPROVAL WORKFLOW",
-                "مسار اعتماد الحالات البيومترية"
+                "CASE REMEDIATION WORKFLOW",
+                "مسار معالجة الحالة"
               )}
+
             </div>
 
 
             <h1>
               {L(
                 language,
-                "Approvals",
-                "الموافقات"
+                "Officer Review",
+                "تدقيق موظف المراجعة"
               )}
             </h1>
 
@@ -647,10 +500,58 @@ export default function ApprovalsPage() {
             <p>
               {L(
                 language,
-                "Review AI recommendations and follow each biometric case through Officer review, Manager approval, controlled correction and final verification.",
-                "راجع توصيات الذكاء الاصطناعي وتابع كل حالة بيومترية من مراجعة الضابط واعتماد المدير وحتى التصحيح الخاضع للتحكم والتحقق النهائي."
+                "Review the identity conflict, examine the AI evidence and proposed correction, then decide whether the case can proceed to manager approval.",
+                "راجع مشكلة التداخل والأدلة التي حللها الذكاء الاصطناعي والتعديل المقترح، ثم قرر ما إذا كانت الحالة جاهزة للرفع إلى المدير."
               )}
             </p>
+
+
+            <div
+              dir="ltr"
+              style={{
+                display:
+                  "inline-flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "7px",
+
+                marginTop:
+                  "12px",
+
+                padding:
+                  "8px 11px",
+
+                borderRadius:
+                  "9px",
+
+                border:
+                  "1px solid rgba(121,169,255,0.15)",
+
+                background:
+                  "rgba(121,169,255,0.05)",
+
+                color:
+                  "#91a9c6",
+
+                fontSize:
+                  "10px",
+
+                fontWeight:
+                  750,
+              }}
+            >
+              <FileCheck2
+                size={14}
+                aria-hidden="true"
+              />
+
+              {
+                DEMO_CASE.id
+              }
+            </div>
 
           </div>
 
@@ -658,148 +559,36 @@ export default function ApprovalsPage() {
 
 
         {/* ================================================
-            SIMPLE WORKFLOW
+            WORKFLOW
             ================================================ */}
 
-        <section
-          className="integrityInfo"
-          style={{
-            margin:
-              "0 0 20px",
-
-            padding:
-              "18px",
-          }}
-        >
-          <BrainCircuit
-            size={23}
-            aria-hidden="true"
-          />
-
-          <div>
-
-            <strong>
-              {L(
-                language,
-                "AI investigates and recommends — authorized staff approve",
-                "الذكاء الاصطناعي يحقق ويوصي — والموظفون المخولون يعتمدون"
-              )}
-            </strong>
-
-
-            <span>
-              {L(
-                language,
-                "AI Investigation and Identity Resolution prepare the recommended biometric link correction. Officer and Manager approval are both required before execution.",
-                "يجهز تحقيق الذكاء الاصطناعي وحسم الهوية تصحيح الربط البيومتري الموصى به، ويلزم اعتماد الضابط والمدير قبل التنفيذ."
-              )}
-            </span>
-
-          </div>
-
-        </section>
+        <WorkflowStepper
+          language={
+            language
+          }
+        />
 
 
         {/* ================================================
-            KPIs
-            ================================================ */}
-
-        <section className="statsGrid">
-
-          <Metric
-            icon={UserCheck}
-            value="2"
-            title={
-              L(
-                language,
-                "Waiting for Officer",
-                "بانتظار الضابط"
-              )
-            }
-            description={
-              L(
-                language,
-                "First human decision required",
-                "تحتاج إلى القرار البشري الأول"
-              )
-            }
-          />
-
-
-          <Metric
-            icon={BadgeCheck}
-            value="1"
-            title={
-              L(
-                language,
-                "Waiting for Manager",
-                "بانتظار المدير"
-              )
-            }
-            description={
-              L(
-                language,
-                "Officer review already completed",
-                "تمت مراجعة الضابط"
-              )
-            }
-          />
-
-
-          <Metric
-            icon={FileCheck2}
-            value="1"
-            title={
-              L(
-                language,
-                "Ready for Correction",
-                "جاهزة للتصحيح"
-              )
-            }
-            description={
-              L(
-                language,
-                "Both human approvals completed",
-                "اكتمل الاعتمادان البشريان"
-              )
-            }
-          />
-
-
-          <Metric
-            icon={CheckCircle2}
-            value="1"
-            title={
-              L(
-                language,
-                "Resolved & Verified",
-                "تم الحل والتحقق"
-              )
-            }
-            description={
-              L(
-                language,
-                "Correction and verification completed",
-                "اكتمل التصحيح والتحقق"
-              )
-            }
-          />
-
-        </section>
-
-
-        {/* ================================================
-            APPROVAL FLOW
+            CASE SUMMARY
             ================================================ */}
 
         <section
-          className="panel"
           style={{
             marginBottom:
-              "16px",
+              "18px",
 
             padding:
-              "17px 18px",
+              "20px",
+
+            borderRadius:
+              "18px",
+
+            border:
+              "1px solid rgba(89,207,160,0.32)",
+
+            background:
+              "linear-gradient(135deg, rgba(13,48,55,0.62), rgba(8,26,45,0.92))",
           }}
         >
 
@@ -809,106 +598,519 @@ export default function ApprovalsPage() {
                 "flex",
 
               alignItems:
-                "center",
+                "flex-start",
 
               justifyContent:
-                "center",
+                "space-between",
 
               gap:
-                "8px",
+                "16px",
 
               flexWrap:
                 "wrap",
             }}
           >
 
+            <div
+              style={{
+                display:
+                  "flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "12px",
+              }}
+            >
+
+              <div
+                style={{
+                  width:
+                    "46px",
+
+                  height:
+                    "46px",
+
+                  display:
+                    "grid",
+
+                  placeItems:
+                    "center",
+
+                  borderRadius:
+                    "14px",
+
+                  color:
+                    "#59cfa0",
+
+                  background:
+                    "rgba(89,207,160,0.07)",
+
+                  border:
+                    "1px solid rgba(89,207,160,0.18)",
+                }}
+              >
+                <UserCheck
+                  size={23}
+                  aria-hidden="true"
+                />
+              </div>
+
+
+              <div>
+
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#e6eef8",
+
+                    fontSize:
+                      "16px",
+                  }}
+                >
+                  {personName}
+                </strong>
+
+
+                <span
+                  style={{
+                    display:
+                      "inline-flex",
+
+                    alignItems:
+                      "center",
+
+                    gap:
+                      "5px",
+
+                    marginTop:
+                      "7px",
+
+                    padding:
+                      "5px 8px",
+
+                    borderRadius:
+                      "999px",
+
+                    color:
+                      "#59cfa0",
+
+                    background:
+                      "rgba(89,207,160,0.08)",
+
+                    border:
+                      "1px solid rgba(89,207,160,0.18)",
+
+                    fontSize:
+                      "8px",
+
+                    fontWeight:
+                      800,
+                  }}
+                >
+                  <Activity
+                    size={11}
+                    aria-hidden="true"
+                  />
+
+                  {L(
+                    language,
+                    "Officer Review in Progress",
+                    "قيد تدقيق الموظف"
+                  )}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            <div
+              style={{
+                display:
+                  "flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "6px",
+
+                padding:
+                  "7px 10px",
+
+                borderRadius:
+                  "9px",
+
+                color:
+                  "#ff7685",
+
+                background:
+                  "rgba(255,90,110,0.07)",
+
+                border:
+                  "1px solid rgba(255,90,110,0.18)",
+
+                fontSize:
+                  "9px",
+
+                fontWeight:
+                  800,
+              }}
+            >
+              <AlertTriangle
+                size={14}
+                aria-hidden="true"
+              />
+
+              {L(
+                language,
+                "URGENT",
+                "فوري"
+              )}
+            </div>
+
+          </div>
+
+
+          <div
+            className="summaryGrid"
+            style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "repeat(5,minmax(0,1fr))",
+
+              gap:
+                "9px",
+
+              marginTop:
+                "18px",
+            }}
+          >
+
+            <InfoValue
+              label={
+                L(
+                  language,
+                  "Problem Type",
+                  "نوع المشكلة"
+                )
+              }
+              value={
+                L(
+                  language,
+                  "Possible Wrong-Person Impact",
+                  "احتمال تأثير على شخص آخر"
+                )
+              }
+            />
+
+
+            <InfoValue
+              label={
+                L(
+                  language,
+                  "AI Confidence",
+                  "ثقة الذكاء الاصطناعي"
+                )
+              }
+              value={
+                `${DEMO_CASE.confidence}%`
+              }
+              color="#e8f0fa"
+              dir="ltr"
+            />
+
+
+            <InfoValue
+              label={
+                L(
+                  language,
+                  "Risk",
+                  "مستوى الخطر"
+                )
+              }
+              value={
+                DEMO_CASE.risk
+              }
+              color="#ffbd67"
+              dir="ltr"
+            />
+
+
+            <InfoValue
+              label={
+                L(
+                  language,
+                  "Harm",
+                  "مستوى الضرر"
+                )
+              }
+              value={
+                DEMO_CASE.harm
+              }
+              color="#ff7685"
+              dir="ltr"
+            />
+
+
+            <InfoValue
+              label={
+                L(
+                  language,
+                  "Protective Priority",
+                  "أولوية الحماية"
+                )
+              }
+              value={
+                DEMO_CASE.protectivePriority
+              }
+              color="#59cfa0"
+              dir="ltr"
+            />
+
+          </div>
+
+
+          <div
+            style={{
+              marginTop:
+                "15px",
+
+              paddingTop:
+                "14px",
+
+              borderTop:
+                "1px solid rgba(255,255,255,0.05)",
+
+              color:
+                "#8496ac",
+
+              fontSize:
+                "10px",
+
+              lineHeight:
+                1.7,
+            }}
+          >
+            {L(
+              language,
+              "AI detected an incorrect biometric relationship that may affect another person. Because of the potential human impact, the case was escalated for immediate authorized review.",
+              "اكتشف الذكاء الاصطناعي ربطًا غير صحيح قد يؤثر على شخص آخر، ولذلك تم تصعيد الحالة للمراجعة البشرية الفورية."
+            )}
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            EVIDENCE
+            ================================================ */}
+
+        <section
+          className="panel"
+          style={{
+            marginBottom:
+              "18px",
+          }}
+        >
+
+          <div className="panelHeader">
+
+            <div>
+
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "AI EVIDENCE",
+                  "أدلة الذكاء الاصطناعي"
+                )}
+              </div>
+
+
+              <h2>
+                {L(
+                  language,
+                  "Evidence Summary",
+                  "ملخص الأدلة"
+                )}
+              </h2>
+
+            </div>
+
+
+            <FileCheck2
+              size={22}
+              aria-hidden="true"
+            />
+
+          </div>
+
+
+          <div
+            style={{
+              display:
+                "grid",
+
+              gap:
+                "9px",
+
+              padding:
+                "18px",
+            }}
+          >
+
             {[
-              L(
-                language,
-                "AI Investigation",
-                "تحقيق الذكاء الاصطناعي"
-              ),
+              {
+                label:
+                  L(
+                    language,
+                    "Biometric Record",
+                    "السجل البيومتري"
+                  ),
 
-              L(
-                language,
-                "Officer Review",
-                "مراجعة الضابط"
-              ),
+                value:
+                  DEMO_CASE.biometricId,
+              },
 
-              L(
-                language,
-                "Manager Approval",
-                "اعتماد المدير"
-              ),
+              {
+                label:
+                  L(
+                    language,
+                    "Current Linked Identity",
+                    "الهوية المرتبطة حاليًا"
+                  ),
 
-              L(
-                language,
-                "Biometric Correction",
-                "التصحيح البيومتري"
-              ),
+                value:
+                  DEMO_CASE.currentMasterId,
+              },
 
-              L(
-                language,
-                "Verification",
-                "التحقق"
-              ),
+              {
+                label:
+                  L(
+                    language,
+                    "AI Canonical Identity",
+                    "الهوية المرجحة بالذكاء الاصطناعي"
+                  ),
+
+                value:
+                  DEMO_CASE.canonicalMasterId,
+              },
+
+              {
+                label:
+                  L(
+                    language,
+                    "Detected Problem",
+                    "نوع الخلل"
+                  ),
+
+                value:
+                  L(
+                    language,
+                    "Incorrect biometric-to-identity mapping",
+                    "ربط غير صحيح بين السجل البيومتري والهوية"
+                  ),
+              },
+
+              {
+                label:
+                  L(
+                    language,
+                    "Probable Root Cause",
+                    "السبب المرجح"
+                  ),
+
+                value:
+                  L(
+                    language,
+                    "The biometric record is currently associated with an identity that does not appear to be its correct owner.",
+                    "السجل البيومتري مرتبط حاليًا بهوية لا تبدو أنها تعود إلى مالكه الصحيح."
+                  ),
+              },
             ].map(
               (
                 item,
                 index
               ) => (
                 <div
-                  key={item}
+                  key={
+                    item.label
+                  }
                   style={{
                     display:
-                      "flex",
+                      "grid",
+
+                    gridTemplateColumns:
+                      "minmax(150px,0.7fr) minmax(220px,1.3fr)",
+
+                    gap:
+                      "14px",
 
                     alignItems:
                       "center",
 
-                    gap:
-                      "8px",
+                    padding:
+                      "12px 0",
+
+                    borderBottom:
+                      index === 4
+                        ? "none"
+                        : "1px solid rgba(255,255,255,0.045)",
                   }}
                 >
 
-                  <div
+                  <span
                     style={{
-                      padding:
-                        "9px 12px",
-
-                      borderRadius:
-                        "9px",
-
-                      background:
-                        "rgba(70,140,255,0.05)",
-
-                      border:
-                        "1px solid rgba(70,140,255,0.09)",
-
                       color:
-                        "#90a8c7",
+                        "#71849c",
+
+                      fontSize:
+                        "9px",
+                    }}
+                  >
+                    {
+                      item.label
+                    }
+                  </span>
+
+
+                  <strong
+                    dir={
+                      item.value
+                        .toString()
+                        .startsWith(
+                          "REF-"
+                        ) ||
+                      item.value
+                        .toString()
+                        .startsWith(
+                          "BIO-"
+                        )
+                        ? "ltr"
+                        : undefined
+                    }
+                    style={{
+                      color:
+                        "#cdd9e7",
 
                       fontSize:
                         "10px",
 
-                      fontWeight:
-                        700,
+                      lineHeight:
+                        1.55,
                     }}
                   >
-                    {item}
-                  </div>
-
-
-                  {index < 4 && (
-                    <ChevronRight
-                      size={14}
-                      style={
-                        arrowStyle
-                      }
-                      color="#52647b"
-                      aria-hidden="true"
-                    />
-                  )}
+                    {
+                      item.value
+                    }
+                  </strong>
 
                 </div>
               )
@@ -920,10 +1122,294 @@ export default function ApprovalsPage() {
 
 
         {/* ================================================
-            CASES
+            AI PROPOSED CORRECTION
             ================================================ */}
 
-        <section className="panel">
+        <section
+          style={{
+            marginBottom:
+              "18px",
+
+            padding:
+              "20px",
+
+            borderRadius:
+              "18px",
+
+            border:
+              "1px solid rgba(105,162,255,0.18)",
+
+            background:
+              "linear-gradient(135deg, rgba(11,31,54,0.92), rgba(8,25,44,0.92))",
+          }}
+        >
+
+          <div
+            style={{
+              display:
+                "flex",
+
+              alignItems:
+                "center",
+
+              gap:
+                "8px",
+
+              marginBottom:
+                "17px",
+            }}
+          >
+            <BrainCircuit
+              size={21}
+              color="#79a9ff"
+              aria-hidden="true"
+            />
+
+            <strong
+              style={{
+                color:
+                  "#e3edf8",
+
+                fontSize:
+                  "14px",
+              }}
+            >
+              {L(
+                language,
+                "AI Proposed Correction",
+                "الإجراء المقترح بالذكاء الاصطناعي"
+              )}
+            </strong>
+          </div>
+
+
+          <div
+            className="beforeAfterGrid"
+            style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "1fr auto 1fr",
+
+              gap:
+                "14px",
+
+              alignItems:
+                "center",
+            }}
+          >
+
+            <div
+              style={{
+                padding:
+                  "16px",
+
+                borderRadius:
+                  "13px",
+
+                border:
+                  "1px solid rgba(255,93,112,0.18)",
+
+                background:
+                  "rgba(255,93,112,0.035)",
+              }}
+            >
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  marginBottom:
+                    "8px",
+
+                  color:
+                    "#ff7685",
+
+                  fontSize:
+                    "9px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                {L(
+                  language,
+                  "BEFORE",
+                  "قبل"
+                )}
+              </span>
+
+              <div
+                dir="ltr"
+                style={{
+                  color:
+                    "#d8e3ef",
+
+                  fontSize:
+                    "12px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                {DEMO_CASE.biometricId}
+                {"  ←  "}
+                <span
+                  style={{
+                    color:
+                      "#ff7685",
+                  }}
+                >
+                  {
+                    DEMO_CASE.currentMasterId
+                  }
+                </span>
+              </div>
+            </div>
+
+
+            <ChevronRight
+              size={23}
+              color="#71849c"
+              style={
+                arrowStyle
+              }
+              aria-hidden="true"
+            />
+
+
+            <div
+              style={{
+                padding:
+                  "16px",
+
+                borderRadius:
+                  "13px",
+
+                border:
+                  "1px solid rgba(89,207,160,0.26)",
+
+                background:
+                  "rgba(89,207,160,0.045)",
+              }}
+            >
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  marginBottom:
+                    "8px",
+
+                  color:
+                    "#59cfa0",
+
+                  fontSize:
+                    "9px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                {L(
+                  language,
+                  "AFTER",
+                  "بعد"
+                )}
+              </span>
+
+              <div
+                dir="ltr"
+                style={{
+                  color:
+                    "#d8e3ef",
+
+                  fontSize:
+                    "12px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                {DEMO_CASE.biometricId}
+                {"  ←  "}
+                <span
+                  style={{
+                    color:
+                      "#59cfa0",
+                  }}
+                >
+                  {
+                    DEMO_CASE.canonicalMasterId
+                  }
+                </span>
+              </div>
+            </div>
+
+          </div>
+
+
+          <div
+            style={{
+              marginTop:
+                "14px",
+
+              padding:
+                "11px 13px",
+
+              borderRadius:
+                "10px",
+
+              color:
+                "#7f92a9",
+
+              background:
+                "rgba(255,255,255,0.018)",
+
+              border:
+                "1px solid rgba(255,255,255,0.04)",
+
+              fontSize:
+                "9px",
+
+              lineHeight:
+                1.6,
+            }}
+          >
+            <ShieldCheck
+              size={13}
+              aria-hidden="true"
+              style={{
+                marginInlineEnd:
+                  "6px",
+
+                verticalAlign:
+                  "middle",
+              }}
+            />
+
+            {L(
+              language,
+              "The AI prepares this correction only. Execution remains blocked until Officer approval and Manager approval are both completed.",
+              "الذكاء الاصطناعي يجهز هذا التعديل فقط، ويبقى التنفيذ محظورًا حتى اعتماد موظف المراجعة وموافقة المدير."
+            )}
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            OFFICER DECISION
+            ================================================ */}
+
+        <section
+          className="panel"
+          style={{
+            marginBottom:
+              "18px",
+          }}
+        >
 
           <div className="panelHeader">
 
@@ -932,8 +1418,8 @@ export default function ApprovalsPage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "APPROVAL STATUS",
-                  "حالة الموافقات"
+                  "HUMAN DECISION",
+                  "القرار البشري"
                 )}
               </div>
 
@@ -941,15 +1427,15 @@ export default function ApprovalsPage() {
               <h2>
                 {L(
                   language,
-                  "Cases in the Approval Workflow",
-                  "الحالات ضمن مسار الاعتماد"
+                  "Officer Decision",
+                  "قرار موظف المراجعة"
                 )}
               </h2>
 
             </div>
 
 
-            <Activity
+            <UserCheck
               size={22}
               aria-hidden="true"
             />
@@ -960,513 +1446,473 @@ export default function ApprovalsPage() {
           <div
             style={{
               padding:
-                "5px 18px",
+                "18px",
             }}
           >
 
-            {approvalCases.map(
-              (item) => {
+            <label
+              style={{
+                display:
+                  "block",
 
-                const name =
-                  item.person[
-                    language
-                  ] ||
-                  item.person.en;
+                marginBottom:
+                  "8px",
+
+                color:
+                  "#7588a0",
+
+                fontSize:
+                  "9px",
+              }}
+            >
+              {L(
+                language,
+                "Officer Notes",
+                "ملاحظات الموظف"
+              )}
+            </label>
 
 
-                const issue =
-                  item.issue[
-                    language
-                  ] ||
-                  item.issue.en;
+            <textarea
+              value={
+                comments
+              }
+              onChange={
+                (
+                  event
+                ) =>
+                  setComments(
+                    event.target.value
+                  )
+              }
+              rows={4}
+              style={{
+                width:
+                  "100%",
+
+                boxSizing:
+                  "border-box",
+
+                resize:
+                  "vertical",
+
+                padding:
+                  "13px",
+
+                borderRadius:
+                  "11px",
+
+                outline:
+                  "none",
+
+                border:
+                  "1px solid rgba(121,169,255,0.13)",
+
+                background:
+                  "rgba(4,18,33,0.52)",
+
+                color:
+                  "#cbd7e5",
+
+                fontFamily:
+                  "inherit",
+
+                fontSize:
+                  "10px",
+
+                lineHeight:
+                  1.7,
+              }}
+            />
 
 
-                const recommendation =
-                  item.aiRecommendation[
-                    language
-                  ] ||
-                  item.aiRecommendation.en;
+            {decision ===
+              "REVIEWING" && (
+              <div
+                className="decisionButtons"
+                style={{
+                  display:
+                    "grid",
 
+                  gridTemplateColumns:
+                    "1fr 1fr",
 
-                const content = (
-                  <div
+                  gap:
+                    "10px",
+
+                  marginTop:
+                    "14px",
+                }}
+              >
+
+                <button
+                  type="button"
+                  onClick={
+                    approveCase
+                  }
+                  style={{
+                    minHeight:
+                      "44px",
+
+                    border:
+                      "1px solid rgba(111,230,180,0.42)",
+
+                    borderRadius:
+                      "11px",
+
+                    background:
+                      "linear-gradient(90deg,#4bc58f,#68d9ab)",
+
+                    color:
+                      "#071c17",
+
+                    fontFamily:
+                      "inherit",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      900,
+
+                    cursor:
+                      "pointer",
+                  }}
+                >
+                  <CheckCircle2
+                    size={15}
+                    aria-hidden="true"
                     style={{
-                      padding:
-                        "18px 0",
+                      marginInlineEnd:
+                        "7px",
 
-                      borderBottom:
-                        "1px solid rgba(255,255,255,0.045)",
+                      verticalAlign:
+                        "middle",
+                    }}
+                  />
+
+                  {L(
+                    language,
+                    "Approve & Send to Manager",
+                    "اعتماد وإرسال للمدير"
+                  )}
+                </button>
+
+
+                <button
+                  type="button"
+                  onClick={
+                    requestInvestigation
+                  }
+                  style={{
+                    minHeight:
+                      "44px",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.22)",
+
+                    borderRadius:
+                      "11px",
+
+                    background:
+                      "rgba(121,169,255,0.045)",
+
+                    color:
+                      "#79a9ff",
+
+                    fontFamily:
+                      "inherit",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      850,
+
+                    cursor:
+                      "pointer",
+                  }}
+                >
+                  <BrainCircuit
+                    size={15}
+                    aria-hidden="true"
+                    style={{
+                      marginInlineEnd:
+                        "7px",
+
+                      verticalAlign:
+                        "middle",
+                    }}
+                  />
+
+                  {L(
+                    language,
+                    "Request Further Investigation",
+                    "طلب تحقيق إضافي"
+                  )}
+                </button>
+
+              </div>
+            )}
+
+
+            {decision ===
+              "APPROVED" && (
+              <div
+                style={{
+                  marginTop:
+                    "15px",
+
+                  padding:
+                    "16px",
+
+                  borderRadius:
+                    "13px",
+
+                  border:
+                    "1px solid rgba(89,207,160,0.24)",
+
+                  background:
+                    "rgba(89,207,160,0.055)",
+                }}
+              >
+
+                <div
+                  style={{
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    gap:
+                      "8px",
+
+                    color:
+                      "#59cfa0",
+                  }}
+                >
+                  <CheckCircle2
+                    size={20}
+                    aria-hidden="true"
+                  />
+
+                  <strong
+                    style={{
+                      fontSize:
+                        "12px",
                     }}
                   >
-
-                    {/* TOP */}
-
-                    <div
-                      style={{
-                        display:
-                          "flex",
-
-                        alignItems:
-                          "flex-start",
-
-                        justifyContent:
-                          "space-between",
-
-                        gap:
-                          "16px",
-
-                        flexWrap:
-                          "wrap",
-                      }}
-                    >
-
-                      <div>
-
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#e0e9f5",
-
-                            fontSize:
-                              "13px",
-                          }}
-                        >
-                          {name}
-                        </strong>
-
-
-                        <span
-                          dir="ltr"
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#61738b",
-
-                            fontSize:
-                              "9px",
-
-                            marginTop:
-                              "4px",
-                          }}
-                        >
-                          {item.id}
-                        </span>
-
-                      </div>
-
-
-                      <div
-                        style={{
-                          display:
-                            "flex",
-
-                          alignItems:
-                            "center",
-
-                          gap:
-                            "8px",
-
-                          flexWrap:
-                            "wrap",
-                        }}
-                      >
-
-                        <PriorityBadge
-                          priority={
-                            item.priority
-                          }
-                          language={
-                            language
-                          }
-                        />
-
-
-                        <span
-                          style={{
-                            color:
-                              item.stage ===
-                              "COMPLETED"
-                                ? "#59cfa0"
-                                : item.stage ===
-                                  "CORRECTION"
-                                  ? "#59cfa0"
-                                  : "#79a9ff",
-
-                            fontSize:
-                              "10px",
-
-                            fontWeight:
-                              800,
-                          }}
-                        >
-                          {stageLabel(
-                            item.stage,
-                            language
-                          )}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    {/* ISSUE / AI */}
-
-                    <div
-                      style={{
-                        marginTop:
-                          "14px",
-
-                        display:
-                          "grid",
-
-                        gridTemplateColumns:
-                          "minmax(160px,0.7fr) minmax(240px,1.3fr)",
-
-                        gap:
-                          "12px",
-                      }}
-                    >
-
-                      <div>
-
-                        <span
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#71839a",
-
-                            fontSize:
-                              "9px",
-                          }}
-                        >
-                          {L(
-                            language,
-                            "Detected Problem",
-                            "المشكلة المكتشفة"
-                          )}
-                        </span>
-
-
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#c3d0df",
-
-                            fontSize:
-                              "11px",
-
-                            marginTop:
-                              "5px",
-                          }}
-                        >
-                          {issue}
-                        </strong>
-
-                      </div>
-
-
-                      <div>
-
-                        <span
-                          style={{
-                            display:
-                              "flex",
-
-                            alignItems:
-                              "center",
-
-                            gap:
-                              "5px",
-
-                            color:
-                              "#71839a",
-
-                            fontSize:
-                              "9px",
-                          }}
-                        >
-                          <BrainCircuit
-                            size={13}
-                            aria-hidden="true"
-                          />
-
-                          {L(
-                            language,
-                            "AI Recommendation",
-                            "توصية الذكاء الاصطناعي"
-                          )}
-                        </span>
-
-
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#92a6bf",
-
-                            fontSize:
-                              "10px",
-
-                            lineHeight:
-                              1.6,
-
-                            marginTop:
-                              "5px",
-                          }}
-                        >
-                          {recommendation}
-                        </strong>
-
-
-                        <span
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#659eff",
-
-                            fontSize:
-                              "9px",
-
-                            marginTop:
-                              "5px",
-                          }}
-                        >
-                          {L(
-                            language,
-                            `AI Confidence ${item.confidence}`,
-                            `ثقة الذكاء الاصطناعي ${item.confidence}`
-                          )}
-                        </span>
-
-                      </div>
-
-                    </div>
-
-
-                    {/* APPROVAL STATUS */}
-
-                    <div
-                      style={{
-                        display:
-                          "grid",
-
-                        gridTemplateColumns:
-                          "repeat(4,minmax(125px,1fr))",
-
-                        gap:
-                          "8px",
-
-                        marginTop:
-                          "15px",
-                      }}
-                    >
-
-                      {[
-                        {
-                          label:
-                            L(
-                              language,
-                              "Officer Review",
-                              "مراجعة الضابط"
-                            ),
-
-                          value:
-                            item.officer,
-                        },
-
-                        {
-                          label:
-                            L(
-                              language,
-                              "Manager Approval",
-                              "اعتماد المدير"
-                            ),
-
-                          value:
-                            item.manager,
-                        },
-
-                        {
-                          label:
-                            L(
-                              language,
-                              "Biometric Correction",
-                              "التصحيح البيومتري"
-                            ),
-
-                          value:
-                            item.correction,
-                        },
-
-                        {
-                          label:
-                            L(
-                              language,
-                              "Final Verification",
-                              "التحقق النهائي"
-                            ),
-
-                          value:
-                            item.verification,
-                        },
-                      ].map(
-                        (step) => (
-                          <div
-                            key={
-                              step.label
-                            }
-                            style={{
-                              padding:
-                                "11px",
-
-                              borderRadius:
-                                "9px",
-
-                              background:
-                                "rgba(255,255,255,0.022)",
-
-                              border:
-                                "1px solid rgba(255,255,255,0.05)",
-                            }}
-                          >
-
-                            <span
-                              style={{
-                                display:
-                                  "block",
-
-                                color:
-                                  "#667991",
-
-                                fontSize:
-                                  "9px",
-                              }}
-                            >
-                              {
-                                step.label
-                              }
-                            </span>
-
-
-                            <div
-                              style={{
-                                marginTop:
-                                  "5px",
-                              }}
-                            >
-                              <StatusValue
-                                status={
-                                  step.value
-                                }
-                                language={
-                                  language
-                                }
-                              />
-                            </div>
-
-                          </div>
-                        )
-                      )}
-
-                    </div>
-
-
-                    {/* OPEN */}
-
-                    {item.hasDetail && (
-                      <div
-                        style={{
-                          marginTop:
-                            "14px",
-
-                          display:
-                            "flex",
-
-                          justifyContent:
-                            isArabic
-                              ? "flex-start"
-                              : "flex-end",
-                        }}
-                      >
-
-                        <div
-                          className="textButton"
-                          style={{
-                            width:
-                              "fit-content",
-                          }}
-                        >
-                          {L(
-                            language,
-                            "View Case Investigation",
-                            "عرض تحقيق الحالة"
-                          )}
-
-                          <ChevronRight
-                            size={15}
-                            style={
-                              arrowStyle
-                            }
-                            aria-hidden="true"
-                          />
-                        </div>
-
-                      </div>
+                    {L(
+                      language,
+                      "Officer approval recorded",
+                      "تم اعتماد موظف المراجعة"
                     )}
-
-                  </div>
-                );
-
-
-                if (
-                  item.hasDetail
-                ) {
-                  return (
-                    <Link
-                      key={item.id}
-                      href={
-                        `/cases/${item.id}`
-                      }
-                      style={{
-                        display:
-                          "block",
-
-                        textDecoration:
-                          "none",
-
-                        color:
-                          "inherit",
-                      }}
-                    >
-                      {content}
-                    </Link>
-                  );
-                }
+                  </strong>
+                </div>
 
 
-                return (
-                  <div
-                    key={item.id}
-                  >
-                    {content}
-                  </div>
-                );
-              }
+                <p
+                  style={{
+                    margin:
+                      "9px 0 14px",
+
+                    color:
+                      "#8295ac",
+
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.65,
+                  }}
+                >
+                  {L(
+                    language,
+                    "The officer decision has been recorded. The proposed correction remains unexecuted and has now been sent to the manager for final authorization.",
+                    "تم تسجيل قرار الموظف ورفع التوصية إلى المدير. لم يتم تنفيذ أي تعديل حتى الآن، وتنتظر الحالة موافقة المدير النهائية."
+                  )}
+                </p>
+
+
+                <Link
+                  href="/manager-approval"
+                  style={{
+                    minHeight:
+                      "44px",
+
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    justifyContent:
+                      "center",
+
+                    gap:
+                      "8px",
+
+                    borderRadius:
+                      "11px",
+
+                    textDecoration:
+                      "none",
+
+                    color:
+                      "#071c17",
+
+                    background:
+                      "linear-gradient(90deg,#4bc58f,#68d9ab)",
+
+                    border:
+                      "1px solid rgba(111,230,180,0.42)",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      900,
+                  }}
+                >
+                  <BadgeCheck
+                    size={16}
+                    aria-hidden="true"
+                  />
+
+                  {L(
+                    language,
+                    "Open Manager Approval",
+                    "الانتقال إلى موافقة المدير"
+                  )}
+
+                  <ChevronRight
+                    size={15}
+                    style={
+                      arrowStyle
+                    }
+                    aria-hidden="true"
+                  />
+                </Link>
+
+              </div>
+            )}
+
+
+            {decision ===
+              "FURTHER_INVESTIGATION" && (
+              <div
+                style={{
+                  marginTop:
+                    "15px",
+
+                  padding:
+                    "16px",
+
+                  borderRadius:
+                    "13px",
+
+                  border:
+                    "1px solid rgba(255,189,103,0.22)",
+
+                  background:
+                    "rgba(255,189,103,0.05)",
+                }}
+              >
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#ffbd67",
+
+                    fontSize:
+                      "11px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Further investigation requested",
+                    "تم طلب تحقيق إضافي"
+                  )}
+                </strong>
+
+
+                <span
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "7px",
+
+                    color:
+                      "#8193aa",
+
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.6,
+                  }}
+                >
+                  {L(
+                    language,
+                    "The case has not been approved and no correction can proceed until additional investigation is completed.",
+                    "لم يتم اعتماد الحالة ولن يتم تنفيذ أي تعديل حتى استكمال التحقيق الإضافي وإعادة الحالة للمراجعة."
+                  )}
+                </span>
+
+
+                <button
+                  type="button"
+                  onClick={
+                    () =>
+                      setDecision(
+                        "REVIEWING"
+                      )
+                  }
+                  style={{
+                    marginTop:
+                      "12px",
+
+                    padding:
+                      "9px 13px",
+
+                    borderRadius:
+                      "9px",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.18)",
+
+                    background:
+                      "rgba(121,169,255,0.04)",
+
+                    color:
+                      "#79a9ff",
+
+                    fontFamily:
+                      "inherit",
+
+                    fontSize:
+                      "9px",
+
+                    fontWeight:
+                      800,
+
+                    cursor:
+                      "pointer",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Return to Review",
+                    "العودة إلى التدقيق"
+                  )}
+                </button>
+
+              </div>
             )}
 
           </div>
@@ -1475,33 +1921,31 @@ export default function ApprovalsPage() {
 
 
         {/* ================================================
-            CONTROL NOTE
+            GOVERNANCE
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
             margin:
-              "16px 0 0",
+              "0 0 16px",
 
             padding:
               "18px",
           }}
         >
-
           <ShieldCheck
             size={23}
             aria-hidden="true"
           />
-
 
           <div>
 
             <strong>
               {L(
                 language,
-                "Two human approvals are mandatory",
-                "يلزم اعتمادان بشريان"
+                "Officer approval does not execute the correction",
+                "اعتماد الموظف لا ينفذ التعديل"
               )}
             </strong>
 
@@ -1509,8 +1953,8 @@ export default function ApprovalsPage() {
             <span>
               {L(
                 language,
-                "AI can investigate the evidence, perform Identity Resolution and recommend a biometric link correction. It cannot approve or execute the correction independently. Officer and Manager approval are mandatory.",
-                "يمكن للذكاء الاصطناعي التحقيق في الأدلة وتنفيذ حسم الهوية واقتراح تصحيح للربط البيومتري، لكنه لا يستطيع اعتماد أو تنفيذ التصحيح بشكل مستقل. اعتماد الضابط والمدير إلزامي."
+                "After Officer approval, the case moves to the Manager. The biometric correction remains blocked until the Manager provides the second required human authorization.",
+                "بعد اعتماد موظف المراجعة تنتقل الحالة إلى المدير، ويبقى التصحيح البيومتري محظورًا حتى صدور الموافقة البشرية الثانية من المدير."
               )}
             </span>
 
@@ -1528,8 +1972,8 @@ export default function ApprovalsPage() {
           <span>
             {L(
               language,
-              "AI Biometric Reconciliation Platform · Approvals",
-              "منصة المطابقة البيومترية بالذكاء الاصطناعي · الموافقات"
+              "AI Biometric Reconciliation Platform · Officer Review",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · تدقيق الموظف"
             )}
           </span>
 
@@ -1543,13 +1987,47 @@ export default function ApprovalsPage() {
 
             {L(
               language,
-              "Human approval controls active",
-              "ضوابط الاعتماد البشري نشطة"
+              "Human authorization control active",
+              "ضابط الاعتماد البشري نشط"
             )}
 
           </div>
 
         </footer>
+
+
+        <style jsx>{`
+          @media (max-width: 760px) {
+            .summaryGrid {
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            .workflowGrid {
+              grid-template-columns: repeat(5, minmax(70px, 1fr)) !important;
+              overflow-x: auto;
+              padding-bottom: 4px;
+            }
+
+            .decisionButtons {
+              grid-template-columns: 1fr !important;
+            }
+
+            .beforeAfterGrid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .beforeAfterGrid > svg {
+              margin: 0 auto;
+              transform: rotate(90deg) !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .summaryGrid {
+              grid-template-columns: 1fr 1fr !important;
+            }
+          }
+        `}</style>
 
       </main>
 

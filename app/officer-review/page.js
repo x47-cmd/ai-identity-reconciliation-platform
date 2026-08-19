@@ -41,6 +41,14 @@ function L(
    APPROVAL CASES
 
    Synthetic demonstration identities only.
+
+   Identity-name policy:
+   - First Name + Second Name only
+   - No third name
+   - No surname
+   - No family name
+   - No tribe name
+
    Only supported detail routes are linked.
    ========================================================= */
 
@@ -49,13 +57,8 @@ const approvalCases = [
     id:
       COMPLEX_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Ali Saeed Al Dhaheri",
-
-      ar:
-        "علي سعيد الظاهري",
-    },
+    person:
+      COMPLEX_DEMO_CASE.person,
 
     issue: {
       en:
@@ -105,10 +108,10 @@ const approvalCases = [
 
     person: {
       en:
-        "Ahmed Saeed Al Shamsi",
+        "Ahmed Saeed",
 
       ar:
-        "أحمد سعيد الشامسي",
+        "أحمد سعيد",
     },
 
     issue: {
@@ -159,10 +162,10 @@ const approvalCases = [
 
     person: {
       en:
-        "Mariam Khalid Al Nuaimi",
+        "Mariam Khalid",
 
       ar:
-        "مريم خالد النعيمي",
+        "مريم خالد",
     },
 
     issue: {
@@ -213,10 +216,10 @@ const approvalCases = [
 
     person: {
       en:
-        "Fatima Ali Al Suwaidi",
+        "Fatima Ali",
 
       ar:
-        "فاطمة علي السويدي",
+        "فاطمة علي",
     },
 
     issue: {
@@ -265,13 +268,8 @@ const approvalCases = [
     id:
       VERIFIED_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Salem Mohammed Al Kaabi",
-
-      ar:
-        "سالم محمد الكعبي",
-    },
+    person:
+      VERIFIED_DEMO_CASE.person,
 
     issue: {
       en:

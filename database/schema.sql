@@ -4,6 +4,13 @@
 -- Version: 0.1
 -- Environment: Synthetic Demo Data Only
 -- Database: PostgreSQL
+--
+-- DEMO NAME POLICY:
+-- Synthetic identity names must contain exactly two parts:
+-- First Name + Second Name.
+--
+-- No third name, surname, family name, or tribe name is stored
+-- as part of a synthetic identity.
 -- ============================================================
 
 
@@ -14,7 +21,12 @@
 CREATE TABLE IF NOT EXISTS master_persons (
     master_id VARCHAR(30) PRIMARY KEY,
 
-    full_name VARCHAR(200) NOT NULL,
+    full_name VARCHAR(200) NOT NULL
+        CHECK (
+            full_name ~
+            '^[^[:space:]]+[[:space:]]+[^[:space:]]+$'
+        ),
+
     date_of_birth DATE,
     nationality VARCHAR(100),
 
@@ -41,7 +53,15 @@ CREATE TABLE IF NOT EXISTS biometric_records (
     -- incorrect/orphan mappings must be possible in the demo.
     linked_master_id VARCHAR(30),
 
-    registered_name VARCHAR(200),
+    -- Synthetic identity names must contain exactly
+    -- First Name + Second Name only.
+    registered_name VARCHAR(200)
+        CHECK (
+            registered_name IS NULL
+            OR registered_name ~
+            '^[^[:space:]]+[[:space:]]+[^[:space:]]+$'
+        ),
+
     registered_date_of_birth DATE,
     registered_nationality VARCHAR(100),
 

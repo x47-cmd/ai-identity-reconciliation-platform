@@ -12,15 +12,26 @@ import {
 
    This must NOT be used to store real biometric data,
    real PII or production-sensitive information.
+
+   DEMO IDENTITY NAME POLICY:
+   - First Name + Second Name only
+   - No third name
+   - No family name
+   - No surname
+   - No tribe name
    ========================================================= */
 
 const STORAGE_KEY =
-  "ai-biometric-case-store-v1";
+  "ai-biometric-case-store-v2";
+
+const LEGACY_STORAGE_KEYS = [
+  "ai-biometric-case-store-v1",
+];
 
 const STORE_EVENT =
   "ai-biometric-case-store-change";
 
-const STORE_VERSION = 1;
+const STORE_VERSION = 2;
 
 
 /* =========================================================
@@ -87,6 +98,248 @@ function normalizeId(
 }
 
 
+/* =========================================================
+   SYNTHETIC IDENTITY NAME POLICY
+
+   Every synthetic identity displayed or persisted through
+   the case store is restricted to exactly:
+
+   First Name + Second Name
+
+   Examples:
+
+   "Salem Mohammed Al Kaabi"
+   becomes
+   "Salem Mohammed"
+
+   "سالم محمد الكعبي"
+   becomes
+   "سالم محمد"
+
+   This applies only to synthetic identity-name fields.
+   Workflow actor names such as:
+   "Demo Monitoring Officer"
+   are intentionally not modified.
+   ========================================================= */
+
+function normalizeTwoPartIdentityName(
+  value
+) {
+  if (
+    typeof value !==
+    "string"
+  ) {
+    return value;
+  }
+
+
+  const parts =
+    value
+      .trim()
+      .split(
+        /\s+/
+      )
+      .filter(
+        Boolean
+      );
+
+
+  if (
+    parts.length <= 2
+  ) {
+    return parts.join(
+      " "
+    );
+  }
+
+
+  return parts
+    .slice(
+      0,
+      2
+    )
+    .join(
+      " "
+    );
+}
+
+
+function normalizeLocalizedIdentityName(
+  value
+) {
+  if (
+    typeof value ===
+    "string"
+  ) {
+    return normalizeTwoPartIdentityName(
+      value
+    );
+  }
+
+
+  if (
+    !value ||
+    typeof value !==
+      "object" ||
+    Array.isArray(
+      value
+    )
+  ) {
+    return value;
+  }
+
+
+  const normalized = {
+    ...value,
+  };
+
+
+  if (
+    typeof normalized.en ===
+    "string"
+  ) {
+    normalized.en =
+      normalizeTwoPartIdentityName(
+        normalized.en
+      );
+  }
+
+
+  if (
+    typeof normalized.ar ===
+    "string"
+  ) {
+    normalized.ar =
+      normalizeTwoPartIdentityName(
+        normalized.ar
+      );
+  }
+
+
+  return normalized;
+}
+
+
+/* =========================================================
+   CASE IDENTITY NAME NORMALIZATION
+
+   Only identity-related fields are normalized.
+
+   Human workflow actors such as officer and manager names
+   are not treated as identity records.
+   ========================================================= */
+
+function applyIdentityNamePolicy(
+  caseData
+) {
+  if (
+    !caseData ||
+    typeof caseData !==
+      "object"
+  ) {
+    return caseData;
+  }
+
+
+  const normalized = {
+    ...caseData,
+  };
+
+
+  const identityNameFields = [
+    "person",
+    "name",
+    "fullName",
+    "registeredName",
+    "identityName",
+    "subjectName",
+    "affectedPersonName",
+    "currentIdentityName",
+    "proposedIdentityName",
+    "canonicalIdentityName",
+    "beforeName",
+    "afterName",
+  ];
+
+
+  identityNameFields.forEach(
+    (
+      field
+    ) => {
+
+      if (
+        Object.prototype.hasOwnProperty.call(
+          normalized,
+          field
+        )
+      ) {
+        normalized[
+          field
+        ] =
+          normalizeLocalizedIdentityName(
+            normalized[
+              field
+            ]
+          );
+      }
+
+    }
+  );
+
+
+  /*
+     Execution state can contain Before / After
+     identity display names.
+  */
+
+  if (
+    normalized.execution &&
+    typeof normalized.execution ===
+      "object" &&
+    !Array.isArray(
+      normalized.execution
+    )
+  ) {
+    normalized.execution = {
+      ...normalized.execution,
+    };
+
+
+    if (
+      Object.prototype.hasOwnProperty.call(
+        normalized.execution,
+        "beforeName"
+      )
+    ) {
+      normalized.execution.beforeName =
+        normalizeLocalizedIdentityName(
+          normalized.execution.beforeName
+        );
+    }
+
+
+    if (
+      Object.prototype.hasOwnProperty.call(
+        normalized.execution,
+        "afterName"
+      )
+    ) {
+      normalized.execution.afterName =
+        normalizeLocalizedIdentityName(
+          normalized.execution.afterName
+        );
+    }
+  }
+
+
+  return normalized;
+}
+
+
+/* =========================================================
+   NORMALIZE CASE
+   ========================================================= */
+
 function normalizeCase(
   caseData
 ) {
@@ -99,9 +352,15 @@ function normalizeCase(
   }
 
 
+  const protectedCase =
+    applyIdentityNamePolicy(
+      caseData
+    );
+
+
   const id =
     normalizeId(
-      caseData.id
+      protectedCase.id
     );
 
 
@@ -111,16 +370,16 @@ function normalizeCase(
 
 
   return {
-    ...caseData,
+    ...protectedCase,
 
     id,
 
     createdAt:
-      caseData.createdAt ||
+      protectedCase.createdAt ||
       now(),
 
     updatedAt:
-      caseData.updatedAt ||
+      protectedCase.updatedAt ||
       now(),
   };
 }
@@ -170,6 +429,46 @@ function normalizeState(
 
 
 /* =========================================================
+   LEGACY STORAGE CLEANUP
+
+   v1 may contain previously seeded three-part synthetic
+   identity names.
+
+   Because this is synthetic demo data only, the legacy
+   browser-local cache is removed when v2 is first used.
+
+   Fresh seed data will then use the current identity-name
+   policy.
+   ========================================================= */
+
+function cleanupLegacyStorage() {
+  if (!isBrowser()) {
+    return;
+  }
+
+
+  LEGACY_STORAGE_KEYS.forEach(
+    (
+      key
+    ) => {
+
+      try {
+        window.localStorage.removeItem(
+          key
+        );
+      } catch {
+        /*
+           Demo remains operational using
+           in-memory state if storage access fails.
+        */
+      }
+
+    }
+  );
+}
+
+
+/* =========================================================
    STORAGE READ
    ========================================================= */
 
@@ -203,8 +502,36 @@ function readStorage() {
     }
 
 
+    const parsed =
+      JSON.parse(
+        raw
+      );
+
+
+    if (
+      Number(
+        parsed?.version
+      ) !==
+      STORE_VERSION
+    ) {
+      return {
+        version:
+          STORE_VERSION,
+
+        initialized:
+          false,
+
+        cases:
+          [],
+
+        updatedAt:
+          null,
+      };
+    }
+
+
     return normalizeState(
-      JSON.parse(raw)
+      parsed
     );
   } catch {
     return {
@@ -235,6 +562,14 @@ function hydrate() {
   ) {
     return;
   }
+
+
+  /*
+     Remove old synthetic demo storage containing
+     the previous identity-name format.
+  */
+
+  cleanupLegacyStorage();
 
 
   memoryState =
@@ -393,6 +728,9 @@ function generateCaseId() {
 
    If the user later removes all cases,
    the store will NOT silently re-seed them.
+
+   Seed identity names are normalized to the
+   two-part synthetic identity policy before storage.
    ========================================================= */
 
 export function initializeCaseStore(
@@ -548,45 +886,46 @@ export function addCase(
     now();
 
 
-  const newCase = {
-    status:
-      "AI_INVESTIGATED",
+  const newCase =
+    normalizeCase({
+      status:
+        "AI_INVESTIGATED",
 
-    stage:
-      "CASES",
+      stage:
+        "CASES",
 
-    priority:
-      "MEDIUM",
+      priority:
+        "MEDIUM",
 
-    officer:
-      "PENDING",
+      officer:
+        "PENDING",
 
-    manager:
-      "WAITING",
+      manager:
+        "WAITING",
 
-    correction:
-      "NOT_AUTHORIZED",
+      correction:
+        "NOT_AUTHORIZED",
 
-    verification:
-      "NOT_STARTED",
+      verification:
+        "NOT_STARTED",
 
-    completed:
-      false,
+      completed:
+        false,
 
-    audit:
-      [],
+      audit:
+        [],
 
-    ...caseData,
+      ...caseData,
 
-    id,
+      id,
 
-    createdAt:
-      caseData.createdAt ||
-      timestamp,
+      createdAt:
+        caseData.createdAt ||
+        timestamp,
 
-    updatedAt:
-      timestamp,
-  };
+      updatedAt:
+        timestamp,
+    });
 
 
   saveState({
@@ -658,19 +997,20 @@ export function updateCase(
   }
 
 
-  const updated = {
-    ...current,
-    ...patch,
+  const updated =
+    normalizeCase({
+      ...current,
+      ...patch,
 
-    id:
-      current.id,
+      id:
+        current.id,
 
-    createdAt:
-      current.createdAt,
+      createdAt:
+        current.createdAt,
 
-    updatedAt:
-      now(),
-  };
+      updatedAt:
+        now(),
+    });
 
 
   const cases = [
@@ -815,6 +1155,8 @@ export function addCaseAuditEvent(
    SET ALL CASES
 
    Useful when importing a synthetic case dataset.
+
+   Identity names are normalized before they are persisted.
    ========================================================= */
 
 export function setCases(
@@ -910,6 +1252,17 @@ export function resetCaseStore(
     try {
       window.localStorage.removeItem(
         STORAGE_KEY
+      );
+
+
+      LEGACY_STORAGE_KEYS.forEach(
+        (
+          key
+        ) => {
+          window.localStorage.removeItem(
+            key
+          );
+        }
       );
     } catch {
       /* no-op */
@@ -1071,4 +1424,16 @@ export const CASE_STORE_INFO = {
 
   syntheticDemoOnly:
     true,
+
+  identityNamePolicy:
+    "FIRST_NAME_SECOND_NAME_ONLY",
+
+  thirdNameAllowed:
+    false,
+
+  familyNameAllowed:
+    false,
+
+  tribeNameAllowed:
+    false,
 };

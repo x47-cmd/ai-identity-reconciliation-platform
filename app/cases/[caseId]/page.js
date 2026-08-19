@@ -45,6 +45,17 @@ function L(
 
 /* =========================================================
    DEMO CASES
+
+   Synthetic demonstration identities only.
+
+   Identity-name policy:
+   - First Name + Second Name only
+   - No third name
+   - No surname
+   - No family name
+   - No tribe name
+
+   Human workflow role labels are not identity records.
    ========================================================= */
 
 const cases = {
@@ -52,13 +63,8 @@ const cases = {
     id:
       VERIFIED_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Salem Mohammed Al Kaabi",
-
-      ar:
-        "سالم محمد الكعبي",
-    },
+    person:
+      VERIFIED_DEMO_CASE.person,
 
     biometric:
       VERIFIED_DEMO_CASE.biometricId,
@@ -72,29 +78,19 @@ const cases = {
     },
 
     priority:
-      "IMMEDIATE",
+      VERIFIED_DEMO_CASE.priority,
 
     currentIdentity: {
-      name: {
-        en:
-          "Khalid Abdullah Al Mansoori",
-
-        ar:
-          "خالد عبدالله المنصوري",
-      },
+      name:
+        VERIFIED_DEMO_CASE.currentIdentityName,
 
       ref:
         VERIFIED_DEMO_CASE.currentIdentity,
     },
 
     correctIdentity: {
-      name: {
-        en:
-          "Salem Mohammed Al Kaabi",
-
-        ar:
-          "سالم محمد الكعبي",
-      },
+      name:
+        VERIFIED_DEMO_CASE.canonicalIdentityName,
 
       ref:
         VERIFIED_DEMO_CASE.canonicalIdentity,
@@ -105,10 +101,10 @@ const cases = {
 
     aiConclusion: {
       en:
-        "AI Identity Resolution found that the biometric record was linked to the wrong person. The combined biometric and reference evidence strongly matched Salem Mohammed Al Kaabi instead of the previous reference.",
+        "AI Identity Resolution found that the biometric record was linked to the wrong person. The combined biometric and reference evidence strongly matched Salem Mohammed instead of the previous reference.",
 
       ar:
-        "توصل حسم الهوية بالذكاء الاصطناعي إلى أن السجل البيومتري كان مرتبطًا بالشخص الخطأ. وأظهرت الأدلة البيومترية والمرجعية المجمعة تطابقًا قويًا مع سالم محمد الكعبي بدل المرجع المرتبط سابقًا.",
+        "توصل حسم الهوية بالذكاء الاصطناعي إلى أن السجل البيومتري كان مرتبطًا بالشخص الخطأ. وأظهرت الأدلة البيومترية والمرجعية المجمعة تطابقًا قويًا مع سالم محمد بدل المرجع المرتبط سابقًا.",
     },
 
     aiReason: {
@@ -266,13 +262,8 @@ const cases = {
     id:
       COMPLEX_DEMO_CASE.id,
 
-    person: {
-      en:
-        "Ali Saeed Al Dhaheri",
-
-      ar:
-        "علي سعيد الظاهري",
-    },
+    person:
+      COMPLEX_DEMO_CASE.person,
 
     biometric:
       COMPLEX_DEMO_CASE.primaryBiometricId,
@@ -286,29 +277,19 @@ const cases = {
     },
 
     priority:
-      "HIGH",
+      COMPLEX_DEMO_CASE.priority,
 
     currentIdentity: {
-      name: {
-        en:
-          "Ahmed Rashid Al Nuaimi",
-
-        ar:
-          "أحمد راشد النعيمي",
-      },
+      name:
+        COMPLEX_DEMO_CASE.currentIdentityName,
 
       ref:
         COMPLEX_DEMO_CASE.currentIdentity,
     },
 
     correctIdentity: {
-      name: {
-        en:
-          "Ali Saeed Al Dhaheri",
-
-        ar:
-          "علي سعيد الظاهري",
-      },
+      name:
+        COMPLEX_DEMO_CASE.canonicalIdentityName,
 
       ref:
         COMPLEX_DEMO_CASE.canonicalIdentity,
@@ -319,10 +300,10 @@ const cases = {
 
     aiConclusion: {
       en:
-        "AI Investigation combined five related findings into one case. AI Identity Resolution identified Ali Saeed Al Dhaheri as the strongest canonical identity candidate for the biometric record.",
+        "AI Investigation combined five related findings into one case. AI Identity Resolution identified Ali Saeed as the strongest canonical identity candidate for the biometric record.",
 
       ar:
-        "جمع تحقيق الذكاء الاصطناعي خمس نتائج مترابطة داخل حالة واحدة. وحدد حسم الهوية بالذكاء الاصطناعي علي سعيد الظاهري كأقوى مرشح للهوية المرجعية المرتبطة بالسجل البيومتري.",
+        "جمع تحقيق الذكاء الاصطناعي خمس نتائج مترابطة داخل حالة واحدة. وحدد حسم الهوية بالذكاء الاصطناعي علي سعيد كأقوى مرشح للهوية المرجعية المرتبطة بالسجل البيومتري.",
     },
 
     aiReason: {

@@ -152,6 +152,10 @@ const dashboardMetrics = [
    IMPORTANT CASES
 
    Synthetic demonstration names only.
+
+   Identity-name policy:
+   First Name + Second Name only.
+   No third name, surname, family name or tribe name.
    ========================================================= */
 
 const attentionCases = [
@@ -159,8 +163,8 @@ const attentionCases = [
     id: "CASE-2026-00002",
 
     person: {
-      en: "Khalid Rashid Al Mansoori",
-      ar: "خالد راشد المنصوري",
+      en: "Khalid Rashid",
+      ar: "خالد راشد",
     },
 
     issue: "HARM_IMPACT",
@@ -178,8 +182,8 @@ const attentionCases = [
     id: "CASE-2026-00003",
 
     person: {
-      en: "Maryam Ahmed Al Nuaimi",
-      ar: "مريم أحمد النعيمي",
+      en: "Maryam Ahmed",
+      ar: "مريم أحمد",
     },
 
     issue:

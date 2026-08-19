@@ -1,18 +1,22 @@
 "use client";
 
+import {
+  useState,
+} from "react";
+
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
 import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  COMPLEX_DEMO_CASE,
   VERIFIED_DEMO_CASE,
 } from "../lib/demo-data";
 
 import {
-  AlertTriangle,
+  Activity,
   BadgeCheck,
+  BrainCircuit,
   CheckCircle2,
   ChevronRight,
   CircleCheckBig,
@@ -21,16 +25,15 @@ import {
   GitCompareArrows,
   History,
   LockKeyhole,
+  Play,
   RefreshCcw,
-  RotateCcw,
-  Search,
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
 
 
 /* =========================================================
-   LANGUAGE HELPER
+   LANGUAGE
    ========================================================= */
 
 function L(
@@ -45,471 +48,517 @@ function L(
 
 
 /* =========================================================
-   STATUS LOCALIZATION
+   DEMO CASE
    ========================================================= */
 
-function localizeStatus(
-  value,
-  language,
-  t
-) {
-  const translationKeys = {
-    COMPLETED:
-      "statuses.COMPLETED",
+const DEMO_CASE = {
+  id:
+    VERIFIED_DEMO_CASE.id,
 
-    PASSED:
-      "statuses.PASSED",
+  person:
+    VERIFIED_DEMO_CASE.person,
 
-    VERIFIED_CLOSED:
-      "statuses.VERIFIED_CLOSED",
+  biometricId:
+    VERIFIED_DEMO_CASE.biometricId,
 
-    AI_INVESTIGATED:
-      "statuses.AI_INVESTIGATED",
+  before:
+    VERIFIED_DEMO_CASE.execution.before,
 
-    NOT_STARTED:
-      "statuses.NOT_STARTED",
+  after:
+    VERIFIED_DEMO_CASE.execution.after,
 
-    NOT_AUTHORIZED:
-      "statuses.NOT_AUTHORIZED",
+  targetSystem:
+    VERIFIED_DEMO_CASE.execution.targetSystem,
 
-    APPROVED:
-      "statuses.APPROVED",
+  targetRecord:
+    VERIFIED_DEMO_CASE.execution.targetRecord,
 
-    PENDING:
-      "statuses.PENDING",
+  field:
+    VERIFIED_DEMO_CASE.execution.field,
 
-    NOT_READY:
-      "statuses.NOT_READY",
+  verificationScore:
+    VERIFIED_DEMO_CASE.verification.score,
 
-    FAILED:
-      "statuses.FAILED",
-  };
+  biometricMatch:
+    VERIFIED_DEMO_CASE.verification.biometricMatch,
 
+  biometricMatchPercent:
+    VERIFIED_DEMO_CASE.verification.biometricMatchPercent,
 
-  if (translationKeys[value]) {
-    return t(
-      translationKeys[value],
-      value
-    );
-  }
+  identityMappingValid:
+    VERIFIED_DEMO_CASE.verification.identityMappingValid,
 
+  conflictResolved:
+    VERIFIED_DEMO_CASE.verification.originalConflictResolved,
 
-  const labels = {
-    AWAITING_APPROVAL: {
-      en:
-        "AWAITING APPROVAL",
-
-      ar:
-        "بانتظار الاعتماد",
-    },
-
-    NOT_REQUIRED: {
-      en:
-        "NOT REQUIRED",
-
-      ar:
-        "غير مطلوب",
-    },
-
-    VERIFICATION_FAILED: {
-      en:
-        "VERIFICATION FAILED",
-
-      ar:
-        "فشل التحقق",
-    },
-  };
-
-
-  return (
-    labels[value]?.[
-      language
-    ] ||
-    labels[value]?.en ||
-    value
-  );
-}
+  secondaryConflict:
+    VERIFIED_DEMO_CASE.verification.secondaryConflict,
+};
 
 
 /* =========================================================
-   CORRECTION REGISTER
-
-   CASE-2026-00001:
-   Fully approved, executed, verified and closed.
-
-   CASE-2026-00014:
-   AI-investigated only. Officer approval remains pending,
-   therefore execution is not authorized and verification
-   has not started.
+   WORKFLOW STEPS
    ========================================================= */
 
-const correctionCases = [
+const workflowSteps = [
   {
-    id:
-      VERIFIED_DEMO_CASE.id,
+    number:
+      1,
 
-    biometric:
-      VERIFIED_DEMO_CASE.biometricId,
+    en:
+      "Case Detection",
 
-    before:
-      VERIFIED_DEMO_CASE.execution.before,
-
-    after:
-      VERIFIED_DEMO_CASE.execution.after,
-
-    execution:
-      VERIFIED_DEMO_CASE.execution.status,
-
-    verification:
-      VERIFIED_DEMO_CASE.verification.status,
-
-    verificationScore:
-      VERIFIED_DEMO_CASE.verification.score,
-
-    biometricMatchRaw:
-      VERIFIED_DEMO_CASE.verification.biometricMatch,
-
-    biometricMatchPercent:
-      VERIFIED_DEMO_CASE.verification.biometricMatchPercent,
-
-    identityValid:
-      VERIFIED_DEMO_CASE.verification.identityMappingValid,
-
-    conflictResolved:
-      VERIFIED_DEMO_CASE.verification.originalConflictResolved,
-
-    secondaryConflict:
-      VERIFIED_DEMO_CASE.verification.secondaryConflict,
-
-    rollback:
-      VERIFIED_DEMO_CASE.verification.rollbackRequired
-        ? "REQUIRED"
-        : "NOT_REQUIRED",
-
-    finalStatus:
-      VERIFIED_DEMO_CASE.finalStatus,
-
-    officer:
-      VERIFIED_DEMO_CASE.officer.decision,
-
-    manager:
-      VERIFIED_DEMO_CASE.manager.decision,
-
-    priority:
-      VERIFIED_DEMO_CASE.priority,
+    ar:
+      "اكتشاف الحالة",
   },
 
   {
-    id:
-      COMPLEX_DEMO_CASE.id,
+    number:
+      2,
 
-    biometric:
-      COMPLEX_DEMO_CASE.primaryBiometricId,
+    en:
+      "Officer Review",
 
-    before:
-      COMPLEX_DEMO_CASE.currentIdentity,
+    ar:
+      "تدقيق الموظف",
+  },
 
-    after:
-      COMPLEX_DEMO_CASE.proposedIdentity,
+  {
+    number:
+      3,
 
-    execution:
-      "NOT_AUTHORIZED",
+    en:
+      "AI Correction Proposal",
 
-    verification:
-      "NOT_STARTED",
+    ar:
+      "اقتراح التعديل",
+  },
 
-    verificationScore:
-      null,
+  {
+    number:
+      4,
 
-    biometricMatchRaw:
-      null,
+    en:
+      "Manager Approval",
 
-    biometricMatchPercent:
-      null,
+    ar:
+      "موافقة المدير",
+  },
 
-    identityValid:
-      null,
+  {
+    number:
+      5,
 
-    conflictResolved:
-      null,
+    en:
+      "Execution & Verification",
 
-    secondaryConflict:
-      null,
-
-    rollback:
-      "NOT_REQUIRED",
-
-    finalStatus:
-      COMPLEX_DEMO_CASE.finalStatus,
-
-    officer:
-      "PENDING",
-
-    manager:
-      "NOT_READY",
-
-    priority:
-      COMPLEX_DEMO_CASE.priority,
+    ar:
+      "التنفيذ والتحقق",
   },
 ];
 
 
 /* =========================================================
-   VERIFIED CASE METRICS
+   WORKFLOW STEPPER
    ========================================================= */
 
-const completedCorrections =
-  correctionCases.filter(
-    (item) =>
-      item.execution ===
-      "COMPLETED"
-  ).length;
+function WorkflowStepper({
+  language,
+  completed,
+}) {
+  return (
+    <section
+      style={{
+        marginBottom:
+          "18px",
+
+        padding:
+          "20px 18px",
+
+        borderRadius:
+          "18px",
+
+        border:
+          completed
+            ? "1px solid rgba(89,207,160,0.20)"
+            : "1px solid rgba(121,169,255,0.12)",
+
+        background:
+          "linear-gradient(135deg, rgba(12,32,54,0.90), rgba(8,24,43,0.92))",
+      }}
+    >
+      <div
+        className="workflowGrid"
+        style={{
+          display:
+            "grid",
+
+          gridTemplateColumns:
+            "repeat(5,minmax(0,1fr))",
+
+          gap:
+            "10px",
+        }}
+      >
+        {workflowSteps.map(
+          (
+            step
+          ) => {
+
+            const earlier =
+              step.number <
+              5;
+
+            const finalStep =
+              step.number ===
+              5;
 
 
-const verifiedCorrections =
-  correctionCases.filter(
-    (item) =>
-      item.verification ===
-      "PASSED"
-  ).length;
+            return (
+              <div
+                key={
+                  step.number
+                }
+                style={{
+                  textAlign:
+                    "center",
+                }}
+              >
+                <div
+                  style={{
+                    width:
+                      "36px",
+
+                    height:
+                      "36px",
+
+                    margin:
+                      "0 auto 9px",
+
+                    display:
+                      "grid",
+
+                    placeItems:
+                      "center",
+
+                    borderRadius:
+                      "50%",
+
+                    border:
+                      finalStep
+                        ? completed
+                          ? "2px solid #59cfa0"
+                          : "2px solid #79a9ff"
+                        : "1px solid rgba(89,207,160,0.45)",
+
+                    color:
+                      finalStep
+                        ? completed
+                          ? "#59cfa0"
+                          : "#79a9ff"
+                        : "#59cfa0",
+
+                    background:
+                      finalStep
+                        ? completed
+                          ? "rgba(89,207,160,0.10)"
+                          : "rgba(121,169,255,0.09)"
+                        : "rgba(89,207,160,0.055)",
+
+                    boxShadow:
+                      finalStep
+                        ? completed
+                          ? "0 0 20px rgba(89,207,160,0.13)"
+                          : "0 0 20px rgba(121,169,255,0.10)"
+                        : "none",
+
+                    fontSize:
+                      "11px",
+
+                    fontWeight:
+                      850,
+                  }}
+                >
+                  {earlier ||
+                  completed ? (
+                    <CheckCircle2
+                      size={18}
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    step.number
+                  )}
+                </div>
 
 
-const verifiedClosedCases =
-  correctionCases.filter(
-    (item) =>
-      item.finalStatus ===
-      "VERIFIED_CLOSED"
-  ).length;
+                <strong
+                  style={{
+                    display:
+                      "block",
 
+                    color:
+                      finalStep
+                        ? completed
+                          ? "#59cfa0"
+                          : "#79a9ff"
+                        : "#bcd8cd",
 
-const fullyAuthorizedCases =
-  correctionCases.filter(
-    (item) =>
-      item.officer ===
-        "APPROVED"
-      &&
-      item.manager ===
-        "APPROVED"
-  ).length;
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.45,
+                  }}
+                >
+                  {L(
+                    language,
+                    step.en,
+                    step.ar
+                  )}
+                </strong>
+              </div>
+            );
+          }
+        )}
+      </div>
+    </section>
+  );
+}
 
 
 /* =========================================================
-   METRIC
+   INFO CARD
    ========================================================= */
 
-function Metric({
-  icon: Icon,
+function InfoCard({
   label,
   value,
-  description,
+  color = "#dbe6f2",
+  dir,
 }) {
   return (
-    <div className="metricCard">
-      <div className="metricTop">
-        <div className="metricIcon">
-          <Icon
-            size={20}
-            aria-hidden="true"
-          />
-        </div>
-      </div>
+    <div
+      style={{
+        padding:
+          "13px",
 
-      <div className="metricValue">
-        {value}
-      </div>
+        borderRadius:
+          "11px",
 
-      <div className="metricTitle">
+        border:
+          "1px solid rgba(255,255,255,0.055)",
+
+        background:
+          "rgba(255,255,255,0.022)",
+      }}
+    >
+      <span
+        style={{
+          display:
+            "block",
+
+          color:
+            "#687b93",
+
+          fontSize:
+            "9px",
+
+          marginBottom:
+            "6px",
+        }}
+      >
         {label}
-      </div>
+      </span>
 
-      <div className="metricSubtitle">
-        {description}
-      </div>
+
+      <strong
+        dir={
+          dir
+        }
+        style={{
+          display:
+            "block",
+
+          color,
+
+          fontSize:
+            "12px",
+
+          lineHeight:
+            1.5,
+        }}
+      >
+        {value}
+      </strong>
     </div>
   );
 }
 
 
 /* =========================================================
-   STATUS PILL
+   RESULT ROW
    ========================================================= */
 
-function StatusPill({
+function ResultRow({
+  label,
   value,
-  language,
-  t,
+  success = false,
+  dir,
 }) {
-  let color =
-    "#79a9ff";
-
-  let background =
-    "rgba(80,140,255,0.08)";
-
-  let border =
-    "rgba(80,140,255,0.13)";
-
-
-  if (
-    value === "PASSED"
-    ||
-    value === "COMPLETED"
-    ||
-    value === "VERIFIED_CLOSED"
-    ||
-    value === "APPROVED"
-  ) {
-    color =
-      "#59cfa0";
-
-    background =
-      "rgba(52,211,153,0.07)";
-
-    border =
-      "rgba(52,211,153,0.13)";
-  }
-
-
-  if (
-    value === "FAILED"
-    ||
-    value === "VERIFICATION_FAILED"
-  ) {
-    color =
-      "#ff7d8b";
-
-    background =
-      "rgba(255,80,100,0.07)";
-
-    border =
-      "rgba(255,80,100,0.13)";
-  }
-
-
-  if (
-    value === "NOT_STARTED"
-    ||
-    value === "NOT_AUTHORIZED"
-    ||
-    value === "AWAITING_APPROVAL"
-    ||
-    value === "PENDING"
-    ||
-    value === "NOT_READY"
-  ) {
-    color =
-      "#ffbd67";
-
-    background =
-      "rgba(255,185,90,0.06)";
-
-    border =
-      "rgba(255,185,90,0.12)";
-  }
-
-
   return (
-    <span
+    <div
       style={{
         display:
-          "inline-flex",
+          "flex",
+
+        justifyContent:
+          "space-between",
 
         alignItems:
           "center",
 
-        justifyContent:
-          "center",
-
-        minHeight:
-          "25px",
+        gap:
+          "16px",
 
         padding:
-          "0 9px",
+          "12px 0",
 
-        borderRadius:
-          "7px",
-
-        color,
-
-        background,
-
-        border:
-          `1px solid ${border}`,
-
-        fontSize:
-          "8px",
-
-        fontWeight:
-          800,
-
-        letterSpacing:
-          "0.4px",
-
-        whiteSpace:
-          "nowrap",
+        borderBottom:
+          "1px solid rgba(255,255,255,0.045)",
       }}
     >
-      {localizeStatus(
-        value,
-        language,
-        t
-      )}
-    </span>
-  );
-}
-
-
-/* =========================================================
-   BOOLEAN RESULT
-   ========================================================= */
-
-function BooleanResult({
-  value,
-  language,
-}) {
-  if (value === null) {
-    return (
       <span
         style={{
           color:
-            "#62758e",
+            "#71849c",
 
           fontSize:
             "9px",
         }}
       >
-        —
+        {label}
       </span>
-    );
-  }
 
 
+      <strong
+        dir={
+          dir
+        }
+        style={{
+          color:
+            success
+              ? "#59cfa0"
+              : "#d3deea",
+
+          fontSize:
+            "10px",
+
+          textAlign:
+            "end",
+        }}
+      >
+        {value}
+      </strong>
+    </div>
+  );
+}
+
+
+/* =========================================================
+   AUDIT EVENT
+   ========================================================= */
+
+function AuditEvent({
+  number,
+  title,
+  active,
+}) {
   return (
-    <span
+    <div
       style={{
-        color:
-          value
-            ? "#59cfa0"
-            : "#ff7d8b",
+        display:
+          "grid",
 
-        fontSize:
-          "9px",
+        gridTemplateColumns:
+          "34px 1fr",
 
-        fontWeight:
-          750,
+        gap:
+          "11px",
+
+        alignItems:
+          "center",
+
+        padding:
+          "11px 0",
       }}
     >
-      {value
-        ? L(
-            language,
-            "TRUE",
-            "نعم"
-          )
-        : L(
-            language,
-            "FALSE",
-            "لا"
-          )}
-    </span>
+      <div
+        style={{
+          width:
+            "30px",
+
+          height:
+            "30px",
+
+          display:
+            "grid",
+
+          placeItems:
+            "center",
+
+          borderRadius:
+            "50%",
+
+          color:
+            active
+              ? "#59cfa0"
+              : "#60748d",
+
+          background:
+            active
+              ? "rgba(89,207,160,0.08)"
+              : "rgba(255,255,255,0.025)",
+
+          border:
+            active
+              ? "1px solid rgba(89,207,160,0.20)"
+              : "1px solid rgba(255,255,255,0.05)",
+
+          fontSize:
+            "9px",
+
+          fontWeight:
+            850,
+        }}
+      >
+        {active ? (
+          <CheckCircle2
+            size={15}
+            aria-hidden="true"
+          />
+        ) : (
+          number
+        )}
+      </div>
+
+
+      <span
+        style={{
+          color:
+            active
+              ? "#cbd9e6"
+              : "#63768e",
+
+          fontSize:
+            "10px",
+
+          lineHeight:
+            1.55,
+        }}
+      >
+        {title}
+      </span>
+    </div>
   );
 }
 
@@ -521,7 +570,6 @@ function BooleanResult({
 export default function CorrectionsVerificationPage() {
   const {
     language,
-    t,
   } = useLanguage();
 
 
@@ -529,12 +577,56 @@ export default function CorrectionsVerificationPage() {
     language === "ar";
 
 
-  const navigationArrowStyle = {
+  const [
+    stage,
+    setStage,
+  ] = useState(
+    "AUTHORIZED"
+  );
+
+
+  const personName =
+    DEMO_CASE.person[
+      language
+    ] ||
+    DEMO_CASE.person.en;
+
+
+  const arrowStyle = {
     transform:
       isArabic
         ? "rotate(180deg)"
         : "none",
   };
+
+
+  const executed =
+    stage ===
+      "EXECUTED"
+    ||
+    stage ===
+      "VERIFIED";
+
+
+  const verified =
+    stage ===
+    "VERIFIED";
+
+
+  const executeCorrection =
+    () => {
+      setStage(
+        "EXECUTED"
+      );
+    };
+
+
+  const verifyCorrection =
+    () => {
+      setStage(
+        "VERIFIED"
+      );
+    };
 
 
   return (
@@ -550,227 +642,550 @@ export default function CorrectionsVerificationPage() {
             ================================================ */}
 
         <header className="topbar">
+
           <div>
+
             <div className="eyebrow">
+
               <CircleCheckBig
                 size={15}
                 aria-hidden="true"
               />
 
-              {t(
-                "corrections.eyebrow"
+              {L(
+                language,
+                "CASE REMEDIATION WORKFLOW",
+                "مسار معالجة الحالة"
               )}
+
             </div>
 
+
             <h1>
-              {t(
-                "corrections.title"
+              {L(
+                language,
+                "Execution & Verification",
+                "التنفيذ والتحقق"
               )}
             </h1>
 
+
             <p>
-              {t(
-                "corrections.subtitle"
-              )}
+              {verified
+                ? L(
+                    language,
+                    "The approved correction has been executed and post-correction verification confirmed that the identity relationship is now valid.",
+                    "تم تنفيذ التعديل المعتمد، وأكد التحقق بعد التنفيذ أن علاقة الهوية أصبحت صحيحة وأن التعارض تم حله."
+                  )
+                : L(
+                    language,
+                    "Both human approvals are complete. Execute the authorized biometric correction, then verify the result before closing the case.",
+                    "اكتمل الاعتمادان البشريان. نفذ التصحيح البيومتري المصرح به، ثم تحقق من النتيجة قبل إغلاق الحالة."
+                  )}
             </p>
-          </div>
 
 
-          <div className="topbarActions">
-            <button
-              type="button"
-              className="searchButton"
+            <div
+              dir="ltr"
+              style={{
+                display:
+                  "inline-flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "7px",
+
+                marginTop:
+                  "12px",
+
+                padding:
+                  "8px 11px",
+
+                borderRadius:
+                  "9px",
+
+                border:
+                  "1px solid rgba(121,169,255,0.15)",
+
+                background:
+                  "rgba(121,169,255,0.05)",
+
+                color:
+                  "#91a9c6",
+
+                fontSize:
+                  "10px",
+
+                fontWeight:
+                  750,
+              }}
             >
-              <Search
-                size={18}
+              <FileCheck2
+                size={14}
                 aria-hidden="true"
               />
 
-              <span>
-                {L(
-                  language,
-                  "Search correction",
-                  "البحث عن تصحيح"
-                )}
-              </span>
-            </button>
-
-
-            <div className="profile">
-              <div className="avatar">
-                OP
-              </div>
-
-              <div className="profileText">
-                <strong>
-                  {L(
-                    language,
-                    "Identity Operations",
-                    "عمليات الهوية"
-                  )}
-                </strong>
-
-                <span>
-                  {L(
-                    language,
-                    "Controlled Execution",
-                    "التنفيذ الخاضع للتحكم"
-                  )}
-                </span>
-              </div>
+              {
+                DEMO_CASE.id
+              }
             </div>
+
           </div>
+
         </header>
 
 
         {/* ================================================
-            CONTROL BANNER
+            WORKFLOW
+            ================================================ */}
+
+        <WorkflowStepper
+          language={
+            language
+          }
+          completed={
+            verified
+          }
+        />
+
+
+        {/* ================================================
+            CURRENT STATUS HERO
             ================================================ */}
 
         <section
-          className="integrityInfo"
           style={{
-            margin:
-              "0 0 20px",
+            marginBottom:
+              "18px",
 
             padding:
-              "17px",
+              "22px",
+
+            borderRadius:
+              "18px",
+
+            border:
+              verified
+                ? "1px solid rgba(89,207,160,0.34)"
+                : executed
+                  ? "1px solid rgba(121,169,255,0.22)"
+                  : "1px solid rgba(255,189,103,0.22)",
+
+            background:
+              verified
+                ? "linear-gradient(135deg, rgba(11,51,49,0.72), rgba(8,26,45,0.94))"
+                : executed
+                  ? "linear-gradient(135deg, rgba(15,39,65,0.72), rgba(8,26,45,0.94))"
+                  : "linear-gradient(135deg, rgba(50,39,22,0.38), rgba(8,26,45,0.94))",
           }}
         >
-          <ShieldCheck
-            size={24}
-            aria-hidden="true"
-          />
 
-          <div>
-            <strong>
-              {L(
-                language,
-                "Closed-Loop Correction Control",
-                "التحكم المغلق في دورة التصحيح"
-              )}
-            </strong>
+          <div
+            style={{
+              display:
+                "flex",
 
-            <span>
-              {L(
-                language,
+              alignItems:
+                "center",
 
-                "Every authorized correction must pass post-correction verification before the case can reach VERIFIED_CLOSED status. Failed verification prevents case closure and may trigger controlled rollback.",
+              justifyContent:
+                "space-between",
 
-                "يجب أن يجتاز كل تصحيح مصرح به مرحلة التحقق بعد التصحيح قبل أن تصل الحالة إلى مرحلة التحقق والإغلاق. ويمنع فشل التحقق إغلاق الحالة وقد يؤدي إلى تشغيل إجراء تراجع خاضع للتحكم."
-              )}
-            </span>
+              gap:
+                "18px",
+
+              flexWrap:
+                "wrap",
+            }}
+          >
+
+            <div
+              style={{
+                display:
+                  "flex",
+
+                alignItems:
+                  "center",
+
+                gap:
+                  "13px",
+              }}
+            >
+
+              <div
+                style={{
+                  width:
+                    "50px",
+
+                  height:
+                    "50px",
+
+                  display:
+                    "grid",
+
+                  placeItems:
+                    "center",
+
+                  borderRadius:
+                    "15px",
+
+                  color:
+                    verified
+                      ? "#59cfa0"
+                      : executed
+                        ? "#79a9ff"
+                        : "#ffbd67",
+
+                  background:
+                    verified
+                      ? "rgba(89,207,160,0.08)"
+                      : executed
+                        ? "rgba(121,169,255,0.08)"
+                        : "rgba(255,189,103,0.07)",
+
+                  border:
+                    verified
+                      ? "1px solid rgba(89,207,160,0.20)"
+                      : executed
+                        ? "1px solid rgba(121,169,255,0.18)"
+                        : "1px solid rgba(255,189,103,0.18)",
+                }}
+              >
+                {verified ? (
+                  <CheckCircle2
+                    size={27}
+                    aria-hidden="true"
+                  />
+                ) : executed ? (
+                  <RefreshCcw
+                    size={25}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <LockKeyhole
+                    size={24}
+                    aria-hidden="true"
+                  />
+                )}
+              </div>
+
+
+              <div>
+
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      verified
+                        ? "#59cfa0"
+                        : executed
+                          ? "#79a9ff"
+                          : "#ffbd67",
+
+                    fontSize:
+                      "17px",
+                  }}
+                >
+                  {verified
+                    ? L(
+                        language,
+                        "Correction Successfully Verified",
+                        "تم التعديل والتحقق بنجاح"
+                      )
+                    : executed
+                      ? L(
+                          language,
+                          "Correction Executed",
+                          "تم تنفيذ التعديل"
+                        )
+                      : L(
+                          language,
+                          "Authorized for Execution",
+                          "مصرح بالتنفيذ"
+                        )}
+                </strong>
+
+
+                <span
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "6px",
+
+                    color:
+                      "#8194ab",
+
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.6,
+                  }}
+                >
+                  {verified
+                    ? L(
+                        language,
+                        "Verification passed and the case is now closed.",
+                        "نجح التحقق وتم إغلاق الحالة."
+                      )
+                    : executed
+                      ? L(
+                          language,
+                          "The approved mapping change was applied. Final verification is still required.",
+                          "تم تطبيق تغيير الربط المعتمد، وما زال التحقق النهائي مطلوبًا."
+                        )
+                      : L(
+                          language,
+                          "Officer and Manager approvals are complete. No correction has been executed yet.",
+                          "اكتمل اعتماد الموظف والمدير، ولم يتم تنفيذ التعديل حتى الآن."
+                        )}
+                </span>
+
+              </div>
+
+            </div>
+
+
+            {verified && (
+              <div
+                style={{
+                  minWidth:
+                    "125px",
+
+                  paddingInlineStart:
+                    "20px",
+
+                  borderInlineStart:
+                    "1px solid rgba(89,207,160,0.16)",
+                }}
+              >
+                <span
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#71849b",
+
+                    fontSize:
+                      "8px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "VERIFICATION SCORE",
+                    "درجة التحقق"
+                  )}
+                </span>
+
+
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "4px",
+
+                    color:
+                      "#59cfa0",
+
+                    fontSize:
+                      "34px",
+                  }}
+                >
+                  {
+                    DEMO_CASE.verificationScore
+                  }
+                </strong>
+
+
+                <span
+                  dir="ltr"
+                  style={{
+                    color:
+                      "#59cfa0",
+
+                    fontSize:
+                      "8px",
+
+                    fontWeight:
+                      800,
+                  }}
+                >
+                  VERIFIED_CLOSED
+                </span>
+              </div>
+            )}
+
           </div>
+
         </section>
 
 
         {/* ================================================
-            KPIs
-            ================================================ */}
-
-        <section className="statsGrid">
-          <Metric
-            icon={LockKeyhole}
-            label={
-              L(
-                language,
-                "Authorized",
-                "مصرح به"
-              )
-            }
-            value={
-              fullyAuthorizedCases
-            }
-            description={
-              L(
-                language,
-                "Passed both human approvals",
-                "اجتاز الاعتمادين البشريين"
-              )
-            }
-          />
-
-          <Metric
-            icon={CircleCheckBig}
-            label={
-              t(
-                "corrections.completedCorrections"
-              )
-            }
-            value={
-              completedCorrections
-            }
-            description={
-              L(
-                language,
-                "Controlled correction completed",
-                "اكتمل التصحيح الخاضع للتحكم"
-              )
-            }
-          />
-
-          <Metric
-            icon={ShieldCheck}
-            label={
-              t(
-                "corrections.verificationPassed"
-              )
-            }
-            value={
-              verifiedCorrections
-            }
-            description={
-              L(
-                language,
-                "Post-correction verification passed",
-                "نجح التحقق بعد التصحيح"
-              )
-            }
-          />
-
-          <Metric
-            icon={FileCheck2}
-            label={
-              t(
-                "corrections.verifiedClosed"
-              )
-            }
-            value={
-              verifiedClosedCases
-            }
-            description={
-              L(
-                language,
-                "Cases successfully verified and closed",
-                "حالات تم التحقق منها وإغلاقها بنجاح"
-              )
-            }
-          />
-        </section>
-
-
-        {/* ================================================
-            VERIFIED CASE LIFECYCLE
+            AUTHORIZATION SUMMARY
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginBottom:
-              "14px",
-
-            padding:
               "18px",
           }}
         >
-          <div className="panelEyebrow">
-            {L(
-              language,
-              "VERIFIED CASE LIFECYCLE",
-              "دورة حياة الحالة المتحقق منها"
-            )}
+
+          <div className="panelHeader">
+
+            <div>
+
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "EXECUTION AUTHORIZATION",
+                  "تصريح التنفيذ"
+                )}
+              </div>
+
+
+              <h2>
+                {L(
+                  language,
+                  "Approved Correction Package",
+                  "حزمة التصحيح المعتمدة"
+                )}
+              </h2>
+
+            </div>
+
+
+            <ShieldCheck
+              size={22}
+              aria-hidden="true"
+            />
+
           </div>
 
+
+          <div
+            className="authorizationGrid"
+            style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "repeat(4,minmax(0,1fr))",
+
+              gap:
+                "10px",
+
+              padding:
+                "18px",
+            }}
+          >
+
+            <InfoCard
+              label={
+                L(
+                  language,
+                  "Officer Approval",
+                  "اعتماد موظف المراجعة"
+                )
+              }
+              value={
+                L(
+                  language,
+                  "APPROVED",
+                  "معتمد"
+                )
+              }
+              color="#59cfa0"
+            />
+
+
+            <InfoCard
+              label={
+                L(
+                  language,
+                  "Manager Approval",
+                  "موافقة المدير"
+                )
+              }
+              value={
+                L(
+                  language,
+                  "APPROVED",
+                  "معتمد"
+                )
+              }
+              color="#59cfa0"
+            />
+
+
+            <InfoCard
+              label={
+                L(
+                  language,
+                  "Target System",
+                  "النظام المستهدف"
+                )
+              }
+              value={
+                DEMO_CASE.targetSystem
+              }
+              color="#79a9ff"
+              dir="ltr"
+            />
+
+
+            <InfoCard
+              label={
+                L(
+                  language,
+                  "Target Field",
+                  "الحقل المستهدف"
+                )
+              }
+              value={
+                DEMO_CASE.field
+              }
+              color="#79a9ff"
+              dir="ltr"
+            />
+
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            BEFORE / AFTER EXECUTION
+            ================================================ */}
+
+        <section
+          style={{
+            marginBottom:
+              "18px",
+
+            padding:
+              "20px",
+
+            borderRadius:
+              "18px",
+
+            border:
+              "1px solid rgba(121,169,255,0.14)",
+
+            background:
+              "linear-gradient(135deg, rgba(11,31,54,0.92), rgba(8,25,44,0.92))",
+          }}
+        >
 
           <div
             style={{
@@ -783,80 +1198,599 @@ export default function CorrectionsVerificationPage() {
               gap:
                 "8px",
 
-              marginTop:
+              marginBottom:
                 "17px",
-
-              overflowX:
-                "auto",
-
-              paddingBottom:
-                "4px",
             }}
           >
-            {[
-              [
-                L(
-                  language,
-                  "Officer Approved",
-                  "اعتماد الضابط"
-                ),
-                UserCheck,
-              ],
+            <GitCompareArrows
+              size={21}
+              color="#79a9ff"
+              aria-hidden="true"
+            />
 
-              [
-                L(
-                  language,
-                  "Manager Approved",
-                  "اعتماد المدير"
-                ),
-                BadgeCheck,
-              ],
+            <strong
+              style={{
+                color:
+                  "#e3edf8",
 
-              [
-                L(
-                  language,
-                  "Authorized",
-                  "مصرح به"
-                ),
-                LockKeyhole,
-              ],
+                fontSize:
+                  "14px",
+              }}
+            >
+              {L(
+                language,
+                "Correction Result",
+                "نتيجة التعديل"
+              )}
+            </strong>
+          </div>
 
-              [
-                L(
-                  language,
-                  "Executed",
-                  "تم التنفيذ"
-                ),
-                CircleCheckBig,
-              ],
 
-              [
-                L(
-                  language,
-                  "Verified",
-                  "تم التحقق"
-                ),
-                ShieldCheck,
-              ],
+          <div
+            className="mappingGrid"
+            style={{
+              display:
+                "grid",
 
-              [
+              gridTemplateColumns:
+                "1fr auto 1fr",
+
+              gap:
+                "15px",
+
+              alignItems:
+                "center",
+            }}
+          >
+
+            {/* BEFORE */}
+
+            <div
+              style={{
+                padding:
+                  "18px",
+
+                borderRadius:
+                  "13px",
+
+                border:
+                  "1px solid rgba(255,90,110,0.16)",
+
+                background:
+                  "rgba(255,90,110,0.035)",
+              }}
+            >
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  color:
+                    "#ff7685",
+
+                  fontSize:
+                    "9px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {L(
+                  language,
+                  "BEFORE EXECUTION",
+                  "قبل التنفيذ"
+                )}
+              </span>
+
+
+              <div
+                dir="ltr"
+                style={{
+                  marginTop:
+                    "10px",
+
+                  color:
+                    "#dce6f1",
+
+                  fontSize:
+                    "12px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {
+                  DEMO_CASE.biometricId
+                }
+
+                {"  ←  "}
+
+                <span
+                  style={{
+                    color:
+                      "#ff7685",
+                  }}
+                >
+                  {
+                    DEMO_CASE.before
+                  }
+                </span>
+              </div>
+
+
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "8px",
+
+                  color:
+                    "#805f67",
+
+                  fontSize:
+                    "8px",
+                }}
+              >
+                {L(
+                  language,
+                  "Incorrect mapping detected",
+                  "الربط غير الصحيح المكتشف"
+                )}
+              </span>
+            </div>
+
+
+            <ChevronRight
+              size={23}
+              color="#71849c"
+              style={
+                arrowStyle
+              }
+              aria-hidden="true"
+            />
+
+
+            {/* AFTER */}
+
+            <div
+              style={{
+                padding:
+                  "18px",
+
+                borderRadius:
+                  "13px",
+
+                border:
+                  executed
+                    ? "1px solid rgba(89,207,160,0.24)"
+                    : "1px dashed rgba(121,169,255,0.17)",
+
+                background:
+                  executed
+                    ? "rgba(89,207,160,0.045)"
+                    : "rgba(121,169,255,0.025)",
+              }}
+            >
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  color:
+                    executed
+                      ? "#59cfa0"
+                      : "#79a9ff",
+
+                  fontSize:
+                    "9px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {executed
+                  ? L(
+                      language,
+                      "AFTER EXECUTION",
+                      "بعد التنفيذ"
+                    )
+                  : L(
+                      language,
+                      "APPROVED TARGET",
+                      "النتيجة المعتمدة"
+                    )}
+              </span>
+
+
+              <div
+                dir="ltr"
+                style={{
+                  marginTop:
+                    "10px",
+
+                  color:
+                    "#dce6f1",
+
+                  fontSize:
+                    "12px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {
+                  DEMO_CASE.biometricId
+                }
+
+                {"  ←  "}
+
+                <span
+                  style={{
+                    color:
+                      executed
+                        ? "#59cfa0"
+                        : "#79a9ff",
+                  }}
+                >
+                  {
+                    DEMO_CASE.after
+                  }
+                </span>
+              </div>
+
+
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "8px",
+
+                  color:
+                    executed
+                      ? "#587e70"
+                      : "#5e7594",
+
+                  fontSize:
+                    "8px",
+                }}
+              >
+                {executed
+                  ? L(
+                      language,
+                      "Approved mapping applied",
+                      "تم تطبيق الربط المعتمد"
+                    )
+                  : L(
+                      language,
+                      "Not executed yet",
+                      "لم يتم التنفيذ بعد"
+                    )}
+              </span>
+            </div>
+
+          </div>
+
+
+          <div
+            style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "repeat(2,minmax(0,1fr))",
+
+              gap:
+                "10px",
+
+              marginTop:
+                "14px",
+            }}
+          >
+            <InfoCard
+              label={
                 L(
                   language,
-                  "Case Closed",
-                  "تم إغلاق الحالة"
-                ),
-                FileCheck2,
-              ],
-            ].map(
-              (
-                [
-                  label,
-                  Icon,
-                ],
-                index
-              ) => (
+                  "Master Reference Modified",
+                  "هل تم تعديل المرجع الرئيسي؟"
+                )
+              }
+              value="FALSE"
+              color="#59cfa0"
+              dir="ltr"
+            />
+
+
+            <InfoCard
+              label={
+                L(
+                  language,
+                  "Original Biometric Dataset Modified",
+                  "هل تم تعديل البيانات البيومترية الأصلية؟"
+                )
+              }
+              value="FALSE"
+              color="#59cfa0"
+              dir="ltr"
+            />
+          </div>
+
+
+          <div
+            style={{
+              marginTop:
+                "12px",
+
+              padding:
+                "11px 13px",
+
+              borderRadius:
+                "10px",
+
+              color:
+                "#8194ab",
+
+              background:
+                "rgba(255,255,255,0.018)",
+
+              border:
+                "1px solid rgba(255,255,255,0.04)",
+
+              fontSize:
+                "9px",
+
+              lineHeight:
+                1.65,
+            }}
+          >
+            <Database
+              size={14}
+              aria-hidden="true"
+              style={{
+                marginInlineEnd:
+                  "6px",
+
+                verticalAlign:
+                  "middle",
+              }}
+            />
+
+            {L(
+              language,
+              "Only the approved linked_master_id is changed in the synthetic runtime biometric dataset. The authoritative Master Reference remains read-only.",
+              "يتم تغيير الحقل linked_master_id المعتمد فقط داخل نسخة التشغيل الاصطناعية من النظام البيومتري، بينما يبقى المرجع الرئيسي للقراءة فقط."
+            )}
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            EXECUTION ACTION
+            ================================================ */}
+
+        {stage ===
+          "AUTHORIZED" && (
+          <section
+            className="panel"
+            style={{
+              marginBottom:
+                "18px",
+            }}
+          >
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "CONTROLLED EXECUTION",
+                    "التنفيذ الخاضع للتحكم"
+                  )}
+                </div>
+
+
+                <h2>
+                  {L(
+                    language,
+                    "Execute Approved Correction",
+                    "تنفيذ التعديل المعتمد"
+                  )}
+                </h2>
+
+              </div>
+
+
+              <Play
+                size={22}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "18px",
+              }}
+            >
+
+              <div
+                className="integrityInfo"
+                style={{
+                  margin:
+                    "0 0 14px",
+                }}
+              >
+                <LockKeyhole
+                  size={22}
+                  aria-hidden="true"
+                />
+
+                <div>
+
+                  <strong>
+                    {L(
+                      language,
+                      "Execution authorization confirmed",
+                      "تم تأكيد تصريح التنفيذ"
+                    )}
+                  </strong>
+
+
+                  <span>
+                    {L(
+                      language,
+                      "Officer approval and Manager approval are both present. The Execution Agent is permitted to apply only the approved mapping change.",
+                      "اعتماد موظف المراجعة وموافقة المدير موجودان، ويُسمح لوكيل التنفيذ بتطبيق تغيير الربط المعتمد فقط."
+                    )}
+                  </span>
+
+                </div>
+              </div>
+
+
+              <button
+                type="button"
+                onClick={
+                  executeCorrection
+                }
+                style={{
+                  width:
+                    "100%",
+
+                  minHeight:
+                    "48px",
+
+                  borderRadius:
+                    "12px",
+
+                  border:
+                    "1px solid rgba(111,230,180,0.42)",
+
+                  background:
+                    "linear-gradient(90deg,#4bc58f,#68d9ab)",
+
+                  color:
+                    "#071c17",
+
+                  fontFamily:
+                    "inherit",
+
+                  fontSize:
+                    "11px",
+
+                  fontWeight:
+                    900,
+
+                  cursor:
+                    "pointer",
+                }}
+              >
+                <Play
+                  size={16}
+                  aria-hidden="true"
+                  style={{
+                    marginInlineEnd:
+                      "7px",
+
+                    verticalAlign:
+                      "middle",
+                  }}
+                />
+
+                {L(
+                  language,
+                  "Execute Authorized Correction",
+                  "تنفيذ التعديل المصرح به"
+                )}
+              </button>
+
+            </div>
+
+          </section>
+        )}
+
+
+        {/* ================================================
+            EXECUTED — WAITING FOR VERIFY
+            ================================================ */}
+
+        {stage ===
+          "EXECUTED" && (
+          <section
+            className="panel"
+            style={{
+              marginBottom:
+                "18px",
+            }}
+          >
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "EXECUTION COMPLETE",
+                    "اكتمل التنفيذ"
+                  )}
+                </div>
+
+
+                <h2>
+                  {L(
+                    language,
+                    "Run Post-Correction Verification",
+                    "بدء التحقق بعد التعديل"
+                  )}
+                </h2>
+
+              </div>
+
+
+              <RefreshCcw
+                size={22}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "18px",
+              }}
+            >
+
+              <div
+                style={{
+                  marginBottom:
+                    "14px",
+
+                  padding:
+                    "16px",
+
+                  borderRadius:
+                    "12px",
+
+                  border:
+                    "1px solid rgba(89,207,160,0.18)",
+
+                  background:
+                    "rgba(89,207,160,0.045)",
+                }}
+              >
+
                 <div
-                  key={label}
                   style={{
                     display:
                       "flex",
@@ -867,374 +1801,588 @@ export default function CorrectionsVerificationPage() {
                     gap:
                       "8px",
 
-                    flexShrink:
-                      0,
+                    color:
+                      "#59cfa0",
                   }}
                 >
-                  <div
+                  <CheckCircle2
+                    size={20}
+                    aria-hidden="true"
+                  />
+
+                  <strong
                     style={{
-                      minWidth:
-                        "135px",
+                      fontSize:
+                        "11px",
+                    }}
+                  >
+                    {L(
+                      language,
+                      "Runtime correction completed",
+                      "تم تنفيذ التعديل على نسخة التشغيل"
+                    )}
+                  </strong>
+                </div>
 
-                      padding:
-                        "12px",
 
-                      borderRadius:
-                        "10px",
+                <span
+                  style={{
+                    display:
+                      "block",
 
-                      border:
-                        "1px solid rgba(52,211,153,0.12)",
+                    marginTop:
+                      "8px",
 
-                      background:
-                        "rgba(52,211,153,0.05)",
+                    color:
+                      "#8194ab",
 
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.65,
+                  }}
+                >
+                  {L(
+                    language,
+                    `The biometric record is now linked to ${DEMO_CASE.after}. The case cannot be closed until verification confirms the new relationship.`,
+                    `أصبح السجل البيومتري مرتبطًا الآن بالمرجع ${DEMO_CASE.after}. ولا يمكن إغلاق الحالة قبل أن يؤكد التحقق سلامة الربط الجديد.`
+                  )}
+                </span>
+
+              </div>
+
+
+              <button
+                type="button"
+                onClick={
+                  verifyCorrection
+                }
+                style={{
+                  width:
+                    "100%",
+
+                  minHeight:
+                    "48px",
+
+                  borderRadius:
+                    "12px",
+
+                  border:
+                    "1px solid rgba(121,169,255,0.28)",
+
+                  background:
+                    "linear-gradient(90deg,rgba(70,140,255,0.88),rgba(90,165,255,0.88))",
+
+                  color:
+                    "#f4f8fd",
+
+                  fontFamily:
+                    "inherit",
+
+                  fontSize:
+                    "11px",
+
+                  fontWeight:
+                    900,
+
+                  cursor:
+                    "pointer",
+                }}
+              >
+                <RefreshCcw
+                  size={16}
+                  aria-hidden="true"
+                  style={{
+                    marginInlineEnd:
+                      "7px",
+
+                    verticalAlign:
+                      "middle",
+                  }}
+                />
+
+                {L(
+                  language,
+                  "Run Final Verification",
+                  "بدء التحقق النهائي"
+                )}
+              </button>
+
+            </div>
+
+          </section>
+        )}
+
+
+        {/* ================================================
+            VERIFIED RESULT
+            ================================================ */}
+
+        {verified && (
+          <section
+            className="panel"
+            style={{
+              marginBottom:
+                "18px",
+
+              border:
+                "1px solid rgba(89,207,160,0.20)",
+            }}
+          >
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "POST-CORRECTION VERIFICATION",
+                    "التحقق بعد التصحيح"
+                  )}
+                </div>
+
+
+                <h2>
+                  {L(
+                    language,
+                    "Verification Passed",
+                    "تم اجتياز التحقق"
+                  )}
+                </h2>
+
+              </div>
+
+
+              <ShieldCheck
+                size={24}
+                color="#59cfa0"
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "18px",
+              }}
+            >
+
+              <div
+                style={{
+                  display:
+                    "grid",
+
+                  gridTemplateColumns:
+                    "130px 1fr",
+
+                  gap:
+                    "18px",
+
+                  alignItems:
+                    "center",
+                }}
+              >
+
+                <div
+                  style={{
+                    padding:
+                      "18px",
+
+                    borderRadius:
+                      "14px",
+
+                    textAlign:
+                      "center",
+
+                    border:
+                      "1px solid rgba(89,207,160,0.20)",
+
+                    background:
+                      "rgba(89,207,160,0.055)",
+                  }}
+                >
+                  <span
+                    style={{
                       display:
-                        "flex",
-
-                      alignItems:
-                        "center",
-
-                      gap:
-                        "8px",
+                        "block",
 
                       color:
-                        "#5dcca2",
+                        "#71849b",
+
+                      fontSize:
+                        "8px",
+                    }}
+                  >
+                    {L(
+                      language,
+                      "SCORE",
+                      "الدرجة"
+                    )}
+                  </span>
+
+
+                  <strong
+                    style={{
+                      display:
+                        "block",
+
+                      color:
+                        "#59cfa0",
+
+                      fontSize:
+                        "35px",
+
+                      marginTop:
+                        "4px",
+                    }}
+                  >
+                    {
+                      DEMO_CASE.verificationScore
+                    }
+                  </strong>
+
+
+                  <span
+                    style={{
+                      color:
+                        "#59cfa0",
 
                       fontSize:
                         "9px",
 
                       fontWeight:
-                        700,
+                        850,
                     }}
                   >
-                    <Icon
-                      size={15}
-                      aria-hidden="true"
-                    />
-
-                    {label}
-                  </div>
-
-                  {index < 5 && (
-                    <ChevronRight
-                      size={14}
-                      color="#43556c"
-                      style={
-                        navigationArrowStyle
-                      }
-                      aria-hidden="true"
-                    />
-                  )}
+                    PASSED
+                  </span>
                 </div>
-              )
-            )}
-          </div>
-        </section>
+
+
+                <div>
+
+                  <ResultRow
+                    label={
+                      L(
+                        language,
+                        "Identity Mapping",
+                        "مطابقة الهوية"
+                      )
+                    }
+                    value={
+                      L(
+                        language,
+                        "VALID",
+                        "ناجحة"
+                      )
+                    }
+                    success
+                  />
+
+
+                  <ResultRow
+                    label={
+                      L(
+                        language,
+                        "Biometric Match",
+                        "مطابقة السجل البيومتري"
+                      )
+                    }
+                    value={
+                      `${DEMO_CASE.biometricMatchPercent}%`
+                    }
+                    success
+                    dir="ltr"
+                  />
+
+
+                  <ResultRow
+                    label={
+                      L(
+                        language,
+                        "Original Conflict Resolved",
+                        "تم حل التعارض"
+                      )
+                    }
+                    value={
+                      L(
+                        language,
+                        "YES",
+                        "نعم"
+                      )
+                    }
+                    success
+                  />
+
+
+                  <ResultRow
+                    label={
+                      L(
+                        language,
+                        "Secondary Conflict",
+                        "تعارض ثانوي"
+                      )
+                    }
+                    value={
+                      L(
+                        language,
+                        "NO",
+                        "لا"
+                      )
+                    }
+                    success
+                  />
+
+
+                  <ResultRow
+                    label={
+                      L(
+                        language,
+                        "Final Status",
+                        "الحالة النهائية"
+                      )
+                    }
+                    value="VERIFIED_CLOSED"
+                    success
+                    dir="ltr"
+                  />
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </section>
+        )}
 
 
         {/* ================================================
-            SUCCESSFUL VERIFIED CASE
+            AUDIT TIMELINE
             ================================================ */}
 
-        <section className="panel">
+        <section
+          className="panel"
+          style={{
+            marginBottom:
+              "18px",
+          }}
+        >
+
           <div className="panelHeader">
+
             <div>
+
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "VERIFIED CORRECTION",
-                  "تصحيح تم التحقق منه"
+                  "AUDIT TRACE",
+                  "سجل الإجراءات"
                 )}
               </div>
 
-              <h2 dir="ltr">
-                {VERIFIED_DEMO_CASE.id}
+
+              <h2>
+                {L(
+                  language,
+                  "Case Action Timeline",
+                  "التسلسل الكامل للإجراءات"
+                )}
               </h2>
+
             </div>
 
-            <StatusPill
-              value={
-                VERIFIED_DEMO_CASE.finalStatus
-              }
-              language={
-                language
-              }
-              t={t}
+
+            <History
+              size={22}
+              aria-hidden="true"
             />
+
           </div>
 
 
           <div
             style={{
               padding:
-                "22px",
+                "14px 18px 18px",
             }}
           >
 
-            {/* ============================================
-                BEFORE / AFTER
-                ============================================ */}
+            <AuditEvent
+              number="01"
+              active
+              title={
+                L(
+                  language,
+                  "AI investigation completed and correction recommendation prepared.",
+                  "تم إنشاء التحقيق بالذكاء الاصطناعي وتجهيز توصية التصحيح."
+                )
+              }
+            />
+
+
+            <AuditEvent
+              number="02"
+              active
+              title={
+                L(
+                  language,
+                  "Monitoring Officer reviewed the evidence and approved the recommendation.",
+                  "راجع موظف المراجعة الأدلة واعتمد التوصية."
+                )
+              }
+            />
+
+
+            <AuditEvent
+              number="03"
+              active
+              title={
+                L(
+                  language,
+                  "Manager provided the second human authorization.",
+                  "أصدر المدير الموافقة البشرية الثانية."
+                )
+              }
+            />
+
+
+            <AuditEvent
+              number="04"
+              active={
+                executed
+              }
+              title={
+                L(
+                  language,
+                  `Approved correction executed: ${DEMO_CASE.before} → ${DEMO_CASE.after}.`,
+                  `تم تنفيذ التعديل المعتمد: ${DEMO_CASE.before} ← ${DEMO_CASE.after}.`
+                )
+              }
+            />
+
+
+            <AuditEvent
+              number="05"
+              active={
+                verified
+              }
+              title={
+                L(
+                  language,
+                  "Post-correction verification passed and the case was closed.",
+                  "تم اجتياز التحقق بعد التصحيح وإغلاق الحالة."
+                )
+              }
+            />
+
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            FINAL SUCCESS ACTIONS
+            ================================================ */}
+
+        {verified && (
+          <section
+            style={{
+              marginBottom:
+                "18px",
+
+              padding:
+                "20px",
+
+              borderRadius:
+                "18px",
+
+              border:
+                "1px solid rgba(89,207,160,0.28)",
+
+              background:
+                "linear-gradient(135deg, rgba(11,50,47,0.66), rgba(8,26,45,0.92))",
+            }}
+          >
 
             <div
               style={{
                 display:
-                  "grid",
-
-                gridTemplateColumns:
-                  "1fr auto 1fr",
+                  "flex",
 
                 gap:
-                  "17px",
+                  "11px",
 
                 alignItems:
-                  "center",
+                  "flex-start",
               }}
             >
 
-              {/* BEFORE */}
+              <CheckCircle2
+                size={26}
+                color="#59cfa0"
+                aria-hidden="true"
+              />
 
-              <div
-                style={{
-                  padding:
-                    "21px",
 
-                  borderRadius:
-                    "14px",
-
-                  background:
-                    "rgba(255,75,95,0.045)",
-
-                  border:
-                    "1px solid rgba(255,80,100,0.12)",
-                }}
-              >
-                <div
-                  style={{
-                    color:
-                      "#a5666f",
-
-                    fontSize:
-                      "9px",
-
-                    fontWeight:
-                      800,
-
-                    letterSpacing:
-                      "1px",
-                  }}
-                >
-                  {L(
-                    language,
-                    "BEFORE CORRECTION",
-                    "قبل التصحيح"
-                  )}
-                </div>
-
-                <div
-                  dir="ltr"
-                  style={{
-                    color:
-                      "#64758d",
-
-                    fontSize:
-                      "9px",
-
-                    marginTop:
-                      "15px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.biometricId
-                  }
-                </div>
+              <div>
 
                 <strong
-                  dir="ltr"
                   style={{
                     display:
                       "block",
-
-                    fontSize:
-                      "23px",
-
-                    color:
-                      "#ff7c89",
-
-                    marginTop:
-                      "5px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.execution.before
-                  }
-                </strong>
-
-                <span
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#805c63",
-
-                    fontSize:
-                      "8px",
-
-                    marginTop:
-                      "6px",
-                  }}
-                >
-                  {L(
-                    language,
-                    "Incorrect identity mapping",
-                    "ربط هوية غير صحيح"
-                  )}
-                </span>
-              </div>
-
-
-              <div
-                style={{
-                  width:
-                    "47px",
-
-                  height:
-                    "47px",
-
-                  borderRadius:
-                    "50%",
-
-                  display:
-                    "grid",
-
-                  placeItems:
-                    "center",
-
-                  background:
-                    "rgba(59,132,255,0.09)",
-
-                  border:
-                    "1px solid rgba(75,143,255,0.15)",
-
-                  color:
-                    "#65a0ff",
-                }}
-              >
-                <GitCompareArrows
-                  size={21}
-                  aria-hidden="true"
-                />
-              </div>
-
-
-              {/* AFTER */}
-
-              <div
-                style={{
-                  padding:
-                    "21px",
-
-                  borderRadius:
-                    "14px",
-
-                  background:
-                    "rgba(52,211,153,0.045)",
-
-                  border:
-                    "1px solid rgba(52,211,153,0.12)",
-                }}
-              >
-                <div
-                  style={{
-                    color:
-                      "#558a77",
-
-                    fontSize:
-                      "9px",
-
-                    fontWeight:
-                      800,
-
-                    letterSpacing:
-                      "1px",
-                  }}
-                >
-                  {L(
-                    language,
-                    "AFTER CORRECTION",
-                    "بعد التصحيح"
-                  )}
-                </div>
-
-                <div
-                  dir="ltr"
-                  style={{
-                    color:
-                      "#64758d",
-
-                    fontSize:
-                      "9px",
-
-                    marginTop:
-                      "15px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.biometricId
-                  }
-                </div>
-
-                <strong
-                  dir="ltr"
-                  style={{
-                    display:
-                      "block",
-
-                    fontSize:
-                      "23px",
 
                     color:
                       "#59cfa0",
 
-                    marginTop:
-                      "5px",
+                    fontSize:
+                      "14px",
                   }}
                 >
-                  {
-                    VERIFIED_DEMO_CASE.execution.after
-                  }
+                  {L(
+                    language,
+                    "Identity conflict resolved",
+                    "تم حل مشكلة التداخل"
+                  )}
                 </strong>
+
 
                 <span
                   style={{
                     display:
                       "block",
 
+                    marginTop:
+                      "7px",
+
                     color:
-                      "#547c6d",
+                      "#8194ab",
 
                     fontSize:
-                      "8px",
+                      "9px",
 
-                    marginTop:
-                      "6px",
+                    lineHeight:
+                      1.7,
                   }}
                 >
                   {L(
                     language,
-                    "Verified canonical identity",
-                    "الهوية المرجعية المتحقق منها"
+                    `${DEMO_CASE.biometricId} was moved from ${DEMO_CASE.before} to ${DEMO_CASE.after}. Verification passed with a score of ${DEMO_CASE.verificationScore}, the identity mapping is valid and no secondary conflict remains.`,
+                    `تم نقل السجل ${DEMO_CASE.biometricId} من المرجع ${DEMO_CASE.before} إلى المرجع ${DEMO_CASE.after}. ونجح التحقق بدرجة ${DEMO_CASE.verificationScore}، وأصبح ربط الهوية صحيحًا ولم يتبق أي تعارض ثانوي.`
                   )}
                 </span>
+
               </div>
+
             </div>
 
 
-            {/* ============================================
-                APPROVALS
-                ============================================ */}
-
             <div
+              className="finalButtons"
               style={{
                 display:
                   "grid",
@@ -1246,1085 +2394,173 @@ export default function CorrectionsVerificationPage() {
                   "10px",
 
                 marginTop:
-                  "14px",
+                  "16px",
               }}
             >
-              <div className="integrityInfo">
-                <UserCheck
-                  size={21}
-                  aria-hidden="true"
-                />
 
-                <div>
-                  <strong>
-                    {t(
-                      "reportsAudit.officerApproval"
-                    )}
-                  </strong>
-
-                  <span>
-                    {L(
-                      language,
-                      `APPROVED · ${VERIFIED_DEMO_CASE.officer.actor}`,
-                      "معتمد · ضابط المراقبة التجريبي"
-                    )}
-                  </span>
-                </div>
-              </div>
-
-
-              <div className="integrityInfo">
-                <BadgeCheck
-                  size={21}
-                  aria-hidden="true"
-                />
-
-                <div>
-                  <strong>
-                    {t(
-                      "reportsAudit.managerApproval"
-                    )}
-                  </strong>
-
-                  <span>
-                    {L(
-                      language,
-                      `APPROVED · ${VERIFIED_DEMO_CASE.manager.actor}`,
-                      "معتمد · المدير المشرف التجريبي"
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-
-            <Link
-              href={
-                `/cases/${VERIFIED_DEMO_CASE.id}`
-              }
-              className="textButton"
-              style={{
-                textDecoration:
-                  "none",
-
-                marginTop:
-                  "15px",
-
-                width:
-                  "fit-content",
-              }}
-            >
-              {t(
-                "common.viewDetails"
-              )}
-
-              <ChevronRight
-                size={16}
-                style={
-                  navigationArrowStyle
-                }
-                aria-hidden="true"
-              />
-            </Link>
-          </div>
-        </section>
-
-
-        {/* ================================================
-            EXECUTION + VERIFICATION
-            ================================================ */}
-
-        <section
-          className="dashboardGrid"
-          style={{
-            marginTop:
-              "14px",
-          }}
-        >
-
-          {/* EXECUTION */}
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "EXECUTION AGENT",
-                    "وكيل التنفيذ"
-                  )}
-                </div>
-
-                <h2>
-                  {t(
-                    "corrections.authorizedCorrection"
-                  )}
-                </h2>
-              </div>
-
-              <CircleCheckBig
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "18px",
-              }}
-            >
-              <div
+              <Link
+                href="/reports-audit"
                 style={{
+                  minHeight:
+                    "45px",
+
                   display:
                     "flex",
-
-                  justifyContent:
-                    "space-between",
 
                   alignItems:
                     "center",
 
-                  paddingBottom:
-                    "13px",
-                }}
-              >
-                <span
-                  style={{
-                    color:
-                      "#687b94",
-
-                    fontSize:
-                      "9px",
-                  }}
-                >
-                  {t(
-                    "caseDetail.executionStatus"
-                  )}
-                </span>
-
-                <StatusPill
-                  value={
-                    VERIFIED_DEMO_CASE.execution.status
-                  }
-                  language={
-                    language
-                  }
-                  t={t}
-                />
-              </div>
-
-
-              {[
-                [
-                  L(
-                    language,
-                    "Target System",
-                    "النظام المستهدف"
-                  ),
-                  VERIFIED_DEMO_CASE.execution.targetSystem,
-                ],
-
-                [
-                  L(
-                    language,
-                    "Target Record",
-                    "السجل المستهدف"
-                  ),
-                  VERIFIED_DEMO_CASE.execution.targetRecord,
-                ],
-
-                [
-                  L(
-                    language,
-                    "Field",
-                    "الحقل"
-                  ),
-                  VERIFIED_DEMO_CASE.execution.field,
-                ],
-
-                [
-                  t(
-                    "corrections.before"
-                  ),
-                  VERIFIED_DEMO_CASE.execution.before,
-                ],
-
-                [
-                  t(
-                    "corrections.after"
-                  ),
-                  VERIFIED_DEMO_CASE.execution.after,
-                ],
-              ].map(
-                ([
-                  label,
-                  value,
-                ]) => (
-                  <div
-                    className="detailRow"
-                    key={label}
-                  >
-                    <span>
-                      {label}
-                    </span>
-
-                    <strong dir="ltr">
-                      {value}
-                    </strong>
-                  </div>
-                )
-              )}
-
-
-              <div
-                className="integrityInfo"
-                style={{
-                  margin:
-                    "15px 0 0",
-                }}
-              >
-                <Database
-                  size={21}
-                  aria-hidden="true"
-                />
-
-                <div>
-                  <strong>
-                    {L(
-                      language,
-                      "Controlled Runtime Change",
-                      "تغيير تشغيل خاضع للتحكم"
-                    )}
-                  </strong>
-
-                  <span>
-                    {t(
-                      "corrections.protectedSourceMessage"
-                    )}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-          {/* VERIFICATION */}
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "VERIFICATION AGENT",
-                    "وكيل التحقق"
-                  )}
-                </div>
-
-                <h2>
-                  {L(
-                    language,
-                    "Post-Correction Validation",
-                    "التحقق بعد التصحيح"
-                  )}
-                </h2>
-              </div>
-
-              <ShieldCheck
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "18px",
-              }}
-            >
-              <div
-                style={{
-                  display:
-                    "flex",
-
                   justifyContent:
-                    "space-between",
-
-                  alignItems:
                     "center",
 
-                  marginBottom:
-                    "15px",
-                }}
-              >
-                <div>
-                  <span
-                    style={{
-                      color:
-                        "#61738c",
-
-                      fontSize:
-                        "8px",
-                    }}
-                  >
-                    {L(
-                      language,
-                      "VERIFICATION SCORE",
-                      "درجة التحقق"
-                    )}
-                  </span>
-
-                  <strong
-                    style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#5bd0a1",
-
-                      fontSize:
-                        "31px",
-
-                      marginTop:
-                        "3px",
-                    }}
-                  >
-                    {
-                      VERIFIED_DEMO_CASE.verification.score
-                    }
-                  </strong>
-                </div>
-
-                <CheckCircle2
-                  size={35}
-                  color="#59cfa0"
-                  aria-hidden="true"
-                />
-              </div>
-
-
-              {[
-                [
-                  t(
-                    "caseDetail.verificationStatus"
-                  ),
-
-                  t(
-                    `statuses.${VERIFIED_DEMO_CASE.verification.status}`,
-                    VERIFIED_DEMO_CASE.verification.status
-                  ),
-
-                  "success",
-
-                  false,
-                ],
-
-                [
-                  L(
-                    language,
-                    "Biometric Match",
-                    "المطابقة البيومترية"
-                  ),
-
-                  `${VERIFIED_DEMO_CASE.verification.biometricMatch} (${VERIFIED_DEMO_CASE.verification.biometricMatchPercent}%)`,
-
-                  "normal",
-
-                  true,
-                ],
-
-                [
-                  t(
-                    "caseDetail.mappingValid"
-                  ),
-
-                  VERIFIED_DEMO_CASE.verification.identityMappingValid
-                    ? t("common.yes")
-                    : t("common.no"),
-
-                  "normal",
-
-                  false,
-                ],
-
-                [
-                  t(
-                    "caseDetail.conflictResolved"
-                  ),
-
-                  VERIFIED_DEMO_CASE.verification.originalConflictResolved
-                    ? t("common.yes")
-                    : t("common.no"),
-
-                  "normal",
-
-                  false,
-                ],
-
-                [
-                  t(
-                    "caseDetail.secondaryConflict"
-                  ),
-
-                  VERIFIED_DEMO_CASE.verification.secondaryConflict
-                    ? t("common.yes")
-                    : t("common.no"),
-
-                  "success",
-
-                  false,
-                ],
-              ].map(
-                ([
-                  label,
-                  value,
-                  state,
-                  forceLtr,
-                ]) => (
-                  <div
-                    className="detailRow"
-                    key={label}
-                  >
-                    <span>
-                      {label}
-                    </span>
-
-                    <strong
-                      dir={
-                        forceLtr
-                          ? "ltr"
-                          : undefined
-                      }
-                      style={{
-                        color:
-                          state ===
-                          "success"
-                            ? "#59cfa0"
-                            : undefined,
-                      }}
-                    >
-                      {value}
-                    </strong>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
-        </section>
-
-
-        {/* ================================================
-            CORRECTION REGISTER
-            ================================================ */}
-
-        <section
-          className="panel"
-          style={{
-            marginTop:
-              "14px",
-          }}
-        >
-          <div className="panelHeader">
-            <div>
-              <div className="panelEyebrow">
-                {L(
-                  language,
-                  "CORRECTION REGISTER",
-                  "سجل التصحيحات"
-                )}
-              </div>
-
-              <h2>
-                {L(
-                  language,
-                  "Execution & Verification Status",
-                  "حالة التنفيذ والتحقق"
-                )}
-              </h2>
-            </div>
-
-            <History
-              size={22}
-              aria-hidden="true"
-            />
-          </div>
-
-
-          <div className="tableWrap">
-            <table
-              style={{
-                minWidth:
-                  "1250px",
-              }}
-            >
-              <thead>
-                <tr>
-                  <th>
-                    {t(
-                      "common.case"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "common.biometric"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "corrections.before"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "corrections.after"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "corrections.execution"
-                    )}
-                  </th>
-
-                  <th>
-                    {t(
-                      "corrections.verification"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "SCORE",
-                      "الدرجة"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "BIOMETRIC MATCH",
-                      "المطابقة البيومترية"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "IDENTITY VALID",
-                      "الهوية صحيحة"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "CONFLICT RESOLVED",
-                      "تم حل التعارض"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "SECONDARY CONFLICT",
-                      "تعارض ثانوي"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "ROLLBACK",
-                      "التراجع"
-                    )}
-                  </th>
-
-                  <th>
-                    {L(
-                      language,
-                      "FINAL STATUS",
-                      "الحالة النهائية"
-                    )}
-                  </th>
-                </tr>
-              </thead>
-
-
-              <tbody>
-                {correctionCases.map(
-                  (item) => (
-                    <tr
-                      key={item.id}
-                    >
-                      <td>
-                        <Link
-                          href={
-                            `/cases/${item.id}`
-                          }
-                          className="caseId"
-                          style={{
-                            textDecoration:
-                              "none",
-
-                            display:
-                              "inline-block",
-                          }}
-                        >
-                          <span dir="ltr">
-                            {item.id}
-                          </span>
-                        </Link>
-                      </td>
-
-
-                      <td
-                        className="mono"
-                        dir="ltr"
-                      >
-                        {item.biometric}
-                      </td>
-
-
-                      <td>
-                        <span
-                          className="oldIdentity"
-                          dir="ltr"
-                        >
-                          {item.before}
-                        </span>
-                      </td>
-
-
-                      <td>
-                        <span
-                          className="newIdentity"
-                          dir="ltr"
-                        >
-                          {item.after}
-                        </span>
-                      </td>
-
-
-                      <td>
-                        <StatusPill
-                          value={
-                            item.execution
-                          }
-                          language={
-                            language
-                          }
-                          t={t}
-                        />
-                      </td>
-
-
-                      <td>
-                        <StatusPill
-                          value={
-                            item.verification
-                          }
-                          language={
-                            language
-                          }
-                          t={t}
-                        />
-                      </td>
-
-
-                      <td>
-                        <span className="confidence">
-                          {item.verificationScore ===
-                          null
-                            ? "—"
-                            : item.verificationScore}
-                        </span>
-                      </td>
-
-
-                      <td>
-                        <span
-                          dir="ltr"
-                          style={{
-                            color:
-                              item.biometricMatchPercent ===
-                              null
-                                ? "#62758e"
-                                : "#aab9ca",
-
-                            fontSize:
-                              "9px",
-
-                            fontWeight:
-                              item.biometricMatchPercent ===
-                              null
-                                ? 400
-                                : 700,
-                          }}
-                        >
-                          {item.biometricMatchPercent ===
-                          null
-                            ? "—"
-                            : `${item.biometricMatchRaw} (${item.biometricMatchPercent}%)`}
-                        </span>
-                      </td>
-
-
-                      <td>
-                        <BooleanResult
-                          value={
-                            item.identityValid
-                          }
-                          language={
-                            language
-                          }
-                        />
-                      </td>
-
-
-                      <td>
-                        <BooleanResult
-                          value={
-                            item.conflictResolved
-                          }
-                          language={
-                            language
-                          }
-                        />
-                      </td>
-
-
-                      <td>
-                        {item.secondaryConflict ===
-                        null ? (
-                          <span
-                            style={{
-                              color:
-                                "#62758e",
-
-                              fontSize:
-                                "9px",
-                            }}
-                          >
-                            —
-                          </span>
-                        ) : (
-                          <span
-                            style={{
-                              color:
-                                item.secondaryConflict
-                                  ? "#ff7d8b"
-                                  : "#59cfa0",
-
-                              fontSize:
-                                "9px",
-
-                              fontWeight:
-                                750,
-                            }}
-                          >
-                            {item.secondaryConflict
-                              ? t(
-                                  "common.yes"
-                                )
-                              : t(
-                                  "common.no"
-                                )}
-                          </span>
-                        )}
-                      </td>
-
-
-                      <td>
-                        <span
-                          style={{
-                            color:
-                              "#687b93",
-
-                            fontSize:
-                              "9px",
-                          }}
-                        >
-                          {localizeStatus(
-                            item.rollback,
-                            language,
-                            t
-                          )}
-                        </span>
-                      </td>
-
-
-                      <td>
-                        <StatusPill
-                          value={
-                            item.finalStatus
-                          }
-                          language={
-                            language
-                          }
-                          t={t}
-                        />
-                      </td>
-                    </tr>
-                  )
-                )}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-
-        {/* ================================================
-            FAILURE / ROLLBACK CONTROL
-            ================================================ */}
-
-        <section
-          className="lowerGrid"
-          style={{
-            gridTemplateColumns:
-              "1fr 1fr",
-          }}
-        >
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "FAILURE HANDLING",
-                    "معالجة الفشل"
-                  )}
-                </div>
-
-                <h2>
-                  {L(
-                    language,
-                    "Verification Exception",
-                    "استثناء التحقق"
-                  )}
-                </h2>
-              </div>
-
-              <AlertTriangle
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "18px",
-              }}
-            >
-              <div
-                style={{
-                  padding:
-                    "16px",
+                  gap:
+                    "8px",
 
                   borderRadius:
-                    "12px",
+                    "11px",
+
+                  textDecoration:
+                    "none",
+
+                  color:
+                    "#071c17",
 
                   background:
-                    "rgba(255,80,100,0.045)",
+                    "linear-gradient(90deg,#4bc58f,#68d9ab)",
 
                   border:
-                    "1px solid rgba(255,80,100,0.09)",
-                }}
-              >
-                <strong
-                  style={{
-                    display:
-                      "block",
+                    "1px solid rgba(111,230,180,0.42)",
 
-                    color:
-                      "#db7480",
-
-                    fontSize:
-                      "10px",
-                  }}
-                >
-                  {L(
-                    language,
-                    "If Verification Fails",
-                    "إذا فشل التحقق"
-                  )}
-                </strong>
-
-                <span
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#886268",
-
-                    fontSize:
-                      "9px",
-
-                    lineHeight:
-                      1.7,
-
-                    marginTop:
-                      "6px",
-                  }}
-                >
-                  {L(
-                    language,
-
-                    "The case cannot be closed. It moves to manual post-correction review and the system can initiate a controlled rollback if the approved correction is no longer considered safe.",
-
-                    "لا يمكن إغلاق الحالة. تنتقل إلى مراجعة يدوية بعد التصحيح، ويمكن للنظام بدء تراجع خاضع للتحكم إذا لم يعد التصحيح المعتمد يعتبر آمنًا."
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
-
-
-          <div className="panel">
-            <div className="panelHeader">
-              <div>
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "CONTROLLED ROLLBACK",
-                    "التراجع الخاضع للتحكم"
-                  )}
-                </div>
-
-                <h2>
-                  {L(
-                    language,
-                    "Recovery Control",
-                    "التحكم في الاستعادة"
-                  )}
-                </h2>
-              </div>
-
-              <RotateCcw
-                size={22}
-                aria-hidden="true"
-              />
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "18px",
-              }}
-            >
-              <div className="integrityInfo">
-                <RefreshCcw
-                  size={21}
-                  aria-hidden="true"
-                />
-
-                <div>
-                  <strong>
-                    {L(
-                      language,
-                      "Restore Previous Mapping",
-                      "استعادة الربط السابق"
-                    )}
-                  </strong>
-
-                  <span>
-                    {L(
-                      language,
-
-                      "Rollback restores the pre-correction identity relationship only when the runtime state still matches the executed change.",
-
-                      "يعيد التراجع علاقة الهوية السابقة للتصحيح فقط عندما تظل حالة التشغيل مطابقة للتغيير الذي تم تنفيذه."
-                    )}
-                  </span>
-                </div>
-              </div>
-
-
-              <div
-                className="integrityInfo"
-                style={{
-                  marginTop:
+                  fontSize:
                     "10px",
+
+                  fontWeight:
+                    900,
                 }}
               >
-                <LockKeyhole
-                  size={21}
+                <FileCheck2
+                  size={15}
                   aria-hidden="true"
                 />
 
-                <div>
-                  <strong>
-                    {L(
-                      language,
-                      "Safety Lock",
-                      "قفل الأمان"
-                    )}
-                  </strong>
+                {L(
+                  language,
+                  "View Final Report",
+                  "عرض التقرير النهائي"
+                )}
 
-                  <span>
-                    {L(
-                      language,
+                <ChevronRight
+                  size={14}
+                  style={
+                    arrowStyle
+                  }
+                  aria-hidden="true"
+                />
+              </Link>
 
-                      "Automatic rollback is blocked if the record changed again after execution.",
 
-                      "يتم منع التراجع التلقائي إذا تغير السجل مرة أخرى بعد التنفيذ."
-                    )}
-                  </span>
-                </div>
-              </div>
+              <Link
+                href="/cases"
+                style={{
+                  minHeight:
+                    "45px",
+
+                  display:
+                    "flex",
+
+                  alignItems:
+                    "center",
+
+                  justifyContent:
+                    "center",
+
+                  gap:
+                    "8px",
+
+                  borderRadius:
+                    "11px",
+
+                  textDecoration:
+                    "none",
+
+                  color:
+                    "#79a9ff",
+
+                  background:
+                    "rgba(121,169,255,0.04)",
+
+                  border:
+                    "1px solid rgba(121,169,255,0.17)",
+
+                  fontSize:
+                    "10px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {L(
+                  language,
+                  "Return to Cases",
+                  "العودة إلى الحالات"
+                )}
+
+                <ChevronRight
+                  size={14}
+                  style={
+                    arrowStyle
+                  }
+                  aria-hidden="true"
+                />
+              </Link>
+
             </div>
-          </div>
-        </section>
+
+          </section>
+        )}
 
 
         {/* ================================================
-            FINAL SUCCESS
+            CONTROL NOTE
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
             margin:
-              "14px 0 0",
+              "0 0 16px",
 
             padding:
               "18px",
           }}
         >
-          <CheckCircle2
-            size={26}
+          <ShieldCheck
+            size={23}
             aria-hidden="true"
           />
 
+
           <div>
+
             <strong>
               {L(
                 language,
-                `${VERIFIED_DEMO_CASE.id} Successfully Verified and Closed`,
-                `تم التحقق من ${VERIFIED_DEMO_CASE.id} وإغلاقها بنجاح`
+                "Controlled correction with mandatory verification",
+                "تصحيح خاضع للتحكم مع تحقق إلزامي"
               )}
             </strong>
+
 
             <span>
               {L(
                 language,
-
-                `${VERIFIED_DEMO_CASE.biometricId} was corrected from ${VERIFIED_DEMO_CASE.execution.before} to ${VERIFIED_DEMO_CASE.execution.after} after Officer and Manager approval. Post-correction verification passed with a score of ${VERIFIED_DEMO_CASE.verification.score}, the original conflict was resolved and no secondary conflict was detected.`,
-
-                `تم تصحيح ${VERIFIED_DEMO_CASE.biometricId} من ${VERIFIED_DEMO_CASE.execution.before} إلى ${VERIFIED_DEMO_CASE.execution.after} بعد اعتماد الضابط والمدير. ونجح التحقق بعد التصحيح بدرجة ${VERIFIED_DEMO_CASE.verification.score}، وتم حل التعارض الأصلي ولم يتم اكتشاف أي تعارض ثانوي.`
+                "The demonstration preserves the Master Reference and original biometric source dataset. Only the authorized runtime mapping is changed, and case closure remains blocked until verification succeeds.",
+                "يحافظ العرض التجريبي على المرجع الرئيسي ومصدر البيانات البيومترية الأصلي. يتم تغيير ربط التشغيل المصرح به فقط، ويبقى إغلاق الحالة محظورًا حتى نجاح التحقق."
               )}
             </span>
+
           </div>
+
         </section>
 
 
@@ -2333,35 +2569,72 @@ export default function CorrectionsVerificationPage() {
             ================================================ */}
 
         <footer className="footer">
+
           <span>
-            {t(
-              "footer.platform"
-            )}
-
-            {" · "}
-
             {L(
               language,
-              "Correction & Verification Workspace",
-              "مساحة التصحيح والتحقق"
+              "AI Biometric Reconciliation Platform · Execution & Verification",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · التنفيذ والتحقق"
             )}
           </span>
 
+
           <div>
-            <ShieldCheck
+
+            <Activity
               size={15}
               aria-hidden="true"
             />
 
-            {L(
-              language,
-              "Closed-Loop Verification Active",
-              "التحقق المغلق للدورة نشط"
-            )}
+            {verified
+              ? L(
+                  language,
+                  "Case Verified & Closed",
+                  "تم التحقق من الحالة وإغلاقها"
+                )
+              : L(
+                  language,
+                  "Controlled Workflow Active",
+                  "مسار التنفيذ الخاضع للتحكم نشط"
+                )}
+
           </div>
+
         </footer>
 
+
+        <style jsx>{`
+          @media (max-width: 760px) {
+            .workflowGrid {
+              grid-template-columns: repeat(5, minmax(70px, 1fr)) !important;
+              overflow-x: auto;
+              padding-bottom: 4px;
+            }
+
+            .authorizationGrid {
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+
+            .mappingGrid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .mappingGrid > svg {
+              margin: 0 auto;
+              transform: rotate(90deg) !important;
+            }
+          }
+
+          @media (max-width: 520px) {
+            .authorizationGrid,
+            .finalButtons {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        `}</style>
+
       </main>
+
     </div>
   );
 }

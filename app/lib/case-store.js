@@ -4,53 +4,94 @@ import {
   useSyncExternalStore,
 } from "react";
 
+import {
+  ALL_DETECTED_CASES,
+} from "./demo-data";
+
 
 /* =========================================================
    CASE STORE
 
    Browser-local persistence for the synthetic demo only.
 
-   This must NOT be used to store real biometric data,
-   real PII or production-sensitive information.
+   CURRENT CASE MODEL
+   ---------------------------------------------------------
+   53 total detected cases
+   = 52 active cases
+   + 1 historical closed case
 
-   DEMO IDENTITY NAME POLICY:
+   ACTIVE CASES
+   → Cases workspace
+
+   CLOSED CASES
+   → Reports & Audit
+
+   A case is NOT deleted after completion.
+   It remains stored and is moved from active → closed.
+
+   DEMO IDENTITY NAME POLICY
+   ---------------------------------------------------------
    - First Name + Second Name only
    - No third name
    - No family name
    - No surname
    - No tribe name
+
+   SECURITY
+   ---------------------------------------------------------
+   Never store real PII or real biometric data here.
+   ========================================================= */
+
+
+/* =========================================================
+   STORAGE VERSION
+
+   v3 introduces:
+   - active / closed lifecycle
+   - full 53-case baseline
+   - workflow transitions
+   - cross-page persistent approvals
+   - execution state
+   - verification state
+   - audit history
    ========================================================= */
 
 const STORAGE_KEY =
-  "ai-biometric-case-store-v2";
+  "ai-biometric-case-store-v3";
+
 
 const LEGACY_STORAGE_KEYS = [
   "ai-biometric-case-store-v1",
+  "ai-biometric-case-store-v2",
 ];
+
 
 const STORE_EVENT =
   "ai-biometric-case-store-change";
 
-const STORE_VERSION = 2;
+
+const STORE_VERSION =
+  3;
 
 
 /* =========================================================
-   EMPTY STATE
+   SERVER / MEMORY STATE
    ========================================================= */
 
-const SERVER_SNAPSHOT = Object.freeze({
-  version:
-    STORE_VERSION,
+const SERVER_SNAPSHOT =
+  Object.freeze({
+    version:
+      STORE_VERSION,
 
-  initialized:
-    false,
+    initialized:
+      false,
 
-  cases:
-    [],
+    cases:
+      [],
 
-  updatedAt:
-    null,
-});
+    updatedAt:
+      null,
+  });
 
 
 let memoryState = {
@@ -73,7 +114,7 @@ let hydrated =
 
 
 /* =========================================================
-   HELPERS
+   BASIC HELPERS
    ========================================================= */
 
 function isBrowser() {
@@ -85,7 +126,9 @@ function isBrowser() {
 
 
 function now() {
-  return new Date().toISOString();
+  return (
+    new Date().toISOString()
+  );
 }
 
 
@@ -99,27 +142,7 @@ function normalizeId(
 
 
 /* =========================================================
-   SYNTHETIC IDENTITY NAME POLICY
-
-   Every synthetic identity displayed or persisted through
-   the case store is restricted to exactly:
-
-   First Name + Second Name
-
-   Examples:
-
-   "Salem Mohammed Al Kaabi"
-   becomes
-   "Salem Mohammed"
-
-   "سالم محمد الكعبي"
-   becomes
-   "سالم محمد"
-
-   This applies only to synthetic identity-name fields.
-   Workflow actor names such as:
-   "Demo Monitoring Officer"
-   are intentionally not modified.
+   IDENTITY NAME POLICY
    ========================================================= */
 
 function normalizeTwoPartIdentityName(
@@ -147,20 +170,24 @@ function normalizeTwoPartIdentityName(
   if (
     parts.length <= 2
   ) {
-    return parts.join(
-      " "
+    return (
+      parts.join(
+        " "
+      )
     );
   }
 
 
-  return parts
-    .slice(
-      0,
-      2
-    )
-    .join(
-      " "
-    );
+  return (
+    parts
+      .slice(
+        0,
+        2
+      )
+      .join(
+        " "
+      )
+  );
 }
 
 
@@ -171,8 +198,10 @@ function normalizeLocalizedIdentityName(
     typeof value ===
     "string"
   ) {
-    return normalizeTwoPartIdentityName(
-      value
+    return (
+      normalizeTwoPartIdentityName(
+        value
+      )
     );
   }
 
@@ -221,12 +250,11 @@ function normalizeLocalizedIdentityName(
 
 
 /* =========================================================
-   CASE IDENTITY NAME NORMALIZATION
+   APPLY IDENTITY NAME POLICY
 
-   Only identity-related fields are normalized.
+   Only explicit identity-person fields are normalized.
 
-   Human workflow actors such as officer and manager names
-   are not treated as identity records.
+   Human role labels / workflow actor names are NOT changed.
    ========================================================= */
 
 function applyIdentityNamePolicy(
@@ -248,16 +276,25 @@ function applyIdentityNamePolicy(
 
   const identityNameFields = [
     "person",
-    "name",
+
     "fullName",
+
     "registeredName",
+
     "identityName",
+
     "subjectName",
+
     "affectedPersonName",
+
     "currentIdentityName",
+
     "proposedIdentityName",
+
     "canonicalIdentityName",
+
     "beforeName",
+
     "afterName",
   ];
 
@@ -288,8 +325,7 @@ function applyIdentityNamePolicy(
 
 
   /*
-     Execution state can contain Before / After
-     identity display names.
+     Execution Before / After display names.
   */
 
   if (
@@ -337,7 +373,60 @@ function applyIdentityNamePolicy(
 
 
 /* =========================================================
-   NORMALIZE CASE
+   EXECUTION STATUS
+   ========================================================= */
+
+function getExecutionStatus(
+  caseData
+) {
+  if (
+    caseData?.execution &&
+    typeof caseData.execution ===
+      "object"
+  ) {
+    return (
+      caseData.execution.status ||
+      "NOT_AUTHORIZED"
+    );
+  }
+
+
+  return (
+    caseData?.correction ||
+    caseData?.execution ||
+    "NOT_AUTHORIZED"
+  );
+}
+
+
+/* =========================================================
+   VERIFICATION STATUS
+   ========================================================= */
+
+function getVerificationStatus(
+  caseData
+) {
+  if (
+    caseData?.verification &&
+    typeof caseData.verification ===
+      "object"
+  ) {
+    return (
+      caseData.verification.status ||
+      "NOT_STARTED"
+    );
+  }
+
+
+  return (
+    caseData?.verification ||
+    "NOT_STARTED"
+  );
+}
+
+
+/* =========================================================
+   NORMALIZE CASE LIFECYCLE
    ========================================================= */
 
 function normalizeCase(
@@ -364,15 +453,73 @@ function normalizeCase(
     );
 
 
-  if (!id) {
+  if (
+    !id
+  ) {
     return null;
   }
+
+
+  const workflowStatus =
+    protectedCase.workflowStatus ||
+    protectedCase.stage ||
+    protectedCase.status ||
+    protectedCase.finalStatus ||
+    "AI_INVESTIGATED";
+
+
+  const finalStatus =
+    protectedCase.finalStatus ||
+    workflowStatus;
+
+
+  const closedByStatus =
+    [
+      "VERIFIED_CLOSED",
+      "CLOSED",
+    ].includes(
+      finalStatus
+    );
+
+
+  const closed =
+    Boolean(
+      protectedCase.closed ||
+      closedByStatus
+    );
+
+
+  const active =
+    !closed;
+
+
+  const completed =
+    Boolean(
+      protectedCase.completed ||
+      closed
+    );
 
 
   return {
     ...protectedCase,
 
     id,
+
+    workflowStatus,
+
+    stage:
+      workflowStatus,
+
+    status:
+      finalStatus,
+
+    finalStatus,
+
+    active,
+
+    closed,
+
+    completed,
 
     createdAt:
       protectedCase.createdAt ||
@@ -381,9 +528,24 @@ function normalizeCase(
     updatedAt:
       protectedCase.updatedAt ||
       now(),
+
+    closedAt:
+      closed
+        ? (
+            protectedCase.closedAt ||
+            null
+          )
+        : null,
   };
 }
 
+
+/* =========================================================
+   NORMALIZE STORE STATE
+
+   Duplicate Case IDs are automatically collapsed.
+   Latest occurrence wins.
+   ========================================================= */
 
 function normalizeState(
   value
@@ -396,14 +558,38 @@ function normalizeState(
       : [];
 
 
+  const caseMap =
+    new Map();
+
+
+  rawCases.forEach(
+    (
+      item
+    ) => {
+
+      const normalized =
+        normalizeCase(
+          item
+        );
+
+
+      if (
+        normalized
+      ) {
+        caseMap.set(
+          normalized.id,
+          normalized
+        );
+      }
+
+    }
+  );
+
+
   const cases =
-    rawCases
-      .map(
-        normalizeCase
-      )
-      .filter(
-        Boolean
-      );
+    Array.from(
+      caseMap.values()
+    );
 
 
   return {
@@ -412,8 +598,7 @@ function normalizeState(
 
     initialized:
       Boolean(
-        value?.initialized
-        ||
+        value?.initialized ||
         cases.length > 0
       ),
 
@@ -431,18 +616,16 @@ function normalizeState(
 /* =========================================================
    LEGACY STORAGE CLEANUP
 
-   v1 may contain previously seeded three-part synthetic
-   identity names.
-
-   Because this is synthetic demo data only, the legacy
-   browser-local cache is removed when v2 is first used.
-
-   Fresh seed data will then use the current identity-name
-   policy.
+   v1 / v2 are removed because:
+   - old identity-name format may exist
+   - old case lifecycle did not distinguish active / closed
+   - old seeds did not contain the complete active queue
    ========================================================= */
 
 function cleanupLegacyStorage() {
-  if (!isBrowser()) {
+  if (
+    !isBrowser()
+  ) {
     return;
   }
 
@@ -458,8 +641,8 @@ function cleanupLegacyStorage() {
         );
       } catch {
         /*
-           Demo remains operational using
-           in-memory state if storage access fails.
+           Browser-local storage may be unavailable.
+           In-memory demo state remains usable.
         */
       }
 
@@ -473,7 +656,9 @@ function cleanupLegacyStorage() {
    ========================================================= */
 
 function readStorage() {
-  if (!isBrowser()) {
+  if (
+    !isBrowser()
+  ) {
     return memoryState;
   }
 
@@ -485,7 +670,9 @@ function readStorage() {
       );
 
 
-    if (!raw) {
+    if (
+      !raw
+    ) {
       return {
         version:
           STORE_VERSION,
@@ -530,10 +717,14 @@ function readStorage() {
     }
 
 
-    return normalizeState(
-      parsed
+    return (
+      normalizeState(
+        parsed
+      )
     );
+
   } catch {
+
     return {
       version:
         STORE_VERSION,
@@ -564,11 +755,6 @@ function hydrate() {
   }
 
 
-  /*
-     Remove old synthetic demo storage containing
-     the previous identity-name format.
-  */
-
   cleanupLegacyStorage();
 
 
@@ -586,7 +772,9 @@ function hydrate() {
    ========================================================= */
 
 function notify() {
-  if (!isBrowser()) {
+  if (
+    !isBrowser()
+  ) {
     return;
   }
 
@@ -630,7 +818,9 @@ function saveState(
     true;
 
 
-  if (isBrowser()) {
+  if (
+    isBrowser()
+  ) {
     try {
       window.localStorage.setItem(
         STORAGE_KEY,
@@ -640,8 +830,7 @@ function saveState(
       );
     } catch {
       /*
-         The in-memory state still works
-         if browser storage is unavailable.
+         The demo continues using in-memory state.
       */
     }
   }
@@ -655,7 +844,75 @@ function saveState(
 
 
 /* =========================================================
-   CASE ID
+   BUILD INITIAL DATASET
+
+   Always includes the validated 53-case baseline.
+
+   Any supplied seed cases override matching baseline IDs.
+
+   This protects the demo from older pages accidentally
+   initializing the store with only two or three cases.
+   ========================================================= */
+
+function buildInitialDataset(
+  seedCases = []
+) {
+  const caseMap =
+    new Map();
+
+
+  ALL_DETECTED_CASES.forEach(
+    (
+      item
+    ) => {
+
+      if (
+        item?.id
+      ) {
+        caseMap.set(
+          item.id,
+          item
+        );
+      }
+
+    }
+  );
+
+
+  if (
+    Array.isArray(
+      seedCases
+    )
+  ) {
+    seedCases.forEach(
+      (
+        item
+      ) => {
+
+        if (
+          item?.id
+        ) {
+          caseMap.set(
+            item.id,
+            item
+          );
+        }
+
+      }
+    );
+  }
+
+
+  return (
+    Array.from(
+      caseMap.values()
+    )
+  );
+}
+
+
+/* =========================================================
+   GENERATE CASE ID
    ========================================================= */
 
 function generateCaseId() {
@@ -671,7 +928,9 @@ function generateCaseId() {
 
 
   memoryState.cases.forEach(
-    (item) => {
+    (
+      item
+    ) => {
 
       const match =
         String(
@@ -681,7 +940,9 @@ function generateCaseId() {
         );
 
 
-      if (!match) {
+      if (
+        !match
+      ) {
         return;
       }
 
@@ -695,19 +956,21 @@ function generateCaseId() {
       if (
         Number.isFinite(
           number
-        )
-        &&
-        number > highest
+        ) &&
+        number >
+          highest
       ) {
         highest =
           number;
       }
+
     }
   );
 
 
   const next =
-    highest + 1;
+    highest +
+    1;
 
 
   return (
@@ -724,13 +987,13 @@ function generateCaseId() {
 /* =========================================================
    INITIALIZE
 
-   Seed cases are written only once.
+   The complete validated demo dataset is written once.
 
-   If the user later removes all cases,
-   the store will NOT silently re-seed them.
-
-   Seed identity names are normalized to the
-   two-part synthetic identity policy before storage.
+   52 active
+   +
+   1 closed
+   =
+   53 total
    ========================================================= */
 
 export function initializeCaseStore(
@@ -750,57 +1013,64 @@ export function initializeCaseStore(
     now();
 
 
-  const cases =
-    Array.isArray(
+  const initialDataset =
+    buildInitialDataset(
       seedCases
-    )
-      ? seedCases
-          .map(
-            (
-              item
-            ) => {
-
-              if (
-                !item ||
-                !item.id
-              ) {
-                return null;
-              }
+    );
 
 
-              return normalizeCase({
-                ...item,
+  const cases =
+    initialDataset
+      .map(
+        (
+          item
+        ) =>
+          normalizeCase({
+            ...item,
 
-                createdAt:
-                  item.createdAt ||
-                  timestamp,
+            createdAt:
+              item.createdAt ||
+              timestamp,
 
-                updatedAt:
-                  item.updatedAt ||
-                  timestamp,
-              });
-            }
-          )
-          .filter(
-            Boolean
-          )
-      : [];
+            updatedAt:
+              item.updatedAt ||
+              timestamp,
+          })
+      )
+      .filter(
+        Boolean
+      );
 
 
-  return saveState({
-    version:
-      STORE_VERSION,
+  return (
+    saveState({
+      version:
+        STORE_VERSION,
 
-    initialized:
-      true,
+      initialized:
+        true,
 
-    cases,
-  });
+      cases,
+    })
+  );
 }
 
 
 /* =========================================================
-   GET STATE
+   INITIALIZE STANDARD DEMO
+
+   Convenience helper for pages.
+   ========================================================= */
+
+export function initializeDemoCaseStore() {
+  return (
+    initializeCaseStore()
+  );
+}
+
+
+/* =========================================================
+   STATE
    ========================================================= */
 
 export function getCaseStoreState() {
@@ -811,15 +1081,260 @@ export function getCaseStoreState() {
 
 
 /* =========================================================
-   GET CASES
+   ALL CASES
    ========================================================= */
 
 export function getCases() {
   hydrate();
 
+
   return [
     ...memoryState.cases,
   ];
+}
+
+
+/* =========================================================
+   ACTIVE CASES
+
+   Closed cases never appear here.
+   ========================================================= */
+
+export function getActiveCases() {
+  hydrate();
+
+
+  return (
+    memoryState.cases.filter(
+      (
+        item
+      ) =>
+        item.active &&
+        !item.closed &&
+        item.finalStatus !==
+          "VERIFIED_CLOSED"
+    )
+  );
+}
+
+
+/* =========================================================
+   CLOSED / HISTORY CASES
+   ========================================================= */
+
+export function getClosedCases() {
+  hydrate();
+
+
+  return (
+    memoryState.cases.filter(
+      (
+        item
+      ) =>
+        item.closed ||
+        item.finalStatus ===
+          "VERIFIED_CLOSED"
+    )
+  );
+}
+
+
+/* =========================================================
+   COUNTS
+
+   These are dynamic.
+
+   When a case closes:
+   active -1
+   closed +1
+
+   total remains unchanged.
+   ========================================================= */
+
+export function getCaseCounts() {
+  const all =
+    getCases();
+
+
+  const active =
+    all.filter(
+      (
+        item
+      ) =>
+        item.active &&
+        !item.closed &&
+        item.finalStatus !==
+          "VERIFIED_CLOSED"
+    );
+
+
+  const closed =
+    all.filter(
+      (
+        item
+      ) =>
+        item.closed ||
+        item.finalStatus ===
+          "VERIFIED_CLOSED"
+    );
+
+
+  return {
+    total:
+      all.length,
+
+    active:
+      active.length,
+
+    closed:
+      closed.length,
+
+    immediate:
+      active.filter(
+        (
+          item
+        ) =>
+          item.priority ===
+          "IMMEDIATE"
+      ).length,
+
+    high:
+      active.filter(
+        (
+          item
+        ) =>
+          item.priority ===
+          "HIGH"
+      ).length,
+
+    medium:
+      active.filter(
+        (
+          item
+        ) =>
+          item.priority ===
+          "MEDIUM"
+      ).length,
+
+    protective:
+      active.filter(
+        (
+          item
+        ) =>
+          Boolean(
+            item.wronglyAffected
+          )
+      ).length,
+  };
+}
+
+
+/* =========================================================
+   ACTIVE CASE SORTING
+   ========================================================= */
+
+const PRIORITY_ORDER = {
+  IMMEDIATE:
+    3,
+
+  HIGH:
+    2,
+
+  MEDIUM:
+    1,
+};
+
+
+export function getSortedActiveCases() {
+  return (
+    [
+      ...getActiveCases(),
+    ].sort(
+      (
+        a,
+        b
+      ) => {
+
+        const priorityDifference =
+          (
+            PRIORITY_ORDER[
+              b.priority
+            ] ||
+            0
+          )
+          -
+          (
+            PRIORITY_ORDER[
+              a.priority
+            ] ||
+            0
+          );
+
+
+        if (
+          priorityDifference !==
+          0
+        ) {
+          return (
+            priorityDifference
+          );
+        }
+
+
+        const protectiveDifference =
+          Number(
+            b.protectivePriority ||
+            0
+          )
+          -
+          Number(
+            a.protectivePriority ||
+            0
+          );
+
+
+        if (
+          protectiveDifference !==
+          0
+        ) {
+          return (
+            protectiveDifference
+          );
+        }
+
+
+        return (
+          a.id.localeCompare(
+            b.id
+          )
+        );
+      }
+    )
+  );
+}
+
+
+/* =========================================================
+   TOP ACTIVE CASES
+
+   Used by the simplified Cases landing page.
+   ========================================================= */
+
+export function getTopActiveCases(
+  limit = 3
+) {
+  return (
+    getSortedActiveCases().slice(
+      0,
+      Math.max(
+        0,
+        Number(
+          limit
+        ) ||
+        0
+      )
+    )
+  );
 }
 
 
@@ -841,12 +1356,75 @@ export function getCaseById(
 
   return (
     memoryState.cases.find(
-      (item) =>
-        item.id === id
-    )
-    ||
+      (
+        item
+      ) =>
+        item.id ===
+        id
+    ) ||
     null
   );
+}
+
+
+/* =========================================================
+   GET ACTIVE CASE
+   ========================================================= */
+
+export function getActiveCaseById(
+  caseId
+) {
+  const item =
+    getCaseById(
+      caseId
+    );
+
+
+  if (
+    !item ||
+    item.closed ||
+    !item.active ||
+    item.finalStatus ===
+      "VERIFIED_CLOSED"
+  ) {
+    return null;
+  }
+
+
+  return item;
+}
+
+
+/* =========================================================
+   GET CLOSED CASE
+   ========================================================= */
+
+export function getClosedCaseById(
+  caseId
+) {
+  const item =
+    getCaseById(
+      caseId
+    );
+
+
+  if (
+    !item
+  ) {
+    return null;
+  }
+
+
+  if (
+    item.closed ||
+    item.finalStatus ===
+      "VERIFIED_CLOSED"
+  ) {
+    return item;
+  }
+
+
+  return null;
 }
 
 
@@ -863,19 +1441,23 @@ export function addCase(
   const id =
     normalizeId(
       caseData.id
-    )
-    ||
+    ) ||
     generateCaseId();
 
 
   const duplicate =
     memoryState.cases.some(
-      (item) =>
-        item.id === id
+      (
+        item
+      ) =>
+        item.id ===
+        id
     );
 
 
-  if (duplicate) {
+  if (
+    duplicate
+  ) {
     throw new Error(
       `Case already exists: ${id}`
     );
@@ -888,26 +1470,36 @@ export function addCase(
 
   const newCase =
     normalizeCase({
-      status:
+      active:
+        true,
+
+      closed:
+        false,
+
+      workflowStatus:
         "AI_INVESTIGATED",
 
-      stage:
-        "CASES",
+      finalStatus:
+        "AI_INVESTIGATED",
 
       priority:
         "MEDIUM",
 
-      officer:
+      officerDecision:
         "PENDING",
 
-      manager:
-        "WAITING",
+      managerDecision:
+        "NOT_READY",
 
-      correction:
-        "NOT_AUTHORIZED",
+      execution: {
+        status:
+          "NOT_AUTHORIZED",
+      },
 
-      verification:
-        "NOT_STARTED",
+      verification: {
+        status:
+          "NOT_STARTED",
+      },
 
       completed:
         false,
@@ -961,13 +1553,17 @@ export function updateCase(
 
   const index =
     memoryState.cases.findIndex(
-      (item) =>
-        item.id === id
+      (
+        item
+      ) =>
+        item.id ===
+        id
     );
 
 
   if (
-    index === -1
+    index ===
+    -1
   ) {
     return null;
   }
@@ -1018,7 +1614,9 @@ export function updateCase(
   ];
 
 
-  cases[index] =
+  cases[
+    index
+  ] =
     updated;
 
 
@@ -1034,7 +1632,7 @@ export function updateCase(
 
 
 /* =========================================================
-   UPSERT CASE
+   UPSERT
    ========================================================= */
 
 export function upsertCase(
@@ -1055,9 +1653,13 @@ export function upsertCase(
     );
 
 
-  if (!id) {
-    return addCase(
-      caseData
+  if (
+    !id
+  ) {
+    return (
+      addCase(
+        caseData
+      )
     );
   }
 
@@ -1068,42 +1670,73 @@ export function upsertCase(
     );
 
 
-  if (!existing) {
-    return addCase(
-      caseData
+  if (
+    !existing
+  ) {
+    return (
+      addCase(
+        caseData
+      )
     );
   }
 
 
-  return updateCase(
-    id,
-    caseData
+  return (
+    updateCase(
+      id,
+      caseData
+    )
   );
 }
 
 
 /* =========================================================
-   UPDATE WORKFLOW
-
-   Used when a case moves between:
-   investigation → officer → manager →
-   correction → verification → closed
+   GENERIC WORKFLOW UPDATE
    ========================================================= */
 
 export function updateCaseWorkflow(
   caseId,
   workflow = {}
 ) {
-  return updateCase(
-    caseId,
-    (
-      current
-    ) => ({
-      ...current,
-
-      ...workflow,
-    })
+  return (
+    updateCase(
+      caseId,
+      (
+        current
+      ) => ({
+        ...current,
+        ...workflow,
+      })
+    )
   );
+}
+
+
+/* =========================================================
+   AUDIT HELPER
+   ========================================================= */
+
+function appendAuditEvent(
+  current,
+  event
+) {
+  return [
+    ...(
+      Array.isArray(
+        current.audit
+      )
+        ? current.audit
+        : []
+    ),
+
+    {
+      ...event,
+
+      at:
+        event.at ||
+        now(),
+    },
+  ];
 }
 
 
@@ -1124,29 +1757,1162 @@ export function addCaseAuditEvent(
   }
 
 
-  return updateCase(
-    caseId,
-    (
-      current
-    ) => ({
-      audit: [
-        ...(
-          Array.isArray(
-            current.audit
-          )
-            ? current.audit
-            : []
-        ),
+  return (
+    updateCase(
+      caseId,
+      (
+        current
+      ) => ({
+        audit:
+          appendAuditEvent(
+            current,
+            event
+          ),
+      })
+    )
+  );
+}
 
-        {
-          ...event,
 
-          at:
-            event.at ||
+/* =========================================================
+   OFFICER DECISION
+
+   APPROVED
+   → Manager becomes ready
+
+   REJECTED
+   → No execution authorization
+
+   MORE_INVESTIGATION
+   → Returns to AI investigation
+   ========================================================= */
+
+export function submitOfficerDecision(
+  caseId,
+  decision = "APPROVED",
+  actor = "Demo Monitoring Officer"
+) {
+  const normalizedDecision =
+    String(
+      decision
+    )
+      .trim()
+      .toUpperCase();
+
+
+  return (
+    updateCase(
+      caseId,
+      (
+        current
+      ) => {
+
+        if (
+          current.closed
+        ) {
+          return current;
+        }
+
+
+        if (
+          normalizedDecision ===
+          "APPROVED"
+        ) {
+          return {
+            officer: {
+              ...(
+                typeof current.officer ===
+                "object"
+                  ? current.officer
+                  : {}
+              ),
+
+              role:
+                "Monitoring Officer",
+
+              actor,
+
+              decision:
+                "APPROVED",
+
+              decidedAt:
+                now(),
+            },
+
+            officerDecision:
+              "APPROVED",
+
+            manager: {
+              ...(
+                typeof current.manager ===
+                "object"
+                  ? current.manager
+                  : {}
+              ),
+
+              role:
+                "Supervising Manager",
+
+              decision:
+                "PENDING",
+            },
+
+            managerDecision:
+              "PENDING",
+
+            workflowStatus:
+              "AWAITING_MANAGER_APPROVAL",
+
+            stage:
+              "AWAITING_MANAGER_APPROVAL",
+
+            status:
+              "AWAITING_MANAGER_APPROVAL",
+
+            finalStatus:
+              "AWAITING_MANAGER_APPROVAL",
+
+            audit:
+              appendAuditEvent(
+                current,
+                {
+                  type:
+                    "OFFICER_APPROVAL",
+
+                  title: {
+                    en:
+                      "Officer review approved",
+
+                    ar:
+                      "تم اعتماد مراجعة الموظف",
+                  },
+
+                  description: {
+                    en:
+                      "The authorized employee reviewed the case and approved the proposed correction for Manager review.",
+
+                    ar:
+                      "راجع الموظف المخول الحالة واعتمد التصحيح المقترح لإحالته إلى المدير.",
+                  },
+
+                  actor,
+                }
+              ),
+          };
+        }
+
+
+        if (
+          normalizedDecision ===
+          "MORE_INVESTIGATION"
+        ) {
+          return {
+            officer: {
+              ...(
+                typeof current.officer ===
+                "object"
+                  ? current.officer
+                  : {}
+              ),
+
+              role:
+                "Monitoring Officer",
+
+              actor,
+
+              decision:
+                "MORE_INVESTIGATION",
+
+              decidedAt:
+                now(),
+            },
+
+            officerDecision:
+              "MORE_INVESTIGATION",
+
+            managerDecision:
+              "NOT_READY",
+
+            workflowStatus:
+              "AI_INVESTIGATED",
+
+            stage:
+              "AI_INVESTIGATED",
+
+            status:
+              "AI_INVESTIGATED",
+
+            finalStatus:
+              "AI_INVESTIGATED",
+
+            audit:
+              appendAuditEvent(
+                current,
+                {
+                  type:
+                    "MORE_INVESTIGATION_REQUESTED",
+
+                  title: {
+                    en:
+                      "Additional investigation requested",
+
+                    ar:
+                      "تم طلب تحقيق إضافي",
+                  },
+
+                  description: {
+                    en:
+                      "The case was returned for additional investigation before approval.",
+
+                    ar:
+                      "تمت إعادة الحالة لإجراء تحقيق إضافي قبل الاعتماد.",
+                  },
+
+                  actor,
+                }
+              ),
+          };
+        }
+
+
+        return {
+          officer: {
+            ...(
+              typeof current.officer ===
+              "object"
+                ? current.officer
+                : {}
+            ),
+
+            role:
+              "Monitoring Officer",
+
+            actor,
+
+            decision:
+              "REJECTED",
+
+            decidedAt:
+              now(),
+          },
+
+          officerDecision:
+            "REJECTED",
+
+          managerDecision:
+            "NOT_READY",
+
+          workflowStatus:
+            "OFFICER_REJECTED",
+
+          stage:
+            "OFFICER_REJECTED",
+
+          status:
+            "OFFICER_REJECTED",
+
+          finalStatus:
+            "OFFICER_REJECTED",
+
+          audit:
+            appendAuditEvent(
+              current,
+              {
+                type:
+                  "OFFICER_REJECTION",
+
+                title: {
+                  en:
+                    "Officer review rejected",
+
+                  ar:
+                    "تم رفض الحالة في مراجعة الموظف",
+                },
+
+                description: {
+                  en:
+                    "The proposed correction was not approved during the first human review.",
+
+                  ar:
+                    "لم يتم اعتماد التصحيح المقترح خلال المراجعة البشرية الأولى.",
+                },
+
+                actor,
+              }
+            ),
+        };
+      }
+    )
+  );
+}
+
+
+/* =========================================================
+   MANAGER DECISION
+
+   APPROVED
+   → Correction becomes authorized
+
+   RETURN_TO_OFFICER
+   → Returns to Officer Review
+
+   MORE_INVESTIGATION
+   → Returns to investigation
+
+   REJECTED
+   → Execution remains blocked
+   ========================================================= */
+
+export function submitManagerDecision(
+  caseId,
+  decision = "APPROVED",
+  actor = "Demo Supervising Manager"
+) {
+  const normalizedDecision =
+    String(
+      decision
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const currentCase =
+    getCaseById(
+      caseId
+    );
+
+
+  if (
+    !currentCase ||
+    currentCase.closed
+  ) {
+    return currentCase;
+  }
+
+
+  if (
+    normalizedDecision ===
+      "APPROVED" &&
+    currentCase.officerDecision !==
+      "APPROVED"
+  ) {
+    throw new Error(
+      "Manager approval requires Officer approval first."
+    );
+  }
+
+
+  return (
+    updateCase(
+      caseId,
+      (
+        current
+      ) => {
+
+        if (
+          normalizedDecision ===
+          "APPROVED"
+        ) {
+          const execution =
+            typeof current.execution ===
+              "object"
+              ? {
+                  ...current.execution,
+
+                  status:
+                    "READY",
+                }
+              : {
+                  status:
+                    "READY",
+                };
+
+
+          return {
+            manager: {
+              ...(
+                typeof current.manager ===
+                "object"
+                  ? current.manager
+                  : {}
+              ),
+
+              role:
+                "Supervising Manager",
+
+              actor,
+
+              decision:
+                "APPROVED",
+
+              decidedAt:
+                now(),
+            },
+
+            managerDecision:
+              "APPROVED",
+
+            execution,
+
+            correction:
+              "READY",
+
+            workflowStatus:
+              "READY_FOR_CORRECTION",
+
+            stage:
+              "READY_FOR_CORRECTION",
+
+            status:
+              "READY_FOR_CORRECTION",
+
+            finalStatus:
+              "READY_FOR_CORRECTION",
+
+            audit:
+              appendAuditEvent(
+                current,
+                {
+                  type:
+                    "MANAGER_APPROVAL",
+
+                  title: {
+                    en:
+                      "Manager approval recorded",
+
+                    ar:
+                      "تم تسجيل موافقة المدير",
+                  },
+
+                  description: {
+                    en:
+                      "The second human approval authorized the correction for controlled execution.",
+
+                    ar:
+                      "سمحت الموافقة البشرية الثانية بانتقال التصحيح إلى التنفيذ الخاضع للتحكم.",
+                  },
+
+                  actor,
+                }
+              ),
+          };
+        }
+
+
+        if (
+          normalizedDecision ===
+          "RETURN_TO_OFFICER"
+        ) {
+          return {
+            officer: {
+              ...(
+                typeof current.officer ===
+                "object"
+                  ? current.officer
+                  : {}
+              ),
+
+              decision:
+                "PENDING",
+            },
+
+            officerDecision:
+              "PENDING",
+
+            manager: {
+              ...(
+                typeof current.manager ===
+                "object"
+                  ? current.manager
+                  : {}
+              ),
+
+              actor,
+
+              decision:
+                "RETURNED_TO_OFFICER",
+
+              decidedAt:
+                now(),
+            },
+
+            managerDecision:
+              "RETURNED_TO_OFFICER",
+
+            workflowStatus:
+              "READY_FOR_OFFICER_REVIEW",
+
+            stage:
+              "READY_FOR_OFFICER_REVIEW",
+
+            status:
+              "READY_FOR_OFFICER_REVIEW",
+
+            finalStatus:
+              "READY_FOR_OFFICER_REVIEW",
+
+            audit:
+              appendAuditEvent(
+                current,
+                {
+                  type:
+                    "RETURNED_TO_OFFICER",
+
+                  title: {
+                    en:
+                      "Returned to Officer",
+
+                    ar:
+                      "تمت إعادة الحالة إلى الموظف",
+                  },
+
+                  description: {
+                    en:
+                      "The Manager returned the case for revised first-level review.",
+
+                    ar:
+                      "أعاد المدير الحالة إلى المراجعة البشرية الأولى لإعادة التقييم.",
+                  },
+
+                  actor,
+                }
+              ),
+          };
+        }
+
+
+        if (
+          normalizedDecision ===
+          "MORE_INVESTIGATION"
+        ) {
+          return {
+            manager: {
+              ...(
+                typeof current.manager ===
+                "object"
+                  ? current.manager
+                  : {}
+              ),
+
+              actor,
+
+              decision:
+                "MORE_INVESTIGATION",
+
+              decidedAt:
+                now(),
+            },
+
+            managerDecision:
+              "MORE_INVESTIGATION",
+
+            workflowStatus:
+              "AI_INVESTIGATED",
+
+            stage:
+              "AI_INVESTIGATED",
+
+            status:
+              "AI_INVESTIGATED",
+
+            finalStatus:
+              "AI_INVESTIGATED",
+
+            audit:
+              appendAuditEvent(
+                current,
+                {
+                  type:
+                    "MANAGER_INVESTIGATION_REQUEST",
+
+                  title: {
+                    en:
+                      "Manager requested more investigation",
+
+                    ar:
+                      "طلب المدير مزيدًا من التحقيق",
+                  },
+
+                  description: {
+                    en:
+                      "The case was returned for additional evidence before a final management decision.",
+
+                    ar:
+                      "تمت إعادة الحالة للحصول على أدلة إضافية قبل اتخاذ القرار الإداري النهائي.",
+                  },
+
+                  actor,
+                }
+              ),
+          };
+        }
+
+
+        return {
+          manager: {
+            ...(
+              typeof current.manager ===
+              "object"
+                ? current.manager
+                : {}
+            ),
+
+            actor,
+
+            decision:
+              "REJECTED",
+
+            decidedAt:
+              now(),
+          },
+
+          managerDecision:
+            "REJECTED",
+
+          workflowStatus:
+            "MANAGER_REJECTED",
+
+          stage:
+            "MANAGER_REJECTED",
+
+          status:
+            "MANAGER_REJECTED",
+
+          finalStatus:
+            "MANAGER_REJECTED",
+
+          audit:
+            appendAuditEvent(
+              current,
+              {
+                type:
+                  "MANAGER_REJECTION",
+
+                title: {
+                  en:
+                    "Manager rejected correction",
+
+                  ar:
+                    "رفض المدير التصحيح",
+                },
+
+                description: {
+                  en:
+                    "Management authorization was not granted and controlled execution remains blocked.",
+
+                  ar:
+                    "لم يتم منح الاعتماد الإداري ويظل التنفيذ الخاضع للتحكم محظورًا.",
+                },
+
+                actor,
+              }
+            ),
+        };
+      }
+    )
+  );
+}
+
+
+/* =========================================================
+   CONTROLLED EXECUTION
+
+   Requirements:
+   - Officer APPROVED
+   - Manager APPROVED
+   - Target system = BIOMETRIC_SYSTEM
+   ========================================================= */
+
+export function executeCaseCorrection(
+  caseId,
+  actor = "Demo Execution Agent"
+) {
+  const current =
+    getCaseById(
+      caseId
+    );
+
+
+  if (
+    !current ||
+    current.closed
+  ) {
+    return current;
+  }
+
+
+  if (
+    current.officerDecision !==
+      "APPROVED" ||
+    current.managerDecision !==
+      "APPROVED"
+  ) {
+    throw new Error(
+      "Controlled execution requires Officer and Manager approval."
+    );
+  }
+
+
+  const execution =
+    typeof current.execution ===
+      "object"
+      ? current.execution
+      : {};
+
+
+  if (
+    execution.targetSystem &&
+    execution.targetSystem !==
+      "BIOMETRIC_SYSTEM"
+  ) {
+    throw new Error(
+      "Controlled execution is restricted to BIOMETRIC_SYSTEM."
+    );
+  }
+
+
+  return (
+    updateCase(
+      caseId,
+      (
+        latest
+      ) => ({
+        execution: {
+          ...(
+            typeof latest.execution ===
+            "object"
+              ? latest.execution
+              : {}
+          ),
+
+          status:
+            "COMPLETED",
+
+          executedAt:
             now(),
+
+          executedBy:
+            actor,
         },
-      ],
-    })
+
+        correction:
+          "COMPLETED",
+
+        workflowStatus:
+          "AWAITING_VERIFICATION",
+
+        stage:
+          "AWAITING_VERIFICATION",
+
+        status:
+          "AWAITING_VERIFICATION",
+
+        finalStatus:
+          "AWAITING_VERIFICATION",
+
+        audit:
+          appendAuditEvent(
+            latest,
+            {
+              type:
+                "CONTROLLED_CORRECTION_COMPLETED",
+
+              title: {
+                en:
+                  "Controlled correction completed",
+
+                ar:
+                  "تم تنفيذ التصحيح الخاضع للتحكم",
+              },
+
+              description: {
+                en:
+                  "The approved biometric identity link correction was executed on the permitted operational target.",
+
+                ar:
+                  "تم تنفيذ تصحيح ربط الهوية البيومترية المعتمد على النظام التشغيلي المسموح.",
+              },
+
+              actor,
+            }
+          ),
+      })
+    )
+  );
+}
+
+
+/* =========================================================
+   VERIFICATION
+
+   PASSED:
+   - verification succeeds
+   - conflict resolved
+   - case becomes CLOSED
+   - disappears from active Cases
+   - remains in Reports & Audit
+
+   FAILED:
+   - closure blocked
+   - case remains ACTIVE
+   ========================================================= */
+
+export function verifyCaseCorrection(
+  caseId,
+  result = {}
+) {
+  const current =
+    getCaseById(
+      caseId
+    );
+
+
+  if (
+    !current ||
+    current.closed
+  ) {
+    return current;
+  }
+
+
+  if (
+    getExecutionStatus(
+      current
+    ) !==
+    "COMPLETED"
+  ) {
+    throw new Error(
+      "Verification requires completed correction execution."
+    );
+  }
+
+
+  const verificationStatus =
+    String(
+      result.status ||
+      "PASSED"
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const passed =
+    verificationStatus ===
+    "PASSED";
+
+
+  if (
+    passed
+  ) {
+    const score =
+      result.score ??
+      100;
+
+
+    const biometricMatchPercent =
+      result.biometricMatchPercent ??
+      Number(
+        current.aiConfidence ||
+        99.9
+      );
+
+
+    const biometricMatch =
+      result.biometricMatch ??
+      Number(
+        (
+          biometricMatchPercent /
+          100
+        ).toFixed(
+          6
+        )
+      );
+
+
+    const timestamp =
+      now();
+
+
+    return (
+      updateCase(
+        caseId,
+        (
+          latest
+        ) => ({
+          verification: {
+            ...(
+              typeof latest.verification ===
+              "object"
+                ? latest.verification
+                : {}
+            ),
+
+            status:
+              "PASSED",
+
+            score,
+
+            biometricMatch,
+
+            biometricMatchPercent,
+
+            identityMappingValid:
+              result.identityMappingValid ??
+              true,
+
+            originalConflictResolved:
+              result.originalConflictResolved ??
+              true,
+
+            secondaryConflict:
+              result.secondaryConflict ??
+              false,
+
+            rollbackRequired:
+              false,
+
+            verifiedAt:
+              timestamp,
+
+            simulatedDemoResult:
+              true,
+          },
+
+          workflowStatus:
+            "VERIFIED_CLOSED",
+
+          stage:
+            "VERIFIED_CLOSED",
+
+          status:
+            "VERIFIED_CLOSED",
+
+          finalStatus:
+            "VERIFIED_CLOSED",
+
+          active:
+            false,
+
+          closed:
+            true,
+
+          completed:
+            true,
+
+          closedAt:
+            timestamp,
+
+          masterModified:
+            false,
+
+          originalBiometricDatasetModified:
+            false,
+
+          audit:
+            appendAuditEvent(
+              latest,
+              {
+                type:
+                  "POST_CORRECTION_VERIFICATION_PASSED",
+
+                title: {
+                  en:
+                    "Post-correction verification passed",
+
+                  ar:
+                    "نجح التحقق بعد التصحيح",
+                },
+
+                description: {
+                  en:
+                    "The corrected relationship was verified successfully. The case was removed from the active queue and transferred to Reports & Audit history.",
+
+                  ar:
+                    "تم التحقق من العلاقة المصححة بنجاح، وأزيلت الحالة من قائمة الحالات النشطة وانتقلت إلى التقارير والسجل.",
+                },
+
+                actor:
+                  result.actor ||
+                  "Demo Verification Agent",
+              }
+            ),
+        })
+      )
+    );
+  }
+
+
+  return (
+    updateCase(
+      caseId,
+      (
+        latest
+      ) => ({
+        verification: {
+          ...(
+            typeof latest.verification ===
+            "object"
+              ? latest.verification
+              : {}
+          ),
+
+          status:
+            "FAILED",
+
+          score:
+            result.score ??
+            0,
+
+          identityMappingValid:
+            result.identityMappingValid ??
+            false,
+
+          originalConflictResolved:
+            result.originalConflictResolved ??
+            false,
+
+          secondaryConflict:
+            result.secondaryConflict ??
+            true,
+
+          rollbackRequired:
+            result.rollbackRequired ??
+            true,
+
+          verifiedAt:
+            now(),
+
+          simulatedDemoResult:
+            true,
+        },
+
+        workflowStatus:
+          "VERIFICATION_FAILED",
+
+        stage:
+          "VERIFICATION_FAILED",
+
+        status:
+          "VERIFICATION_FAILED",
+
+        finalStatus:
+          "VERIFICATION_FAILED",
+
+        active:
+          true,
+
+        closed:
+          false,
+
+        completed:
+          false,
+
+        closedAt:
+          null,
+
+        audit:
+          appendAuditEvent(
+            latest,
+            {
+              type:
+                "POST_CORRECTION_VERIFICATION_FAILED",
+
+              title: {
+                en:
+                  "Post-correction verification failed",
+
+                ar:
+                  "فشل التحقق بعد التصحيح",
+              },
+
+              description: {
+                en:
+                  "Case closure was blocked and the case remains active for exception handling.",
+
+                ar:
+                  "تم منع إغلاق الحالة وتظل الحالة نشطة لمعالجة الاستثناء.",
+              },
+
+              actor:
+                result.actor ||
+                "Demo Verification Agent",
+            }
+          ),
+      })
+    )
+  );
+}
+
+
+/* =========================================================
+   MANUAL CLOSE
+
+   Safety rule:
+   A case cannot be manually closed unless verification
+   has PASSED.
+   ========================================================= */
+
+export function closeVerifiedCase(
+  caseId
+) {
+  const current =
+    getCaseById(
+      caseId
+    );
+
+
+  if (
+    !current
+  ) {
+    return null;
+  }
+
+
+  if (
+    getVerificationStatus(
+      current
+    ) !==
+    "PASSED"
+  ) {
+    throw new Error(
+      "A case cannot close before verification passes."
+    );
+  }
+
+
+  const timestamp =
+    now();
+
+
+  return (
+    updateCase(
+      caseId,
+      {
+        workflowStatus:
+          "VERIFIED_CLOSED",
+
+        stage:
+          "VERIFIED_CLOSED",
+
+        status:
+          "VERIFIED_CLOSED",
+
+        finalStatus:
+          "VERIFIED_CLOSED",
+
+        active:
+          false,
+
+        closed:
+          true,
+
+        completed:
+          true,
+
+        closedAt:
+          timestamp,
+      }
+    )
   );
 }
 
@@ -1154,9 +2920,7 @@ export function addCaseAuditEvent(
 /* =========================================================
    SET ALL CASES
 
-   Useful when importing a synthetic case dataset.
-
-   Identity names are normalized before they are persisted.
+   Intended for synthetic imports / demo maintenance.
    ========================================================= */
 
 export function setCases(
@@ -1197,34 +2961,50 @@ export function setCases(
       );
 
 
-  return saveState({
-    ...memoryState,
+  return (
+    saveState({
+      ...memoryState,
 
-    cases:
-      normalized,
-  });
+      cases:
+        normalized,
+    })
+  );
 }
 
 
 /* =========================================================
-   CLEAR / RESET
+   CLEAR
 
-   Demo utilities only.
+   Leaves the store intentionally empty.
+
+   It will NOT silently re-seed until resetCaseStore()
+   is called.
    ========================================================= */
 
 export function clearCaseStore() {
-  return saveState({
-    version:
-      STORE_VERSION,
+  return (
+    saveState({
+      version:
+        STORE_VERSION,
 
-    initialized:
-      true,
+      initialized:
+        true,
 
-    cases:
-      [],
-  });
+      cases:
+        [],
+    })
+  );
 }
 
+
+/* =========================================================
+   RESET
+
+   Restores the complete validated baseline:
+   52 active + 1 closed.
+
+   Optional seed cases can override matching IDs.
+   ========================================================= */
 
 export function resetCaseStore(
   seedCases = []
@@ -1248,7 +3028,9 @@ export function resetCaseStore(
   };
 
 
-  if (isBrowser()) {
+  if (
+    isBrowser()
+  ) {
     try {
       window.localStorage.removeItem(
         STORAGE_KEY
@@ -1264,31 +3046,42 @@ export function resetCaseStore(
           );
         }
       );
+
     } catch {
       /* no-op */
     }
   }
 
 
-  return initializeCaseStore(
-    seedCases
+  return (
+    initializeCaseStore(
+      seedCases
+    )
+  );
+}
+
+
+/* =========================================================
+   RESET STANDARD DEMO
+   ========================================================= */
+
+export function resetDemoCaseStore() {
+  return (
+    resetCaseStore()
   );
 }
 
 
 /* =========================================================
    SUBSCRIBE
-
-   Supports:
-   - movement between pages
-   - updates in the same browser tab
-   - updates in another browser tab
    ========================================================= */
 
 export function subscribeToCaseStore(
   callback
 ) {
-  if (!isBrowser()) {
+  if (
+    !isBrowser()
+  ) {
     return () => {};
   }
 
@@ -1400,10 +3193,12 @@ function getServerSnapshot() {
 
 
 export function useCaseStore() {
-  return useSyncExternalStore(
-    subscribeToCaseStore,
-    getSnapshot,
-    getServerSnapshot
+  return (
+    useSyncExternalStore(
+      subscribeToCaseStore,
+      getSnapshot,
+      getServerSnapshot
+    )
   );
 }
 
@@ -1424,6 +3219,18 @@ export const CASE_STORE_INFO = {
 
   syntheticDemoOnly:
     true,
+
+  validatedTotalCases:
+    53,
+
+  baselineActiveCases:
+    52,
+
+  baselineClosedCases:
+    1,
+
+  closedCasesDestination:
+    "REPORTS_AND_AUDIT",
 
   identityNamePolicy:
     "FIRST_NAME_SECOND_NAME_ONLY",

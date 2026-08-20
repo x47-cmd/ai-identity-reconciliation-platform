@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -10,12 +11,23 @@ import Sidebar from "../components/Sidebar";
 import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  VERIFIED_DEMO_CASE,
+  ALL_DETECTED_CASES,
+  CASE_TYPE_LABELS,
+  PRIMARY_ACTIVE_CASE_ID,
 } from "../lib/demo-data";
+
+import {
+  initializeDemoCaseStore,
+  submitManagerDecision,
+  updateCase,
+  useCaseStore,
+} from "../lib/case-store";
 
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
   BadgeCheck,
   BrainCircuit,
   CheckCircle2,
@@ -45,59 +57,88 @@ function L(
 
 
 /* =========================================================
-   PRIMARY DEMO CASE
+   LOCALIZED VALUE
    ========================================================= */
 
-const DEMO_CASE = {
-  id:
-    VERIFIED_DEMO_CASE.id ||
-    "CASE-2026-00001",
+function localizedValue(
+  value,
+  language,
+  fallback = ""
+) {
+  if (
+    typeof value ===
+    "string"
+  ) {
+    return value;
+  }
 
-  person:
-    VERIFIED_DEMO_CASE.person || {
+
+  if (
+    value &&
+    typeof value ===
+      "object" &&
+    !Array.isArray(
+      value
+    )
+  ) {
+    return (
+      value[
+        language
+      ] ||
+      value.en ||
+      fallback
+    );
+  }
+
+
+  return fallback;
+}
+
+
+/* =========================================================
+   PRIORITY
+   ========================================================= */
+
+function priorityLabel(
+  priority,
+  language
+) {
+  const labels = {
+    IMMEDIATE: {
       en:
-        "Salem Mohammed",
+        "Urgent",
 
       ar:
-        "سالم محمد",
+        "فوري",
     },
 
-  biometricId:
-    VERIFIED_DEMO_CASE.biometricId ||
-    VERIFIED_DEMO_CASE.primaryBiometricId ||
-    "BIO-000166",
+    HIGH: {
+      en:
+        "High",
 
-  currentMasterId:
-    VERIFIED_DEMO_CASE.currentMasterId ||
-    VERIFIED_DEMO_CASE.currentIdentity ||
-    "REF-002711",
+      ar:
+        "مرتفع",
+    },
 
-  canonicalMasterId:
-    VERIFIED_DEMO_CASE.canonicalMasterId ||
-    VERIFIED_DEMO_CASE.proposedIdentity ||
-    "REF-001009",
+    MEDIUM: {
+      en:
+        "Medium",
 
-  confidence:
-    VERIFIED_DEMO_CASE.aiConfidence ||
-    99.99,
+      ar:
+        "متوسط",
+    },
+  };
 
-  risk:
-    VERIFIED_DEMO_CASE.riskScore ||
-    94.99,
 
-  harm:
-    VERIFIED_DEMO_CASE.harmScore ||
-    VERIFIED_DEMO_CASE.harmImpactScore ||
-    97.5,
-
-  protectivePriority:
-    VERIFIED_DEMO_CASE.protectivePriority ||
-    VERIFIED_DEMO_CASE.protectivePriorityScore ||
-    98.0,
-
-  officerName:
-    "Demo Monitoring Officer",
-};
+  return (
+    labels[
+      priority
+    ]?.[
+      language
+    ] ||
+    priority
+  );
+}
 
 
 /* =========================================================
@@ -110,10 +151,10 @@ const workflowSteps = [
       1,
 
     en:
-      "Case Detection",
+      "AI Analysis",
 
     ar:
-      "اكتشاف الحالة",
+      "تحليل الذكاء الاصطناعي",
   },
 
   {
@@ -121,7 +162,7 @@ const workflowSteps = [
       2,
 
     en:
-      "Officer Review",
+      "Employee Review",
 
     ar:
       "تدقيق الموظف",
@@ -132,17 +173,6 @@ const workflowSteps = [
       3,
 
     en:
-      "AI Correction Proposal",
-
-    ar:
-      "اقتراح التعديل",
-  },
-
-  {
-    number:
-      4,
-
-    en:
       "Manager Approval",
 
     ar:
@@ -151,13 +181,24 @@ const workflowSteps = [
 
   {
     number:
+      4,
+
+    en:
+      "Correction",
+
+    ar:
+      "تنفيذ التعديل",
+  },
+
+  {
+    number:
       5,
 
     en:
-      "Execution & Verification",
+      "Verification",
 
     ar:
-      "التنفيذ والتحقق",
+      "التحقق النهائي",
   },
 ];
 
@@ -168,28 +209,30 @@ const workflowSteps = [
 
 function WorkflowStepper({
   language,
+  currentStep,
 }) {
   return (
     <section
+      className="managerWorkflow"
       style={{
         marginBottom:
-          "18px",
+          "16px",
 
         padding:
-          "20px 18px",
+          "17px",
 
         borderRadius:
-          "18px",
+          "16px",
 
         border:
-          "1px solid rgba(121,169,255,0.12)",
+          "1px solid rgba(121,169,255,0.10)",
 
         background:
-          "linear-gradient(135deg, rgba(12,32,54,0.90), rgba(8,24,43,0.92))",
+          "rgba(11,29,50,0.72)",
       }}
     >
       <div
-        className="workflowGrid"
+        className="managerWorkflowGrid"
         style={{
           display:
             "grid",
@@ -198,7 +241,7 @@ function WorkflowStepper({
             "repeat(5,minmax(0,1fr))",
 
           gap:
-            "10px",
+            "8px",
         }}
       >
         {workflowSteps.map(
@@ -208,11 +251,12 @@ function WorkflowStepper({
 
             const completed =
               step.number <
-              4;
+              currentStep;
+
 
             const active =
               step.number ===
-              4;
+              currentStep;
 
 
             return (
@@ -221,20 +265,41 @@ function WorkflowStepper({
                   step.number
                 }
                 style={{
+                  padding:
+                    "10px 6px",
+
+                  borderRadius:
+                    "10px",
+
                   textAlign:
                     "center",
+
+                  border:
+                    completed
+                      ? "1px solid rgba(89,207,160,0.10)"
+                      : active
+                        ? "1px solid rgba(255,189,103,0.18)"
+                        : "1px solid rgba(255,255,255,0.04)",
+
+                  background:
+                    completed
+                      ? "rgba(89,207,160,0.04)"
+                      : active
+                        ? "rgba(255,189,103,0.06)"
+                        : "rgba(255,255,255,0.015)",
                 }}
               >
+
                 <div
                   style={{
                     width:
-                      "36px",
+                      "29px",
 
                     height:
-                      "36px",
+                      "29px",
 
                     margin:
-                      "0 auto 9px",
+                      "0 auto 7px",
 
                     display:
                       "grid",
@@ -245,34 +310,22 @@ function WorkflowStepper({
                     borderRadius:
                       "50%",
 
-                    border:
-                      active
-                        ? "2px solid #ffbd67"
-                        : completed
-                          ? "1px solid rgba(89,207,160,0.5)"
-                          : "1px solid rgba(121,169,255,0.25)",
-
                     color:
-                      active
-                        ? "#ffbd67"
-                        : completed
-                          ? "#59cfa0"
-                          : "#8497ae",
+                      completed
+                        ? "#59cfa0"
+                        : active
+                          ? "#ffbd67"
+                          : "#61738a",
 
                     background:
-                      active
-                        ? "rgba(255,189,103,0.10)"
-                        : completed
-                          ? "rgba(89,207,160,0.06)"
-                          : "rgba(121,169,255,0.04)",
-
-                    boxShadow:
-                      active
-                        ? "0 0 20px rgba(255,189,103,0.10)"
-                        : "none",
+                      completed
+                        ? "rgba(89,207,160,0.07)"
+                        : active
+                          ? "rgba(255,189,103,0.07)"
+                          : "rgba(255,255,255,0.02)",
 
                     fontSize:
-                      "11px",
+                      "9px",
 
                     fontWeight:
                       850,
@@ -280,7 +333,7 @@ function WorkflowStepper({
                 >
                   {completed ? (
                     <CheckCircle2
-                      size={18}
+                      size={15}
                       aria-hidden="true"
                     />
                   ) : (
@@ -295,17 +348,17 @@ function WorkflowStepper({
                       "block",
 
                     color:
-                      active
-                        ? "#ffbd67"
-                        : completed
-                          ? "#bcd8cd"
-                          : "#c3d0df",
+                      completed
+                        ? "#9cc5b6"
+                        : active
+                          ? "#ffd08e"
+                          : "#708298",
 
                     fontSize:
-                      "9px",
+                      "8.5px",
 
                     lineHeight:
-                      1.45,
+                      1.4,
                   }}
                 >
                   {L(
@@ -314,6 +367,7 @@ function WorkflowStepper({
                     step.ar
                   )}
                 </strong>
+
               </div>
             );
           }
@@ -325,29 +379,29 @@ function WorkflowStepper({
 
 
 /* =========================================================
-   SUMMARY VALUE
+   INFO BOX
    ========================================================= */
 
-function SummaryValue({
+function InfoBox({
   label,
   value,
-  color = "#dce7f3",
+  color = "#d6e1ee",
   dir,
 }) {
   return (
     <div
       style={{
         padding:
-          "13px",
+          "12px",
 
         borderRadius:
-          "11px",
+          "10px",
 
         border:
-          "1px solid rgba(255,255,255,0.055)",
+          "1px solid rgba(255,255,255,0.045)",
 
         background:
-          "rgba(255,255,255,0.022)",
+          "rgba(255,255,255,0.02)",
       }}
     >
       <span
@@ -355,14 +409,11 @@ function SummaryValue({
           display:
             "block",
 
-          marginBottom:
-            "6px",
-
           color:
             "#687b93",
 
           fontSize:
-            "9px",
+            "8px",
         }}
       >
         {label}
@@ -377,17 +428,127 @@ function SummaryValue({
           display:
             "block",
 
+          marginTop:
+            "5px",
+
           color,
 
           fontSize:
-            "12px",
+            "10px",
 
           lineHeight:
             1.5,
+
+          overflowWrap:
+            "anywhere",
         }}
       >
         {value}
       </strong>
+
+    </div>
+  );
+}
+
+
+/* =========================================================
+   CASE NOT FOUND
+   ========================================================= */
+
+function CaseUnavailable({
+  language,
+  caseId,
+}) {
+  const isArabic =
+    language ===
+    "ar";
+
+
+  return (
+    <div className="appShell">
+
+      <Sidebar />
+
+
+      <main className="mainContent">
+
+        <Link
+          href="/cases/all"
+          className="textButton"
+          style={{
+            width:
+              "fit-content",
+
+            textDecoration:
+              "none",
+          }}
+        >
+          {isArabic ? (
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+          {L(
+            language,
+            "Back to Active Cases",
+            "العودة إلى الحالات النشطة"
+          )}
+        </Link>
+
+
+        <div
+          className="panel"
+          style={{
+            marginTop:
+              "18px",
+
+            padding:
+              "45px 20px",
+
+            textAlign:
+              "center",
+          }}
+        >
+          <FileCheck2
+            size={34}
+            color="#71849c"
+            aria-hidden="true"
+          />
+
+
+          <h2>
+            {L(
+              language,
+              "Case not available",
+              "الحالة غير متاحة"
+            )}
+          </h2>
+
+
+          <span
+            dir="ltr"
+            style={{
+              color:
+                "#71849c",
+
+              fontSize:
+                "9px",
+            }}
+          >
+            {caseId}
+          </span>
+
+        </div>
+
+      </main>
+
     </div>
   );
 }
@@ -400,31 +561,163 @@ function SummaryValue({
 export default function ManagerApprovalPage() {
   const {
     language,
-  } = useLanguage();
+  } =
+    useLanguage();
 
 
-  const isArabic =
-    language === "ar";
+  const store =
+    useCaseStore();
 
 
   const [
-    managerDecision,
-    setManagerDecision,
-  ] = useState(
-    "PENDING"
-  );
+    selectedCaseId,
+    setSelectedCaseId,
+  ] =
+    useState(
+      PRIMARY_ACTIVE_CASE_ID
+    );
 
 
   const [
     comments,
     setComments,
-  ] = useState(
-    L(
-      language,
-      "The correction package was reviewed. Officer approval, AI evidence and the proposed identity reassignment support controlled execution.",
-      "تمت مراجعة حزمة التصحيح واعتماد الضابط وأدلة الذكاء الاصطناعي، والتوصية تدعم الانتقال إلى التنفيذ الخاضع للتحكم."
-    )
+  ] =
+    useState(
+      ""
+    );
+
+
+  const [
+    error,
+    setError,
+  ] =
+    useState(
+      ""
+    );
+
+
+  /* =======================================================
+     INITIALIZE + READ CASE ID
+
+     Example:
+     /manager-approval?case=CASE-2026-00002
+     ======================================================= */
+
+  useEffect(
+    () => {
+      initializeDemoCaseStore();
+
+
+      if (
+        typeof window ===
+        "undefined"
+      ) {
+        return;
+      }
+
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const requestedCaseId =
+        params.get(
+          "case"
+        );
+
+
+      if (
+        requestedCaseId
+      ) {
+        setSelectedCaseId(
+          requestedCaseId
+        );
+      }
+    },
+    []
   );
+
+
+  /* =======================================================
+     CASE SOURCE
+     ======================================================= */
+
+  const fallbackCase =
+    ALL_DETECTED_CASES.find(
+      (
+        item
+      ) =>
+        item.id ===
+        selectedCaseId
+    ) ||
+    null;
+
+
+  const storedCase =
+    store.initialized
+      ? store.cases.find(
+          (
+            item
+          ) =>
+            item.id ===
+            selectedCaseId
+        ) ||
+        null
+      : null;
+
+
+  const caseData =
+    storedCase ||
+    fallbackCase;
+
+
+  /* =======================================================
+     LOAD SAVED MANAGER NOTES
+     ======================================================= */
+
+  useEffect(
+    () => {
+      if (
+        !caseData
+      ) {
+        return;
+      }
+
+
+      setComments(
+        typeof caseData.managerNotes ===
+          "string"
+          ? caseData.managerNotes
+          : ""
+      );
+    },
+    [
+      caseData?.id,
+    ]
+  );
+
+
+  if (
+    !caseData
+  ) {
+    return (
+      <CaseUnavailable
+        language={
+          language
+        }
+        caseId={
+          selectedCaseId
+        }
+      />
+    );
+  }
+
+
+  const isArabic =
+    language ===
+    "ar";
 
 
   const arrowStyle = {
@@ -435,20 +728,383 @@ export default function ManagerApprovalPage() {
   };
 
 
+  /* =======================================================
+     CASE DATA
+     ======================================================= */
+
+  const personName =
+    localizedValue(
+      caseData.person,
+      language,
+      caseData.id
+    );
+
+
+  const issueLabel =
+    localizedValue(
+      CASE_TYPE_LABELS[
+        caseData.caseType
+      ],
+      language,
+      caseData.caseType
+    );
+
+
+  const biometricId =
+    caseData.biometricId ||
+    caseData.primaryBiometricId ||
+    caseData.execution?.targetRecord ||
+    "—";
+
+
+  const currentReference =
+    caseData.currentIdentity ||
+    caseData.execution?.before ||
+    "—";
+
+
+  const proposedReference =
+    caseData.proposedIdentity ||
+    caseData.canonicalIdentity ||
+    caseData.execution?.after ||
+    "—";
+
+
+  const currentName =
+    localizedValue(
+      caseData.currentIdentityName ||
+        caseData.execution?.beforeName,
+      language,
+      L(
+        language,
+        "Current linked reference",
+        "المرجع المرتبط حاليًا"
+      )
+    );
+
+
+  const proposedName =
+    localizedValue(
+      caseData.proposedIdentityName ||
+        caseData.canonicalIdentityName ||
+        caseData.execution?.afterName,
+      language,
+      personName
+    );
+
+
+  const aiSummary =
+    localizedValue(
+      caseData.aiSummary,
+      language,
+      L(
+        language,
+        "AI prepared a supported correction recommendation for human authorization.",
+        "جهز الذكاء الاصطناعي توصية مدعومة بالتصحيح للمراجعة البشرية."
+      )
+    );
+
+
+  const officerDecision =
+    caseData.officerDecision ||
+    caseData.officer?.decision ||
+    "PENDING";
+
+
+  const managerDecision =
+    caseData.managerDecision ||
+    caseData.manager?.decision ||
+    "NOT_READY";
+
+
+  const workflowStatus =
+    caseData.workflowStatus ||
+    caseData.finalStatus ||
+    "AI_INVESTIGATED";
+
+
+  const closed =
+    Boolean(
+      caseData.closed
+    ) ||
+    caseData.finalStatus ===
+      "VERIFIED_CLOSED";
+
+
+  const officerApproved =
+    officerDecision ===
+    "APPROVED";
+
+
+  const managerApproved =
+    managerDecision ===
+    "APPROVED";
+
+
+  const returnedToOfficer =
+    managerDecision ===
+      "RETURNED_TO_OFFICER" ||
+    workflowStatus ===
+      "READY_FOR_OFFICER_REVIEW";
+
+
+  /* =======================================================
+     CAN MANAGER DECIDE?
+     ======================================================= */
+
+  const canDecide =
+    !closed &&
+    officerApproved &&
+    !managerApproved &&
+    workflowStatus ===
+      "AWAITING_MANAGER_APPROVAL";
+
+
+  /* =======================================================
+     WORKFLOW STEP
+     ======================================================= */
+
+  let currentStep =
+    3;
+
+
+  if (
+    !officerApproved
+  ) {
+    currentStep =
+      2;
+  }
+
+
+  if (
+    managerApproved ||
+    workflowStatus ===
+      "READY_FOR_CORRECTION"
+  ) {
+    currentStep =
+      4;
+  }
+
+
+  if (
+    workflowStatus ===
+      "AWAITING_VERIFICATION"
+  ) {
+    currentStep =
+      5;
+  }
+
+
+  /* =======================================================
+     APPROVE
+     ======================================================= */
+
   const approve =
     () => {
-      setManagerDecision(
-        "APPROVED"
-      );
+      try {
+        setError(
+          ""
+        );
+
+
+        updateCase(
+          selectedCaseId,
+          {
+            managerNotes:
+              comments.trim(),
+
+            managerReviewUpdatedAt:
+              new Date().toISOString(),
+          }
+        );
+
+
+        submitManagerDecision(
+          selectedCaseId,
+          "APPROVED",
+          "Demo Supervising Manager"
+        );
+
+      } catch (
+        approvalError
+      ) {
+        setError(
+          approvalError?.message ||
+          L(
+            language,
+            "Unable to record Manager approval.",
+            "تعذر تسجيل موافقة المدير."
+          )
+        );
+      }
     };
 
+
+  /* =======================================================
+     RETURN TO EMPLOYEE
+     ======================================================= */
 
   const returnToOfficer =
     () => {
-      setManagerDecision(
-        "RETURNED"
-      );
+      try {
+        setError(
+          ""
+        );
+
+
+        updateCase(
+          selectedCaseId,
+          {
+            managerNotes:
+              comments.trim(),
+
+            managerReviewUpdatedAt:
+              new Date().toISOString(),
+          }
+        );
+
+
+        submitManagerDecision(
+          selectedCaseId,
+          "RETURN_TO_OFFICER",
+          "Demo Supervising Manager"
+        );
+
+      } catch (
+        approvalError
+      ) {
+        setError(
+          approvalError?.message ||
+          L(
+            language,
+            "Unable to return the case.",
+            "تعذر إعادة الحالة."
+          )
+        );
+      }
     };
+
+
+  /* =======================================================
+     CLOSED CASE
+     ======================================================= */
+
+  if (
+    closed
+  ) {
+    return (
+      <div className="appShell">
+
+        <Sidebar />
+
+
+        <main className="mainContent">
+
+          <Link
+            href={
+              `/cases/${caseData.id}`
+            }
+            className="textButton"
+            style={{
+              width:
+                "fit-content",
+
+              textDecoration:
+                "none",
+            }}
+          >
+            {isArabic ? (
+              <ArrowRight
+                size={15}
+                aria-hidden="true"
+              />
+            ) : (
+              <ArrowLeft
+                size={15}
+                aria-hidden="true"
+              />
+            )}
+
+            {L(
+              language,
+              "Back to Case",
+              "العودة إلى الحالة"
+            )}
+          </Link>
+
+
+          <section
+            className="panel"
+            style={{
+              marginTop:
+                "18px",
+
+              padding:
+                "30px",
+
+              textAlign:
+                "center",
+            }}
+          >
+            <CheckCircle2
+              size={34}
+              color="#59cfa0"
+              aria-hidden="true"
+            />
+
+
+            <h2>
+              {L(
+                language,
+                "This case is already closed",
+                "هذه الحالة مغلقة بالفعل"
+              )}
+            </h2>
+
+
+            <p
+              style={{
+                color:
+                  "#71849c",
+
+                fontSize:
+                  "10px",
+              }}
+            >
+              {L(
+                language,
+
+                "Completed cases no longer require Manager approval and remain available in Reports & Audit.",
+
+                "الحالات المكتملة لم تعد تحتاج إلى موافقة المدير وتبقى محفوظة في التقارير والسجل."
+              )}
+            </p>
+
+
+            <Link
+              href={
+                `/reports-audit?case=${caseData.id}`
+              }
+              className="primaryButton"
+              style={{
+                textDecoration:
+                  "none",
+              }}
+            >
+              {L(
+                language,
+                "Open Reports & Audit",
+                "فتح التقارير والسجل"
+              )}
+            </Link>
+
+          </section>
+
+        </main>
+
+      </div>
+    );
+  }
 
 
   return (
@@ -460,6 +1116,49 @@ export default function ManagerApprovalPage() {
       <main className="mainContent">
 
         {/* ================================================
+            BACK
+            ================================================ */}
+
+        <Link
+          href={
+            `/cases/${caseData.id}`
+          }
+          className="textButton"
+          style={{
+            width:
+              "fit-content",
+
+            padding:
+              0,
+
+            marginBottom:
+              "15px",
+
+            textDecoration:
+              "none",
+          }}
+        >
+          {isArabic ? (
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+          {L(
+            language,
+            "Back to Case",
+            "العودة إلى تفاصيل الحالة"
+          )}
+        </Link>
+
+
+        {/* ================================================
             HEADER
             ================================================ */}
 
@@ -468,7 +1167,6 @@ export default function ManagerApprovalPage() {
           <div>
 
             <div className="eyebrow">
-
               <BadgeCheck
                 size={15}
                 aria-hidden="true"
@@ -476,10 +1174,9 @@ export default function ManagerApprovalPage() {
 
               {L(
                 language,
-                "CASE REMEDIATION WORKFLOW",
-                "مسار معالجة الحالة"
+                "SECOND HUMAN APPROVAL",
+                "الموافقة البشرية الثانية"
               )}
-
             </div>
 
 
@@ -495,57 +1192,62 @@ export default function ManagerApprovalPage() {
             <p>
               {L(
                 language,
-                "Review the Officer-approved correction package and provide the final human authorization before controlled execution.",
-                "راجع حزمة التصحيح التي اعتمدها موظف المراجعة واتخذ قرار الاعتماد البشري النهائي قبل التنفيذ الخاضع للتحكم."
+
+                "Review the employee-approved correction and decide whether execution can be authorized.",
+
+                "راجع التعديل الذي اعتمده الموظف وقرر ما إذا كان يمكن التصريح بالتنفيذ."
               )}
             </p>
 
 
             <div
-              dir="ltr"
               style={{
                 display:
-                  "inline-flex",
+                  "flex",
 
                 alignItems:
                   "center",
+
+                flexWrap:
+                  "wrap",
 
                 gap:
                   "7px",
 
                 marginTop:
-                  "12px",
-
-                padding:
-                  "8px 11px",
-
-                borderRadius:
-                  "9px",
-
-                border:
-                  "1px solid rgba(121,169,255,0.15)",
-
-                background:
-                  "rgba(121,169,255,0.05)",
-
-                color:
-                  "#91a9c6",
-
-                fontSize:
                   "10px",
-
-                fontWeight:
-                  750,
               }}
             >
-              <FileCheck2
-                size={14}
-                aria-hidden="true"
-              />
+              <span
+                dir="ltr"
+                style={{
+                  color:
+                    "#71849c",
 
-              {
-                DEMO_CASE.id
-              }
+                  fontSize:
+                    "9px",
+                }}
+              >
+                {caseData.id}
+              </span>
+
+
+              <span
+                className={
+                  caseData.priority ===
+                  "IMMEDIATE"
+                    ? "priority immediate"
+                    : caseData.priority ===
+                      "HIGH"
+                      ? "priority high"
+                      : "priority medium"
+                }
+              >
+                {priorityLabel(
+                  caseData.priority,
+                  language
+                )}
+              </span>
             </div>
 
           </div>
@@ -561,6 +1263,9 @@ export default function ManagerApprovalPage() {
           language={
             language
           }
+          currentStep={
+            currentStep
+          }
         />
 
 
@@ -571,19 +1276,23 @@ export default function ManagerApprovalPage() {
         <section
           style={{
             marginBottom:
-              "18px",
+              "14px",
 
             padding:
-              "20px",
+              "17px",
 
             borderRadius:
-              "18px",
+              "15px",
 
             border:
-              "1px solid rgba(89,207,160,0.24)",
+              officerApproved
+                ? "1px solid rgba(89,207,160,0.15)"
+                : "1px solid rgba(255,189,103,0.16)",
 
             background:
-              "linear-gradient(135deg, rgba(13,46,54,0.68), rgba(8,26,45,0.92))",
+              officerApproved
+                ? "rgba(89,207,160,0.035)"
+                : "rgba(255,189,103,0.035)",
           }}
         >
 
@@ -599,7 +1308,7 @@ export default function ManagerApprovalPage() {
                 "flex-start",
 
               gap:
-                "16px",
+                "12px",
 
               flexWrap:
                 "wrap",
@@ -611,21 +1320,21 @@ export default function ManagerApprovalPage() {
                 display:
                   "flex",
 
-                gap:
-                  "11px",
-
                 alignItems:
                   "center",
+
+                gap:
+                  "11px",
               }}
             >
 
               <div
                 style={{
                   width:
-                    "45px",
+                    "43px",
 
                   height:
-                    "45px",
+                    "43px",
 
                   display:
                     "grid",
@@ -634,22 +1343,30 @@ export default function ManagerApprovalPage() {
                     "center",
 
                   borderRadius:
-                    "14px",
+                    "12px",
 
                   color:
-                    "#59cfa0",
+                    officerApproved
+                      ? "#59cfa0"
+                      : "#ffbd67",
 
                   background:
-                    "rgba(89,207,160,0.07)",
-
-                  border:
-                    "1px solid rgba(89,207,160,0.18)",
+                    officerApproved
+                      ? "rgba(89,207,160,0.07)"
+                      : "rgba(255,189,103,0.07)",
                 }}
               >
-                <UserCheck
-                  size={22}
-                  aria-hidden="true"
-                />
+                {officerApproved ? (
+                  <CheckCircle2
+                    size={21}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <UserCheck
+                    size={21}
+                    aria-hidden="true"
+                  />
+                )}
               </div>
 
 
@@ -664,13 +1381,13 @@ export default function ManagerApprovalPage() {
                       "#71849c",
 
                     fontSize:
-                      "9px",
+                      "8px",
                   }}
                 >
                   {L(
                     language,
-                    "Officer Approval",
-                    "اعتماد موظف المراجعة"
+                    "Employee Review",
+                    "تدقيق الموظف"
                   )}
                 </span>
 
@@ -678,56 +1395,55 @@ export default function ManagerApprovalPage() {
                 <strong
                   style={{
                     display:
-                      "flex",
-
-                    alignItems:
-                      "center",
-
-                    gap:
-                      "6px",
-
-                    marginTop:
-                      "5px",
-
-                    color:
-                      "#59cfa0",
-
-                    fontSize:
-                      "13px",
-                  }}
-                >
-                  <CheckCircle2
-                    size={16}
-                    aria-hidden="true"
-                  />
-
-                  {L(
-                    language,
-                    "Approved",
-                    "تم الاعتماد"
-                  )}
-                </strong>
-
-
-                <span
-                  style={{
-                    display:
                       "block",
 
                     marginTop:
-                      "5px",
+                      "4px",
 
                     color:
-                      "#788ca4",
+                      officerApproved
+                        ? "#59cfa0"
+                        : "#ffbd67",
 
                     fontSize:
-                      "9px",
+                      "11px",
                   }}
                 >
-                  {
-                    DEMO_CASE.officerName
-                  }
-                </span>
+                  {officerApproved
+                    ? L(
+                        language,
+                        "Approved",
+                        "تم الاعتماد"
+                      )
+                    : L(
+                        language,
+                        "Approval Required First",
+                        "يجب اعتماد الموظف أولًا"
+                      )}
+                </strong>
+
+
+                {caseData.officer?.actor && (
+                  <span
+                    style={{
+                      display:
+                        "block",
+
+                      marginTop:
+                        "4px",
+
+                      color:
+                        "#71849c",
+
+                      fontSize:
+                        "8.5px",
+                    }}
+                  >
+                    {
+                      caseData.officer.actor
+                    }
+                  </span>
+                )}
 
               </div>
 
@@ -743,96 +1459,343 @@ export default function ManagerApprovalPage() {
                   "center",
 
                 gap:
-                  "6px",
+                  "5px",
 
                 padding:
-                  "7px 10px",
+                  "6px 9px",
 
                 borderRadius:
-                  "999px",
+                  "8px",
 
                 color:
-                  managerDecision ===
-                  "APPROVED"
+                  managerApproved
                     ? "#59cfa0"
-                    : "#ffbd67",
+                    : canDecide
+                      ? "#ffbd67"
+                      : "#71849c",
 
                 background:
-                  managerDecision ===
-                  "APPROVED"
+                  managerApproved
                     ? "rgba(89,207,160,0.07)"
-                    : "rgba(255,189,103,0.07)",
+                    : canDecide
+                      ? "rgba(255,189,103,0.07)"
+                      : "rgba(255,255,255,0.025)",
 
                 border:
-                  managerDecision ===
-                  "APPROVED"
-                    ? "1px solid rgba(89,207,160,0.18)"
-                    : "1px solid rgba(255,189,103,0.18)",
+                  managerApproved
+                    ? "1px solid rgba(89,207,160,0.15)"
+                    : canDecide
+                      ? "1px solid rgba(255,189,103,0.15)"
+                      : "1px solid rgba(255,255,255,0.05)",
 
                 fontSize:
-                  "9px",
+                  "8px",
 
                 fontWeight:
                   850,
               }}
             >
-              {managerDecision ===
-              "APPROVED"
+              {managerApproved
                 ? L(
                     language,
-                    "AUTHORIZED FOR EXECUTION",
-                    "مصرح للتنفيذ"
+                    "EXECUTION AUTHORIZED",
+                    "تم التصريح بالتنفيذ"
                   )
-                : L(
-                    language,
-                    "AWAITING MANAGER APPROVAL",
-                    "بانتظار موافقة المدير"
-                  )}
+                : canDecide
+                  ? L(
+                      language,
+                      "WAITING FOR MANAGER",
+                      "بانتظار قرار المدير"
+                    )
+                  : L(
+                      language,
+                      "EXECUTION LOCKED",
+                      "التنفيذ مقفل"
+                    )}
             </span>
 
-          </div>
-
-
-          <div
-            style={{
-              marginTop:
-                "15px",
-
-              paddingTop:
-                "14px",
-
-              borderTop:
-                "1px solid rgba(255,255,255,0.05)",
-
-              color:
-                "#8295ac",
-
-              fontSize:
-                "10px",
-
-              lineHeight:
-                1.7,
-            }}
-          >
-            {L(
-              language,
-              "The Monitoring Officer reviewed the evidence and approved the AI recommendation. No correction has been executed yet.",
-              "راجع موظف المراجعة الأدلة واعتمد توصية الذكاء الاصطناعي. لم يتم تنفيذ أي تعديل حتى هذه المرحلة."
-            )}
           </div>
 
         </section>
 
 
         {/* ================================================
-            DECISION SUMMARY
+            CASE + AI SUMMARY
+            ================================================ */}
+
+        <section
+          className="managerSummaryGrid"
+          style={{
+            display:
+              "grid",
+
+            gridTemplateColumns:
+              "1fr 1fr",
+
+            gap:
+              "14px",
+
+            marginBottom:
+              "14px",
+          }}
+        >
+
+          {/* CASE */}
+
+          <div className="panel">
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "CASE",
+                    "الحالة"
+                  )}
+                </div>
+
+
+                <h2>
+                  {personName}
+                </h2>
+
+              </div>
+
+
+              <UserCheck
+                size={21}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "17px",
+              }}
+            >
+
+              <div
+                className="managerInfoGrid"
+                style={{
+                  display:
+                    "grid",
+
+                  gridTemplateColumns:
+                    "repeat(2,minmax(0,1fr))",
+
+                  gap:
+                    "8px",
+                }}
+              >
+                <InfoBox
+                  label={
+                    L(
+                      language,
+                      "Problem",
+                      "المشكلة"
+                    )
+                  }
+                  value={
+                    issueLabel
+                  }
+                />
+
+
+                <InfoBox
+                  label={
+                    L(
+                      language,
+                      "Biometric",
+                      "السجل البيومتري"
+                    )
+                  }
+                  value={
+                    biometricId
+                  }
+                  dir="ltr"
+                />
+
+
+                <InfoBox
+                  label={
+                    L(
+                      language,
+                      "AI Confidence",
+                      "ثقة الذكاء الاصطناعي"
+                    )
+                  }
+                  value={
+                    `${caseData.aiConfidence}%`
+                  }
+                  color="#79a9ff"
+                  dir="ltr"
+                />
+
+
+                <InfoBox
+                  label={
+                    L(
+                      language,
+                      "Priority",
+                      "الأولوية"
+                    )
+                  }
+                  value={
+                    priorityLabel(
+                      caseData.priority,
+                      language
+                    )
+                  }
+                  color={
+                    caseData.priority ===
+                    "IMMEDIATE"
+                      ? "#ff7c89"
+                      : "#ffbd67"
+                  }
+                />
+              </div>
+
+            </div>
+
+          </div>
+
+
+          {/* AI */}
+
+          <div className="panel">
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "AI RECOMMENDATION",
+                    "توصية الذكاء الاصطناعي"
+                  )}
+                </div>
+
+
+                <h2>
+                  {L(
+                    language,
+                    "Recommendation Summary",
+                    "ملخص التوصية"
+                  )}
+                </h2>
+
+              </div>
+
+
+              <BrainCircuit
+                size={21}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                padding:
+                  "17px",
+              }}
+            >
+              <p
+                style={{
+                  margin:
+                    0,
+
+                  color:
+                    "#b9c7d7",
+
+                  fontSize:
+                    "10px",
+
+                  lineHeight:
+                    1.7,
+                }}
+              >
+                {aiSummary}
+              </p>
+
+
+              {caseData.wronglyAffected && (
+                <div
+                  style={{
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "flex-start",
+
+                    gap:
+                      "7px",
+
+                    marginTop:
+                      "12px",
+
+                    padding:
+                      "10px",
+
+                    borderRadius:
+                      "9px",
+
+                    color:
+                      "#ff7c89",
+
+                    background:
+                      "rgba(255,80,100,0.04)",
+
+                    border:
+                      "1px solid rgba(255,80,100,0.10)",
+
+                    fontSize:
+                      "9px",
+
+                    lineHeight:
+                      1.55,
+                  }}
+                >
+                  <AlertTriangle
+                    size={14}
+                    aria-hidden="true"
+                  />
+
+                  <span>
+                    {L(
+                      language,
+
+                      "This case may affect another person and requires careful human authorization.",
+
+                      "قد تؤثر هذه الحالة على شخص آخر ولذلك تتطلب اعتمادًا بشريًا دقيقًا."
+                    )}
+                  </span>
+                </div>
+              )}
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            CORRECTION PACKAGE
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginBottom:
-              "18px",
+              "14px",
           }}
         >
 
@@ -844,7 +1807,7 @@ export default function ManagerApprovalPage() {
                 {L(
                   language,
                   "CORRECTION PACKAGE",
-                  "حزمة التصحيح"
+                  "حزمة التعديل"
                 )}
               </div>
 
@@ -852,8 +1815,8 @@ export default function ManagerApprovalPage() {
               <h2>
                 {L(
                   language,
-                  "Correction Decision Summary",
-                  "ملخص قرار التعديل"
+                  "What will be authorized?",
+                  "ما الذي سيتم التصريح بتعديله؟"
                 )}
               </h2>
 
@@ -861,7 +1824,7 @@ export default function ManagerApprovalPage() {
 
 
             <GitCompareArrows
-              size={22}
+              size={21}
               aria-hidden="true"
             />
 
@@ -869,7 +1832,7 @@ export default function ManagerApprovalPage() {
 
 
           <div
-            className="decisionSummaryGrid"
+            className="technicalGrid"
             style={{
               display:
                 "grid",
@@ -878,29 +1841,13 @@ export default function ManagerApprovalPage() {
                 "repeat(3,minmax(0,1fr))",
 
               gap:
-                "10px",
+                "8px",
 
               padding:
-                "18px",
+                "17px 17px 0",
             }}
           >
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "Biometric Record",
-                  "السجل البيومتري"
-                )
-              }
-              value={
-                DEMO_CASE.biometricId
-              }
-              dir="ltr"
-            />
-
-
-            <SummaryValue
+            <InfoBox
               label={
                 L(
                   language,
@@ -908,13 +1855,32 @@ export default function ManagerApprovalPage() {
                   "النظام المستهدف"
                 )
               }
-              value="BIOMETRIC_SYSTEM"
+              value={
+                caseData.execution?.targetSystem ||
+                "BIOMETRIC_SYSTEM"
+              }
               color="#79a9ff"
               dir="ltr"
             />
 
 
-            <SummaryValue
+            <InfoBox
+              label={
+                L(
+                  language,
+                  "Target Record",
+                  "السجل المستهدف"
+                )
+              }
+              value={
+                caseData.execution?.targetRecord ||
+                biometricId
+              }
+              dir="ltr"
+            />
+
+
+            <InfoBox
               label={
                 L(
                   language,
@@ -922,11 +1888,13 @@ export default function ManagerApprovalPage() {
                   "الحقل المستهدف"
                 )
               }
-              value="linked_master_id"
+              value={
+                caseData.execution?.field ||
+                "linked_master_id"
+              }
               color="#79a9ff"
               dir="ltr"
             />
-
           </div>
 
 
@@ -943,26 +1911,28 @@ export default function ManagerApprovalPage() {
                 "center",
 
               gap:
-                "14px",
+                "12px",
 
               padding:
-                "0 18px 18px",
+                "14px 17px 17px",
             }}
           >
+
+            {/* BEFORE */}
 
             <div
               style={{
                 padding:
-                  "17px",
+                  "15px",
 
                 borderRadius:
-                  "13px",
-
-                background:
-                  "rgba(255,90,110,0.04)",
+                  "11px",
 
                 border:
-                  "1px solid rgba(255,90,110,0.16)",
+                  "1px solid rgba(255,80,100,0.10)",
+
+                background:
+                  "rgba(255,80,100,0.035)",
               }}
             >
               <span
@@ -971,10 +1941,10 @@ export default function ManagerApprovalPage() {
                     "block",
 
                   color:
-                    "#ff7685",
+                    "#a76d76",
 
                   fontSize:
-                    "9px",
+                    "8px",
 
                   fontWeight:
                     850,
@@ -989,7 +1959,6 @@ export default function ManagerApprovalPage() {
 
 
               <strong
-                dir="ltr"
                 style={{
                   display:
                     "block",
@@ -998,21 +1967,44 @@ export default function ManagerApprovalPage() {
                     "8px",
 
                   color:
-                    "#ff8492",
+                    "#e1e9f3",
 
                   fontSize:
-                    "18px",
+                    "11px",
                 }}
               >
-                {
-                  DEMO_CASE.currentMasterId
-                }
+                {currentName}
               </strong>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "5px",
+
+                  color:
+                    "#ff7c89",
+
+                  fontSize:
+                    "12px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {currentReference}
+              </span>
+
             </div>
 
 
             <ChevronRight
-              size={23}
+              className="managerMappingArrow"
+              size={20}
               color="#71849c"
               style={
                 arrowStyle
@@ -1021,19 +2013,21 @@ export default function ManagerApprovalPage() {
             />
 
 
+            {/* AFTER */}
+
             <div
               style={{
                 padding:
-                  "17px",
+                  "15px",
 
                 borderRadius:
-                  "13px",
-
-                background:
-                  "rgba(89,207,160,0.045)",
+                  "11px",
 
                 border:
-                  "1px solid rgba(89,207,160,0.22)",
+                  "1px solid rgba(89,207,160,0.13)",
+
+                background:
+                  "rgba(89,207,160,0.04)",
               }}
             >
               <span
@@ -1042,10 +2036,10 @@ export default function ManagerApprovalPage() {
                     "block",
 
                   color:
-                    "#59cfa0",
+                    "#589a82",
 
                   fontSize:
-                    "9px",
+                    "8px",
 
                   fontWeight:
                     850,
@@ -1060,7 +2054,6 @@ export default function ManagerApprovalPage() {
 
 
               <strong
-                dir="ltr"
                 style={{
                   display:
                     "block",
@@ -1069,16 +2062,38 @@ export default function ManagerApprovalPage() {
                     "8px",
 
                   color:
+                    "#e1e9f3",
+
+                  fontSize:
+                    "11px",
+                }}
+              >
+                {proposedName}
+              </strong>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "5px",
+
+                  color:
                     "#59cfa0",
 
                   fontSize:
-                    "18px",
+                    "12px",
+
+                  fontWeight:
+                    850,
                 }}
               >
-                {
-                  DEMO_CASE.canonicalMasterId
-                }
-              </strong>
+                {proposedReference}
+              </span>
+
             </div>
 
           </div>
@@ -1087,32 +2102,32 @@ export default function ManagerApprovalPage() {
           <div
             style={{
               margin:
-                "0 18px 18px",
+                "0 17px 17px",
 
               padding:
-                "12px",
+                "11px",
 
               borderRadius:
-                "10px",
-
-              background:
-                "rgba(121,169,255,0.035)",
-
-              border:
-                "1px solid rgba(121,169,255,0.08)",
+                "9px",
 
               color:
-                "#8295ac",
+                "#788ba2",
+
+              background:
+                "rgba(121,169,255,0.025)",
+
+              border:
+                "1px solid rgba(121,169,255,0.06)",
 
               fontSize:
                 "9px",
 
               lineHeight:
-                1.65,
+                1.6,
             }}
           >
-            <BrainCircuit
-              size={14}
+            <LockKeyhole
+              size={13}
               aria-hidden="true"
               style={{
                 marginInlineEnd:
@@ -1125,8 +2140,10 @@ export default function ManagerApprovalPage() {
 
             {L(
               language,
-              "AI recommendation: remove the incorrect biometric identity link and reassign the biometric record to the strongest canonical reference.",
-              "توصية الذكاء الاصطناعي: إزالة الربط البيومتري غير الصحيح وإعادة ربط السجل بأقوى هوية مرجعية تم التوصل إليها."
+
+              "Manager approval authorizes this exact Before → After change only. The Master Reference remains read-only.",
+
+              "موافقة المدير تصرح فقط بهذا التعديل المحدد من الربط الحالي إلى الربط المقترح، ويبقى المرجع الرئيسي للقراءة فقط."
             )}
           </div>
 
@@ -1134,216 +2151,14 @@ export default function ManagerApprovalPage() {
 
 
         {/* ================================================
-            MANAGER RISK REVIEW
-            ================================================ */}
-
-        <section
-          style={{
-            marginBottom:
-              "18px",
-
-            padding:
-              "20px",
-
-            borderRadius:
-              "18px",
-
-            border:
-              "1px solid rgba(255,189,103,0.12)",
-
-            background:
-              "linear-gradient(135deg, rgba(42,35,27,0.34), rgba(8,24,43,0.90))",
-          }}
-        >
-
-          <div
-            style={{
-              display:
-                "flex",
-
-              alignItems:
-                "center",
-
-              gap:
-                "8px",
-
-              marginBottom:
-                "16px",
-            }}
-          >
-            <ShieldCheck
-              size={21}
-              color="#ffbd67"
-              aria-hidden="true"
-            />
-
-            <strong
-              style={{
-                color:
-                  "#e4edf7",
-
-                fontSize:
-                  "14px",
-              }}
-            >
-              {L(
-                language,
-                "Manager Risk Review",
-                "مراجعة المدير"
-              )}
-            </strong>
-          </div>
-
-
-          <div
-            className="riskGrid"
-            style={{
-              display:
-                "grid",
-
-              gridTemplateColumns:
-                "repeat(3,minmax(0,1fr))",
-
-              gap:
-                "10px",
-            }}
-          >
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "Risk Level",
-                  "مستوى الخطورة"
-                )
-              }
-              value={
-                L(
-                  language,
-                  `High · ${DEMO_CASE.risk}`,
-                  `عالٍ · ${DEMO_CASE.risk}`
-                )
-              }
-              color="#ff7685"
-            />
-
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "Potential Human Impact",
-                  "الأثر المحتمل"
-                )
-              }
-              value={
-                L(
-                  language,
-                  "May affect another person",
-                  "قد يؤثر على شخص آخر"
-                )
-              }
-              color="#ffbd67"
-            />
-
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "Post-Execution Verification",
-                  "التحقق بعد التنفيذ"
-                )
-              }
-              value={
-                L(
-                  language,
-                  "MANDATORY",
-                  "إلزامي"
-                )
-              }
-              color="#59cfa0"
-            />
-
-          </div>
-
-
-          <div
-            style={{
-              display:
-                "grid",
-
-              gridTemplateColumns:
-                "repeat(3,minmax(0,1fr))",
-
-              gap:
-                "10px",
-
-              marginTop:
-                "10px",
-            }}
-          >
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "AI Confidence",
-                  "ثقة الذكاء الاصطناعي"
-                )
-              }
-              value={
-                `${DEMO_CASE.confidence}%`
-              }
-              dir="ltr"
-            />
-
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "Harm Score",
-                  "درجة الضرر"
-                )
-              }
-              value={
-                DEMO_CASE.harm
-              }
-              color="#ff7685"
-              dir="ltr"
-            />
-
-
-            <SummaryValue
-              label={
-                L(
-                  language,
-                  "Protective Priority",
-                  "أولوية الحماية"
-                )
-              }
-              value={
-                DEMO_CASE.protectivePriority
-              }
-              color="#59cfa0"
-              dir="ltr"
-            />
-
-          </div>
-
-        </section>
-
-
-        {/* ================================================
-            MANAGER ACTION
+            MANAGER DECISION
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginBottom:
-              "18px",
+              "14px",
           }}
         >
 
@@ -1354,25 +2169,37 @@ export default function ManagerApprovalPage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "FINAL HUMAN AUTHORIZATION",
-                  "الاعتماد البشري النهائي"
+                  "MANAGER DECISION",
+                  "قرار المدير"
                 )}
               </div>
 
 
               <h2>
-                {L(
-                  language,
-                  "Manager Decision",
-                  "قرار المدير"
-                )}
+                {managerApproved
+                  ? L(
+                      language,
+                      "Approval Completed",
+                      "اكتملت موافقة المدير"
+                    )
+                  : returnedToOfficer
+                    ? L(
+                        language,
+                        "Returned to Employee",
+                        "تمت إعادة الحالة إلى الموظف"
+                      )
+                    : L(
+                        language,
+                        "Review and Decide",
+                        "راجع واتخذ القرار"
+                      )}
               </h2>
 
             </div>
 
 
             <BadgeCheck
-              size={22}
+              size={21}
               aria-hidden="true"
             />
 
@@ -1382,125 +2209,232 @@ export default function ManagerApprovalPage() {
           <div
             style={{
               padding:
-                "18px",
+                "17px",
             }}
           >
 
-            <label
-              style={{
-                display:
-                  "block",
+            {/* ============================================
+                BLOCKED - OFFICER NOT APPROVED
+                ============================================ */}
 
-                marginBottom:
-                  "8px",
+            {!officerApproved &&
+              !returnedToOfficer && (
+                <div
+                  style={{
+                    padding:
+                      "15px",
 
-                color:
-                  "#7588a0",
+                    borderRadius:
+                      "11px",
 
-                fontSize:
-                  "9px",
-              }}
-            >
-              {L(
-                language,
-                "Manager Notes",
-                "ملاحظات المدير"
+                    border:
+                      "1px solid rgba(255,189,103,0.15)",
+
+                    background:
+                      "rgba(255,189,103,0.04)",
+                  }}
+                >
+                  <div
+                    style={{
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      gap:
+                        "7px",
+
+                      color:
+                        "#ffbd67",
+                    }}
+                  >
+                    <LockKeyhole
+                      size={18}
+                      aria-hidden="true"
+                    />
+
+                    <strong
+                      style={{
+                        fontSize:
+                          "11px",
+                      }}
+                    >
+                      {L(
+                        language,
+                        "Manager approval is locked",
+                        "موافقة المدير مقفلة"
+                      )}
+                    </strong>
+                  </div>
+
+
+                  <p
+                    style={{
+                      margin:
+                        "8px 0 0",
+
+                      color:
+                        "#8193aa",
+
+                      fontSize:
+                        "9.5px",
+
+                      lineHeight:
+                        1.65,
+                    }}
+                  >
+                    {L(
+                      language,
+
+                      "The case must complete Employee Review before the Manager can authorize execution.",
+
+                      "يجب أن تكمل الحالة تدقيق الموظف قبل أن يتمكن المدير من التصريح بالتنفيذ."
+                    )}
+                  </p>
+
+
+                  <Link
+                    href={
+                      `/officer-review?case=${caseData.id}`
+                    }
+                    style={{
+                      minHeight:
+                        "41px",
+
+                      marginTop:
+                        "12px",
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      justifyContent:
+                        "center",
+
+                      gap:
+                        "6px",
+
+                      borderRadius:
+                        "9px",
+
+                      textDecoration:
+                        "none",
+
+                      color:
+                        "#79a9ff",
+
+                      background:
+                        "rgba(121,169,255,0.04)",
+
+                      border:
+                        "1px solid rgba(121,169,255,0.12)",
+
+                      fontSize:
+                        "9px",
+
+                      fontWeight:
+                        850,
+                    }}
+                  >
+                    <UserCheck
+                      size={14}
+                      aria-hidden="true"
+                    />
+
+                    {L(
+                      language,
+                      "Open Employee Review",
+                      "فتح تدقيق الموظف"
+                    )}
+                  </Link>
+
+                </div>
               )}
-            </label>
 
 
-            <textarea
-              value={
-                comments
-              }
-              onChange={
-                (
-                  event
-                ) =>
-                  setComments(
-                    event.target.value
-                  )
-              }
-              rows={4}
-              style={{
-                width:
-                  "100%",
+            {/* ============================================
+                PENDING MANAGER DECISION
+                ============================================ */}
 
-                boxSizing:
-                  "border-box",
+            {canDecide && (
+              <>
 
-                resize:
-                  "vertical",
-
-                padding:
-                  "13px",
-
-                borderRadius:
-                  "11px",
-
-                outline:
-                  "none",
-
-                border:
-                  "1px solid rgba(121,169,255,0.13)",
-
-                background:
-                  "rgba(4,18,33,0.52)",
-
-                color:
-                  "#cbd7e5",
-
-                fontFamily:
-                  "inherit",
-
-                fontSize:
-                  "10px",
-
-                lineHeight:
-                  1.7,
-              }}
-            />
-
-
-            {managerDecision ===
-              "PENDING" && (
-              <div
-                className="managerButtons"
-                style={{
-                  display:
-                    "grid",
-
-                  gridTemplateColumns:
-                    "1fr 1fr",
-
-                  gap:
-                    "10px",
-
-                  marginTop:
-                    "14px",
-                }}
-              >
-
-                <button
-                  type="button"
-                  onClick={
-                    approve
-                  }
+                <label
                   style={{
-                    minHeight:
-                      "46px",
+                    display:
+                      "block",
 
-                    borderRadius:
-                      "11px",
-
-                    border:
-                      "1px solid rgba(111,230,180,0.42)",
-
-                    background:
-                      "linear-gradient(90deg,#4bc58f,#68d9ab)",
+                    marginBottom:
+                      "7px",
 
                     color:
-                      "#071c17",
+                      "#71849c",
+
+                    fontSize:
+                      "8.5px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Manager Notes",
+                    "ملاحظات المدير"
+                  )}
+                </label>
+
+
+                <textarea
+                  value={
+                    comments
+                  }
+                  onChange={
+                    (
+                      event
+                    ) => {
+                      setComments(
+                        event.target.value
+                      );
+                    }
+                  }
+                  rows={4}
+                  placeholder={
+                    L(
+                      language,
+
+                      "Example: Employee approval and evidence reviewed. Correction authorized.",
+
+                      "مثال: تمت مراجعة اعتماد الموظف والأدلة، وتم التصريح بالتعديل."
+                    )
+                  }
+                  style={{
+                    width:
+                      "100%",
+
+                    boxSizing:
+                      "border-box",
+
+                    resize:
+                      "vertical",
+
+                    padding:
+                      "12px",
+
+                    borderRadius:
+                      "10px",
+
+                    outline:
+                      "none",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.12)",
+
+                    background:
+                      "rgba(4,18,33,0.52)",
+
+                    color:
+                      "#cbd7e5",
 
                     fontFamily:
                       "inherit",
@@ -1508,108 +2442,184 @@ export default function ManagerApprovalPage() {
                     fontSize:
                       "10px",
 
-                    fontWeight:
-                      900,
-
-                    cursor:
-                      "pointer",
+                    lineHeight:
+                      1.7,
                   }}
-                >
-                  <CheckCircle2
-                    size={16}
-                    aria-hidden="true"
+                />
+
+
+                {error && (
+                  <div
                     style={{
-                      marginInlineEnd:
-                        "7px",
+                      marginTop:
+                        "10px",
 
-                      verticalAlign:
-                        "middle",
+                      padding:
+                        "10px",
+
+                      borderRadius:
+                        "9px",
+
+                      color:
+                        "#ff7c89",
+
+                      background:
+                        "rgba(255,80,100,0.05)",
+
+                      border:
+                        "1px solid rgba(255,80,100,0.12)",
+
+                      fontSize:
+                        "9px",
                     }}
-                  />
-
-                  {L(
-                    language,
-                    "Approve & Authorize Execution",
-                    "موافقة المدير والتصريح بالتنفيذ"
-                  )}
-                </button>
+                  >
+                    {error}
+                  </div>
+                )}
 
 
-                <button
-                  type="button"
-                  onClick={
-                    returnToOfficer
-                  }
+                <div
+                  className="managerButtons"
                   style={{
-                    minHeight:
-                      "46px",
+                    display:
+                      "grid",
 
-                    borderRadius:
-                      "11px",
+                    gridTemplateColumns:
+                      "1fr 1fr",
 
-                    border:
-                      "1px solid rgba(121,169,255,0.19)",
+                    gap:
+                      "9px",
 
-                    background:
-                      "rgba(121,169,255,0.04)",
-
-                    color:
-                      "#79a9ff",
-
-                    fontFamily:
-                      "inherit",
-
-                    fontSize:
-                      "10px",
-
-                    fontWeight:
-                      850,
-
-                    cursor:
-                      "pointer",
+                    marginTop:
+                      "13px",
                   }}
                 >
-                  <RotateCcw
-                    size={15}
-                    aria-hidden="true"
+
+                  <button
+                    type="button"
+                    onClick={
+                      approve
+                    }
                     style={{
-                      marginInlineEnd:
-                        "7px",
+                      minHeight:
+                        "44px",
 
-                      verticalAlign:
-                        "middle",
+                      border:
+                        "1px solid rgba(111,230,180,0.40)",
+
+                      borderRadius:
+                        "10px",
+
+                      background:
+                        "linear-gradient(90deg,#4bc58f,#68d9ab)",
+
+                      color:
+                        "#071c17",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize:
+                        "10px",
+
+                      fontWeight:
+                        900,
                     }}
-                  />
+                  >
+                    <CheckCircle2
+                      size={15}
+                      aria-hidden="true"
+                      style={{
+                        marginInlineEnd:
+                          "6px",
 
-                  {L(
-                    language,
-                    "Return to Officer",
-                    "إرجاع لموظف المراجعة"
-                  )}
-                </button>
+                        verticalAlign:
+                          "middle",
+                      }}
+                    />
 
-              </div>
+                    {L(
+                      language,
+                      "Approve & Authorize Correction",
+                      "الموافقة والتصريح بالتعديل"
+                    )}
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={
+                      returnToOfficer
+                    }
+                    style={{
+                      minHeight:
+                        "44px",
+
+                      border:
+                        "1px solid rgba(121,169,255,0.18)",
+
+                      borderRadius:
+                        "10px",
+
+                      background:
+                        "rgba(121,169,255,0.04)",
+
+                      color:
+                        "#79a9ff",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize:
+                        "10px",
+
+                      fontWeight:
+                        850,
+                    }}
+                  >
+                    <RotateCcw
+                      size={15}
+                      aria-hidden="true"
+                      style={{
+                        marginInlineEnd:
+                          "6px",
+
+                        verticalAlign:
+                          "middle",
+                      }}
+                    />
+
+                    {L(
+                      language,
+                      "Return to Employee",
+                      "إعادة إلى الموظف"
+                    )}
+                  </button>
+
+                </div>
+
+              </>
             )}
 
 
-            {managerDecision ===
-              "APPROVED" && (
+            {/* ============================================
+                APPROVED
+                ============================================ */}
+
+            {managerApproved && (
               <div
                 style={{
-                  marginTop:
+                  padding:
                     "15px",
 
-                  padding:
-                    "17px",
-
                   borderRadius:
-                    "14px",
+                    "11px",
 
                   border:
-                    "1px solid rgba(89,207,160,0.28)",
+                    "1px solid rgba(89,207,160,0.15)",
 
                   background:
-                    "rgba(89,207,160,0.055)",
+                    "rgba(89,207,160,0.045)",
                 }}
               >
 
@@ -1629,21 +2639,20 @@ export default function ManagerApprovalPage() {
                   }}
                 >
                   <CheckCircle2
-                    size={21}
+                    size={19}
                     aria-hidden="true"
                   />
-
 
                   <strong
                     style={{
                       fontSize:
-                        "12px",
+                        "11px",
                     }}
                   >
                     {L(
                       language,
-                      "Manager approval completed",
-                      "تمت موافقة المدير"
+                      "Manager approval recorded",
+                      "تم تسجيل موافقة المدير"
                     )}
                   </strong>
                 </div>
@@ -1652,24 +2661,78 @@ export default function ManagerApprovalPage() {
                 <p
                   style={{
                     margin:
-                      "9px 0 14px",
+                      "8px 0 0",
 
                     color:
-                      "#8295ac",
+                      "#7f92a9",
 
                     fontSize:
-                      "9px",
+                      "9.5px",
 
                     lineHeight:
-                      1.7,
+                      1.65,
                   }}
                 >
                   {L(
                     language,
-                    "Both required human approvals are complete. The correction package is now authorized for controlled execution. The next step will apply the approved change to the synthetic runtime biometric record and immediately verify the result.",
-                    "اكتمل الاعتمادان البشريان المطلوبان. أصبحت حزمة التصحيح الآن مصرحًا لها بالتنفيذ الخاضع للتحكم. في الخطوة التالية سيتم تطبيق التعديل المعتمد على السجل البيومتري الاصطناعي ثم التحقق من النتيجة مباشرة."
+
+                    "Both required human approvals are complete. The exact correction shown above is now authorized for controlled execution.",
+
+                    "اكتملت الموافقتان البشريتان المطلوبتان. أصبح التعديل المحدد أعلاه مصرحًا الآن للتنفيذ الخاضع للتحكم."
                   )}
                 </p>
+
+
+                {comments && (
+                  <div
+                    style={{
+                      marginTop:
+                        "10px",
+
+                      padding:
+                        "10px",
+
+                      borderRadius:
+                        "9px",
+
+                      color:
+                        "#8193aa",
+
+                      background:
+                        "rgba(255,255,255,0.02)",
+
+                      border:
+                        "1px solid rgba(255,255,255,0.04)",
+
+                      fontSize:
+                        "9px",
+
+                      lineHeight:
+                        1.6,
+                    }}
+                  >
+                    <strong
+                      style={{
+                        display:
+                          "block",
+
+                        marginBottom:
+                          "4px",
+
+                        color:
+                          "#a9b8c9",
+                      }}
+                    >
+                      {L(
+                        language,
+                        "Manager Notes",
+                        "ملاحظات المدير"
+                      )}
+                    </strong>
+
+                    {comments}
+                  </div>
+                )}
 
 
                 <div
@@ -1681,51 +2744,56 @@ export default function ManagerApprovalPage() {
                       "center",
 
                     gap:
-                      "7px",
+                      "6px",
 
-                    marginBottom:
-                      "14px",
+                    marginTop:
+                      "11px",
 
                     padding:
-                      "10px",
+                      "9px",
 
                     borderRadius:
-                      "9px",
+                      "8px",
 
                     color:
                       "#59cfa0",
 
                     background:
-                      "rgba(89,207,160,0.035)",
+                      "rgba(89,207,160,0.03)",
 
                     border:
-                      "1px solid rgba(89,207,160,0.09)",
+                      "1px solid rgba(89,207,160,0.08)",
 
                     fontSize:
-                      "9px",
+                      "8.5px",
 
                     fontWeight:
-                      750,
+                      800,
                   }}
                 >
                   <LockKeyhole
-                    size={14}
+                    size={13}
                     aria-hidden="true"
                   />
 
                   {L(
                     language,
-                    "Execution Lock: RELEASED",
-                    "قفل التنفيذ: تم فتحه"
+                    "Execution lock released for this case",
+                    "تم فتح قفل التنفيذ لهذه الحالة"
                   )}
                 </div>
 
 
                 <Link
-                  href="/corrections-verification"
+                  href={
+                    `/corrections-verification?case=${caseData.id}`
+                  }
                   style={{
                     minHeight:
-                      "46px",
+                      "44px",
+
+                    marginTop:
+                      "12px",
 
                     display:
                       "flex",
@@ -1737,10 +2805,10 @@ export default function ManagerApprovalPage() {
                       "center",
 
                     gap:
-                      "8px",
+                      "7px",
 
                     borderRadius:
-                      "11px",
+                      "10px",
 
                     textDecoration:
                       "none",
@@ -1752,7 +2820,7 @@ export default function ManagerApprovalPage() {
                       "linear-gradient(90deg,#4bc58f,#68d9ab)",
 
                     border:
-                      "1px solid rgba(111,230,180,0.42)",
+                      "1px solid rgba(111,230,180,0.40)",
 
                     fontSize:
                       "10px",
@@ -1762,18 +2830,18 @@ export default function ManagerApprovalPage() {
                   }}
                 >
                   <Activity
-                    size={16}
+                    size={15}
                     aria-hidden="true"
                   />
 
                   {L(
                     language,
-                    "Execute Correction & Verify",
-                    "تنفيذ التعديل والانتقال للتحقق"
+                    "Continue to Correction",
+                    "الانتقال إلى تنفيذ التعديل"
                   )}
 
                   <ChevronRight
-                    size={15}
+                    size={14}
                     style={
                       arrowStyle
                     }
@@ -1785,110 +2853,110 @@ export default function ManagerApprovalPage() {
             )}
 
 
-            {managerDecision ===
-              "RETURNED" && (
-              <div
-                style={{
-                  marginTop:
-                    "15px",
+            {/* ============================================
+                RETURNED TO EMPLOYEE
+                ============================================ */}
 
-                  padding:
-                    "17px",
-
-                  borderRadius:
-                    "14px",
-
-                  border:
-                    "1px solid rgba(255,189,103,0.22)",
-
-                  background:
-                    "rgba(255,189,103,0.05)",
-                }}
-              >
-
+            {returnedToOfficer &&
+              !managerApproved && (
                 <div
                   style={{
-                    display:
-                      "flex",
+                    padding:
+                      "15px",
 
-                    alignItems:
-                      "center",
+                    borderRadius:
+                      "11px",
 
-                    gap:
-                      "8px",
+                    border:
+                      "1px solid rgba(255,189,103,0.15)",
 
-                    color:
-                      "#ffbd67",
+                    background:
+                      "rgba(255,189,103,0.04)",
                   }}
                 >
-                  <AlertTriangle
-                    size={19}
-                    aria-hidden="true"
-                  />
 
-
-                  <strong
+                  <div
                     style={{
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      gap:
+                        "7px",
+
+                      color:
+                        "#ffbd67",
+                    }}
+                  >
+                    <RotateCcw
+                      size={18}
+                      aria-hidden="true"
+                    />
+
+                    <strong
+                      style={{
+                        fontSize:
+                          "11px",
+                      }}
+                    >
+                      {L(
+                        language,
+                        "Case returned to Employee Review",
+                        "تمت إعادة الحالة إلى تدقيق الموظف"
+                      )}
+                    </strong>
+                  </div>
+
+
+                  <p
+                    style={{
+                      margin:
+                        "8px 0 0",
+
+                      color:
+                        "#8193aa",
+
                       fontSize:
-                        "11px",
+                        "9.5px",
+
+                      lineHeight:
+                        1.65,
                     }}
                   >
                     {L(
                       language,
-                      "Case returned to Officer",
-                      "تمت إعادة الحالة إلى موظف المراجعة"
+
+                      "Execution remains locked. The employee must review the case again before it can return to Manager approval.",
+
+                      "يبقى التنفيذ مقفلًا. يجب على الموظف مراجعة الحالة مرة أخرى قبل أن تعود إلى موافقة المدير."
                     )}
-                  </strong>
-                </div>
+                  </p>
 
-
-                <span
-                  style={{
-                    display:
-                      "block",
-
-                    marginTop:
-                      "8px",
-
-                    color:
-                      "#8193aa",
-
-                    fontSize:
-                      "9px",
-
-                    lineHeight:
-                      1.65,
-                  }}
-                >
-                  {L(
-                    language,
-                    "Execution remains blocked. The case requires another Officer review before it can return to Manager approval.",
-                    "يبقى التنفيذ محظورًا. تحتاج الحالة إلى مراجعة جديدة من الموظف قبل إعادتها إلى المدير."
-                  )}
-                </span>
-
-
-                <div
-                  style={{
-                    display:
-                      "flex",
-
-                    gap:
-                      "9px",
-
-                    flexWrap:
-                      "wrap",
-
-                    marginTop:
-                      "13px",
-                  }}
-                >
 
                   <Link
-                    href="/officer-review"
+                    href={
+                      `/officer-review?case=${caseData.id}`
+                    }
                     style={{
-                      padding:
-                        "10px 13px",
+                      minHeight:
+                        "41px",
+
+                      marginTop:
+                        "12px",
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      justifyContent:
+                        "center",
+
+                      gap:
+                        "6px",
 
                       borderRadius:
                         "9px",
@@ -1896,78 +2964,126 @@ export default function ManagerApprovalPage() {
                       textDecoration:
                         "none",
 
-                      border:
-                        "1px solid rgba(121,169,255,0.18)",
-
                       color:
                         "#79a9ff",
 
                       background:
                         "rgba(121,169,255,0.04)",
 
+                      border:
+                        "1px solid rgba(121,169,255,0.12)",
+
                       fontSize:
                         "9px",
 
                       fontWeight:
-                        800,
+                        850,
                     }}
                   >
+                    <UserCheck
+                      size={14}
+                      aria-hidden="true"
+                    />
+
                     {L(
                       language,
-                      "Return to Officer Review",
+                      "Return to Employee Review",
                       "العودة إلى تدقيق الموظف"
                     )}
                   </Link>
 
+                </div>
+              )}
 
-                  <button
-                    type="button"
-                    onClick={
-                      () =>
-                        setManagerDecision(
-                          "PENDING"
-                        )
+
+            {/* ============================================
+                ALREADY MOVED FORWARD
+                ============================================ */}
+
+            {!canDecide &&
+              officerApproved &&
+              !managerApproved &&
+              !returnedToOfficer && (
+                <div
+                  style={{
+                    padding:
+                      "14px",
+
+                    borderRadius:
+                      "10px",
+
+                    color:
+                      "#8193aa",
+
+                    background:
+                      "rgba(121,169,255,0.035)",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.08)",
+
+                    fontSize:
+                      "9.5px",
+
+                    lineHeight:
+                      1.65,
+                  }}
+                >
+                  {L(
+                    language,
+
+                    "This case is no longer waiting for a Manager decision. Open the case details to continue from its current workflow stage.",
+
+                    "هذه الحالة لم تعد بانتظار قرار المدير. افتح تفاصيل الحالة للمتابعة من مرحلتها الحالية."
+                  )}
+
+
+                  <Link
+                    href={
+                      `/cases/${caseData.id}`
                     }
                     style={{
-                      padding:
-                        "10px 13px",
+                      minHeight:
+                        "39px",
+
+                      marginTop:
+                        "11px",
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      justifyContent:
+                        "center",
 
                       borderRadius:
                         "9px",
 
-                      border:
-                        "1px solid rgba(255,255,255,0.08)",
+                      color:
+                        "#79a9ff",
+
+                      textDecoration:
+                        "none",
 
                       background:
-                        "rgba(255,255,255,0.025)",
+                        "rgba(121,169,255,0.04)",
 
-                      color:
-                        "#8da0b7",
-
-                      fontFamily:
-                        "inherit",
-
-                      fontSize:
-                        "9px",
+                      border:
+                        "1px solid rgba(121,169,255,0.10)",
 
                       fontWeight:
                         800,
-
-                      cursor:
-                        "pointer",
                     }}
                   >
                     {L(
                       language,
-                      "Reset Demo Decision",
-                      "إعادة قرار المحاكاة"
+                      "Open Case",
+                      "فتح الحالة"
                     )}
-                  </button>
-
+                  </Link>
                 </div>
-
-              </div>
-            )}
+              )}
 
           </div>
 
@@ -1975,21 +3091,21 @@ export default function ManagerApprovalPage() {
 
 
         {/* ================================================
-            SAFETY BOUNDARY
+            SAFETY
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
             margin:
-              "0 0 16px",
+              "0 0 14px",
 
             padding:
-              "18px",
+              "15px",
           }}
         >
           <ShieldCheck
-            size={23}
+            size={21}
             aria-hidden="true"
           />
 
@@ -1998,8 +3114,8 @@ export default function ManagerApprovalPage() {
             <strong>
               {L(
                 language,
-                "Manager approval authorizes only the approved biometric correction",
-                "موافقة المدير تصرح فقط بالتصحيح البيومتري المعتمد"
+                "Manager approval authorizes only this correction",
+                "موافقة المدير تصرح فقط بهذا التعديل"
               )}
             </strong>
 
@@ -2007,8 +3123,10 @@ export default function ManagerApprovalPage() {
             <span>
               {L(
                 language,
-                "The Master Reference remains read-only. Controlled execution changes only the authorized linked_master_id in the synthetic runtime biometric dataset, followed by mandatory verification.",
-                "يبقى المرجع الرئيسي للقراءة فقط. يغير التنفيذ الخاضع للتحكم الحقل linked_master_id المصرح به فقط داخل نسخة التشغيل الاصطناعية من البيانات البيومترية، ثم يبدأ التحقق الإلزامي."
+
+                "Only the approved biometric relationship may be changed. The Master Reference stays read-only, and successful verification is still required before the case can close.",
+
+                "يمكن تغيير الربط البيومتري المعتمد فقط. يبقى المرجع الرئيسي للقراءة فقط، ويظل نجاح التحقق إلزاميًا قبل إغلاق الحالة."
               )}
             </span>
 
@@ -2033,56 +3151,107 @@ export default function ManagerApprovalPage() {
 
 
           <div>
+            {managerApproved ? (
+              <CheckCircle2
+                size={14}
+                aria-hidden="true"
+              />
+            ) : (
+              <ShieldCheck
+                size={14}
+                aria-hidden="true"
+              />
+            )}
 
-            <ShieldCheck
-              size={15}
-              aria-hidden="true"
-            />
-
-            {managerDecision ===
-            "APPROVED"
-              ? L(
-                  language,
-                  "Execution Authorized",
-                  "تم التصريح بالتنفيذ"
-                )
-              : L(
-                  language,
-                  "Final Human Authorization Required",
-                  "الاعتماد البشري النهائي مطلوب"
-                )}
-
+            <span dir="ltr">
+              {caseData.id}
+            </span>
           </div>
 
         </footer>
 
 
+        {/* ================================================
+            MOBILE
+            ================================================ */}
+
         <style jsx>{`
-          @media (max-width: 760px) {
-            .workflowGrid {
-              grid-template-columns: repeat(5, minmax(70px, 1fr)) !important;
-              overflow-x: auto;
-              padding-bottom: 4px;
+
+          @media (
+            max-width: 850px
+          ) {
+
+            .managerSummaryGrid {
+              grid-template-columns:
+                1fr
+                !important;
             }
 
-            .decisionSummaryGrid,
-            .riskGrid {
-              grid-template-columns: 1fr !important;
+          }
+
+
+          @media (
+            max-width: 760px
+          ) {
+
+            .managerWorkflow {
+              overflow-x:
+                auto;
             }
+
+
+            .managerWorkflowGrid {
+              min-width:
+                520px;
+            }
+
+
+            .technicalGrid {
+              grid-template-columns:
+                1fr
+                !important;
+            }
+
 
             .beforeAfterGrid {
-              grid-template-columns: 1fr !important;
+              grid-template-columns:
+                1fr
+                !important;
             }
 
-            .beforeAfterGrid > svg {
-              margin: 0 auto;
-              transform: rotate(90deg) !important;
+
+            :global(.managerMappingArrow) {
+              margin:
+                0 auto;
+
+              transform:
+                rotate(90deg)
+                !important;
             }
+
 
             .managerButtons {
-              grid-template-columns: 1fr !important;
+              grid-template-columns:
+                1fr
+                !important;
             }
+
           }
+
+
+          @media (
+            max-width: 480px
+          ) {
+
+            .managerInfoGrid {
+              grid-template-columns:
+                1fr
+                1fr
+                !important;
+            }
+
+          }
+
         `}</style>
 
       </main>

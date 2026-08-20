@@ -12,9 +12,7 @@ import {
 } from "./lib/demo-data";
 
 import {
-  Activity,
   AlertTriangle,
-  BrainCircuit,
   CheckCircle2,
   ChevronRight,
   Database,
@@ -22,7 +20,6 @@ import {
   Fingerprint,
   Search,
   ShieldCheck,
-  Sparkles,
   UserCheck,
 } from "lucide-react";
 
@@ -43,106 +40,221 @@ function L(
 
 
 /* =========================================================
-   WORKFLOW SNAPSHOT
+   DASHBOARD
    ========================================================= */
 
 const AWAITING_REVIEW = 5;
 
 
 /* =========================================================
-   MAIN DASHBOARD METRICS
+   MAIN METRICS
    ========================================================= */
 
 const dashboardMetrics = [
   {
     key: "master",
 
-    value: PLATFORM_METRICS.masterIdentities.toLocaleString(),
+    value:
+      PLATFORM_METRICS.masterIdentities.toLocaleString(),
 
-    icon: Database,
+    icon:
+      Database,
 
     en: {
-      title: "Master Reference Records",
+      title:
+        "Reference Records",
 
       subtitle:
-        "Authoritative records used for biometric comparison",
+        "Approved reference data",
     },
 
     ar: {
-      title: "سجلات المرجع المعتمد",
+      title:
+        "البيانات المرجعية",
 
       subtitle:
-        "السجلات المرجعية المستخدمة في المطابقة البيومترية",
+        "السجلات المعتمدة للمقارنة",
     },
   },
 
   {
     key: "biometric",
 
-    value: PLATFORM_METRICS.biometricRecords.toLocaleString(),
+    value:
+      PLATFORM_METRICS.biometricRecords.toLocaleString(),
 
-    icon: Fingerprint,
+    icon:
+      Fingerprint,
 
     en: {
-      title: "Biometric Records",
+      title:
+        "Biometric Records",
 
       subtitle:
-        "Operational biometric records monitored by the system",
+        "Records monitored by the system",
     },
 
     ar: {
-      title: "السجلات البيومترية",
+      title:
+        "السجلات البيومترية",
 
       subtitle:
-        "السجلات التشغيلية التي تتم مراقبتها ومطابقتها",
+        "السجلات التي يراقبها النظام",
     },
   },
 
   {
     key: "cases",
 
-    value: String(
-      PLATFORM_METRICS.aggregatedCases
-    ),
+    value:
+      String(
+        PLATFORM_METRICS.aggregatedCases
+      ),
 
-    icon: FileSearch,
+    icon:
+      FileSearch,
 
     en: {
-      title: "Detected Cases",
+      title:
+        "Detected Cases",
 
       subtitle:
-        "Matching and linking problems detected by the system",
+        "Cases requiring attention",
     },
 
     ar: {
-      title: "الحالات المكتشفة",
+      title:
+        "الحالات المكتشفة",
 
       subtitle:
-        "مشكلات في المطابقة والربط رصدها النظام",
+        "حالات تحتاج إلى متابعة",
     },
   },
 
   {
     key: "review",
 
-    value: String(
-      AWAITING_REVIEW
-    ),
+    value:
+      String(
+        AWAITING_REVIEW
+      ),
 
-    icon: UserCheck,
+    icon:
+      UserCheck,
 
     en: {
-      title: "Awaiting Review",
+      title:
+        "Awaiting Review",
 
       subtitle:
-        "Cases currently requiring a human decision",
+        "Waiting for a human decision",
     },
 
     ar: {
-      title: "بانتظار المراجعة",
+      title:
+        "بانتظار المراجعة",
 
       subtitle:
-        "حالات تحتاج حاليًا إلى قرار بشري",
+        "تنتظر قرار الموظف المختص",
+    },
+  },
+];
+
+
+/* =========================================================
+   SIMPLE WORKFLOW
+   ========================================================= */
+
+const workflowSteps = [
+  {
+    number: "1",
+
+    icon:
+      Search,
+
+    en: {
+      title:
+        "Problem Detected",
+
+      text:
+        "The system finds a suspicious link.",
+    },
+
+    ar: {
+      title:
+        "اكتشاف المشكلة",
+
+      text:
+        "يرصد النظام حالة تحتاج إلى مراجعة.",
+    },
+  },
+
+  {
+    number: "2",
+
+    icon:
+      UserCheck,
+
+    en: {
+      title:
+        "Employee Review",
+
+      text:
+        "The authorized employee checks the case.",
+    },
+
+    ar: {
+      title:
+        "مراجعة الموظف",
+
+      text:
+        "يراجع الموظف المختص الحالة والأدلة.",
+    },
+  },
+
+  {
+    number: "3",
+
+    icon:
+      ShieldCheck,
+
+    en: {
+      title:
+        "Manager Approval",
+
+      text:
+        "The manager approves the correction.",
+    },
+
+    ar: {
+      title:
+        "موافقة المدير",
+
+      text:
+        "يعتمد المدير الإجراء المقترح.",
+    },
+  },
+
+  {
+    number: "4",
+
+    icon:
+      CheckCircle2,
+
+    en: {
+      title:
+        "Correction & Verification",
+
+      text:
+        "The change is applied and checked.",
+    },
+
+    ar: {
+      title:
+        "التصحيح والتحقق",
+
+      text:
+        "يتم التعديل ثم التأكد من نجاحه.",
     },
   },
 ];
@@ -151,51 +263,79 @@ const dashboardMetrics = [
 /* =========================================================
    IMPORTANT CASES
 
-   Synthetic demonstration names only.
-
-   Identity-name policy:
-   First Name + Second Name only.
-   No third name, surname, family name or tribe name.
+   Synthetic identities only.
+   First Name + Second Name.
    ========================================================= */
 
 const attentionCases = [
   {
-    id: "CASE-2026-00002",
+    id:
+      "CASE-2026-00002",
 
     person: {
-      en: "Khalid Rashid",
-      ar: "خالد راشد",
+      en:
+        "Khalid Rashid",
+
+      ar:
+        "خالد راشد",
     },
 
-    issue: "HARM_IMPACT",
+    issue: {
+      en:
+        "Possible wrong-person link",
 
-    confidence: "99.98%",
+      ar:
+        "احتمال ربط السجل بالشخص الخطأ",
+    },
 
-    priority: "IMMEDIATE",
+    status: {
+      en:
+        "Awaiting Review",
 
-    status: "OFFICER_REVIEW",
+      ar:
+        "بانتظار المراجعة",
+    },
 
-    hasDetail: false,
+    priority:
+      "IMMEDIATE",
+
+    href:
+      "/cases",
   },
 
   {
-    id: "CASE-2026-00003",
+    id:
+      "CASE-2026-00003",
 
     person: {
-      en: "Maryam Ahmed",
-      ar: "مريم أحمد",
+      en:
+        "Maryam Ahmed",
+
+      ar:
+        "مريم أحمد",
     },
 
-    issue:
-      "CRITICAL_HARM_IDENTITY_CONFLICT",
+    issue: {
+      en:
+        "Critical record conflict",
 
-    confidence: "99.98%",
+      ar:
+        "تعارض حرج يحتاج مراجعة",
+    },
 
-    priority: "IMMEDIATE",
+    status: {
+      en:
+        "Analysis Complete",
 
-    status: "AI_INVESTIGATED",
+      ar:
+        "اكتمل تحليل الحالة",
+    },
 
-    hasDetail: false,
+    priority:
+      "IMMEDIATE",
+
+    href:
+      "/cases",
   },
 
   {
@@ -205,218 +345,98 @@ const attentionCases = [
     person:
       COMPLEX_DEMO_CASE.person,
 
-    issue:
-      COMPLEX_DEMO_CASE.caseType,
+    issue: {
+      en:
+        "Complex record conflict",
 
-    confidence:
-      `${COMPLEX_DEMO_CASE.aiConfidence}%`,
+      ar:
+        "تعارض معقد بين السجلات",
+    },
+
+    status: {
+      en:
+        "Analysis Complete",
+
+      ar:
+        "اكتمل تحليل الحالة",
+    },
 
     priority:
       COMPLEX_DEMO_CASE.priority,
 
-    status:
-      COMPLEX_DEMO_CASE.finalStatus,
-
-    hasDetail: true,
+    href:
+      `/cases/${COMPLEX_DEMO_CASE.id}`,
   },
 ];
 
 
 /* =========================================================
-   SMART MONITORING STATUS
+   PRIORITY
    ========================================================= */
-
-const aiStatus = [
-  {
-    icon: Activity,
-
-    en: {
-      title: "Continuous Monitoring",
-
-      description:
-        "New and changed biometric record relationships are monitored.",
-
-      status: "Active",
-    },
-
-    ar: {
-      title: "المراقبة المستمرة",
-
-      description:
-        "تتم مراقبة علاقات السجلات البيومترية الجديدة والمتغيرة.",
-
-      status: "نشطة",
-    },
-  },
-
-  {
-    icon: Fingerprint,
-
-    en: {
-      title: "AI Biometric Reconciliation",
-
-      description:
-        "Biometric records are compared with the authoritative Master Reference.",
-
-      status: "Active",
-    },
-
-    ar: {
-      title: "المطابقة البيومترية بالذكاء الاصطناعي",
-
-      description:
-        "تتم مقارنة السجلات البيومترية مع المرجع الرئيسي المعتمد.",
-
-      status: "نشطة",
-    },
-  },
-
-  {
-    icon: BrainCircuit,
-
-    en: {
-      title: "AI Case Analysis",
-
-      description:
-        "Detected conflicts are analyzed and prepared for human review.",
-
-      status: "Active",
-    },
-
-    ar: {
-      title: "تحليل الحالات بالذكاء الاصطناعي",
-
-      description:
-        "يتم تحليل التعارضات المكتشفة وتجهيز النتائج للمراجعة البشرية.",
-
-      status: "نشط",
-    },
-  },
-];
-
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
-
-function getIssueLabel(
-  type,
-  language
-) {
-  const labels = {
-    HARM_IMPACT: {
-      en: "Possible Wrong-Person Impact",
-      ar: "احتمال تأثير على شخص آخر",
-    },
-
-    CRITICAL_HARM_IDENTITY_CONFLICT: {
-      en: "Critical Identity Conflict",
-      ar: "تعارض هوية حرج",
-    },
-
-    COMPLEX_IDENTITY_CONFLICT: {
-      en: "Complex Identity Conflict",
-      ar: "تعارض هوية معقد",
-    },
-
-    WRONG_MAPPING: {
-      en: "Incorrect Record-to-Person Link",
-      ar: "ربط السجل بشخص غير صحيح",
-    },
-
-    DATA_MISMATCH: {
-      en: "Data Mismatch",
-      ar: "اختلاف في البيانات",
-    },
-
-    DUPLICATE_IDENTITY: {
-      en: "Duplicate Identity Record",
-      ar: "سجل هوية مكرر",
-    },
-
-    ORPHAN_RECORD: {
-      en: "Missing Reference Link",
-      ar: "سجل بدون مرجع مرتبط",
-    },
-  };
-
-
-  return (
-    labels[type]?.[language]
-    ||
-    labels[type]?.en
-    ||
-    type
-  );
-}
-
-
-function getStatusLabel(
-  status,
-  language
-) {
-  const labels = {
-    OFFICER_REVIEW: {
-      en: "Awaiting Officer Review",
-      ar: "بانتظار مراجعة الضابط",
-    },
-
-    AI_INVESTIGATED: {
-      en: "AI Analysis Complete",
-      ar: "اكتمل تحليل الذكاء الاصطناعي",
-    },
-
-    VERIFIED_CLOSED: {
-      en: "Resolved & Verified",
-      ar: "تم الحل والتحقق",
-    },
-  };
-
-
-  return (
-    labels[status]?.[language]
-    ||
-    labels[status]?.en
-    ||
-    status
-  );
-}
-
 
 function getPriorityLabel(
   priority,
   language
 ) {
-  const labels = {
-    IMMEDIATE: {
-      en: "Urgent",
-      ar: "فوري",
-    },
+  if (
+    priority ===
+    "IMMEDIATE"
+  ) {
+    return L(
+      language,
+      "Urgent",
+      "فوري"
+    );
+  }
 
-    HIGH: {
-      en: "High",
-      ar: "مرتفع",
-    },
 
-    MEDIUM: {
-      en: "Medium",
-      ar: "متوسط",
-    },
-  };
+  if (
+    priority ===
+    "HIGH"
+  ) {
+    return L(
+      language,
+      "High",
+      "مرتفع"
+    );
+  }
+
+
+  return L(
+    language,
+    "Medium",
+    "متوسط"
+  );
+}
+
+
+function PriorityBadge({
+  priority,
+  language,
+}) {
+  const className =
+    priority ===
+    "IMMEDIATE"
+      ? "priority immediate"
+      : priority ===
+          "HIGH"
+        ? "priority high"
+        : "priority medium";
 
 
   return (
-    labels[priority]?.[language]
-    ||
-    labels[priority]?.en
-    ||
-    priority
+    <span className={className}>
+      {getPriorityLabel(
+        priority,
+        language
+      )}
+    </span>
   );
 }
 
 
 /* =========================================================
-   METRIC CARD
+   METRIC
    ========================================================= */
 
 function MetricCard({
@@ -426,30 +446,22 @@ function MetricCard({
   const Icon =
     item.icon;
 
+
   const content =
-    item[language]
-    ||
+    item[
+      language
+    ] ||
     item.en;
 
 
   return (
     <div className="metricCard">
 
-      <div className="metricTop">
-        <div className="metricIcon">
-          <Icon
-            size={20}
-            aria-hidden="true"
-          />
-        </div>
-
-        <span className="metricStatus">
-          {L(
-            language,
-            "DEMO DATA",
-            "بيانات تجريبية"
-          )}
-        </span>
+      <div className="metricIcon">
+        <Icon
+          size={21}
+          aria-hidden="true"
+        />
       </div>
 
 
@@ -468,33 +480,6 @@ function MetricCard({
       </div>
 
     </div>
-  );
-}
-
-
-/* =========================================================
-   PRIORITY BADGE
-   ========================================================= */
-
-function PriorityBadge({
-  priority,
-  language,
-}) {
-  const className =
-    priority === "IMMEDIATE"
-      ? "priority immediate"
-      : priority === "HIGH"
-        ? "priority high"
-        : "priority medium";
-
-
-  return (
-    <span className={className}>
-      {getPriorityLabel(
-        priority,
-        language
-      )}
-    </span>
   );
 }
 
@@ -538,15 +523,15 @@ export default function Home() {
           <div>
 
             <div className="eyebrow">
-              <Sparkles
+              <ShieldCheck
                 size={15}
                 aria-hidden="true"
               />
 
               {L(
                 language,
-                "AI BIOMETRIC MONITORING",
-                "المراقبة البيومترية بالذكاء الاصطناعي"
+                "IDENTITY MONITORING",
+                "متابعة حالات الهوية"
               )}
             </div>
 
@@ -554,8 +539,8 @@ export default function Home() {
             <h1>
               {L(
                 language,
-                "Biometric Reconciliation Dashboard",
-                "لوحة المطابقة البيومترية"
+                "Identity Monitoring Dashboard",
+                "لوحة متابعة الحالات البيومترية"
               )}
             </h1>
 
@@ -564,9 +549,9 @@ export default function Home() {
               {L(
                 language,
 
-                "Monitor biometric records and their links with the authoritative reference, detect conflicts with AI, and route cases requiring action to the appropriate reviewer.",
+                "The system monitors biometric records, detects suspicious links and sends cases requiring action to authorized staff.",
 
-                "مراقبة السجلات البيومترية وروابطها بالمرجع المعتمد، واكتشاف التعارضات بالذكاء الاصطناعي وتحويل الحالات التي تحتاج إلى إجراء للموظف المختص."
+                "يراقب النظام السجلات البيومترية، ويكشف الحالات التي تحتاج مراجعة أو تصحيح، ثم يحولها إلى الموظف المختص."
               )}
             </p>
 
@@ -583,7 +568,7 @@ export default function Home() {
                   "none",
               }}
             >
-              <Search
+              <FileSearch
                 size={18}
                 aria-hidden="true"
               />
@@ -591,8 +576,8 @@ export default function Home() {
               <span>
                 {L(
                   language,
-                  "Search Cases",
-                  "البحث في الحالات"
+                  "View Cases",
+                  "عرض الحالات"
                 )}
               </span>
             </Link>
@@ -603,60 +588,22 @@ export default function Home() {
 
 
         {/* ================================================
-            SIMPLE EXPLANATION
-            ================================================ */}
-
-        <section
-          className="integrityInfo"
-          style={{
-            margin:
-              "0 0 20px",
-
-            padding:
-              "18px",
-          }}
-        >
-          <ShieldCheck
-            size={24}
-            aria-hidden="true"
-          />
-
-          <div>
-
-            <strong>
-              {L(
-                language,
-                "What does the system monitor?",
-                "ماذا يراقب النظام؟"
-              )}
-            </strong>
-
-
-            <span>
-              {L(
-                language,
-
-                `The system continuously compares ${PLATFORM_METRICS.biometricRecords.toLocaleString()} biometric records with ${PLATFORM_METRICS.masterIdentities.toLocaleString()} authoritative reference records. AI detected ${PLATFORM_METRICS.aggregatedCases} cases that require investigation, review or follow-up.`,
-
-                `يقارن النظام بشكل مستمر ${PLATFORM_METRICS.biometricRecords.toLocaleString()} سجل بيومتري مع ${PLATFORM_METRICS.masterIdentities.toLocaleString()} سجل في المرجع المعتمد. واكتشف الذكاء الاصطناعي ${PLATFORM_METRICS.aggregatedCases} حالة تحتاج إلى تحقيق أو مراجعة أو متابعة.`
-              )}
-            </span>
-
-          </div>
-        </section>
-
-
-        {/* ================================================
-            MAIN KPIs
+            MAIN METRICS
             ================================================ */}
 
         <section className="statsGrid">
 
           {dashboardMetrics.map(
-            (item) => (
+            (
+              item
+            ) => (
               <MetricCard
-                key={item.key}
-                item={item}
+                key={
+                  item.key
+                }
+                item={
+                  item
+                }
                 language={
                   language
                 }
@@ -668,10 +615,16 @@ export default function Home() {
 
 
         {/* ================================================
-            URGENT NOTICE
+            URGENT CASES
             ================================================ */}
 
-        <section className="alertBanner">
+        <section
+          className="alertBanner"
+          style={{
+            marginTop:
+              "18px",
+          }}
+        >
 
           <div className="alertIcon">
             <AlertTriangle
@@ -687,9 +640,9 @@ export default function Home() {
               {L(
                 language,
 
-                `${PLATFORM_METRICS.priority.immediate} urgent cases require priority attention`,
+                `${PLATFORM_METRICS.priority.immediate} urgent cases`,
 
-                `${PLATFORM_METRICS.priority.immediate} حالات فورية تحتاج إلى أولوية في المتابعة`
+                `${PLATFORM_METRICS.priority.immediate} حالات عاجلة`
               )}
             </strong>
 
@@ -698,9 +651,9 @@ export default function Home() {
               {L(
                 language,
 
-                "These cases include conflicts where an incorrect biometric-to-person relationship may affect another person. AI assesses the risk, while the final decision remains with authorized staff.",
+                "These cases require faster review because an incorrect link may affect another person.",
 
-                "تشمل هذه الحالات تعارضات قد يؤدي فيها ربط السجل البيومتري بشخص غير صحيح إلى التأثير على شخص آخر. يحلل الذكاء الاصطناعي مستوى الخطر، بينما يبقى القرار النهائي لدى الموظفين المخولين."
+                "تحتاج هذه الحالات إلى متابعة سريعة لأن الربط غير الصحيح قد يؤثر على شخص آخر."
               )}
             </span>
 
@@ -713,13 +666,15 @@ export default function Home() {
           >
             {L(
               language,
-              "View Cases",
+              "View",
               "عرض الحالات"
             )}
 
             <ChevronRight
               size={17}
-              style={arrowStyle}
+              style={
+                arrowStyle
+              }
               aria-hidden="true"
             />
           </Link>
@@ -728,453 +683,14 @@ export default function Home() {
 
 
         {/* ================================================
-            CASES + AI STATUS
-            ================================================ */}
-
-        <section className="dashboardGrid">
-
-          {/* IMPORTANT CASES */}
-
-          <div className="panel">
-
-            <div className="panelHeader">
-
-              <div>
-
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "CASES REQUIRING ATTENTION",
-                    "حالات تحتاج إلى متابعة"
-                  )}
-                </div>
-
-
-                <h2>
-                  {L(
-                    language,
-                    "Priority Cases",
-                    "الحالات المهمة"
-                  )}
-                </h2>
-
-              </div>
-
-
-              <Link
-                href="/cases"
-                className="textButton"
-                style={{
-                  textDecoration:
-                    "none",
-                }}
-              >
-                {L(
-                  language,
-                  "View All",
-                  "عرض الكل"
-                )}
-
-                <ChevronRight
-                  size={16}
-                  style={arrowStyle}
-                  aria-hidden="true"
-                />
-              </Link>
-
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "5px 18px",
-              }}
-            >
-              {attentionCases.map(
-                (item) => {
-
-                  const personName =
-                    item.person?.[
-                      language
-                    ]
-                    ||
-                    item.person?.en
-                    ||
-                    item.id;
-
-
-                  const content = (
-                    <>
-                      <div
-                        style={{
-                          flex:
-                            "1 1 180px",
-                        }}
-                      >
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#e1eaf6",
-
-                            fontSize:
-                              "12px",
-                          }}
-                        >
-                          {personName}
-                        </strong>
-
-                        <span
-                          dir="ltr"
-                          style={{
-                            display:
-                              "block",
-
-                            marginTop:
-                              "4px",
-
-                            color:
-                              "#63768e",
-
-                            fontSize:
-                              "9px",
-                          }}
-                        >
-                          {item.id}
-                        </span>
-                      </div>
-
-
-                      <div
-                        style={{
-                          flex:
-                            "1.2 1 190px",
-                        }}
-                      >
-                        <strong
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#b9c7d8",
-
-                            fontSize:
-                              "11px",
-                          }}
-                        >
-                          {getIssueLabel(
-                            item.issue,
-                            language
-                          )}
-                        </strong>
-
-                        <span
-                          style={{
-                            display:
-                              "block",
-
-                            marginTop:
-                              "4px",
-
-                            color:
-                              "#687b93",
-
-                            fontSize:
-                              "9px",
-                          }}
-                        >
-                          {L(
-                            language,
-                            `AI confidence ${item.confidence}`,
-                            `ثقة تحليل الذكاء الاصطناعي ${item.confidence}`
-                          )}
-                        </span>
-                      </div>
-
-
-                      <div
-                        style={{
-                          flex:
-                            "1 1 160px",
-                        }}
-                      >
-                        <span
-                          style={{
-                            display:
-                              "block",
-
-                            color:
-                              "#76a9ff",
-
-                            fontSize:
-                              "10px",
-
-                            fontWeight:
-                              700,
-                          }}
-                        >
-                          {getStatusLabel(
-                            item.status,
-                            language
-                          )}
-                        </span>
-                      </div>
-
-
-                      <PriorityBadge
-                        priority={
-                          item.priority
-                        }
-                        language={
-                          language
-                        }
-                      />
-                    </>
-                  );
-
-
-                  return item.hasDetail ? (
-                    <Link
-                      key={item.id}
-                      href={
-                        `/cases/${item.id}`
-                      }
-                      style={{
-                        display:
-                          "flex",
-
-                        flexWrap:
-                          "wrap",
-
-                        alignItems:
-                          "center",
-
-                        gap:
-                          "14px",
-
-                        padding:
-                          "16px 0",
-
-                        borderBottom:
-                          "1px solid rgba(255,255,255,0.045)",
-
-                        textDecoration:
-                          "none",
-
-                        color:
-                          "inherit",
-                      }}
-                    >
-                      {content}
-                    </Link>
-                  ) : (
-                    <div
-                      key={item.id}
-                      style={{
-                        display:
-                          "flex",
-
-                        flexWrap:
-                          "wrap",
-
-                        alignItems:
-                          "center",
-
-                        gap:
-                          "14px",
-
-                        padding:
-                          "16px 0",
-
-                        borderBottom:
-                          "1px solid rgba(255,255,255,0.045)",
-                      }}
-                    >
-                      {content}
-                    </div>
-                  );
-                }
-              )}
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "13px 18px",
-
-                color:
-                  "#657890",
-
-                fontSize:
-                  "9px",
-
-                lineHeight:
-                  1.6,
-              }}
-            >
-              {L(
-                language,
-
-                "AI analyzes biometric and reference evidence, identifies likely conflicts and prepares recommendations. Sensitive corrections still require human approval.",
-
-                "يحلل الذكاء الاصطناعي الأدلة البيومترية والبيانات المرجعية، ويحدد التعارضات المحتملة ويجهز التوصيات، بينما تتطلب التصحيحات الحساسة اعتمادًا بشريًا."
-              )}
-            </div>
-
-          </div>
-
-
-          {/* SMART MONITORING */}
-
-          <div className="panel agentPanel">
-
-            <div className="panelHeader">
-
-              <div>
-
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "AI MONITORING",
-                    "المراقبة الذكية"
-                  )}
-                </div>
-
-
-                <h2>
-                  {L(
-                    language,
-                    "Smart Monitoring Status",
-                    "حالة النظام الذكي"
-                  )}
-                </h2>
-
-              </div>
-
-
-              <BrainCircuit
-                size={22}
-                aria-hidden="true"
-              />
-
-            </div>
-
-
-            <div className="agentList">
-
-              {aiStatus.map(
-                (
-                  item,
-                  index
-                ) => {
-
-                  const Icon =
-                    item.icon;
-
-                  const content =
-                    item[language]
-                    ||
-                    item.en;
-
-
-                  return (
-                    <div
-                      className="agentItem"
-                      key={index}
-                    >
-
-                      <div className="agentLeft">
-
-                        <div className="agentIcon">
-                          <Icon
-                            size={18}
-                            aria-hidden="true"
-                          />
-                        </div>
-
-
-                        <div>
-
-                          <strong>
-                            {content.title}
-                          </strong>
-
-                          <span>
-                            {
-                              content.description
-                            }
-                          </span>
-
-                        </div>
-
-                      </div>
-
-
-                      <div className="agentStatus">
-
-                        <div
-                          className="greenDot"
-                          aria-hidden="true"
-                        />
-
-                        {content.status}
-
-                      </div>
-
-                    </div>
-                  );
-                }
-              )}
-
-            </div>
-
-
-            <div
-              style={{
-                padding:
-                  "13px 17px",
-
-                borderTop:
-                  "1px solid rgba(255,255,255,0.05)",
-
-                color:
-                  "#687b93",
-
-                fontSize:
-                  "9px",
-
-                lineHeight:
-                  1.6,
-              }}
-            >
-              {L(
-                language,
-
-                "AI supports continuous monitoring, biometric reconciliation, case analysis and recommendations. It cannot independently approve or execute sensitive corrections.",
-
-                "يدعم الذكاء الاصطناعي المراقبة المستمرة والمطابقة البيومترية وتحليل الحالات وتجهيز التوصيات، ولا يستطيع اعتماد أو تنفيذ التصحيحات الحساسة بشكل مستقل."
-              )}
-            </div>
-
-          </div>
-
-        </section>
-
-
-        {/* ================================================
-            LATEST RESOLVED CASE
+            SIMPLE WORKFLOW
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginTop:
-              "16px",
+              "18px",
           }}
         >
 
@@ -1185,8 +701,8 @@ export default function Home() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "LATEST COMPLETED CASE",
-                  "آخر حالة مكتملة"
+                  "HOW IT WORKS",
+                  "كيف يعمل النظام؟"
                 )}
               </div>
 
@@ -1194,383 +710,184 @@ export default function Home() {
               <h2>
                 {L(
                   language,
-                  "Resolved & Verified",
-                  "تم الحل والتحقق"
+                  "From Detection to Resolution",
+                  "من اكتشاف المشكلة إلى حلها"
                 )}
               </h2>
 
             </div>
 
-
-            <CheckCircle2
-              size={22}
-              aria-hidden="true"
-            />
-
           </div>
 
 
           <div
+            className="homeWorkflowGrid"
             style={{
+              display:
+                "grid",
+
+              gridTemplateColumns:
+                "repeat(4,minmax(0,1fr))",
+
+              gap:
+                "12px",
+
               padding:
-                "20px",
+                "18px",
             }}
           >
 
-            <div
-              style={{
-                display:
-                  "flex",
+            {workflowSteps.map(
+              (
+                step
+              ) => {
 
-                alignItems:
-                  "flex-start",
+                const Icon =
+                  step.icon;
+
 
-                justifyContent:
-                  "space-between",
-
-                gap:
-                  "16px",
-
-                flexWrap:
-                  "wrap",
-              }}
-            >
+                const content =
+                  step[
+                    language
+                  ] ||
+                  step.en;
 
-              <div>
 
-                <strong
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#e1eaf6",
+                return (
+                  <div
+                    key={
+                      step.number
+                    }
+                    style={{
+                      padding:
+                        "16px",
 
-                    fontSize:
-                      "15px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.person?.[
-                      language
-                    ]
-                    ||
-                    VERIFIED_DEMO_CASE.person?.en
-                    ||
-                    VERIFIED_DEMO_CASE.id
-                  }
-                </strong>
+                      borderRadius:
+                        "13px",
+
+                      border:
+                        "1px solid rgba(121,169,255,0.10)",
+
+                      background:
+                        "rgba(121,169,255,0.035)",
+                    }}
+                  >
 
+                    <div
+                      style={{
+                        display:
+                          "flex",
 
-                <span
-                  dir="ltr"
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#657890",
-
-                    fontSize:
-                      "10px",
-
-                    marginTop:
-                      "4px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.id
-                  }
-
-                  {" · "}
-
-                  {
-                    VERIFIED_DEMO_CASE.biometricId
-                  }
-                </span>
-
-              </div>
-
-
-              <span
-                style={{
-                  display:
-                    "inline-flex",
-
-                  alignItems:
-                    "center",
-
-                  minHeight:
-                    "27px",
-
-                  padding:
-                    "0 11px",
-
-                  borderRadius:
-                    "7px",
-
-                  color:
-                    "#59cfa0",
-
-                  background:
-                    "rgba(52,211,153,0.07)",
-
-                  border:
-                    "1px solid rgba(52,211,153,0.13)",
-
-                  fontSize:
-                    "10px",
-
-                  fontWeight:
-                    800,
-                }}
-              >
-                {L(
-                  language,
-                  "RESOLVED & VERIFIED",
-                  "تم الحل والتحقق"
-                )}
-              </span>
-
-            </div>
-
-
-            <div
-              style={{
-                display:
-                  "grid",
-
-                gridTemplateColumns:
-                  "repeat(2,minmax(0,1fr))",
-
-                gap:
-                  "10px",
-
-                marginTop:
-                  "18px",
-              }}
-            >
-
-              <div
-                style={{
-                  padding:
-                    "14px",
-
-                  borderRadius:
-                    "11px",
-
-                  background:
-                    "rgba(255,80,100,0.04)",
-
-                  border:
-                    "1px solid rgba(255,80,100,0.08)",
-                }}
-              >
-
-                <span
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#8f6b72",
-
-                    fontSize:
-                      "9px",
-                  }}
-                >
-                  {L(
-                    language,
-                    "Previous Incorrect Link",
-                    "الربط السابق الخاطئ"
-                  )}
-                </span>
-
-
-                <strong
-                  dir="ltr"
-                  style={{
-                    display:
-                      "block",
-
-                    marginTop:
-                      "5px",
-
-                    color:
-                      "#ff7c89",
-
-                    fontSize:
-                      "13px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.currentIdentity
-                  }
-                </strong>
-
-              </div>
-
-
-              <div
-                style={{
-                  padding:
-                    "14px",
-
-                  borderRadius:
-                    "11px",
-
-                  background:
-                    "rgba(52,211,153,0.04)",
-
-                  border:
-                    "1px solid rgba(52,211,153,0.08)",
-                }}
-              >
-
-                <span
-                  style={{
-                    display:
-                      "block",
-
-                    color:
-                      "#628b7b",
-
-                    fontSize:
-                      "9px",
-                  }}
-                >
-                  {L(
-                    language,
-                    "Verified Reference",
-                    "المرجع الصحيح بعد التحقق"
-                  )}
-                </span>
-
-
-                <strong
-                  dir="ltr"
-                  style={{
-                    display:
-                      "block",
-
-                    marginTop:
-                      "5px",
-
-                    color:
-                      "#59cfa0",
-
-                    fontSize:
-                      "13px",
-                  }}
-                >
-                  {
-                    VERIFIED_DEMO_CASE.canonicalIdentity
-                  }
-                </strong>
-
-              </div>
-
-            </div>
-
-
-            <div
-              style={{
-                marginTop:
-                  "12px",
-              }}
-            >
-
-              <div className="detailRow">
-
-                <span>
-                  {L(
-                    language,
-                    "AI Analysis Confidence",
-                    "ثقة تحليل الذكاء الاصطناعي"
-                  )}
-                </span>
-
-                <strong dir="ltr">
-                  {
-                    VERIFIED_DEMO_CASE.aiConfidence
-                  }%
-                </strong>
-
-              </div>
-
-
-              <div className="detailRow">
-
-                <span>
-                  {L(
-                    language,
-                    "Human Approval",
-                    "الاعتماد البشري"
-                  )}
-                </span>
-
-                <strong>
-                  {L(
-                    language,
-                    "Officer + Manager Approved",
-                    "اعتماد الضابط والمدير"
-                  )}
-                </strong>
-
-              </div>
-
-
-              <div className="detailRow">
-
-                <span>
-                  {L(
-                    language,
-                    "Post-Correction Verification",
-                    "التحقق بعد التصحيح"
-                  )}
-                </span>
-
-                <strong className="successText">
-                  {L(
-                    language,
-                    "Passed",
-                    "ناجح"
-                  )}
-
-                  {" · "}
-
-                  {
-                    VERIFIED_DEMO_CASE.verification.score
-                  }
-                </strong>
-
-              </div>
-
-            </div>
-
-
-            <Link
-              href={
-                `/cases/${VERIFIED_DEMO_CASE.id}`
+                        alignItems:
+                          "center",
+
+                        justifyContent:
+                          "space-between",
+
+                        gap:
+                          "10px",
+                      }}
+                    >
+
+                      <div
+                        style={{
+                          width:
+                            "36px",
+
+                          height:
+                            "36px",
+
+                          display:
+                            "grid",
+
+                          placeItems:
+                            "center",
+
+                          borderRadius:
+                            "11px",
+
+                          color:
+                            "#79a9ff",
+
+                          background:
+                            "rgba(121,169,255,0.08)",
+                        }}
+                      >
+                        <Icon
+                          size={18}
+                          aria-hidden="true"
+                        />
+                      </div>
+
+
+                      <span
+                        style={{
+                          color:
+                            "#536b89",
+
+                          fontSize:
+                            "15px",
+
+                          fontWeight:
+                            900,
+                        }}
+                      >
+                        {
+                          step.number
+                        }
+                      </span>
+
+                    </div>
+
+
+                    <strong
+                      style={{
+                        display:
+                          "block",
+
+                        marginTop:
+                          "13px",
+
+                        color:
+                          "#dce6f2",
+
+                        fontSize:
+                          "11px",
+                      }}
+                    >
+                      {
+                        content.title
+                      }
+                    </strong>
+
+
+                    <span
+                      style={{
+                        display:
+                          "block",
+
+                        marginTop:
+                          "6px",
+
+                        color:
+                          "#71849c",
+
+                        fontSize:
+                          "9px",
+
+                        lineHeight:
+                          1.6,
+                      }}
+                    >
+                      {
+                        content.text
+                      }
+                    </span>
+
+                  </div>
+                );
               }
-              className="primaryButton"
-              style={{
-                textDecoration:
-                  "none",
-              }}
-            >
-              {L(
-                language,
-                "View Case Details",
-                "عرض تفاصيل الحالة"
-              )}
-
-              <ChevronRight
-                size={18}
-                style={arrowStyle}
-                aria-hidden="true"
-              />
-            </Link>
+            )}
 
           </div>
 
@@ -1578,22 +895,515 @@ export default function Home() {
 
 
         {/* ================================================
-            DATA PROTECTION
+            IMPORTANT CASES
+            ================================================ */}
+
+        <section
+          className="panel"
+          style={{
+            marginTop:
+              "18px",
+          }}
+        >
+
+          <div className="panelHeader">
+
+            <div>
+
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "CASES REQUIRING ATTENTION",
+                  "حالات تحتاج إلى متابعة"
+                )}
+              </div>
+
+
+              <h2>
+                {L(
+                  language,
+                  "Important Cases",
+                  "الحالات المهمة"
+                )}
+              </h2>
+
+            </div>
+
+
+            <Link
+              href="/cases"
+              className="textButton"
+              style={{
+                textDecoration:
+                  "none",
+              }}
+            >
+              {L(
+                language,
+                "View All",
+                "عرض الكل"
+              )}
+
+              <ChevronRight
+                size={16}
+                style={
+                  arrowStyle
+                }
+                aria-hidden="true"
+              />
+            </Link>
+
+          </div>
+
+
+          <div
+            style={{
+              padding:
+                "4px 18px",
+            }}
+          >
+
+            {attentionCases.map(
+              (
+                item
+              ) => {
+
+                const personName =
+                  item.person?.[
+                    language
+                  ] ||
+                  item.person?.en ||
+                  item.id;
+
+
+                const issue =
+                  item.issue?.[
+                    language
+                  ] ||
+                  item.issue?.en;
+
+
+                const status =
+                  item.status?.[
+                    language
+                  ] ||
+                  item.status?.en;
+
+
+                return (
+                  <Link
+                    key={
+                      item.id
+                    }
+                    href={
+                      item.href
+                    }
+                    style={{
+                      display:
+                        "grid",
+
+                      gridTemplateColumns:
+                        "minmax(130px,0.8fr) minmax(180px,1.2fr) minmax(130px,0.8fr) auto auto",
+
+                      alignItems:
+                        "center",
+
+                      gap:
+                        "14px",
+
+                      padding:
+                        "17px 0",
+
+                      borderBottom:
+                        "1px solid rgba(255,255,255,0.045)",
+
+                      textDecoration:
+                        "none",
+
+                      color:
+                        "inherit",
+                    }}
+                  >
+
+                    {/* NAME */}
+
+                    <div>
+
+                      <strong
+                        style={{
+                          display:
+                            "block",
+
+                          color:
+                            "#e1eaf6",
+
+                          fontSize:
+                            "12px",
+                        }}
+                      >
+                        {
+                          personName
+                        }
+                      </strong>
+
+
+                      <span
+                        dir="ltr"
+                        style={{
+                          display:
+                            "block",
+
+                          marginTop:
+                            "4px",
+
+                          color:
+                            "#63768e",
+
+                          fontSize:
+                            "9px",
+                        }}
+                      >
+                        {
+                          item.id
+                        }
+                      </span>
+
+                    </div>
+
+
+                    {/* PROBLEM */}
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+
+                          color:
+                            "#71849c",
+
+                          fontSize:
+                            "8px",
+
+                          marginBottom:
+                            "4px",
+                        }}
+                      >
+                        {L(
+                          language,
+                          "Problem",
+                          "المشكلة"
+                        )}
+                      </span>
+
+
+                      <strong
+                        style={{
+                          color:
+                            "#c4d0de",
+
+                          fontSize:
+                            "10px",
+
+                          lineHeight:
+                            1.5,
+                        }}
+                      >
+                        {
+                          issue
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    {/* STATUS */}
+
+                    <div>
+
+                      <span
+                        style={{
+                          display:
+                            "block",
+
+                          color:
+                            "#71849c",
+
+                          fontSize:
+                            "8px",
+
+                          marginBottom:
+                            "4px",
+                        }}
+                      >
+                        {L(
+                          language,
+                          "Status",
+                          "الحالة"
+                        )}
+                      </span>
+
+
+                      <strong
+                        style={{
+                          color:
+                            "#79a9ff",
+
+                          fontSize:
+                            "10px",
+                        }}
+                      >
+                        {
+                          status
+                        }
+                      </strong>
+
+                    </div>
+
+
+                    <PriorityBadge
+                      priority={
+                        item.priority
+                      }
+                      language={
+                        language
+                      }
+                    />
+
+
+                    <ChevronRight
+                      size={17}
+                      color="#79a9ff"
+                      style={
+                        arrowStyle
+                      }
+                      aria-hidden="true"
+                    />
+
+                  </Link>
+                );
+              }
+            )}
+
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            LAST COMPLETED CASE
+            ================================================ */}
+
+        <section
+          style={{
+            marginTop:
+              "18px",
+
+            padding:
+              "17px 18px",
+
+            borderRadius:
+              "16px",
+
+            border:
+              "1px solid rgba(89,207,160,0.14)",
+
+            background:
+              "rgba(89,207,160,0.035)",
+
+            display:
+              "flex",
+
+            alignItems:
+              "center",
+
+            justifyContent:
+              "space-between",
+
+            gap:
+              "16px",
+
+            flexWrap:
+              "wrap",
+          }}
+        >
+
+          <div
+            style={{
+              display:
+                "flex",
+
+              alignItems:
+                "center",
+
+              gap:
+                "11px",
+            }}
+          >
+
+            <div
+              style={{
+                width:
+                  "38px",
+
+                height:
+                  "38px",
+
+                display:
+                  "grid",
+
+                placeItems:
+                  "center",
+
+                borderRadius:
+                  "11px",
+
+                color:
+                  "#59cfa0",
+
+                background:
+                  "rgba(89,207,160,0.08)",
+              }}
+            >
+              <CheckCircle2
+                size={20}
+                aria-hidden="true"
+              />
+            </div>
+
+
+            <div>
+
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  color:
+                    "#6d8298",
+
+                  fontSize:
+                    "8px",
+                }}
+              >
+                {L(
+                  language,
+                  "LAST COMPLETED CASE",
+                  "آخر حالة مكتملة"
+                )}
+              </span>
+
+
+              <strong
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "4px",
+
+                  color:
+                    "#dce7f2",
+
+                  fontSize:
+                    "11px",
+                }}
+              >
+                {
+                  VERIFIED_DEMO_CASE.person?.[
+                    language
+                  ] ||
+                  VERIFIED_DEMO_CASE.person?.en
+                }
+
+                {" · "}
+
+                <span
+                  dir="ltr"
+                >
+                  {
+                    VERIFIED_DEMO_CASE.id
+                  }
+                </span>
+              </strong>
+
+
+              <span
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "4px",
+
+                  color:
+                    "#59cfa0",
+
+                  fontSize:
+                    "9px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                {L(
+                  language,
+                  "Resolved and verified successfully",
+                  "تم الحل والتحقق بنجاح"
+                )}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <Link
+            href={
+              `/cases/${VERIFIED_DEMO_CASE.id}`
+            }
+            className="textButton"
+            style={{
+              textDecoration:
+                "none",
+            }}
+          >
+            {L(
+              language,
+              "View Details",
+              "عرض التفاصيل"
+            )}
+
+            <ChevronRight
+              size={16}
+              style={
+                arrowStyle
+              }
+              aria-hidden="true"
+            />
+          </Link>
+
+        </section>
+
+
+        {/* ================================================
+            SIMPLE SAFETY NOTE
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
             margin:
-              "16px 0 0",
+              "18px 0 0",
 
             padding:
-              "18px",
+              "16px",
           }}
         >
 
-          <Database
-            size={23}
+          <ShieldCheck
+            size={22}
             aria-hidden="true"
           />
 
@@ -1603,8 +1413,8 @@ export default function Home() {
             <strong>
               {L(
                 language,
-                "Master Reference Protected",
-                "المرجع الرئيسي محمي"
+                "Human approval is required",
+                "التعديل يحتاج اعتمادًا بشريًا"
               )}
             </strong>
 
@@ -1613,9 +1423,9 @@ export default function Home() {
               {L(
                 language,
 
-                "The authoritative Master Reference remains read-only. Approved corrections can only target the permitted Biometric System after the required human approvals.",
+                "The system detects and recommends. Sensitive corrections are executed only after employee and manager approval.",
 
-                "يبقى المرجع الرئيسي المعتمد للقراءة فقط، ولا يتم تنفيذ التصحيح إلا على النظام البيومتري المسموح وبعد الحصول على الاعتمادات البشرية المطلوبة."
+                "يكتشف النظام المشكلة ويقترح الحل، ولا يتم تنفيذ التعديل الحساس إلا بعد اعتماد الموظف والمدير."
               )}
             </span>
 
@@ -1633,28 +1443,43 @@ export default function Home() {
           <span>
             {L(
               language,
-              "AI Biometric Reconciliation Platform · Synthetic Demo",
-              "منصة المطابقة البيومترية بالذكاء الاصطناعي · عرض تجريبي"
+              "AI Identity Reconciliation Platform · Synthetic Demo",
+              "منصة مطابقة الهوية بالذكاء الاصطناعي · عرض تجريبي"
             )}
           </span>
 
 
           <div>
 
-            <Activity
+            <CheckCircle2
               size={15}
               aria-hidden="true"
             />
 
             {L(
               language,
-              "Continuous Monitoring Active",
-              "المراقبة المستمرة نشطة"
+              "System Active",
+              "النظام نشط"
             )}
 
           </div>
 
         </footer>
+
+
+        <style jsx>{`
+          @media (max-width: 760px) {
+            .homeWorkflowGrid {
+              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+          }
+
+          @media (max-width: 560px) {
+            .homeWorkflowGrid {
+              grid-template-columns: 1fr 1fr !important;
+            }
+          }
+        `}</style>
 
       </main>
 

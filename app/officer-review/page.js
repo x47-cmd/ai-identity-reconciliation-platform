@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -10,17 +11,29 @@ import Sidebar from "../components/Sidebar";
 import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  VERIFIED_DEMO_CASE,
+  ACTIVE_CASES,
+  CASE_TYPE_LABELS,
+  PRIMARY_ACTIVE_CASE_ID,
 } from "../lib/demo-data";
+
+import {
+  initializeDemoCaseStore,
+  submitOfficerDecision,
+  updateCase,
+  useCaseStore,
+} from "../lib/case-store";
 
 import {
   Activity,
   AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
   BadgeCheck,
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
   FileCheck2,
+  GitCompareArrows,
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
@@ -42,64 +55,92 @@ function L(
 
 
 /* =========================================================
-   PRIMARY DEMO CASE
+   LOCALIZED VALUE
    ========================================================= */
 
-const DEMO_CASE = {
-  id:
-    VERIFIED_DEMO_CASE.id ||
-    "CASE-2026-00001",
+function localizedValue(
+  value,
+  language,
+  fallback = ""
+) {
+  if (
+    typeof value ===
+    "string"
+  ) {
+    return value;
+  }
 
-  person:
-    VERIFIED_DEMO_CASE.person || {
-      en:
-        "Salem Mohammed",
 
-      ar:
-        "سالم محمد",
-    },
+  if (
+    value &&
+    typeof value ===
+      "object" &&
+    !Array.isArray(
+      value
+    )
+  ) {
+    return (
+      value[
+        language
+      ] ||
+      value.en ||
+      fallback
+    );
+  }
 
-  biometricId:
-    VERIFIED_DEMO_CASE.biometricId ||
-    VERIFIED_DEMO_CASE.primaryBiometricId ||
-    "BIO-000166",
 
-  currentMasterId:
-    VERIFIED_DEMO_CASE.currentMasterId ||
-    VERIFIED_DEMO_CASE.currentIdentity ||
-    "REF-002711",
-
-  canonicalMasterId:
-    VERIFIED_DEMO_CASE.canonicalMasterId ||
-    VERIFIED_DEMO_CASE.proposedIdentity ||
-    "REF-001009",
-
-  caseType:
-    VERIFIED_DEMO_CASE.caseType ||
-    "HARM_IMPACT",
-
-  confidence:
-    VERIFIED_DEMO_CASE.aiConfidence ||
-    99.99,
-
-  risk:
-    VERIFIED_DEMO_CASE.riskScore ||
-    94.99,
-
-  harm:
-    VERIFIED_DEMO_CASE.harmScore ||
-    VERIFIED_DEMO_CASE.harmImpactScore ||
-    97.5,
-
-  protectivePriority:
-    VERIFIED_DEMO_CASE.protectivePriority ||
-    VERIFIED_DEMO_CASE.protectivePriorityScore ||
-    98.0,
-};
+  return fallback;
+}
 
 
 /* =========================================================
-   WORKFLOW STEPS
+   PRIORITY
+   ========================================================= */
+
+function priorityLabel(
+  priority,
+  language
+) {
+  const labels = {
+    IMMEDIATE: {
+      en:
+        "Urgent",
+
+      ar:
+        "فوري",
+    },
+
+    HIGH: {
+      en:
+        "High",
+
+      ar:
+        "مرتفع",
+    },
+
+    MEDIUM: {
+      en:
+        "Medium",
+
+      ar:
+        "متوسط",
+    },
+  };
+
+
+  return (
+    labels[
+      priority
+    ]?.[
+      language
+    ] ||
+    priority
+  );
+}
+
+
+/* =========================================================
+   WORKFLOW
    ========================================================= */
 
 const workflowSteps = [
@@ -108,10 +149,10 @@ const workflowSteps = [
       1,
 
     en:
-      "Case Detection",
+      "AI Analysis",
 
     ar:
-      "اكتشاف الحالة",
+      "تحليل الذكاء الاصطناعي",
   },
 
   {
@@ -119,7 +160,7 @@ const workflowSteps = [
       2,
 
     en:
-      "Officer Review",
+      "Employee Review",
 
     ar:
       "تدقيق الموظف",
@@ -130,17 +171,6 @@ const workflowSteps = [
       3,
 
     en:
-      "AI Correction Proposal",
-
-    ar:
-      "اقتراح التعديل",
-  },
-
-  {
-    number:
-      4,
-
-    en:
       "Manager Approval",
 
     ar:
@@ -149,83 +179,26 @@ const workflowSteps = [
 
   {
     number:
+      4,
+
+    en:
+      "Correction",
+
+    ar:
+      "تنفيذ التعديل",
+  },
+
+  {
+    number:
       5,
 
     en:
-      "Execution & Verification",
+      "Verification",
 
     ar:
-      "التنفيذ والتحقق",
+      "التحقق النهائي",
   },
 ];
-
-
-/* =========================================================
-   INFO VALUE
-   ========================================================= */
-
-function InfoValue({
-  label,
-  value,
-  color = "#dce7f3",
-  dir,
-}) {
-  return (
-    <div
-      style={{
-        padding:
-          "13px",
-
-        borderRadius:
-          "11px",
-
-        border:
-          "1px solid rgba(255,255,255,0.055)",
-
-        background:
-          "rgba(255,255,255,0.022)",
-      }}
-    >
-      <span
-        style={{
-          display:
-            "block",
-
-          marginBottom:
-            "6px",
-
-          color:
-            "#687b93",
-
-          fontSize:
-            "9px",
-        }}
-      >
-        {label}
-      </span>
-
-      <strong
-        dir={
-          dir
-        }
-        style={{
-          display:
-            "block",
-
-          color,
-
-          fontSize:
-            "12px",
-
-          lineHeight:
-            1.45,
-        }}
-      >
-        {value}
-      </strong>
-    </div>
-  );
-}
 
 
 /* =========================================================
@@ -234,28 +207,30 @@ function InfoValue({
 
 function WorkflowStepper({
   language,
+  currentStep,
 }) {
   return (
     <section
+      className="reviewWorkflow"
       style={{
         marginBottom:
-          "18px",
+          "16px",
 
         padding:
-          "20px 18px",
+          "17px",
 
         borderRadius:
-          "18px",
+          "16px",
 
         border:
-          "1px solid rgba(121,169,255,0.12)",
+          "1px solid rgba(121,169,255,0.10)",
 
         background:
-          "linear-gradient(135deg, rgba(12,32,54,0.90), rgba(8,24,43,0.92))",
+          "rgba(11,29,50,0.72)",
       }}
     >
       <div
-        className="workflowGrid"
+        className="reviewWorkflowGrid"
         style={{
           display:
             "grid",
@@ -264,7 +239,7 @@ function WorkflowStepper({
             "repeat(5,minmax(0,1fr))",
 
           gap:
-            "10px",
+            "8px",
         }}
       >
         {workflowSteps.map(
@@ -274,11 +249,12 @@ function WorkflowStepper({
 
             const completed =
               step.number <
-              2;
+              currentStep;
+
 
             const active =
               step.number ===
-              2;
+              currentStep;
 
 
             return (
@@ -287,23 +263,41 @@ function WorkflowStepper({
                   step.number
                 }
                 style={{
-                  position:
-                    "relative",
+                  padding:
+                    "10px 6px",
+
+                  borderRadius:
+                    "10px",
 
                   textAlign:
                     "center",
+
+                  border:
+                    completed
+                      ? "1px solid rgba(89,207,160,0.10)"
+                      : active
+                        ? "1px solid rgba(121,169,255,0.18)"
+                        : "1px solid rgba(255,255,255,0.04)",
+
+                  background:
+                    completed
+                      ? "rgba(89,207,160,0.04)"
+                      : active
+                        ? "rgba(121,169,255,0.07)"
+                        : "rgba(255,255,255,0.015)",
                 }}
               >
+
                 <div
                   style={{
                     width:
-                      "36px",
+                      "29px",
 
                     height:
-                      "36px",
+                      "29px",
 
                     margin:
-                      "0 auto 9px",
+                      "0 auto 7px",
 
                     display:
                       "grid",
@@ -314,33 +308,22 @@ function WorkflowStepper({
                     borderRadius:
                       "50%",
 
-                    border:
-                      active
-                        ? "2px solid #59cfa0"
-                        : completed
-                          ? "1px solid rgba(89,207,160,0.5)"
-                          : "1px solid rgba(121,169,255,0.25)",
-
                     color:
-                      active ||
                       completed
                         ? "#59cfa0"
-                        : "#8497ae",
+                        : active
+                          ? "#79a9ff"
+                          : "#61738a",
 
                     background:
-                      active
-                        ? "rgba(89,207,160,0.12)"
-                        : completed
-                          ? "rgba(89,207,160,0.06)"
-                          : "rgba(121,169,255,0.04)",
-
-                    boxShadow:
-                      active
-                        ? "0 0 20px rgba(89,207,160,0.13)"
-                        : "none",
+                      completed
+                        ? "rgba(89,207,160,0.07)"
+                        : active
+                          ? "rgba(121,169,255,0.07)"
+                          : "rgba(255,255,255,0.02)",
 
                     fontSize:
-                      "11px",
+                      "9px",
 
                     fontWeight:
                       850,
@@ -348,7 +331,7 @@ function WorkflowStepper({
                 >
                   {completed ? (
                     <CheckCircle2
-                      size={18}
+                      size={15}
                       aria-hidden="true"
                     />
                   ) : (
@@ -363,15 +346,17 @@ function WorkflowStepper({
                       "block",
 
                     color:
-                      active
-                        ? "#59cfa0"
-                        : "#c3d0df",
+                      completed
+                        ? "#9cc5b6"
+                        : active
+                          ? "#b4cefb"
+                          : "#708298",
 
                     fontSize:
-                      "9px",
+                      "8.5px",
 
                     lineHeight:
-                      1.45,
+                      1.4,
                   }}
                 >
                   {L(
@@ -380,6 +365,7 @@ function WorkflowStepper({
                     step.ar
                   )}
                 </strong>
+
               </div>
             );
           }
@@ -391,45 +377,350 @@ function WorkflowStepper({
 
 
 /* =========================================================
+   SMALL INFO BOX
+   ========================================================= */
+
+function InfoBox({
+  label,
+  value,
+  color = "#d6e1ee",
+  dir,
+}) {
+  return (
+    <div
+      style={{
+        padding:
+          "12px",
+
+        borderRadius:
+          "10px",
+
+        border:
+          "1px solid rgba(255,255,255,0.045)",
+
+        background:
+          "rgba(255,255,255,0.02)",
+      }}
+    >
+      <span
+        style={{
+          display:
+            "block",
+
+          color:
+            "#687b93",
+
+          fontSize:
+            "8px",
+        }}
+      >
+        {label}
+      </span>
+
+
+      <strong
+        dir={
+          dir
+        }
+        style={{
+          display:
+            "block",
+
+          marginTop:
+            "5px",
+
+          color,
+
+          fontSize:
+            "10px",
+
+          lineHeight:
+            1.5,
+
+          overflowWrap:
+            "anywhere",
+        }}
+      >
+        {value}
+      </strong>
+
+    </div>
+  );
+}
+
+
+/* =========================================================
+   CASE NOT AVAILABLE
+   ========================================================= */
+
+function CaseUnavailable({
+  language,
+  caseId,
+}) {
+  const isArabic =
+    language ===
+    "ar";
+
+
+  return (
+    <div className="appShell">
+
+      <Sidebar />
+
+
+      <main className="mainContent">
+
+        <Link
+          href="/cases/all"
+          className="textButton"
+          style={{
+            width:
+              "fit-content",
+
+            textDecoration:
+              "none",
+          }}
+        >
+          {isArabic ? (
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+          {L(
+            language,
+            "Back to Active Cases",
+            "العودة إلى الحالات النشطة"
+          )}
+        </Link>
+
+
+        <div
+          className="panel"
+          style={{
+            marginTop:
+              "18px",
+
+            padding:
+              "45px 20px",
+
+            textAlign:
+              "center",
+          }}
+        >
+          <FileCheck2
+            size={34}
+            color="#71849c"
+            aria-hidden="true"
+          />
+
+
+          <h2>
+            {L(
+              language,
+              "Case not available for employee review",
+              "الحالة غير متاحة لتدقيق الموظف"
+            )}
+          </h2>
+
+
+          <span
+            dir="ltr"
+            style={{
+              color:
+                "#71849c",
+
+              fontSize:
+                "9px",
+            }}
+          >
+            {caseId}
+          </span>
+        </div>
+
+      </main>
+
+    </div>
+  );
+}
+
+
+/* =========================================================
    PAGE
    ========================================================= */
 
 export default function OfficerReviewPage() {
   const {
     language,
-  } = useLanguage();
+  } =
+    useLanguage();
 
 
-  const isArabic =
-    language ===
-    "ar";
+  const store =
+    useCaseStore();
 
 
-  const personName =
-    DEMO_CASE.person[
-      language
-    ] ||
-    DEMO_CASE.person.en;
+  const [
+    selectedCaseId,
+    setSelectedCaseId,
+  ] =
+    useState(
+      PRIMARY_ACTIVE_CASE_ID
+    );
 
 
   const [
     comments,
     setComments,
-  ] = useState(
-    L(
-      language,
-      "Evidence reviewed. The proposed correction is supported and can be submitted for manager approval.",
-      "تمت مراجعة الأدلة واعتماد التوصية المقترحة، ويمكن رفع الحالة إلى المدير للموافقة."
-    )
-  );
+  ] =
+    useState(
+      ""
+    );
 
 
   const [
-    decision,
-    setDecision,
-  ] = useState(
-    "REVIEWING"
+    error,
+    setError,
+  ] =
+    useState(
+      ""
+    );
+
+
+  /* =======================================================
+     INITIALIZE STORE + READ CASE FROM URL
+
+     Example:
+     /officer-review?case=CASE-2026-00002
+
+     We intentionally avoid useSearchParams here so the
+     static GitHub Pages export remains simple.
+     ======================================================= */
+
+  useEffect(
+    () => {
+      initializeDemoCaseStore();
+
+
+      if (
+        typeof window ===
+        "undefined"
+      ) {
+        return;
+      }
+
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const requestedCaseId =
+        params.get(
+          "case"
+        );
+
+
+      if (
+        requestedCaseId
+      ) {
+        setSelectedCaseId(
+          requestedCaseId
+        );
+      }
+    },
+    []
   );
+
+
+  /* =======================================================
+     CASE DATA
+
+     Store is the source of truth after hydration.
+     Baseline data is used only as an initial fallback.
+     ======================================================= */
+
+  const fallbackCase =
+    ACTIVE_CASES.find(
+      (
+        item
+      ) =>
+        item.id ===
+        selectedCaseId
+    ) ||
+    null;
+
+
+  const storedCase =
+    store.initialized
+      ? store.cases.find(
+          (
+            item
+          ) =>
+            item.id ===
+            selectedCaseId
+        ) ||
+        null
+      : null;
+
+
+  const caseData =
+    storedCase ||
+    fallbackCase;
+
+
+  /* =======================================================
+     LOAD PREVIOUS NOTES
+     ======================================================= */
+
+  useEffect(
+    () => {
+      if (
+        !caseData
+      ) {
+        return;
+      }
+
+
+      setComments(
+        typeof caseData.officerNotes ===
+          "string"
+          ? caseData.officerNotes
+          : ""
+      );
+    },
+    [
+      caseData?.id,
+    ]
+  );
+
+
+  if (
+    !caseData
+  ) {
+    return (
+      <CaseUnavailable
+        language={
+          language
+        }
+        caseId={
+          selectedCaseId
+        }
+      />
+    );
+  }
+
+
+  const isArabic =
+    language ===
+    "ar";
 
 
   const arrowStyle = {
@@ -440,20 +731,449 @@ export default function OfficerReviewPage() {
   };
 
 
+  const personName =
+    localizedValue(
+      caseData.person,
+      language,
+      caseData.id
+    );
+
+
+  const issueLabel =
+    localizedValue(
+      CASE_TYPE_LABELS[
+        caseData.caseType
+      ],
+      language,
+      caseData.caseType
+    );
+
+
+  const currentReference =
+    caseData.currentIdentity ||
+    caseData.execution?.before ||
+    "—";
+
+
+  const proposedReference =
+    caseData.proposedIdentity ||
+    caseData.canonicalIdentity ||
+    caseData.execution?.after ||
+    "—";
+
+
+  const biometricId =
+    caseData.biometricId ||
+    caseData.primaryBiometricId ||
+    caseData.execution?.targetRecord ||
+    "—";
+
+
+  const currentName =
+    localizedValue(
+      caseData.currentIdentityName ||
+        caseData.execution?.beforeName,
+      language,
+      L(
+        language,
+        "Current linked reference",
+        "المرجع المرتبط حاليًا"
+      )
+    );
+
+
+  const proposedName =
+    localizedValue(
+      caseData.proposedIdentityName ||
+        caseData.canonicalIdentityName ||
+        caseData.execution?.afterName,
+      language,
+      personName
+    );
+
+
+  const aiSummary =
+    localizedValue(
+      caseData.aiSummary,
+      language,
+      L(
+        language,
+        "AI detected an identity relationship that requires authorized human review.",
+        "اكتشف الذكاء الاصطناعي مشكلة في ربط الهوية تحتاج إلى مراجعة بشرية مخولة."
+      )
+    );
+
+
+  const workflowStatus =
+    caseData.workflowStatus ||
+    caseData.finalStatus ||
+    "READY_FOR_OFFICER_REVIEW";
+
+
+  const officerDecision =
+    caseData.officerDecision ||
+    caseData.officer?.decision ||
+    "PENDING";
+
+
+  const approved =
+    officerDecision ===
+    "APPROVED";
+
+
+  const furtherInvestigation =
+    officerDecision ===
+    "MORE_INVESTIGATION";
+
+
+  const closed =
+    Boolean(
+      caseData.closed
+    ) ||
+    caseData.finalStatus ===
+      "VERIFIED_CLOSED";
+
+
+  /* =======================================================
+     WORKFLOW DISPLAY POSITION
+     ======================================================= */
+
+  let currentStep =
+    2;
+
+
+  if (
+    furtherInvestigation
+  ) {
+    currentStep =
+      1;
+  } else if (
+    approved
+  ) {
+    currentStep =
+      3;
+  }
+
+
+  /* =======================================================
+     CAN REVIEW?
+
+     Employee review is allowed only while this case is
+     awaiting the first human decision.
+     ======================================================= */
+
+  const canReview =
+    !closed &&
+    !approved &&
+    !furtherInvestigation &&
+    [
+      "READY_FOR_OFFICER_REVIEW",
+      "AI_INVESTIGATED",
+      "OFFICER_REJECTED",
+    ].includes(
+      workflowStatus
+    );
+
+
+  /* =======================================================
+     APPROVE
+     ======================================================= */
+
   const approveCase =
     () => {
-      setDecision(
-        "APPROVED"
-      );
+      try {
+        setError(
+          ""
+        );
+
+
+        updateCase(
+          selectedCaseId,
+          {
+            officerNotes:
+              comments.trim(),
+
+            officerReviewUpdatedAt:
+              new Date().toISOString(),
+          }
+        );
+
+
+        submitOfficerDecision(
+          selectedCaseId,
+          "APPROVED",
+          "Demo Monitoring Officer"
+        );
+
+      } catch (
+        reviewError
+      ) {
+        setError(
+          reviewError?.message ||
+          L(
+            language,
+            "Unable to record the decision.",
+            "تعذر تسجيل القرار."
+          )
+        );
+      }
     };
 
+
+  /* =======================================================
+     REQUEST MORE INVESTIGATION
+     ======================================================= */
 
   const requestInvestigation =
     () => {
-      setDecision(
-        "FURTHER_INVESTIGATION"
-      );
+      try {
+        setError(
+          ""
+        );
+
+
+        updateCase(
+          selectedCaseId,
+          {
+            officerNotes:
+              comments.trim(),
+
+            officerReviewUpdatedAt:
+              new Date().toISOString(),
+          }
+        );
+
+
+        submitOfficerDecision(
+          selectedCaseId,
+          "MORE_INVESTIGATION",
+          "Demo Monitoring Officer"
+        );
+
+      } catch (
+        reviewError
+      ) {
+        setError(
+          reviewError?.message ||
+          L(
+            language,
+            "Unable to update the case.",
+            "تعذر تحديث الحالة."
+          )
+        );
+      }
     };
+
+
+  /* =======================================================
+     REOPEN AFTER DEMO INVESTIGATION
+
+     This lets the presenter continue the walkthrough after
+     demonstrating a request for additional investigation.
+     ======================================================= */
+
+  const reopenForReview =
+    () => {
+      try {
+        setError(
+          ""
+        );
+
+
+        updateCase(
+          selectedCaseId,
+          (
+            current
+          ) => ({
+            officer: {
+              ...(
+                typeof current.officer ===
+                "object"
+                  ? current.officer
+                  : {}
+              ),
+
+              role:
+                "Monitoring Officer",
+
+              actor:
+                null,
+
+              decision:
+                "PENDING",
+            },
+
+            officerDecision:
+              "PENDING",
+
+            manager: {
+              ...(
+                typeof current.manager ===
+                "object"
+                  ? current.manager
+                  : {}
+              ),
+
+              role:
+                "Supervising Manager",
+
+              actor:
+                null,
+
+              decision:
+                "NOT_READY",
+            },
+
+            managerDecision:
+              "NOT_READY",
+
+            workflowStatus:
+              "READY_FOR_OFFICER_REVIEW",
+
+            stage:
+              "READY_FOR_OFFICER_REVIEW",
+
+            status:
+              "READY_FOR_OFFICER_REVIEW",
+
+            finalStatus:
+              "READY_FOR_OFFICER_REVIEW",
+          })
+        );
+
+      } catch (
+        reviewError
+      ) {
+        setError(
+          reviewError?.message ||
+          L(
+            language,
+            "Unable to return the case to review.",
+            "تعذر إعادة الحالة إلى التدقيق."
+          )
+        );
+      }
+    };
+
+
+  /* =======================================================
+     CLOSED CASE SAFETY
+     ======================================================= */
+
+  if (
+    closed
+  ) {
+    return (
+      <div className="appShell">
+
+        <Sidebar />
+
+
+        <main className="mainContent">
+
+          <Link
+            href={
+              `/cases/${caseData.id}`
+            }
+            className="textButton"
+            style={{
+              width:
+                "fit-content",
+
+              textDecoration:
+                "none",
+            }}
+          >
+            {isArabic ? (
+              <ArrowRight
+                size={15}
+                aria-hidden="true"
+              />
+            ) : (
+              <ArrowLeft
+                size={15}
+                aria-hidden="true"
+              />
+            )}
+
+            {L(
+              language,
+              "Back to Case",
+              "العودة إلى الحالة"
+            )}
+          </Link>
+
+
+          <section
+            className="panel"
+            style={{
+              marginTop:
+                "18px",
+
+              padding:
+                "30px",
+
+              textAlign:
+                "center",
+            }}
+          >
+            <CheckCircle2
+              size={34}
+              color="#59cfa0"
+              aria-hidden="true"
+            />
+
+
+            <h2>
+              {L(
+                language,
+                "This case is already closed",
+                "هذه الحالة مغلقة بالفعل"
+              )}
+            </h2>
+
+
+            <p
+              style={{
+                color:
+                  "#71849c",
+
+                fontSize:
+                  "10px",
+              }}
+            >
+              {L(
+                language,
+                "Completed cases are retained in Reports & Audit and no longer require employee review.",
+                "الحالات المكتملة محفوظة في التقارير والسجل ولم تعد تحتاج إلى تدقيق الموظف."
+              )}
+            </p>
+
+
+            <Link
+              href={
+                `/reports-audit?case=${caseData.id}`
+              }
+              className="primaryButton"
+              style={{
+                textDecoration:
+                  "none",
+              }}
+            >
+              {L(
+                language,
+                "Open Reports & Audit",
+                "فتح التقارير والسجل"
+              )}
+            </Link>
+
+          </section>
+
+        </main>
+
+      </div>
+    );
+  }
 
 
   return (
@@ -465,6 +1185,49 @@ export default function OfficerReviewPage() {
       <main className="mainContent">
 
         {/* ================================================
+            BACK
+            ================================================ */}
+
+        <Link
+          href={
+            `/cases/${caseData.id}`
+          }
+          className="textButton"
+          style={{
+            width:
+              "fit-content",
+
+            padding:
+              0,
+
+            marginBottom:
+              "15px",
+
+            textDecoration:
+              "none",
+          }}
+        >
+          {isArabic ? (
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+          {L(
+            language,
+            "Back to Case",
+            "العودة إلى تفاصيل الحالة"
+          )}
+        </Link>
+
+
+        {/* ================================================
             HEADER
             ================================================ */}
 
@@ -473,7 +1236,6 @@ export default function OfficerReviewPage() {
           <div>
 
             <div className="eyebrow">
-
               <BadgeCheck
                 size={15}
                 aria-hidden="true"
@@ -481,18 +1243,17 @@ export default function OfficerReviewPage() {
 
               {L(
                 language,
-                "CASE REMEDIATION WORKFLOW",
-                "مسار معالجة الحالة"
+                "HUMAN REVIEW",
+                "المراجعة البشرية"
               )}
-
             </div>
 
 
             <h1>
               {L(
                 language,
-                "Officer Review",
-                "تدقيق موظف المراجعة"
+                "Employee Review",
+                "تدقيق الموظف"
               )}
             </h1>
 
@@ -500,57 +1261,62 @@ export default function OfficerReviewPage() {
             <p>
               {L(
                 language,
-                "Review the identity conflict, examine the AI evidence and proposed correction, then decide whether the case can proceed to manager approval.",
-                "راجع مشكلة التداخل والأدلة التي حللها الذكاء الاصطناعي والتعديل المقترح، ثم قرر ما إذا كانت الحالة جاهزة للرفع إلى المدير."
+
+                "Review what the AI found and confirm whether the proposed correction should continue to Manager approval.",
+
+                "راجع ما اكتشفه الذكاء الاصطناعي، ثم قرر ما إذا كان التعديل المقترح سينتقل إلى موافقة المدير."
               )}
             </p>
 
 
             <div
-              dir="ltr"
               style={{
                 display:
-                  "inline-flex",
+                  "flex",
 
                 alignItems:
                   "center",
+
+                flexWrap:
+                  "wrap",
 
                 gap:
                   "7px",
 
                 marginTop:
-                  "12px",
-
-                padding:
-                  "8px 11px",
-
-                borderRadius:
-                  "9px",
-
-                border:
-                  "1px solid rgba(121,169,255,0.15)",
-
-                background:
-                  "rgba(121,169,255,0.05)",
-
-                color:
-                  "#91a9c6",
-
-                fontSize:
                   "10px",
-
-                fontWeight:
-                  750,
               }}
             >
-              <FileCheck2
-                size={14}
-                aria-hidden="true"
-              />
+              <span
+                dir="ltr"
+                style={{
+                  color:
+                    "#71849c",
 
-              {
-                DEMO_CASE.id
-              }
+                  fontSize:
+                    "9px",
+                }}
+              >
+                {caseData.id}
+              </span>
+
+
+              <span
+                className={
+                  caseData.priority ===
+                  "IMMEDIATE"
+                    ? "priority immediate"
+                    : caseData.priority ===
+                      "HIGH"
+                      ? "priority high"
+                      : "priority medium"
+                }
+              >
+                {priorityLabel(
+                  caseData.priority,
+                  language
+                )}
+              </span>
             </div>
 
           </div>
@@ -566,29 +1332,36 @@ export default function OfficerReviewPage() {
           language={
             language
           }
+          currentStep={
+            currentStep
+          }
         />
 
 
         {/* ================================================
-            CASE SUMMARY
+            CASE HERO
             ================================================ */}
 
         <section
           style={{
             marginBottom:
-              "18px",
+              "16px",
 
             padding:
-              "20px",
+              "17px",
 
             borderRadius:
-              "18px",
+              "15px",
 
             border:
-              "1px solid rgba(89,207,160,0.32)",
+              approved
+                ? "1px solid rgba(89,207,160,0.20)"
+                : "1px solid rgba(121,169,255,0.12)",
 
             background:
-              "linear-gradient(135deg, rgba(13,48,55,0.62), rgba(8,26,45,0.92))",
+              approved
+                ? "rgba(89,207,160,0.04)"
+                : "rgba(11,29,50,0.72)",
           }}
         >
 
@@ -604,7 +1377,7 @@ export default function OfficerReviewPage() {
                 "space-between",
 
               gap:
-                "16px",
+                "12px",
 
               flexWrap:
                 "wrap",
@@ -620,17 +1393,17 @@ export default function OfficerReviewPage() {
                   "center",
 
                 gap:
-                  "12px",
+                  "11px",
               }}
             >
 
               <div
                 style={{
                   width:
-                    "46px",
+                    "43px",
 
                   height:
-                    "46px",
+                    "43px",
 
                   display:
                     "grid",
@@ -639,22 +1412,30 @@ export default function OfficerReviewPage() {
                     "center",
 
                   borderRadius:
-                    "14px",
+                    "12px",
 
                   color:
-                    "#59cfa0",
+                    approved
+                      ? "#59cfa0"
+                      : "#79a9ff",
 
                   background:
-                    "rgba(89,207,160,0.07)",
-
-                  border:
-                    "1px solid rgba(89,207,160,0.18)",
+                    approved
+                      ? "rgba(89,207,160,0.07)"
+                      : "rgba(121,169,255,0.07)",
                 }}
               >
-                <UserCheck
-                  size={23}
-                  aria-hidden="true"
-                />
+                {approved ? (
+                  <CheckCircle2
+                    size={21}
+                    aria-hidden="true"
+                  />
+                ) : (
+                  <UserCheck
+                    size={21}
+                    aria-hidden="true"
+                  />
+                )}
               </div>
 
 
@@ -666,10 +1447,10 @@ export default function OfficerReviewPage() {
                       "block",
 
                     color:
-                      "#e6eef8",
+                      "#e3ecf7",
 
                     fontSize:
-                      "16px",
+                      "14px",
                   }}
                 >
                   {personName}
@@ -679,49 +1460,19 @@ export default function OfficerReviewPage() {
                 <span
                   style={{
                     display:
-                      "inline-flex",
-
-                    alignItems:
-                      "center",
-
-                    gap:
-                      "5px",
+                      "block",
 
                     marginTop:
-                      "7px",
-
-                    padding:
-                      "5px 8px",
-
-                    borderRadius:
-                      "999px",
+                      "4px",
 
                     color:
-                      "#59cfa0",
-
-                    background:
-                      "rgba(89,207,160,0.08)",
-
-                    border:
-                      "1px solid rgba(89,207,160,0.18)",
+                      "#71849c",
 
                     fontSize:
-                      "8px",
-
-                    fontWeight:
-                      800,
+                      "9px",
                   }}
                 >
-                  <Activity
-                    size={11}
-                    aria-hidden="true"
-                  />
-
-                  {L(
-                    language,
-                    "Officer Review in Progress",
-                    "قيد تدقيق الموظف"
-                  )}
+                  {issueLabel}
                 </span>
 
               </div>
@@ -729,195 +1480,67 @@ export default function OfficerReviewPage() {
             </div>
 
 
-            <div
-              style={{
-                display:
-                  "flex",
+            {caseData.wronglyAffected && (
+              <div
+                style={{
+                  display:
+                    "inline-flex",
 
-                alignItems:
-                  "center",
+                  alignItems:
+                    "center",
 
-                gap:
-                  "6px",
+                  gap:
+                    "5px",
 
-                padding:
-                  "7px 10px",
+                  padding:
+                    "6px 9px",
 
-                borderRadius:
-                  "9px",
+                  borderRadius:
+                    "8px",
 
-                color:
-                  "#ff7685",
+                  color:
+                    "#ff7c89",
 
-                background:
-                  "rgba(255,90,110,0.07)",
+                  background:
+                    "rgba(255,80,100,0.07)",
 
-                border:
-                  "1px solid rgba(255,90,110,0.18)",
+                  border:
+                    "1px solid rgba(255,80,100,0.15)",
 
-                fontSize:
-                  "9px",
+                  fontSize:
+                    "8px",
 
-                fontWeight:
-                  800,
-              }}
-            >
-              <AlertTriangle
-                size={14}
-                aria-hidden="true"
-              />
+                  fontWeight:
+                    850,
+                }}
+              >
+                <AlertTriangle
+                  size={13}
+                  aria-hidden="true"
+                />
 
-              {L(
-                language,
-                "URGENT",
-                "فوري"
-              )}
-            </div>
-
-          </div>
-
-
-          <div
-            className="summaryGrid"
-            style={{
-              display:
-                "grid",
-
-              gridTemplateColumns:
-                "repeat(5,minmax(0,1fr))",
-
-              gap:
-                "9px",
-
-              marginTop:
-                "18px",
-            }}
-          >
-
-            <InfoValue
-              label={
-                L(
+                {L(
                   language,
-                  "Problem Type",
-                  "نوع المشكلة"
-                )
-              }
-              value={
-                L(
-                  language,
-                  "Possible Wrong-Person Impact",
-                  "احتمال تأثير على شخص آخر"
-                )
-              }
-            />
-
-
-            <InfoValue
-              label={
-                L(
-                  language,
-                  "AI Confidence",
-                  "ثقة الذكاء الاصطناعي"
-                )
-              }
-              value={
-                `${DEMO_CASE.confidence}%`
-              }
-              color="#e8f0fa"
-              dir="ltr"
-            />
-
-
-            <InfoValue
-              label={
-                L(
-                  language,
-                  "Risk",
-                  "مستوى الخطر"
-                )
-              }
-              value={
-                DEMO_CASE.risk
-              }
-              color="#ffbd67"
-              dir="ltr"
-            />
-
-
-            <InfoValue
-              label={
-                L(
-                  language,
-                  "Harm",
-                  "مستوى الضرر"
-                )
-              }
-              value={
-                DEMO_CASE.harm
-              }
-              color="#ff7685"
-              dir="ltr"
-            />
-
-
-            <InfoValue
-              label={
-                L(
-                  language,
-                  "Protective Priority",
-                  "أولوية الحماية"
-                )
-              }
-              value={
-                DEMO_CASE.protectivePriority
-              }
-              color="#59cfa0"
-              dir="ltr"
-            />
-
-          </div>
-
-
-          <div
-            style={{
-              marginTop:
-                "15px",
-
-              paddingTop:
-                "14px",
-
-              borderTop:
-                "1px solid rgba(255,255,255,0.05)",
-
-              color:
-                "#8496ac",
-
-              fontSize:
-                "10px",
-
-              lineHeight:
-                1.7,
-            }}
-          >
-            {L(
-              language,
-              "AI detected an incorrect biometric relationship that may affect another person. Because of the potential human impact, the case was escalated for immediate authorized review.",
-              "اكتشف الذكاء الاصطناعي ربطًا غير صحيح قد يؤثر على شخص آخر، ولذلك تم تصعيد الحالة للمراجعة البشرية الفورية."
+                  "May affect another person",
+                  "قد تؤثر على شخص آخر"
+                )}
+              </div>
             )}
+
           </div>
 
         </section>
 
 
         {/* ================================================
-            EVIDENCE
+            AI FINDING
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginBottom:
-              "18px",
+              "14px",
           }}
         >
 
@@ -928,8 +1551,8 @@ export default function OfficerReviewPage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "AI EVIDENCE",
-                  "أدلة الذكاء الاصطناعي"
+                  "AI FINDING",
+                  "نتيجة الذكاء الاصطناعي"
                 )}
               </div>
 
@@ -937,16 +1560,16 @@ export default function OfficerReviewPage() {
               <h2>
                 {L(
                   language,
-                  "Evidence Summary",
-                  "ملخص الأدلة"
+                  "What did the system find?",
+                  "ماذا اكتشف النظام؟"
                 )}
               </h2>
 
             </div>
 
 
-            <FileCheck2
-              size={22}
+            <BrainCircuit
+              size={21}
               aria-hidden="true"
             />
 
@@ -955,166 +1578,99 @@ export default function OfficerReviewPage() {
 
           <div
             style={{
-              display:
-                "grid",
-
-              gap:
-                "9px",
-
               padding:
-                "18px",
+                "17px",
             }}
           >
 
-            {[
-              {
-                label:
+            <p
+              style={{
+                margin:
+                  0,
+
+                color:
+                  "#c4d0de",
+
+                fontSize:
+                  "10.5px",
+
+                lineHeight:
+                  1.7,
+              }}
+            >
+              {aiSummary}
+            </p>
+
+
+            <div
+              className="reviewInfoGrid"
+              style={{
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "repeat(3,minmax(0,1fr))",
+
+                gap:
+                  "8px",
+
+                marginTop:
+                  "14px",
+              }}
+            >
+              <InfoBox
+                label={
                   L(
                     language,
                     "Biometric Record",
                     "السجل البيومتري"
-                  ),
+                  )
+                }
+                value={
+                  biometricId
+                }
+                dir="ltr"
+              />
 
-                value:
-                  DEMO_CASE.biometricId,
-              },
 
-              {
-                label:
+              <InfoBox
+                label={
                   L(
                     language,
-                    "Current Linked Identity",
-                    "الهوية المرتبطة حاليًا"
-                  ),
+                    "AI Confidence",
+                    "ثقة الذكاء الاصطناعي"
+                  )
+                }
+                value={
+                  `${caseData.aiConfidence}%`
+                }
+                dir="ltr"
+                color="#79a9ff"
+              />
 
-                value:
-                  DEMO_CASE.currentMasterId,
-              },
 
-              {
-                label:
+              <InfoBox
+                label={
                   L(
                     language,
-                    "AI Canonical Identity",
-                    "الهوية المرجحة بالذكاء الاصطناعي"
-                  ),
-
-                value:
-                  DEMO_CASE.canonicalMasterId,
-              },
-
-              {
-                label:
-                  L(
-                    language,
-                    "Detected Problem",
-                    "نوع الخلل"
-                  ),
-
-                value:
-                  L(
-                    language,
-                    "Incorrect biometric-to-identity mapping",
-                    "ربط غير صحيح بين السجل البيومتري والهوية"
-                  ),
-              },
-
-              {
-                label:
-                  L(
-                    language,
-                    "Probable Root Cause",
-                    "السبب المرجح"
-                  ),
-
-                value:
-                  L(
-                    language,
-                    "The biometric record is currently associated with an identity that does not appear to be its correct owner.",
-                    "السجل البيومتري مرتبط حاليًا بهوية لا تبدو أنها تعود إلى مالكه الصحيح."
-                  ),
-              },
-            ].map(
-              (
-                item,
-                index
-              ) => (
-                <div
-                  key={
-                    item.label
-                  }
-                  style={{
-                    display:
-                      "grid",
-
-                    gridTemplateColumns:
-                      "minmax(150px,0.7fr) minmax(220px,1.3fr)",
-
-                    gap:
-                      "14px",
-
-                    alignItems:
-                      "center",
-
-                    padding:
-                      "12px 0",
-
-                    borderBottom:
-                      index === 4
-                        ? "none"
-                        : "1px solid rgba(255,255,255,0.045)",
-                  }}
-                >
-
-                  <span
-                    style={{
-                      color:
-                        "#71849c",
-
-                      fontSize:
-                        "9px",
-                    }}
-                  >
-                    {
-                      item.label
-                    }
-                  </span>
-
-
-                  <strong
-                    dir={
-                      item.value
-                        .toString()
-                        .startsWith(
-                          "REF-"
-                        ) ||
-                      item.value
-                        .toString()
-                        .startsWith(
-                          "BIO-"
-                        )
-                        ? "ltr"
-                        : undefined
-                    }
-                    style={{
-                      color:
-                        "#cdd9e7",
-
-                      fontSize:
-                        "10px",
-
-                      lineHeight:
-                        1.55,
-                    }}
-                  >
-                    {
-                      item.value
-                    }
-                  </strong>
-
-                </div>
-              )
-            )}
+                    "Priority",
+                    "الأولوية"
+                  )
+                }
+                value={
+                  priorityLabel(
+                    caseData.priority,
+                    language
+                  )
+                }
+                color={
+                  caseData.priority ===
+                  "IMMEDIATE"
+                    ? "#ff7c89"
+                    : "#ffbd67"
+                }
+              />
+            </div>
 
           </div>
 
@@ -1122,64 +1678,46 @@ export default function OfficerReviewPage() {
 
 
         {/* ================================================
-            AI PROPOSED CORRECTION
+            PROPOSED CHANGE
             ================================================ */}
 
         <section
+          className="panel"
           style={{
             marginBottom:
-              "18px",
-
-            padding:
-              "20px",
-
-            borderRadius:
-              "18px",
-
-            border:
-              "1px solid rgba(105,162,255,0.18)",
-
-            background:
-              "linear-gradient(135deg, rgba(11,31,54,0.92), rgba(8,25,44,0.92))",
+              "14px",
           }}
         >
 
-          <div
-            style={{
-              display:
-                "flex",
+          <div className="panelHeader">
 
-              alignItems:
-                "center",
+            <div>
 
-              gap:
-                "8px",
+              <div className="panelEyebrow">
+                {L(
+                  language,
+                  "PROPOSED CORRECTION",
+                  "التعديل المقترح"
+                )}
+              </div>
 
-              marginBottom:
-                "17px",
-            }}
-          >
-            <BrainCircuit
+
+              <h2>
+                {L(
+                  language,
+                  "What will change?",
+                  "ما الذي سيتغير؟"
+                )}
+              </h2>
+
+            </div>
+
+
+            <GitCompareArrows
               size={21}
-              color="#79a9ff"
               aria-hidden="true"
             />
 
-            <strong
-              style={{
-                color:
-                  "#e3edf8",
-
-                fontSize:
-                  "14px",
-              }}
-            >
-              {L(
-                language,
-                "AI Proposed Correction",
-                "الإجراء المقترح بالذكاء الاصطناعي"
-              )}
-            </strong>
           </div>
 
 
@@ -1192,27 +1730,32 @@ export default function OfficerReviewPage() {
               gridTemplateColumns:
                 "1fr auto 1fr",
 
-              gap:
-                "14px",
-
               alignItems:
                 "center",
+
+              gap:
+                "12px",
+
+              padding:
+                "17px",
             }}
           >
+
+            {/* BEFORE */}
 
             <div
               style={{
                 padding:
-                  "16px",
+                  "15px",
 
                 borderRadius:
-                  "13px",
+                  "11px",
 
                 border:
-                  "1px solid rgba(255,93,112,0.18)",
+                  "1px solid rgba(255,80,100,0.10)",
 
                 background:
-                  "rgba(255,93,112,0.035)",
+                  "rgba(255,80,100,0.035)",
               }}
             >
               <span
@@ -1220,57 +1763,71 @@ export default function OfficerReviewPage() {
                   display:
                     "block",
 
-                  marginBottom:
-                    "8px",
-
                   color:
-                    "#ff7685",
+                    "#a76d76",
 
                   fontSize:
-                    "9px",
+                    "8px",
 
                   fontWeight:
-                    800,
+                    850,
                 }}
               >
                 {L(
                   language,
-                  "BEFORE",
-                  "قبل"
+                  "CURRENT",
+                  "الربط الحالي"
                 )}
               </span>
 
-              <div
-                dir="ltr"
+
+              <strong
                 style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "8px",
+
                   color:
-                    "#d8e3ef",
+                    "#e1e9f3",
 
                   fontSize:
-                    "12px",
+                    "11px",
+                }}
+              >
+                {currentName}
+              </strong>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "5px",
+
+                  color:
+                    "#ff7c89",
+
+                  fontSize:
+                    "11px",
 
                   fontWeight:
                     800,
                 }}
               >
-                {DEMO_CASE.biometricId}
-                {"  ←  "}
-                <span
-                  style={{
-                    color:
-                      "#ff7685",
-                  }}
-                >
-                  {
-                    DEMO_CASE.currentMasterId
-                  }
-                </span>
-              </div>
+                {currentReference}
+              </span>
+
             </div>
 
 
             <ChevronRight
-              size={23}
+              className="reviewMappingArrow"
+              size={20}
               color="#71849c"
               style={
                 arrowStyle
@@ -1279,19 +1836,21 @@ export default function OfficerReviewPage() {
             />
 
 
+            {/* AFTER */}
+
             <div
               style={{
                 padding:
-                  "16px",
+                  "15px",
 
                 borderRadius:
-                  "13px",
+                  "11px",
 
                 border:
-                  "1px solid rgba(89,207,160,0.26)",
+                  "1px solid rgba(89,207,160,0.13)",
 
                 background:
-                  "rgba(89,207,160,0.045)",
+                  "rgba(89,207,160,0.04)",
               }}
             >
               <span
@@ -1299,52 +1858,65 @@ export default function OfficerReviewPage() {
                   display:
                     "block",
 
-                  marginBottom:
+                  color:
+                    "#589a82",
+
+                  fontSize:
                     "8px",
+
+                  fontWeight:
+                    850,
+                }}
+              >
+                {L(
+                  language,
+                  "PROPOSED",
+                  "الربط المقترح"
+                )}
+              </span>
+
+
+              <strong
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "8px",
+
+                  color:
+                    "#e1e9f3",
+
+                  fontSize:
+                    "11px",
+                }}
+              >
+                {proposedName}
+              </strong>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "5px",
 
                   color:
                     "#59cfa0",
 
                   fontSize:
-                    "9px",
+                    "11px",
 
                   fontWeight:
                     800,
                 }}
               >
-                {L(
-                  language,
-                  "AFTER",
-                  "بعد"
-                )}
+                {proposedReference}
               </span>
 
-              <div
-                dir="ltr"
-                style={{
-                  color:
-                    "#d8e3ef",
-
-                  fontSize:
-                    "12px",
-
-                  fontWeight:
-                    800,
-                }}
-              >
-                {DEMO_CASE.biometricId}
-                {"  ←  "}
-                <span
-                  style={{
-                    color:
-                      "#59cfa0",
-                  }}
-                >
-                  {
-                    DEMO_CASE.canonicalMasterId
-                  }
-                </span>
-              </div>
             </div>
 
           </div>
@@ -1352,23 +1924,23 @@ export default function OfficerReviewPage() {
 
           <div
             style={{
-              marginTop:
-                "14px",
+              margin:
+                "0 17px 17px",
 
               padding:
-                "11px 13px",
+                "11px",
 
               borderRadius:
-                "10px",
+                "9px",
 
               color:
-                "#7f92a9",
+                "#788ba2",
 
               background:
-                "rgba(255,255,255,0.018)",
+                "rgba(121,169,255,0.025)",
 
               border:
-                "1px solid rgba(255,255,255,0.04)",
+                "1px solid rgba(121,169,255,0.06)",
 
               fontSize:
                 "9px",
@@ -1391,8 +1963,10 @@ export default function OfficerReviewPage() {
 
             {L(
               language,
-              "The AI prepares this correction only. Execution remains blocked until Officer approval and Manager approval are both completed.",
-              "الذكاء الاصطناعي يجهز هذا التعديل فقط، ويبقى التنفيذ محظورًا حتى اعتماد موظف المراجعة وموافقة المدير."
+
+              `The proposed correction changes the biometric link from ${currentReference} to ${proposedReference}. No change is executed from this page.`,
+
+              `يقترح النظام تغيير ربط السجل البيومتري من ${currentReference} إلى ${proposedReference}. لا يتم تنفيذ أي تعديل من هذه الصفحة.`
             )}
           </div>
 
@@ -1400,14 +1974,14 @@ export default function OfficerReviewPage() {
 
 
         {/* ================================================
-            OFFICER DECISION
+            HUMAN DECISION
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginBottom:
-              "18px",
+              "14px",
           }}
         >
 
@@ -1418,25 +1992,37 @@ export default function OfficerReviewPage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "HUMAN DECISION",
-                  "القرار البشري"
+                  "EMPLOYEE DECISION",
+                  "قرار الموظف"
                 )}
               </div>
 
 
               <h2>
-                {L(
-                  language,
-                  "Officer Decision",
-                  "قرار موظف المراجعة"
-                )}
+                {approved
+                  ? L(
+                      language,
+                      "Review Completed",
+                      "اكتمل تدقيق الموظف"
+                    )
+                  : furtherInvestigation
+                    ? L(
+                        language,
+                        "Additional Investigation Requested",
+                        "تم طلب تحقيق إضافي"
+                      )
+                    : L(
+                        language,
+                        "Review and Decide",
+                        "راجع واتخذ القرار"
+                      )}
               </h2>
 
             </div>
 
 
             <UserCheck
-              size={22}
+              size={21}
               aria-hidden="true"
             />
 
@@ -1446,125 +2032,90 @@ export default function OfficerReviewPage() {
           <div
             style={{
               padding:
-                "18px",
+                "17px",
             }}
           >
 
-            <label
-              style={{
-                display:
-                  "block",
+            {/* ============================================
+                PENDING REVIEW
+                ============================================ */}
 
-                marginBottom:
-                  "8px",
+            {canReview && (
+              <>
 
-                color:
-                  "#7588a0",
-
-                fontSize:
-                  "9px",
-              }}
-            >
-              {L(
-                language,
-                "Officer Notes",
-                "ملاحظات الموظف"
-              )}
-            </label>
-
-
-            <textarea
-              value={
-                comments
-              }
-              onChange={
-                (
-                  event
-                ) =>
-                  setComments(
-                    event.target.value
-                  )
-              }
-              rows={4}
-              style={{
-                width:
-                  "100%",
-
-                boxSizing:
-                  "border-box",
-
-                resize:
-                  "vertical",
-
-                padding:
-                  "13px",
-
-                borderRadius:
-                  "11px",
-
-                outline:
-                  "none",
-
-                border:
-                  "1px solid rgba(121,169,255,0.13)",
-
-                background:
-                  "rgba(4,18,33,0.52)",
-
-                color:
-                  "#cbd7e5",
-
-                fontFamily:
-                  "inherit",
-
-                fontSize:
-                  "10px",
-
-                lineHeight:
-                  1.7,
-              }}
-            />
-
-
-            {decision ===
-              "REVIEWING" && (
-              <div
-                className="decisionButtons"
-                style={{
-                  display:
-                    "grid",
-
-                  gridTemplateColumns:
-                    "1fr 1fr",
-
-                  gap:
-                    "10px",
-
-                  marginTop:
-                    "14px",
-                }}
-              >
-
-                <button
-                  type="button"
-                  onClick={
-                    approveCase
-                  }
+                <label
                   style={{
-                    minHeight:
-                      "44px",
+                    display:
+                      "block",
 
-                    border:
-                      "1px solid rgba(111,230,180,0.42)",
-
-                    borderRadius:
-                      "11px",
-
-                    background:
-                      "linear-gradient(90deg,#4bc58f,#68d9ab)",
+                    marginBottom:
+                      "7px",
 
                     color:
-                      "#071c17",
+                      "#71849c",
+
+                    fontSize:
+                      "8.5px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Review Notes",
+                    "ملاحظات التدقيق"
+                  )}
+                </label>
+
+
+                <textarea
+                  value={
+                    comments
+                  }
+                  onChange={
+                    (
+                      event
+                    ) => {
+                      setComments(
+                        event.target.value
+                      );
+                    }
+                  }
+                  rows={4}
+                  placeholder={
+                    L(
+                      language,
+
+                      "Example: Evidence reviewed and the proposed correction is supported.",
+
+                      "مثال: تمت مراجعة الأدلة والتعديل المقترح مدعوم بالنتائج."
+                    )
+                  }
+                  style={{
+                    width:
+                      "100%",
+
+                    boxSizing:
+                      "border-box",
+
+                    resize:
+                      "vertical",
+
+                    padding:
+                      "12px",
+
+                    borderRadius:
+                      "10px",
+
+                    outline:
+                      "none",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.12)",
+
+                    background:
+                      "rgba(4,18,33,0.52)",
+
+                    color:
+                      "#cbd7e5",
 
                     fontFamily:
                       "inherit",
@@ -1572,108 +2123,184 @@ export default function OfficerReviewPage() {
                     fontSize:
                       "10px",
 
-                    fontWeight:
-                      900,
-
-                    cursor:
-                      "pointer",
+                    lineHeight:
+                      1.7,
                   }}
-                >
-                  <CheckCircle2
-                    size={15}
-                    aria-hidden="true"
+                />
+
+
+                {error && (
+                  <div
                     style={{
-                      marginInlineEnd:
-                        "7px",
+                      marginTop:
+                        "10px",
 
-                      verticalAlign:
-                        "middle",
+                      padding:
+                        "10px",
+
+                      borderRadius:
+                        "9px",
+
+                      color:
+                        "#ff7c89",
+
+                      background:
+                        "rgba(255,80,100,0.05)",
+
+                      border:
+                        "1px solid rgba(255,80,100,0.12)",
+
+                      fontSize:
+                        "9px",
                     }}
-                  />
-
-                  {L(
-                    language,
-                    "Approve & Send to Manager",
-                    "اعتماد وإرسال للمدير"
-                  )}
-                </button>
+                  >
+                    {error}
+                  </div>
+                )}
 
 
-                <button
-                  type="button"
-                  onClick={
-                    requestInvestigation
-                  }
+                <div
+                  className="decisionButtons"
                   style={{
-                    minHeight:
-                      "44px",
+                    display:
+                      "grid",
 
-                    border:
-                      "1px solid rgba(121,169,255,0.22)",
+                    gridTemplateColumns:
+                      "1fr 1fr",
 
-                    borderRadius:
-                      "11px",
+                    gap:
+                      "9px",
 
-                    background:
-                      "rgba(121,169,255,0.045)",
-
-                    color:
-                      "#79a9ff",
-
-                    fontFamily:
-                      "inherit",
-
-                    fontSize:
-                      "10px",
-
-                    fontWeight:
-                      850,
-
-                    cursor:
-                      "pointer",
+                    marginTop:
+                      "13px",
                   }}
                 >
-                  <BrainCircuit
-                    size={15}
-                    aria-hidden="true"
+
+                  <button
+                    type="button"
+                    onClick={
+                      approveCase
+                    }
                     style={{
-                      marginInlineEnd:
-                        "7px",
+                      minHeight:
+                        "44px",
 
-                      verticalAlign:
-                        "middle",
+                      border:
+                        "1px solid rgba(111,230,180,0.40)",
+
+                      borderRadius:
+                        "10px",
+
+                      background:
+                        "linear-gradient(90deg,#4bc58f,#68d9ab)",
+
+                      color:
+                        "#071c17",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize:
+                        "10px",
+
+                      fontWeight:
+                        900,
                     }}
-                  />
+                  >
+                    <CheckCircle2
+                      size={15}
+                      aria-hidden="true"
+                      style={{
+                        marginInlineEnd:
+                          "6px",
 
-                  {L(
-                    language,
-                    "Request Further Investigation",
-                    "طلب تحقيق إضافي"
-                  )}
-                </button>
+                        verticalAlign:
+                          "middle",
+                      }}
+                    />
 
-              </div>
+                    {L(
+                      language,
+                      "Approve & Send to Manager",
+                      "اعتماد وإرسال للمدير"
+                    )}
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={
+                      requestInvestigation
+                    }
+                    style={{
+                      minHeight:
+                        "44px",
+
+                      border:
+                        "1px solid rgba(121,169,255,0.18)",
+
+                      borderRadius:
+                        "10px",
+
+                      background:
+                        "rgba(121,169,255,0.04)",
+
+                      color:
+                        "#79a9ff",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize:
+                        "10px",
+
+                      fontWeight:
+                        850,
+                    }}
+                  >
+                    <BrainCircuit
+                      size={15}
+                      aria-hidden="true"
+                      style={{
+                        marginInlineEnd:
+                          "6px",
+
+                        verticalAlign:
+                          "middle",
+                      }}
+                    />
+
+                    {L(
+                      language,
+                      "Request More Investigation",
+                      "طلب تحقيق إضافي"
+                    )}
+                  </button>
+
+                </div>
+
+              </>
             )}
 
 
-            {decision ===
-              "APPROVED" && (
+            {/* ============================================
+                APPROVED
+                ============================================ */}
+
+            {approved && (
               <div
                 style={{
-                  marginTop:
+                  padding:
                     "15px",
 
-                  padding:
-                    "16px",
-
                   borderRadius:
-                    "13px",
+                    "11px",
 
                   border:
-                    "1px solid rgba(89,207,160,0.24)",
+                    "1px solid rgba(89,207,160,0.15)",
 
                   background:
-                    "rgba(89,207,160,0.055)",
+                    "rgba(89,207,160,0.045)",
                 }}
               >
 
@@ -1693,20 +2320,20 @@ export default function OfficerReviewPage() {
                   }}
                 >
                   <CheckCircle2
-                    size={20}
+                    size={19}
                     aria-hidden="true"
                   />
 
                   <strong
                     style={{
                       fontSize:
-                        "12px",
+                        "11px",
                     }}
                   >
                     {L(
                       language,
-                      "Officer approval recorded",
-                      "تم اعتماد موظف المراجعة"
+                      "Employee approval recorded",
+                      "تم تسجيل اعتماد الموظف"
                     )}
                   </strong>
                 </div>
@@ -1715,13 +2342,13 @@ export default function OfficerReviewPage() {
                 <p
                   style={{
                     margin:
-                      "9px 0 14px",
+                      "8px 0 0",
 
                     color:
-                      "#8295ac",
+                      "#7f92a9",
 
                     fontSize:
-                      "9px",
+                      "9.5px",
 
                     lineHeight:
                       1.65,
@@ -1729,17 +2356,76 @@ export default function OfficerReviewPage() {
                 >
                   {L(
                     language,
-                    "The officer decision has been recorded. The proposed correction remains unexecuted and has now been sent to the manager for final authorization.",
-                    "تم تسجيل قرار الموظف ورفع التوصية إلى المدير. لم يتم تنفيذ أي تعديل حتى الآن، وتنتظر الحالة موافقة المدير النهائية."
+
+                    "The first human approval is saved. No correction has been executed. The case is now waiting for Manager authorization.",
+
+                    "تم حفظ الموافقة البشرية الأولى. لم يتم تنفيذ أي تعديل، والحالة الآن بانتظار موافقة المدير."
                   )}
                 </p>
 
 
+                {comments && (
+                  <div
+                    style={{
+                      marginTop:
+                        "10px",
+
+                      padding:
+                        "10px",
+
+                      borderRadius:
+                        "9px",
+
+                      color:
+                        "#8193aa",
+
+                      background:
+                        "rgba(255,255,255,0.02)",
+
+                      border:
+                        "1px solid rgba(255,255,255,0.04)",
+
+                      fontSize:
+                        "9px",
+
+                      lineHeight:
+                        1.6,
+                    }}
+                  >
+                    <strong
+                      style={{
+                        display:
+                          "block",
+
+                        marginBottom:
+                          "4px",
+
+                        color:
+                          "#a9b8c9",
+                      }}
+                    >
+                      {L(
+                        language,
+                        "Employee Notes",
+                        "ملاحظات الموظف"
+                      )}
+                    </strong>
+
+                    {comments}
+                  </div>
+                )}
+
+
                 <Link
-                  href="/manager-approval"
+                  href={
+                    `/manager-approval?case=${caseData.id}`
+                  }
                   style={{
                     minHeight:
                       "44px",
+
+                    marginTop:
+                      "13px",
 
                     display:
                       "flex",
@@ -1751,10 +2437,10 @@ export default function OfficerReviewPage() {
                       "center",
 
                     gap:
-                      "8px",
+                      "7px",
 
                     borderRadius:
-                      "11px",
+                      "10px",
 
                     textDecoration:
                       "none",
@@ -1766,7 +2452,7 @@ export default function OfficerReviewPage() {
                       "linear-gradient(90deg,#4bc58f,#68d9ab)",
 
                     border:
-                      "1px solid rgba(111,230,180,0.42)",
+                      "1px solid rgba(111,230,180,0.40)",
 
                     fontSize:
                       "10px",
@@ -1776,18 +2462,18 @@ export default function OfficerReviewPage() {
                   }}
                 >
                   <BadgeCheck
-                    size={16}
+                    size={15}
                     aria-hidden="true"
                   />
 
                   {L(
                     language,
-                    "Open Manager Approval",
+                    "Continue to Manager Approval",
                     "الانتقال إلى موافقة المدير"
                   )}
 
                   <ChevronRight
-                    size={15}
+                    size={14}
                     style={
                       arrowStyle
                     }
@@ -1799,121 +2485,301 @@ export default function OfficerReviewPage() {
             )}
 
 
-            {decision ===
-              "FURTHER_INVESTIGATION" && (
+            {/* ============================================
+                MORE INVESTIGATION
+                ============================================ */}
+
+            {furtherInvestigation && (
               <div
                 style={{
-                  marginTop:
+                  padding:
                     "15px",
 
-                  padding:
-                    "16px",
-
                   borderRadius:
-                    "13px",
+                    "11px",
 
                   border:
-                    "1px solid rgba(255,189,103,0.22)",
+                    "1px solid rgba(255,189,103,0.15)",
 
                   background:
-                    "rgba(255,189,103,0.05)",
+                    "rgba(255,189,103,0.04)",
                 }}
               >
-                <strong
+                <div
                   style={{
                     display:
-                      "block",
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    gap:
+                      "7px",
 
                     color:
                       "#ffbd67",
-
-                    fontSize:
-                      "11px",
                   }}
                 >
-                  {L(
-                    language,
-                    "Further investigation requested",
-                    "تم طلب تحقيق إضافي"
-                  )}
-                </strong>
+                  <BrainCircuit
+                    size={18}
+                    aria-hidden="true"
+                  />
+
+                  <strong
+                    style={{
+                      fontSize:
+                        "11px",
+                    }}
+                  >
+                    {L(
+                      language,
+                      "Additional investigation requested",
+                      "تم طلب تحقيق إضافي"
+                    )}
+                  </strong>
+                </div>
 
 
-                <span
+                <p
                   style={{
-                    display:
-                      "block",
-
-                    marginTop:
-                      "7px",
+                    margin:
+                      "8px 0 0",
 
                     color:
                       "#8193aa",
 
                     fontSize:
-                      "9px",
+                      "9.5px",
 
                     lineHeight:
-                      1.6,
+                      1.65,
                   }}
                 >
                   {L(
                     language,
-                    "The case has not been approved and no correction can proceed until additional investigation is completed.",
-                    "لم يتم اعتماد الحالة ولن يتم تنفيذ أي تعديل حتى استكمال التحقيق الإضافي وإعادة الحالة للمراجعة."
+
+                    "The case returned to the investigation stage. Execution remains blocked and the Manager cannot approve it yet.",
+
+                    "عادت الحالة إلى مرحلة التحقيق. يبقى التنفيذ محظورًا ولا يمكن للمدير اعتمادها حاليًا."
                   )}
-                </span>
+                </p>
 
 
-                <button
-                  type="button"
-                  onClick={
-                    () =>
-                      setDecision(
-                        "REVIEWING"
-                      )
-                  }
+                <div
+                  className="investigationActions"
                   style={{
+                    display:
+                      "grid",
+
+                    gridTemplateColumns:
+                      "1fr 1fr",
+
+                    gap:
+                      "8px",
+
                     marginTop:
                       "12px",
-
-                    padding:
-                      "9px 13px",
-
-                    borderRadius:
-                      "9px",
-
-                    border:
-                      "1px solid rgba(121,169,255,0.18)",
-
-                    background:
-                      "rgba(121,169,255,0.04)",
-
-                    color:
-                      "#79a9ff",
-
-                    fontFamily:
-                      "inherit",
-
-                    fontSize:
-                      "9px",
-
-                    fontWeight:
-                      800,
-
-                    cursor:
-                      "pointer",
                   }}
                 >
-                  {L(
-                    language,
-                    "Return to Review",
-                    "العودة إلى التدقيق"
-                  )}
-                </button>
+
+                  <Link
+                    href={
+                      `/cases/${caseData.id}`
+                    }
+                    style={{
+                      minHeight:
+                        "40px",
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      justifyContent:
+                        "center",
+
+                      gap:
+                        "6px",
+
+                      borderRadius:
+                        "9px",
+
+                      textDecoration:
+                        "none",
+
+                      color:
+                        "#79a9ff",
+
+                      background:
+                        "rgba(121,169,255,0.04)",
+
+                      border:
+                        "1px solid rgba(121,169,255,0.12)",
+
+                      fontSize:
+                        "9px",
+
+                      fontWeight:
+                        800,
+                    }}
+                  >
+                    <BrainCircuit
+                      size={14}
+                      aria-hidden="true"
+                    />
+
+                    {L(
+                      language,
+                      "View Investigation",
+                      "عرض التحقيق"
+                    )}
+                  </Link>
+
+
+                  <button
+                    type="button"
+                    onClick={
+                      reopenForReview
+                    }
+                    style={{
+                      minHeight:
+                        "40px",
+
+                      borderRadius:
+                        "9px",
+
+                      border:
+                        "1px solid rgba(89,207,160,0.13)",
+
+                      background:
+                        "rgba(89,207,160,0.04)",
+
+                      color:
+                        "#59cfa0",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize:
+                        "9px",
+
+                      fontWeight:
+                        850,
+                    }}
+                  >
+                    <UserCheck
+                      size={14}
+                      aria-hidden="true"
+                      style={{
+                        marginInlineEnd:
+                          "6px",
+
+                        verticalAlign:
+                          "middle",
+                      }}
+                    />
+
+                    {L(
+                      language,
+                      "Return to Employee Review",
+                      "إعادة الحالة لتدقيق الموظف"
+                    )}
+                  </button>
+
+                </div>
 
               </div>
             )}
+
+
+            {/* ============================================
+                CASE ALREADY MOVED FORWARD
+                ============================================ */}
+
+            {!canReview &&
+              !approved &&
+              !furtherInvestigation && (
+                <div
+                  style={{
+                    padding:
+                      "14px",
+
+                    borderRadius:
+                      "10px",
+
+                    color:
+                      "#8193aa",
+
+                    background:
+                      "rgba(121,169,255,0.035)",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.08)",
+
+                    fontSize:
+                      "9.5px",
+
+                    lineHeight:
+                      1.65,
+                  }}
+                >
+                  {L(
+                    language,
+
+                    "This case has already moved beyond the Employee Review stage. Open the case details to continue from its current workflow step.",
+
+                    "تجاوزت هذه الحالة مرحلة تدقيق الموظف. افتح تفاصيل الحالة للمتابعة من المرحلة الحالية."
+                  )}
+
+
+                  <Link
+                    href={
+                      `/cases/${caseData.id}`
+                    }
+                    style={{
+                      minHeight:
+                        "39px",
+
+                      marginTop:
+                        "11px",
+
+                      display:
+                        "flex",
+
+                      alignItems:
+                        "center",
+
+                      justifyContent:
+                        "center",
+
+                      borderRadius:
+                        "9px",
+
+                      color:
+                        "#79a9ff",
+
+                      textDecoration:
+                        "none",
+
+                      background:
+                        "rgba(121,169,255,0.04)",
+
+                      border:
+                        "1px solid rgba(121,169,255,0.10)",
+
+                      fontWeight:
+                        800,
+                    }}
+                  >
+                    {L(
+                      language,
+                      "Open Case",
+                      "فتح الحالة"
+                    )}
+                  </Link>
+                </div>
+              )}
 
           </div>
 
@@ -1928,14 +2794,14 @@ export default function OfficerReviewPage() {
           className="integrityInfo"
           style={{
             margin:
-              "0 0 16px",
+              "0 0 14px",
 
             padding:
-              "18px",
+              "15px",
           }}
         >
           <ShieldCheck
-            size={23}
+            size={21}
             aria-hidden="true"
           />
 
@@ -1944,7 +2810,7 @@ export default function OfficerReviewPage() {
             <strong>
               {L(
                 language,
-                "Officer approval does not execute the correction",
+                "Employee approval does not execute the correction",
                 "اعتماد الموظف لا ينفذ التعديل"
               )}
             </strong>
@@ -1953,8 +2819,10 @@ export default function OfficerReviewPage() {
             <span>
               {L(
                 language,
-                "After Officer approval, the case moves to the Manager. The biometric correction remains blocked until the Manager provides the second required human authorization.",
-                "بعد اعتماد موظف المراجعة تنتقل الحالة إلى المدير، ويبقى التصحيح البيومتري محظورًا حتى صدور الموافقة البشرية الثانية من المدير."
+
+                "After Employee approval, the same case moves to Manager approval. The correction remains locked until the second human approval is recorded.",
+
+                "بعد اعتماد الموظف تنتقل نفس الحالة إلى موافقة المدير، ويبقى التعديل مقفلًا حتى تسجيل الموافقة البشرية الثانية."
               )}
             </span>
 
@@ -1972,61 +2840,89 @@ export default function OfficerReviewPage() {
           <span>
             {L(
               language,
-              "AI Biometric Reconciliation Platform · Officer Review",
+              "AI Biometric Reconciliation Platform · Employee Review",
               "منصة المطابقة البيومترية بالذكاء الاصطناعي · تدقيق الموظف"
             )}
           </span>
 
 
           <div>
-
-            <ShieldCheck
-              size={15}
+            <Activity
+              size={14}
               aria-hidden="true"
             />
 
-            {L(
-              language,
-              "Human authorization control active",
-              "ضابط الاعتماد البشري نشط"
-            )}
-
+            <span dir="ltr">
+              {caseData.id}
+            </span>
           </div>
 
         </footer>
 
 
+        {/* ================================================
+            MOBILE
+            ================================================ */}
+
         <style jsx>{`
-          @media (max-width: 760px) {
-            .summaryGrid {
-              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+
+          @media (
+            max-width: 760px
+          ) {
+
+            .reviewWorkflow {
+              overflow-x:
+                auto;
             }
 
-            .workflowGrid {
-              grid-template-columns: repeat(5, minmax(70px, 1fr)) !important;
-              overflow-x: auto;
-              padding-bottom: 4px;
+
+            .reviewWorkflowGrid {
+              min-width:
+                520px;
             }
 
-            .decisionButtons {
-              grid-template-columns: 1fr !important;
+
+            .reviewInfoGrid {
+              grid-template-columns:
+                1fr
+                1fr
+                !important;
             }
+
+
+            .reviewInfoGrid
+            > div:first-child {
+              grid-column:
+                1 / -1;
+            }
+
 
             .beforeAfterGrid {
-              grid-template-columns: 1fr !important;
+              grid-template-columns:
+                1fr
+                !important;
             }
 
-            .beforeAfterGrid > svg {
-              margin: 0 auto;
-              transform: rotate(90deg) !important;
+
+            :global(.reviewMappingArrow) {
+              margin:
+                0 auto;
+
+              transform:
+                rotate(90deg)
+                !important;
             }
+
+
+            .decisionButtons,
+            .investigationActions {
+              grid-template-columns:
+                1fr
+                !important;
+            }
+
           }
 
-          @media (max-width: 480px) {
-            .summaryGrid {
-              grid-template-columns: 1fr 1fr !important;
-            }
-          }
         `}</style>
 
       </main>

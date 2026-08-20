@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
 } from "react";
 
@@ -10,12 +11,22 @@ import Sidebar from "../components/Sidebar";
 import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  VERIFIED_DEMO_CASE,
+  ALL_DETECTED_CASES,
+  PRIMARY_ACTIVE_CASE_ID,
 } from "../lib/demo-data";
 
 import {
+  executeCaseCorrection,
+  initializeDemoCaseStore,
+  verifyCaseCorrection,
+  useCaseStore,
+} from "../lib/case-store";
+
+import {
   Activity,
-  BadgeCheck,
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
   BrainCircuit,
   CheckCircle2,
   ChevronRight,
@@ -48,56 +59,46 @@ function L(
 
 
 /* =========================================================
-   DEMO CASE
+   LOCALIZED VALUE
    ========================================================= */
 
-const DEMO_CASE = {
-  id:
-    VERIFIED_DEMO_CASE.id,
+function localizedValue(
+  value,
+  language,
+  fallback = ""
+) {
+  if (
+    typeof value ===
+    "string"
+  ) {
+    return value;
+  }
 
-  person:
-    VERIFIED_DEMO_CASE.person,
 
-  biometricId:
-    VERIFIED_DEMO_CASE.biometricId,
+  if (
+    value &&
+    typeof value ===
+      "object" &&
+    !Array.isArray(
+      value
+    )
+  ) {
+    return (
+      value[
+        language
+      ] ||
+      value.en ||
+      fallback
+    );
+  }
 
-  before:
-    VERIFIED_DEMO_CASE.execution.before,
 
-  after:
-    VERIFIED_DEMO_CASE.execution.after,
-
-  targetSystem:
-    VERIFIED_DEMO_CASE.execution.targetSystem,
-
-  targetRecord:
-    VERIFIED_DEMO_CASE.execution.targetRecord,
-
-  field:
-    VERIFIED_DEMO_CASE.execution.field,
-
-  verificationScore:
-    VERIFIED_DEMO_CASE.verification.score,
-
-  biometricMatch:
-    VERIFIED_DEMO_CASE.verification.biometricMatch,
-
-  biometricMatchPercent:
-    VERIFIED_DEMO_CASE.verification.biometricMatchPercent,
-
-  identityMappingValid:
-    VERIFIED_DEMO_CASE.verification.identityMappingValid,
-
-  conflictResolved:
-    VERIFIED_DEMO_CASE.verification.originalConflictResolved,
-
-  secondaryConflict:
-    VERIFIED_DEMO_CASE.verification.secondaryConflict,
-};
+  return fallback;
+}
 
 
 /* =========================================================
-   WORKFLOW STEPS
+   WORKFLOW
    ========================================================= */
 
 const workflowSteps = [
@@ -106,10 +107,10 @@ const workflowSteps = [
       1,
 
     en:
-      "Case Detection",
+      "AI Analysis",
 
     ar:
-      "اكتشاف الحالة",
+      "تحليل الذكاء الاصطناعي",
   },
 
   {
@@ -117,7 +118,7 @@ const workflowSteps = [
       2,
 
     en:
-      "Officer Review",
+      "Employee Review",
 
     ar:
       "تدقيق الموظف",
@@ -128,17 +129,6 @@ const workflowSteps = [
       3,
 
     en:
-      "AI Correction Proposal",
-
-    ar:
-      "اقتراح التعديل",
-  },
-
-  {
-    number:
-      4,
-
-    en:
       "Manager Approval",
 
     ar:
@@ -147,13 +137,24 @@ const workflowSteps = [
 
   {
     number:
+      4,
+
+    en:
+      "Correction",
+
+    ar:
+      "تنفيذ التعديل",
+  },
+
+  {
+    number:
       5,
 
     en:
-      "Execution & Verification",
+      "Verification",
 
     ar:
-      "التنفيذ والتحقق",
+      "التحقق النهائي",
   },
 ];
 
@@ -164,31 +165,34 @@ const workflowSteps = [
 
 function WorkflowStepper({
   language,
-  completed,
+  currentStep,
+  verified,
 }) {
   return (
     <section
+      className="executionWorkflow"
       style={{
         marginBottom:
-          "18px",
+          "16px",
 
         padding:
-          "20px 18px",
+          "17px",
 
         borderRadius:
-          "18px",
+          "16px",
 
         border:
-          completed
-            ? "1px solid rgba(89,207,160,0.20)"
-            : "1px solid rgba(121,169,255,0.12)",
+          verified
+            ? "1px solid rgba(89,207,160,0.15)"
+            : "1px solid rgba(121,169,255,0.10)",
 
         background:
-          "linear-gradient(135deg, rgba(12,32,54,0.90), rgba(8,24,43,0.92))",
+          "rgba(11,29,50,0.72)",
       }}
     >
+
       <div
-        className="workflowGrid"
+        className="executionWorkflowGrid"
         style={{
           display:
             "grid",
@@ -197,21 +201,25 @@ function WorkflowStepper({
             "repeat(5,minmax(0,1fr))",
 
           gap:
-            "10px",
+            "8px",
         }}
       >
+
         {workflowSteps.map(
           (
             step
           ) => {
 
-            const earlier =
+            const completed =
+              verified ||
               step.number <
-              5;
+                currentStep;
 
-            const finalStep =
+
+            const active =
+              !verified &&
               step.number ===
-              5;
+                currentStep;
 
 
             return (
@@ -220,20 +228,41 @@ function WorkflowStepper({
                   step.number
                 }
                 style={{
+                  padding:
+                    "10px 6px",
+
+                  borderRadius:
+                    "10px",
+
                   textAlign:
                     "center",
+
+                  border:
+                    completed
+                      ? "1px solid rgba(89,207,160,0.10)"
+                      : active
+                        ? "1px solid rgba(121,169,255,0.18)"
+                        : "1px solid rgba(255,255,255,0.04)",
+
+                  background:
+                    completed
+                      ? "rgba(89,207,160,0.04)"
+                      : active
+                        ? "rgba(121,169,255,0.07)"
+                        : "rgba(255,255,255,0.015)",
                 }}
               >
+
                 <div
                   style={{
                     width:
-                      "36px",
+                      "29px",
 
                     height:
-                      "36px",
+                      "29px",
 
                     margin:
-                      "0 auto 9px",
+                      "0 auto 7px",
 
                     display:
                       "grid",
@@ -244,50 +273,37 @@ function WorkflowStepper({
                     borderRadius:
                       "50%",
 
-                    border:
-                      finalStep
-                        ? completed
-                          ? "2px solid #59cfa0"
-                          : "2px solid #79a9ff"
-                        : "1px solid rgba(89,207,160,0.45)",
-
                     color:
-                      finalStep
-                        ? completed
-                          ? "#59cfa0"
-                          : "#79a9ff"
-                        : "#59cfa0",
+                      completed
+                        ? "#59cfa0"
+                        : active
+                          ? "#79a9ff"
+                          : "#61738a",
 
                     background:
-                      finalStep
-                        ? completed
-                          ? "rgba(89,207,160,0.10)"
-                          : "rgba(121,169,255,0.09)"
-                        : "rgba(89,207,160,0.055)",
-
-                    boxShadow:
-                      finalStep
-                        ? completed
-                          ? "0 0 20px rgba(89,207,160,0.13)"
-                          : "0 0 20px rgba(121,169,255,0.10)"
-                        : "none",
+                      completed
+                        ? "rgba(89,207,160,0.07)"
+                        : active
+                          ? "rgba(121,169,255,0.07)"
+                          : "rgba(255,255,255,0.02)",
 
                     fontSize:
-                      "11px",
+                      "9px",
 
                     fontWeight:
                       850,
                   }}
                 >
-                  {earlier ||
-                  completed ? (
+
+                  {completed ? (
                     <CheckCircle2
-                      size={18}
+                      size={15}
                       aria-hidden="true"
                     />
                   ) : (
                     step.number
                   )}
+
                 </div>
 
 
@@ -297,17 +313,17 @@ function WorkflowStepper({
                       "block",
 
                     color:
-                      finalStep
-                        ? completed
-                          ? "#59cfa0"
-                          : "#79a9ff"
-                        : "#bcd8cd",
+                      completed
+                        ? "#9cc5b6"
+                        : active
+                          ? "#b4cefb"
+                          : "#708298",
 
                     fontSize:
-                      "9px",
+                      "8.5px",
 
                     lineHeight:
-                      1.45,
+                      1.4,
                   }}
                 >
                   {L(
@@ -316,11 +332,14 @@ function WorkflowStepper({
                     step.ar
                   )}
                 </strong>
+
               </div>
             );
           }
         )}
+
       </div>
+
     </section>
   );
 }
@@ -333,25 +352,26 @@ function WorkflowStepper({
 function InfoCard({
   label,
   value,
-  color = "#dbe6f2",
+  color = "#d6e1ee",
   dir,
 }) {
   return (
     <div
       style={{
         padding:
-          "13px",
+          "12px",
 
         borderRadius:
-          "11px",
+          "10px",
 
         border:
-          "1px solid rgba(255,255,255,0.055)",
+          "1px solid rgba(255,255,255,0.045)",
 
         background:
-          "rgba(255,255,255,0.022)",
+          "rgba(255,255,255,0.02)",
       }}
     >
+
       <span
         style={{
           display:
@@ -361,10 +381,7 @@ function InfoCard({
             "#687b93",
 
           fontSize:
-            "9px",
-
-          marginBottom:
-            "6px",
+            "8px",
         }}
       >
         {label}
@@ -379,17 +396,24 @@ function InfoCard({
           display:
             "block",
 
+          marginTop:
+            "5px",
+
           color,
 
           fontSize:
-            "12px",
+            "10px",
 
           lineHeight:
             1.5,
+
+          overflowWrap:
+            "anywhere",
         }}
       >
         {value}
       </strong>
+
     </div>
   );
 }
@@ -403,6 +427,7 @@ function ResultRow({
   label,
   value,
   success = false,
+  warning = false,
   dir,
 }) {
   return (
@@ -418,15 +443,16 @@ function ResultRow({
           "center",
 
         gap:
-          "16px",
+          "14px",
 
         padding:
-          "12px 0",
+          "11px 0",
 
         borderBottom:
-          "1px solid rgba(255,255,255,0.045)",
+          "1px solid rgba(255,255,255,0.04)",
       }}
     >
+
       <span
         style={{
           color:
@@ -448,10 +474,12 @@ function ResultRow({
           color:
             success
               ? "#59cfa0"
-              : "#d3deea",
+              : warning
+                ? "#ffbd67"
+                : "#d3deea",
 
           fontSize:
-            "10px",
+            "9.5px",
 
           textAlign:
             "end",
@@ -459,6 +487,7 @@ function ResultRow({
       >
         {value}
       </strong>
+
     </div>
   );
 }
@@ -471,6 +500,7 @@ function ResultRow({
 function AuditEvent({
   number,
   title,
+  completed,
   active,
 }) {
   return (
@@ -480,25 +510,26 @@ function AuditEvent({
           "grid",
 
         gridTemplateColumns:
-          "34px 1fr",
+          "32px 1fr",
 
         gap:
-          "11px",
+          "10px",
 
         alignItems:
           "center",
 
         padding:
-          "11px 0",
+          "10px 0",
       }}
     >
+
       <div
         style={{
           width:
-            "30px",
+            "28px",
 
           height:
-            "30px",
+            "28px",
 
           display:
             "grid",
@@ -510,47 +541,57 @@ function AuditEvent({
             "50%",
 
           color:
-            active
+            completed
               ? "#59cfa0"
-              : "#60748d",
+              : active
+                ? "#79a9ff"
+                : "#5d7088",
 
           background:
-            active
-              ? "rgba(89,207,160,0.08)"
-              : "rgba(255,255,255,0.025)",
+            completed
+              ? "rgba(89,207,160,0.07)"
+              : active
+                ? "rgba(121,169,255,0.07)"
+                : "rgba(255,255,255,0.02)",
 
           border:
-            active
-              ? "1px solid rgba(89,207,160,0.20)"
-              : "1px solid rgba(255,255,255,0.05)",
+            completed
+              ? "1px solid rgba(89,207,160,0.15)"
+              : active
+                ? "1px solid rgba(121,169,255,0.15)"
+                : "1px solid rgba(255,255,255,0.04)",
 
           fontSize:
-            "9px",
+            "8px",
 
           fontWeight:
             850,
         }}
       >
-        {active ? (
+
+        {completed ? (
           <CheckCircle2
-            size={15}
+            size={14}
             aria-hidden="true"
           />
         ) : (
           number
         )}
+
       </div>
 
 
       <span
         style={{
           color:
-            active
-              ? "#cbd9e6"
-              : "#63768e",
+            completed
+              ? "#b6c8d7"
+              : active
+                ? "#8fb4ef"
+                : "#60738b",
 
           fontSize:
-            "10px",
+            "9.5px",
 
           lineHeight:
             1.55,
@@ -558,6 +599,114 @@ function AuditEvent({
       >
         {title}
       </span>
+
+    </div>
+  );
+}
+
+
+/* =========================================================
+   CASE NOT AVAILABLE
+   ========================================================= */
+
+function CaseUnavailable({
+  language,
+  caseId,
+}) {
+  const isArabic =
+    language ===
+    "ar";
+
+
+  return (
+    <div className="appShell">
+
+      <Sidebar />
+
+
+      <main className="mainContent">
+
+        <Link
+          href="/cases/all"
+          className="textButton"
+          style={{
+            width:
+              "fit-content",
+
+            textDecoration:
+              "none",
+          }}
+        >
+
+          {isArabic ? (
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+
+          {L(
+            language,
+            "Back to Active Cases",
+            "العودة إلى الحالات النشطة"
+          )}
+
+        </Link>
+
+
+        <section
+          className="panel"
+          style={{
+            marginTop:
+              "18px",
+
+            padding:
+              "45px 20px",
+
+            textAlign:
+              "center",
+          }}
+        >
+
+          <FileCheck2
+            size={34}
+            color="#71849c"
+            aria-hidden="true"
+          />
+
+
+          <h2>
+            {L(
+              language,
+              "Case not available",
+              "الحالة غير متاحة"
+            )}
+          </h2>
+
+
+          <span
+            dir="ltr"
+            style={{
+              color:
+                "#71849c",
+
+              fontSize:
+                "9px",
+            }}
+          >
+            {caseId}
+          </span>
+
+        </section>
+
+      </main>
+
     </div>
   );
 }
@@ -570,26 +719,128 @@ function AuditEvent({
 export default function CorrectionsVerificationPage() {
   const {
     language,
-  } = useLanguage();
+  } =
+    useLanguage();
 
 
-  const isArabic =
-    language === "ar";
+  const store =
+    useCaseStore();
 
 
   const [
-    stage,
-    setStage,
-  ] = useState(
-    "AUTHORIZED"
+    selectedCaseId,
+    setSelectedCaseId,
+  ] =
+    useState(
+      PRIMARY_ACTIVE_CASE_ID
+    );
+
+
+  const [
+    error,
+    setError,
+  ] =
+    useState(
+      ""
+    );
+
+
+  /* =======================================================
+     INITIALIZE + READ CASE ID
+
+     Example:
+     /corrections-verification?case=CASE-2026-00002
+     ======================================================= */
+
+  useEffect(
+    () => {
+      initializeDemoCaseStore();
+
+
+      if (
+        typeof window ===
+        "undefined"
+      ) {
+        return;
+      }
+
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+
+      const requestedCaseId =
+        params.get(
+          "case"
+        );
+
+
+      if (
+        requestedCaseId
+      ) {
+        setSelectedCaseId(
+          requestedCaseId
+        );
+      }
+    },
+    []
   );
 
 
-  const personName =
-    DEMO_CASE.person[
-      language
-    ] ||
-    DEMO_CASE.person.en;
+  /* =======================================================
+     CASE DATA
+     ======================================================= */
+
+  const fallbackCase =
+    ALL_DETECTED_CASES.find(
+      (
+        item
+      ) =>
+        item.id ===
+        selectedCaseId
+    ) ||
+    null;
+
+
+  const storedCase =
+    store.initialized
+      ? store.cases.find(
+          (
+            item
+          ) =>
+            item.id ===
+            selectedCaseId
+        ) ||
+        null
+      : null;
+
+
+  const caseData =
+    storedCase ||
+    fallbackCase;
+
+
+  if (
+    !caseData
+  ) {
+    return (
+      <CaseUnavailable
+        language={
+          language
+        }
+        caseId={
+          selectedCaseId
+        }
+      />
+    );
+  }
+
+
+  const isArabic =
+    language ===
+    "ar";
 
 
   const arrowStyle = {
@@ -600,33 +851,334 @@ export default function CorrectionsVerificationPage() {
   };
 
 
+  /* =======================================================
+     CORE VALUES
+     ======================================================= */
+
+  const personName =
+    localizedValue(
+      caseData.person,
+      language,
+      caseData.id
+    );
+
+
+  const biometricId =
+    caseData.biometricId ||
+    caseData.primaryBiometricId ||
+    caseData.execution?.targetRecord ||
+    "—";
+
+
+  const beforeReference =
+    caseData.execution?.before ||
+    caseData.currentIdentity ||
+    "—";
+
+
+  const afterReference =
+    caseData.execution?.after ||
+    caseData.proposedIdentity ||
+    caseData.canonicalIdentity ||
+    "—";
+
+
+  const beforeName =
+    localizedValue(
+      caseData.execution?.beforeName ||
+        caseData.currentIdentityName,
+      language,
+      L(
+        language,
+        "Current linked reference",
+        "المرجع المرتبط حاليًا"
+      )
+    );
+
+
+  const afterName =
+    localizedValue(
+      caseData.execution?.afterName ||
+        caseData.proposedIdentityName ||
+        caseData.canonicalIdentityName,
+      language,
+      personName
+    );
+
+
+  const officerDecision =
+    caseData.officerDecision ||
+    caseData.officer?.decision ||
+    "PENDING";
+
+
+  const managerDecision =
+    caseData.managerDecision ||
+    caseData.manager?.decision ||
+    "NOT_READY";
+
+
+  const executionStatus =
+    typeof caseData.execution ===
+      "object"
+      ? caseData.execution.status ||
+        "NOT_AUTHORIZED"
+      : caseData.correction ||
+        "NOT_AUTHORIZED";
+
+
+  const verificationStatus =
+    typeof caseData.verification ===
+      "object"
+      ? caseData.verification.status ||
+        "NOT_STARTED"
+      : "NOT_STARTED";
+
+
+  const workflowStatus =
+    caseData.workflowStatus ||
+    caseData.finalStatus ||
+    "AI_INVESTIGATED";
+
+
+  const closed =
+    Boolean(
+      caseData.closed
+    ) ||
+    caseData.finalStatus ===
+      "VERIFIED_CLOSED";
+
+
+  const officerApproved =
+    officerDecision ===
+    "APPROVED";
+
+
+  const managerApproved =
+    managerDecision ===
+    "APPROVED";
+
+
   const executed =
-    stage ===
-      "EXECUTED"
-    ||
-    stage ===
-      "VERIFIED";
+    executionStatus ===
+      "COMPLETED" ||
+    workflowStatus ===
+      "AWAITING_VERIFICATION" ||
+    closed;
 
 
   const verified =
-    stage ===
-    "VERIFIED";
+    verificationStatus ===
+      "PASSED" ||
+    closed;
 
+
+  const verificationFailed =
+    verificationStatus ===
+      "FAILED" ||
+    workflowStatus ===
+      "VERIFICATION_FAILED";
+
+
+  const authorized =
+    !closed &&
+    officerApproved &&
+    managerApproved &&
+    (
+      executionStatus ===
+        "READY" ||
+      workflowStatus ===
+        "READY_FOR_CORRECTION"
+    );
+
+
+  /* =======================================================
+     VERIFICATION RESULT VALUES
+     ======================================================= */
+
+  const verificationScore =
+    caseData.verification?.score ??
+    null;
+
+
+  const biometricMatchPercent =
+    caseData.verification
+      ?.biometricMatchPercent ??
+    null;
+
+
+  const identityMappingValid =
+    caseData.verification
+      ?.identityMappingValid ??
+    null;
+
+
+  const conflictResolved =
+    caseData.verification
+      ?.originalConflictResolved ??
+    null;
+
+
+  const secondaryConflict =
+    caseData.verification
+      ?.secondaryConflict ??
+    null;
+
+
+  /* =======================================================
+     WORKFLOW STEP
+     ======================================================= */
+
+  let currentStep =
+    4;
+
+
+  if (
+    executed &&
+    !verified
+  ) {
+    currentStep =
+      5;
+  }
+
+
+  if (
+    verified
+  ) {
+    currentStep =
+      6;
+  }
+
+
+  /* =======================================================
+     EXECUTE CORRECTION
+     ======================================================= */
 
   const executeCorrection =
     () => {
-      setStage(
-        "EXECUTED"
-      );
+      try {
+        setError(
+          ""
+        );
+
+
+        executeCaseCorrection(
+          selectedCaseId,
+          "Demo Execution Agent"
+        );
+
+      } catch (
+        executionError
+      ) {
+        setError(
+          executionError?.message ||
+          L(
+            language,
+            "Unable to execute the correction.",
+            "تعذر تنفيذ التعديل."
+          )
+        );
+      }
     };
 
+
+  /* =======================================================
+     VERIFY CORRECTION
+
+     Synthetic frontend demo verification.
+
+     A successful result closes the case through the
+     central case store.
+
+     The case then:
+     - active = false
+     - closed = true
+     - finalStatus = VERIFIED_CLOSED
+
+     Therefore it automatically leaves Active Cases and
+     remains available to Reports & Audit.
+     ======================================================= */
 
   const verifyCorrection =
     () => {
-      setStage(
-        "VERIFIED"
-      );
+      try {
+        setError(
+          ""
+        );
+
+
+        const confidence =
+          Number(
+            caseData.aiConfidence ||
+            99.9
+          );
+
+
+        verifyCaseCorrection(
+          selectedCaseId,
+          {
+            status:
+              "PASSED",
+
+            score:
+              100,
+
+            biometricMatchPercent:
+              confidence,
+
+            biometricMatch:
+              Number(
+                (
+                  confidence /
+                  100
+                ).toFixed(
+                  6
+                )
+              ),
+
+            identityMappingValid:
+              true,
+
+            originalConflictResolved:
+              true,
+
+            secondaryConflict:
+              false,
+
+            rollbackRequired:
+              false,
+
+            actor:
+              "Demo Verification Agent",
+          }
+        );
+
+      } catch (
+        verificationError
+      ) {
+        setError(
+          verificationError?.message ||
+          L(
+            language,
+            "Unable to verify the correction.",
+            "تعذر التحقق من التعديل."
+          )
+        );
+      }
     };
+
+
+  /* =======================================================
+     PAGE ACCESS RULE
+
+     The page may be opened before authorization,
+     but execution itself remains locked.
+     ======================================================= */
+
+  const executionLocked =
+    !authorized &&
+    !executed &&
+    !closed;
 
 
   return (
@@ -636,6 +1188,60 @@ export default function CorrectionsVerificationPage() {
 
 
       <main className="mainContent">
+
+        {/* ================================================
+            BACK
+            ================================================ */}
+
+        <Link
+          href={
+            closed
+              ? "/reports-audit"
+              : `/cases/${caseData.id}`
+          }
+          className="textButton"
+          style={{
+            width:
+              "fit-content",
+
+            padding:
+              0,
+
+            marginBottom:
+              "15px",
+
+            textDecoration:
+              "none",
+          }}
+        >
+
+          {isArabic ? (
+            <ArrowRight
+              size={15}
+              aria-hidden="true"
+            />
+          ) : (
+            <ArrowLeft
+              size={15}
+              aria-hidden="true"
+            />
+          )}
+
+
+          {closed
+            ? L(
+                language,
+                "Back to Reports & Audit",
+                "العودة إلى التقارير والسجل"
+              )
+            : L(
+                language,
+                "Back to Case",
+                "العودة إلى تفاصيل الحالة"
+              )}
+
+        </Link>
+
 
         {/* ================================================
             HEADER
@@ -652,11 +1258,18 @@ export default function CorrectionsVerificationPage() {
                 aria-hidden="true"
               />
 
-              {L(
-                language,
-                "CASE REMEDIATION WORKFLOW",
-                "مسار معالجة الحالة"
-              )}
+
+              {verified
+                ? L(
+                    language,
+                    "VERIFIED CASE",
+                    "حالة تم التحقق منها"
+                  )
+                : L(
+                    language,
+                    "CONTROLLED CORRECTION",
+                    "التصحيح الخاضع للتحكم"
+                  )}
 
             </div>
 
@@ -664,8 +1277,8 @@ export default function CorrectionsVerificationPage() {
             <h1>
               {L(
                 language,
-                "Execution & Verification",
-                "التنفيذ والتحقق"
+                "Correction & Verification",
+                "التعديل والتحقق"
               )}
             </h1>
 
@@ -674,62 +1287,75 @@ export default function CorrectionsVerificationPage() {
               {verified
                 ? L(
                     language,
-                    "The approved correction has been executed and post-correction verification confirmed that the identity relationship is now valid.",
-                    "تم تنفيذ التعديل المعتمد، وأكد التحقق بعد التنفيذ أن علاقة الهوية أصبحت صحيحة وأن التعارض تم حله."
+
+                    "The correction was executed, verification passed and the case has been transferred from Active Cases to Reports & Audit.",
+
+                    "تم تنفيذ التعديل ونجح التحقق، وانتقلت الحالة من الحالات النشطة إلى التقارير والسجل."
                   )
-                : L(
-                    language,
-                    "Both human approvals are complete. Execute the authorized biometric correction, then verify the result before closing the case.",
-                    "اكتمل الاعتمادان البشريان. نفذ التصحيح البيومتري المصرح به، ثم تحقق من النتيجة قبل إغلاق الحالة."
-                  )}
+                : executed
+                  ? L(
+                      language,
+
+                      "The approved correction has been executed. Final verification is required before this case can close.",
+
+                      "تم تنفيذ التعديل المعتمد، ويجب إجراء التحقق النهائي قبل إغلاق الحالة."
+                    )
+                  : L(
+                      language,
+
+                      "Execution is permitted only after Employee and Manager approval. After execution, the new relationship must be verified before closure.",
+
+                      "لا يسمح بالتنفيذ إلا بعد اعتماد الموظف والمدير، وبعد التنفيذ يجب التحقق من الربط الجديد قبل إغلاق الحالة."
+                    )}
             </p>
 
 
             <div
-              dir="ltr"
               style={{
                 display:
-                  "inline-flex",
+                  "flex",
 
                 alignItems:
                   "center",
+
+                flexWrap:
+                  "wrap",
 
                 gap:
                   "7px",
 
                 marginTop:
-                  "12px",
-
-                padding:
-                  "8px 11px",
-
-                borderRadius:
-                  "9px",
-
-                border:
-                  "1px solid rgba(121,169,255,0.15)",
-
-                background:
-                  "rgba(121,169,255,0.05)",
-
-                color:
-                  "#91a9c6",
-
-                fontSize:
                   "10px",
-
-                fontWeight:
-                  750,
               }}
             >
-              <FileCheck2
-                size={14}
-                aria-hidden="true"
-              />
 
-              {
-                DEMO_CASE.id
-              }
+              <span
+                dir="ltr"
+                style={{
+                  color:
+                    "#71849c",
+
+                  fontSize:
+                    "9px",
+                }}
+              >
+                {caseData.id}
+              </span>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  color:
+                    "#71849c",
+
+                  fontSize:
+                    "9px",
+                }}
+              >
+                {biometricId}
+              </span>
+
             </div>
 
           </div>
@@ -745,40 +1371,51 @@ export default function CorrectionsVerificationPage() {
           language={
             language
           }
-          completed={
+          currentStep={
+            currentStep
+          }
+          verified={
             verified
           }
         />
 
 
         {/* ================================================
-            CURRENT STATUS HERO
+            CURRENT STATUS
             ================================================ */}
 
         <section
           style={{
             marginBottom:
-              "18px",
+              "14px",
 
             padding:
-              "22px",
+              "18px",
 
             borderRadius:
-              "18px",
+              "15px",
 
             border:
               verified
-                ? "1px solid rgba(89,207,160,0.34)"
-                : executed
-                  ? "1px solid rgba(121,169,255,0.22)"
-                  : "1px solid rgba(255,189,103,0.22)",
+                ? "1px solid rgba(89,207,160,0.20)"
+                : verificationFailed
+                  ? "1px solid rgba(255,80,100,0.18)"
+                  : executed
+                    ? "1px solid rgba(121,169,255,0.16)"
+                    : authorized
+                      ? "1px solid rgba(89,207,160,0.15)"
+                      : "1px solid rgba(255,189,103,0.16)",
 
             background:
               verified
-                ? "linear-gradient(135deg, rgba(11,51,49,0.72), rgba(8,26,45,0.94))"
-                : executed
-                  ? "linear-gradient(135deg, rgba(15,39,65,0.72), rgba(8,26,45,0.94))"
-                  : "linear-gradient(135deg, rgba(50,39,22,0.38), rgba(8,26,45,0.94))",
+                ? "rgba(89,207,160,0.045)"
+                : verificationFailed
+                  ? "rgba(255,80,100,0.04)"
+                  : executed
+                    ? "rgba(121,169,255,0.045)"
+                    : authorized
+                      ? "rgba(89,207,160,0.035)"
+                      : "rgba(255,189,103,0.035)",
           }}
         >
 
@@ -788,13 +1425,13 @@ export default function CorrectionsVerificationPage() {
                 "flex",
 
               alignItems:
-                "center",
+                "flex-start",
 
               justifyContent:
                 "space-between",
 
               gap:
-                "18px",
+                "14px",
 
               flexWrap:
                 "wrap",
@@ -810,17 +1447,17 @@ export default function CorrectionsVerificationPage() {
                   "center",
 
                 gap:
-                  "13px",
+                  "11px",
               }}
             >
 
               <div
                 style={{
                   width:
-                    "50px",
+                    "44px",
 
                   height:
-                    "50px",
+                    "44px",
 
                   display:
                     "grid",
@@ -829,46 +1466,51 @@ export default function CorrectionsVerificationPage() {
                     "center",
 
                   borderRadius:
-                    "15px",
+                    "12px",
 
                   color:
                     verified
                       ? "#59cfa0"
-                      : executed
-                        ? "#79a9ff"
-                        : "#ffbd67",
+                      : verificationFailed
+                        ? "#ff7c89"
+                        : executed
+                          ? "#79a9ff"
+                          : authorized
+                            ? "#59cfa0"
+                            : "#ffbd67",
 
                   background:
-                    verified
-                      ? "rgba(89,207,160,0.08)"
-                      : executed
-                        ? "rgba(121,169,255,0.08)"
-                        : "rgba(255,189,103,0.07)",
-
-                  border:
-                    verified
-                      ? "1px solid rgba(89,207,160,0.20)"
-                      : executed
-                        ? "1px solid rgba(121,169,255,0.18)"
-                        : "1px solid rgba(255,189,103,0.18)",
+                    "rgba(255,255,255,0.025)",
                 }}
               >
+
                 {verified ? (
                   <CheckCircle2
-                    size={27}
+                    size={22}
+                    aria-hidden="true"
+                  />
+                ) : verificationFailed ? (
+                  <AlertTriangle
+                    size={21}
                     aria-hidden="true"
                   />
                 ) : executed ? (
                   <RefreshCcw
-                    size={25}
+                    size={21}
+                    aria-hidden="true"
+                  />
+                ) : authorized ? (
+                  <Play
+                    size={20}
                     aria-hidden="true"
                   />
                 ) : (
                   <LockKeyhole
-                    size={24}
+                    size={20}
                     aria-hidden="true"
                   />
                 )}
+
               </div>
 
 
@@ -882,31 +1524,47 @@ export default function CorrectionsVerificationPage() {
                     color:
                       verified
                         ? "#59cfa0"
-                        : executed
-                          ? "#79a9ff"
-                          : "#ffbd67",
+                        : verificationFailed
+                          ? "#ff7c89"
+                          : executed
+                            ? "#79a9ff"
+                            : authorized
+                              ? "#59cfa0"
+                              : "#ffbd67",
 
                     fontSize:
-                      "17px",
+                      "13px",
                   }}
                 >
                   {verified
                     ? L(
                         language,
-                        "Correction Successfully Verified",
-                        "تم التعديل والتحقق بنجاح"
+                        "Correction Verified — Case Closed",
+                        "تم التحقق من التعديل — الحالة مغلقة"
                       )
-                    : executed
+                    : verificationFailed
                       ? L(
                           language,
-                          "Correction Executed",
-                          "تم تنفيذ التعديل"
+                          "Verification Failed",
+                          "فشل التحقق"
                         )
-                      : L(
-                          language,
-                          "Authorized for Execution",
-                          "مصرح بالتنفيذ"
-                        )}
+                      : executed
+                        ? L(
+                            language,
+                            "Correction Executed",
+                            "تم تنفيذ التعديل"
+                          )
+                        : authorized
+                          ? L(
+                              language,
+                              "Authorized for Execution",
+                              "مصرح بالتنفيذ"
+                            )
+                          : L(
+                              language,
+                              "Execution Locked",
+                              "التنفيذ مقفل"
+                            )}
                 </strong>
 
 
@@ -916,10 +1574,10 @@ export default function CorrectionsVerificationPage() {
                       "block",
 
                     marginTop:
-                      "6px",
+                      "5px",
 
                     color:
-                      "#8194ab",
+                      "#8193aa",
 
                     fontSize:
                       "9px",
@@ -931,20 +1589,32 @@ export default function CorrectionsVerificationPage() {
                   {verified
                     ? L(
                         language,
-                        "Verification passed and the case is now closed.",
-                        "نجح التحقق وتم إغلاق الحالة."
+                        "The case is no longer part of the active queue.",
+                        "الحالة لم تعد ضمن قائمة الحالات النشطة."
                       )
-                    : executed
+                    : verificationFailed
                       ? L(
                           language,
-                          "The approved mapping change was applied. Final verification is still required.",
-                          "تم تطبيق تغيير الربط المعتمد، وما زال التحقق النهائي مطلوبًا."
+                          "The case remains active because closure is blocked until verification succeeds.",
+                          "تبقى الحالة نشطة لأن الإغلاق محظور حتى نجاح التحقق."
                         )
-                      : L(
-                          language,
-                          "Officer and Manager approvals are complete. No correction has been executed yet.",
-                          "اكتمل اعتماد الموظف والمدير، ولم يتم تنفيذ التعديل حتى الآن."
-                        )}
+                      : executed
+                        ? L(
+                            language,
+                            "The approved relationship was changed. Verification is now mandatory.",
+                            "تم تغيير الربط المعتمد، والتحقق النهائي أصبح إلزاميًا الآن."
+                          )
+                        : authorized
+                          ? L(
+                              language,
+                              "Both required human approvals have been recorded.",
+                              "تم تسجيل الموافقتين البشريتين المطلوبتين."
+                            )
+                          : L(
+                              language,
+                              "Employee and Manager approval must both be complete before execution.",
+                              "يجب اكتمال اعتماد الموظف والمدير قبل السماح بالتنفيذ."
+                            )}
                 </span>
 
               </div>
@@ -956,22 +1626,20 @@ export default function CorrectionsVerificationPage() {
               <div
                 style={{
                   minWidth:
-                    "125px",
+                    "105px",
 
-                  paddingInlineStart:
-                    "20px",
-
-                  borderInlineStart:
-                    "1px solid rgba(89,207,160,0.16)",
+                  textAlign:
+                    "center",
                 }}
               >
+
                 <span
                   style={{
                     display:
                       "block",
 
                     color:
-                      "#71849b",
+                      "#6e829a",
 
                     fontSize:
                       "8px",
@@ -991,36 +1659,18 @@ export default function CorrectionsVerificationPage() {
                       "block",
 
                     marginTop:
-                      "4px",
+                      "3px",
 
                     color:
                       "#59cfa0",
 
                     fontSize:
-                      "34px",
+                      "31px",
                   }}
                 >
-                  {
-                    DEMO_CASE.verificationScore
-                  }
+                  {verificationScore}
                 </strong>
 
-
-                <span
-                  dir="ltr"
-                  style={{
-                    color:
-                      "#59cfa0",
-
-                    fontSize:
-                      "8px",
-
-                    fontWeight:
-                      800,
-                  }}
-                >
-                  VERIFIED_CLOSED
-                </span>
               </div>
             )}
 
@@ -1030,14 +1680,267 @@ export default function CorrectionsVerificationPage() {
 
 
         {/* ================================================
-            AUTHORIZATION SUMMARY
+            PERSON + AUTHORIZATION
+            ================================================ */}
+
+        <section
+          className="executionSummaryGrid"
+          style={{
+            display:
+              "grid",
+
+            gridTemplateColumns:
+              "0.8fr 1.2fr",
+
+            gap:
+              "14px",
+
+            marginBottom:
+              "14px",
+          }}
+        >
+
+          {/* CASE */}
+
+          <div className="panel">
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "CASE",
+                    "الحالة"
+                  )}
+                </div>
+
+
+                <h2>
+                  {personName}
+                </h2>
+
+              </div>
+
+
+              <UserCheck
+                size={21}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              style={{
+                display:
+                  "grid",
+
+                gap:
+                  "8px",
+
+                padding:
+                  "17px",
+              }}
+            >
+
+              <InfoCard
+                label={
+                  L(
+                    language,
+                    "Case",
+                    "رقم الحالة"
+                  )
+                }
+                value={
+                  caseData.id
+                }
+                dir="ltr"
+              />
+
+
+              <InfoCard
+                label={
+                  L(
+                    language,
+                    "Biometric Record",
+                    "السجل البيومتري"
+                  )
+                }
+                value={
+                  biometricId
+                }
+                dir="ltr"
+              />
+
+            </div>
+
+          </div>
+
+
+          {/* AUTHORIZATION */}
+
+          <div className="panel">
+
+            <div className="panelHeader">
+
+              <div>
+
+                <div className="panelEyebrow">
+                  {L(
+                    language,
+                    "AUTHORIZATION",
+                    "التصريح"
+                  )}
+                </div>
+
+
+                <h2>
+                  {L(
+                    language,
+                    "Human Approval Status",
+                    "حالة الموافقات البشرية"
+                  )}
+                </h2>
+
+              </div>
+
+
+              <ShieldCheck
+                size={21}
+                aria-hidden="true"
+              />
+
+            </div>
+
+
+            <div
+              className="authorizationGrid"
+              style={{
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "repeat(2,minmax(0,1fr))",
+
+                gap:
+                  "8px",
+
+                padding:
+                  "17px",
+              }}
+            >
+
+              <InfoCard
+                label={
+                  L(
+                    language,
+                    "Employee Approval",
+                    "اعتماد الموظف"
+                  )
+                }
+                value={
+                  officerApproved
+                    ? L(
+                        language,
+                        "APPROVED",
+                        "معتمد"
+                      )
+                    : L(
+                        language,
+                        "NOT APPROVED",
+                        "غير معتمد"
+                      )
+                }
+                color={
+                  officerApproved
+                    ? "#59cfa0"
+                    : "#ffbd67"
+                }
+              />
+
+
+              <InfoCard
+                label={
+                  L(
+                    language,
+                    "Manager Approval",
+                    "موافقة المدير"
+                  )
+                }
+                value={
+                  managerApproved
+                    ? L(
+                        language,
+                        "APPROVED",
+                        "معتمد"
+                      )
+                    : L(
+                        language,
+                        "NOT APPROVED",
+                        "غير معتمد"
+                      )
+                }
+                color={
+                  managerApproved
+                    ? "#59cfa0"
+                    : "#ffbd67"
+                }
+              />
+
+
+              <InfoCard
+                label={
+                  L(
+                    language,
+                    "Target System",
+                    "النظام المستهدف"
+                  )
+                }
+                value={
+                  caseData.execution
+                    ?.targetSystem ||
+                  "BIOMETRIC_SYSTEM"
+                }
+                color="#79a9ff"
+                dir="ltr"
+              />
+
+
+              <InfoCard
+                label={
+                  L(
+                    language,
+                    "Target Field",
+                    "الحقل المستهدف"
+                  )
+                }
+                value={
+                  caseData.execution
+                    ?.field ||
+                  "linked_master_id"
+                }
+                color="#79a9ff"
+                dir="ltr"
+              />
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            EXACT CHANGE
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginBottom:
-              "18px",
+              "14px",
           }}
         >
 
@@ -1046,183 +1949,42 @@ export default function CorrectionsVerificationPage() {
             <div>
 
               <div className="panelEyebrow">
-                {L(
-                  language,
-                  "EXECUTION AUTHORIZATION",
-                  "تصريح التنفيذ"
-                )}
+                {verified
+                  ? L(
+                      language,
+                      "CORRECTION RESULT",
+                      "نتيجة التعديل"
+                    )
+                  : L(
+                      language,
+                      "AUTHORIZED CHANGE",
+                      "التعديل المصرح به"
+                    )}
               </div>
 
 
               <h2>
-                {L(
-                  language,
-                  "Approved Correction Package",
-                  "حزمة التصحيح المعتمدة"
-                )}
+                {verified
+                  ? L(
+                      language,
+                      "What changed?",
+                      "ما الذي تم تغييره؟"
+                    )
+                  : L(
+                      language,
+                      "Before and After",
+                      "قبل وبعد"
+                    )}
               </h2>
 
             </div>
 
 
-            <ShieldCheck
-              size={22}
-              aria-hidden="true"
-            />
-
-          </div>
-
-
-          <div
-            className="authorizationGrid"
-            style={{
-              display:
-                "grid",
-
-              gridTemplateColumns:
-                "repeat(4,minmax(0,1fr))",
-
-              gap:
-                "10px",
-
-              padding:
-                "18px",
-            }}
-          >
-
-            <InfoCard
-              label={
-                L(
-                  language,
-                  "Officer Approval",
-                  "اعتماد موظف المراجعة"
-                )
-              }
-              value={
-                L(
-                  language,
-                  "APPROVED",
-                  "معتمد"
-                )
-              }
-              color="#59cfa0"
-            />
-
-
-            <InfoCard
-              label={
-                L(
-                  language,
-                  "Manager Approval",
-                  "موافقة المدير"
-                )
-              }
-              value={
-                L(
-                  language,
-                  "APPROVED",
-                  "معتمد"
-                )
-              }
-              color="#59cfa0"
-            />
-
-
-            <InfoCard
-              label={
-                L(
-                  language,
-                  "Target System",
-                  "النظام المستهدف"
-                )
-              }
-              value={
-                DEMO_CASE.targetSystem
-              }
-              color="#79a9ff"
-              dir="ltr"
-            />
-
-
-            <InfoCard
-              label={
-                L(
-                  language,
-                  "Target Field",
-                  "الحقل المستهدف"
-                )
-              }
-              value={
-                DEMO_CASE.field
-              }
-              color="#79a9ff"
-              dir="ltr"
-            />
-
-          </div>
-
-        </section>
-
-
-        {/* ================================================
-            BEFORE / AFTER EXECUTION
-            ================================================ */}
-
-        <section
-          style={{
-            marginBottom:
-              "18px",
-
-            padding:
-              "20px",
-
-            borderRadius:
-              "18px",
-
-            border:
-              "1px solid rgba(121,169,255,0.14)",
-
-            background:
-              "linear-gradient(135deg, rgba(11,31,54,0.92), rgba(8,25,44,0.92))",
-          }}
-        >
-
-          <div
-            style={{
-              display:
-                "flex",
-
-              alignItems:
-                "center",
-
-              gap:
-                "8px",
-
-              marginBottom:
-                "17px",
-            }}
-          >
             <GitCompareArrows
               size={21}
-              color="#79a9ff"
               aria-hidden="true"
             />
 
-            <strong
-              style={{
-                color:
-                  "#e3edf8",
-
-                fontSize:
-                  "14px",
-              }}
-            >
-              {L(
-                language,
-                "Correction Result",
-                "نتيجة التعديل"
-              )}
-            </strong>
           </div>
 
 
@@ -1235,11 +1997,14 @@ export default function CorrectionsVerificationPage() {
               gridTemplateColumns:
                 "1fr auto 1fr",
 
-              gap:
-                "15px",
-
               alignItems:
                 "center",
+
+              gap:
+                "12px",
+
+              padding:
+                "17px",
             }}
           >
 
@@ -1248,49 +2013,78 @@ export default function CorrectionsVerificationPage() {
             <div
               style={{
                 padding:
-                  "18px",
+                  "16px",
 
                 borderRadius:
-                  "13px",
+                  "11px",
 
                 border:
-                  "1px solid rgba(255,90,110,0.16)",
+                  "1px solid rgba(255,80,100,0.10)",
 
                 background:
-                  "rgba(255,90,110,0.035)",
+                  "rgba(255,80,100,0.035)",
               }}
             >
+
               <span
                 style={{
                   display:
                     "block",
 
                   color:
-                    "#ff7685",
+                    "#a76d76",
 
                   fontSize:
-                    "9px",
+                    "8px",
 
                   fontWeight:
                     850,
                 }}
               >
-                {L(
-                  language,
-                  "BEFORE EXECUTION",
-                  "قبل التنفيذ"
-                )}
+                {verified || executed
+                  ? L(
+                      language,
+                      "BEFORE",
+                      "قبل التعديل"
+                    )
+                  : L(
+                      language,
+                      "CURRENT LINK",
+                      "الربط الحالي"
+                    )}
               </span>
 
 
-              <div
-                dir="ltr"
+              <strong
                 style={{
+                  display:
+                    "block",
+
                   marginTop:
-                    "10px",
+                    "9px",
 
                   color:
-                    "#dce6f1",
+                    "#e1e9f3",
+
+                  fontSize:
+                    "11px",
+                }}
+              >
+                {beforeName}
+              </strong>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "5px",
+
+                  color:
+                    "#ff7c89",
 
                   fontSize:
                     "12px",
@@ -1299,51 +2093,35 @@ export default function CorrectionsVerificationPage() {
                     850,
                 }}
               >
-                {
-                  DEMO_CASE.biometricId
-                }
-
-                {"  ←  "}
-
-                <span
-                  style={{
-                    color:
-                      "#ff7685",
-                  }}
-                >
-                  {
-                    DEMO_CASE.before
-                  }
-                </span>
-              </div>
+                {beforeReference}
+              </span>
 
 
               <span
+                dir="ltr"
                 style={{
                   display:
                     "block",
 
                   marginTop:
-                    "8px",
+                    "4px",
 
                   color:
-                    "#805f67",
+                    "#65788f",
 
                   fontSize:
                     "8px",
                 }}
               >
-                {L(
-                  language,
-                  "Incorrect mapping detected",
-                  "الربط غير الصحيح المكتشف"
-                )}
+                {biometricId}
               </span>
+
             </div>
 
 
             <ChevronRight
-              size={23}
+              className="executionMappingArrow"
+              size={20}
               color="#71849c"
               style={
                 arrowStyle
@@ -1357,22 +2135,23 @@ export default function CorrectionsVerificationPage() {
             <div
               style={{
                 padding:
-                  "18px",
+                  "16px",
 
                 borderRadius:
-                  "13px",
+                  "11px",
 
                 border:
                   executed
-                    ? "1px solid rgba(89,207,160,0.24)"
-                    : "1px dashed rgba(121,169,255,0.17)",
+                    ? "1px solid rgba(89,207,160,0.15)"
+                    : "1px dashed rgba(121,169,255,0.14)",
 
                 background:
                   executed
-                    ? "rgba(89,207,160,0.045)"
+                    ? "rgba(89,207,160,0.04)"
                     : "rgba(121,169,255,0.025)",
               }}
             >
+
               <span
                 style={{
                   display:
@@ -1380,38 +2159,62 @@ export default function CorrectionsVerificationPage() {
 
                   color:
                     executed
-                      ? "#59cfa0"
-                      : "#79a9ff",
+                      ? "#589a82"
+                      : "#7198d6",
 
                   fontSize:
-                    "9px",
+                    "8px",
 
                   fontWeight:
                     850,
                 }}
               >
-                {executed
+                {verified || executed
                   ? L(
                       language,
-                      "AFTER EXECUTION",
-                      "بعد التنفيذ"
+                      "AFTER",
+                      "بعد التعديل"
                     )
                   : L(
                       language,
                       "APPROVED TARGET",
-                      "النتيجة المعتمدة"
+                      "الربط المعتمد"
                     )}
               </span>
 
 
-              <div
-                dir="ltr"
+              <strong
                 style={{
+                  display:
+                    "block",
+
                   marginTop:
-                    "10px",
+                    "9px",
 
                   color:
-                    "#dce6f1",
+                    "#e1e9f3",
+
+                  fontSize:
+                    "11px",
+                }}
+              >
+                {afterName}
+              </strong>
+
+
+              <span
+                dir="ltr"
+                style={{
+                  display:
+                    "block",
+
+                  marginTop:
+                    "5px",
+
+                  color:
+                    executed
+                      ? "#59cfa0"
+                      : "#79a9ff",
 
                   fontSize:
                     "12px",
@@ -1420,62 +2223,179 @@ export default function CorrectionsVerificationPage() {
                     850,
                 }}
               >
-                {
-                  DEMO_CASE.biometricId
-                }
-
-                {"  ←  "}
-
-                <span
-                  style={{
-                    color:
-                      executed
-                        ? "#59cfa0"
-                        : "#79a9ff",
-                  }}
-                >
-                  {
-                    DEMO_CASE.after
-                  }
-                </span>
-              </div>
+                {afterReference}
+              </span>
 
 
               <span
+                dir="ltr"
                 style={{
                   display:
                     "block",
 
                   marginTop:
-                    "8px",
+                    "4px",
 
                   color:
-                    executed
-                      ? "#587e70"
-                      : "#5e7594",
+                    "#65788f",
 
                   fontSize:
                     "8px",
                 }}
               >
-                {executed
-                  ? L(
-                      language,
-                      "Approved mapping applied",
-                      "تم تطبيق الربط المعتمد"
-                    )
-                  : L(
-                      language,
-                      "Not executed yet",
-                      "لم يتم التنفيذ بعد"
-                    )}
+                {biometricId}
               </span>
+
             </div>
 
           </div>
 
 
+          {/* ==============================================
+              EXACT OWNERSHIP CLARITY
+
+              Makes the demo understandable to a manager.
+              ============================================== */}
+
+          {executed && (
+            <div
+              className="ownershipGrid"
+              style={{
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "1fr 1fr",
+
+                gap:
+                  "8px",
+
+                margin:
+                  "0 17px 17px",
+              }}
+            >
+
+              <div
+                style={{
+                  padding:
+                    "11px",
+
+                  borderRadius:
+                    "9px",
+
+                  border:
+                    "1px solid rgba(255,80,100,0.08)",
+
+                  background:
+                    "rgba(255,80,100,0.025)",
+                }}
+              >
+
+                <span
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#a36b74",
+
+                    fontSize:
+                      "8px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Removed from",
+                    "تمت إزالته من"
+                  )}
+                </span>
+
+
+                <strong
+                  dir="ltr"
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "5px",
+
+                    color:
+                      "#ff7c89",
+
+                    fontSize:
+                      "10px",
+                  }}
+                >
+                  {beforeReference}
+                </strong>
+
+              </div>
+
+
+              <div
+                style={{
+                  padding:
+                    "11px",
+
+                  borderRadius:
+                    "9px",
+
+                  border:
+                    "1px solid rgba(89,207,160,0.09)",
+
+                  background:
+                    "rgba(89,207,160,0.025)",
+                }}
+              >
+
+                <span
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#598f7b",
+
+                    fontSize:
+                      "8px",
+                  }}
+                >
+                  {L(
+                    language,
+                    "Assigned to",
+                    "تم ربطه بـ"
+                  )}
+                </span>
+
+
+                <strong
+                  dir="ltr"
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "5px",
+
+                    color:
+                      "#59cfa0",
+
+                    fontSize:
+                      "10px",
+                  }}
+                >
+                  {afterReference}
+                </strong>
+
+              </div>
+
+            </div>
+          )}
+
+
           <div
+            className="sourceProtectionGrid"
             style={{
               display:
                 "grid",
@@ -1484,18 +2404,19 @@ export default function CorrectionsVerificationPage() {
                 "repeat(2,minmax(0,1fr))",
 
               gap:
-                "10px",
+                "8px",
 
-              marginTop:
-                "14px",
+              margin:
+                "0 17px 17px",
             }}
           >
+
             <InfoCard
               label={
                 L(
                   language,
                   "Master Reference Modified",
-                  "هل تم تعديل المرجع الرئيسي؟"
+                  "تم تعديل المرجع الرئيسي؟"
                 )
               }
               value="FALSE"
@@ -1509,44 +2430,104 @@ export default function CorrectionsVerificationPage() {
                 L(
                   language,
                   "Original Biometric Dataset Modified",
-                  "هل تم تعديل البيانات البيومترية الأصلية؟"
+                  "تم تعديل المصدر البيومتري الأصلي؟"
                 )
               }
               value="FALSE"
               color="#59cfa0"
               dir="ltr"
             />
+
           </div>
 
 
           <div
             style={{
-              marginTop:
-                "12px",
+              margin:
+                "0 17px 17px",
 
               padding:
-                "11px 13px",
+                "11px",
 
               borderRadius:
-                "10px",
+                "9px",
 
               color:
-                "#8194ab",
+                "#788ba2",
 
               background:
-                "rgba(255,255,255,0.018)",
+                "rgba(121,169,255,0.025)",
 
               border:
-                "1px solid rgba(255,255,255,0.04)",
+                "1px solid rgba(121,169,255,0.06)",
 
               fontSize:
                 "9px",
 
               lineHeight:
-                1.65,
+                1.6,
             }}
           >
+
             <Database
+              size={13}
+              aria-hidden="true"
+              style={{
+                marginInlineEnd:
+                  "6px",
+
+                verticalAlign:
+                  "middle",
+              }}
+            />
+
+
+            {L(
+              language,
+
+              "Only the authorized runtime biometric identity relationship is changed. The Master Reference and original source dataset remain protected.",
+
+              "يتم تغيير علاقة ربط الهوية المصرح بها داخل نسخة التشغيل فقط، بينما يبقى المرجع الرئيسي ومصدر البيانات الأصلي محفوظين بدون تعديل."
+            )}
+
+          </div>
+
+        </section>
+
+
+        {/* ================================================
+            ERROR
+            ================================================ */}
+
+        {error && (
+          <section
+            style={{
+              marginBottom:
+                "14px",
+
+              padding:
+                "12px",
+
+              borderRadius:
+                "10px",
+
+              color:
+                "#ff7c89",
+
+              background:
+                "rgba(255,80,100,0.045)",
+
+              border:
+                "1px solid rgba(255,80,100,0.12)",
+
+              fontSize:
+                "9px",
+
+              lineHeight:
+                1.6,
+            }}
+          >
+            <AlertTriangle
               size={14}
               aria-hidden="true"
               style={{
@@ -1558,27 +2539,21 @@ export default function CorrectionsVerificationPage() {
               }}
             />
 
-            {L(
-              language,
-              "Only the approved linked_master_id is changed in the synthetic runtime biometric dataset. The authoritative Master Reference remains read-only.",
-              "يتم تغيير الحقل linked_master_id المعتمد فقط داخل نسخة التشغيل الاصطناعية من النظام البيومتري، بينما يبقى المرجع الرئيسي للقراءة فقط."
-            )}
-          </div>
-
-        </section>
+            {error}
+          </section>
+        )}
 
 
         {/* ================================================
-            EXECUTION ACTION
+            LOCKED
             ================================================ */}
 
-        {stage ===
-          "AUTHORIZED" && (
+        {executionLocked && (
           <section
             className="panel"
             style={{
               marginBottom:
-                "18px",
+                "14px",
             }}
           >
 
@@ -1589,8 +2564,8 @@ export default function CorrectionsVerificationPage() {
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "CONTROLLED EXECUTION",
-                    "التنفيذ الخاضع للتحكم"
+                    "EXECUTION LOCK",
+                    "قفل التنفيذ"
                   )}
                 </div>
 
@@ -1598,16 +2573,16 @@ export default function CorrectionsVerificationPage() {
                 <h2>
                   {L(
                     language,
-                    "Execute Approved Correction",
-                    "تنفيذ التعديل المعتمد"
+                    "Execution Not Authorized",
+                    "التنفيذ غير مصرح به"
                   )}
                 </h2>
 
               </div>
 
 
-              <Play
-                size={22}
+              <LockKeyhole
+                size={21}
                 aria-hidden="true"
               />
 
@@ -1617,100 +2592,162 @@ export default function CorrectionsVerificationPage() {
             <div
               style={{
                 padding:
-                  "18px",
+                  "17px",
               }}
             >
 
-              <div
-                className="integrityInfo"
+              <p
                 style={{
                   margin:
-                    "0 0 14px",
-                }}
-              >
-                <LockKeyhole
-                  size={22}
-                  aria-hidden="true"
-                />
-
-                <div>
-
-                  <strong>
-                    {L(
-                      language,
-                      "Execution authorization confirmed",
-                      "تم تأكيد تصريح التنفيذ"
-                    )}
-                  </strong>
-
-
-                  <span>
-                    {L(
-                      language,
-                      "Officer approval and Manager approval are both present. The Execution Agent is permitted to apply only the approved mapping change.",
-                      "اعتماد موظف المراجعة وموافقة المدير موجودان، ويُسمح لوكيل التنفيذ بتطبيق تغيير الربط المعتمد فقط."
-                    )}
-                  </span>
-
-                </div>
-              </div>
-
-
-              <button
-                type="button"
-                onClick={
-                  executeCorrection
-                }
-                style={{
-                  width:
-                    "100%",
-
-                  minHeight:
-                    "48px",
-
-                  borderRadius:
-                    "12px",
-
-                  border:
-                    "1px solid rgba(111,230,180,0.42)",
-
-                  background:
-                    "linear-gradient(90deg,#4bc58f,#68d9ab)",
+                    0,
 
                   color:
-                    "#071c17",
-
-                  fontFamily:
-                    "inherit",
+                    "#8193aa",
 
                   fontSize:
-                    "11px",
+                    "9.5px",
 
-                  fontWeight:
-                    900,
-
-                  cursor:
-                    "pointer",
+                  lineHeight:
+                    1.65,
                 }}
               >
-                <Play
-                  size={16}
-                  aria-hidden="true"
-                  style={{
-                    marginInlineEnd:
-                      "7px",
-
-                    verticalAlign:
-                      "middle",
-                  }}
-                />
-
                 {L(
                   language,
-                  "Execute Authorized Correction",
-                  "تنفيذ التعديل المصرح به"
+
+                  "This correction cannot be executed until Employee approval and Manager approval are both present for the same case.",
+
+                  "لا يمكن تنفيذ هذا التعديل حتى يتم تسجيل اعتماد الموظف وموافقة المدير على نفس الحالة."
                 )}
-              </button>
+              </p>
+
+
+              <div
+                className="lockedApprovalGrid"
+                style={{
+                  display:
+                    "grid",
+
+                  gridTemplateColumns:
+                    "1fr 1fr",
+
+                  gap:
+                    "8px",
+
+                  marginTop:
+                    "12px",
+                }}
+              >
+
+                <Link
+                  href={
+                    `/officer-review?case=${caseData.id}`
+                  }
+                  style={{
+                    minHeight:
+                      "40px",
+
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    justifyContent:
+                      "center",
+
+                    borderRadius:
+                      "9px",
+
+                    textDecoration:
+                      "none",
+
+                    color:
+                      officerApproved
+                        ? "#59cfa0"
+                        : "#79a9ff",
+
+                    background:
+                      "rgba(121,169,255,0.035)",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.09)",
+
+                    fontSize:
+                      "9px",
+
+                    fontWeight:
+                      850,
+                  }}
+                >
+                  {officerApproved
+                    ? L(
+                        language,
+                        "Employee Approved",
+                        "اعتماد الموظف مكتمل"
+                      )
+                    : L(
+                        language,
+                        "Open Employee Review",
+                        "فتح تدقيق الموظف"
+                      )}
+                </Link>
+
+
+                <Link
+                  href={
+                    `/manager-approval?case=${caseData.id}`
+                  }
+                  style={{
+                    minHeight:
+                      "40px",
+
+                    display:
+                      "flex",
+
+                    alignItems:
+                      "center",
+
+                    justifyContent:
+                      "center",
+
+                    borderRadius:
+                      "9px",
+
+                    textDecoration:
+                      "none",
+
+                    color:
+                      managerApproved
+                        ? "#59cfa0"
+                        : "#ffbd67",
+
+                    background:
+                      "rgba(255,189,103,0.035)",
+
+                    border:
+                      "1px solid rgba(255,189,103,0.09)",
+
+                    fontSize:
+                      "9px",
+
+                    fontWeight:
+                      850,
+                  }}
+                >
+                  {managerApproved
+                    ? L(
+                        language,
+                        "Manager Approved",
+                        "موافقة المدير مكتملة"
+                      )
+                    : L(
+                        language,
+                        "Open Manager Approval",
+                        "فتح موافقة المدير"
+                      )}
+                </Link>
+
+              </div>
 
             </div>
 
@@ -1719,125 +2756,246 @@ export default function CorrectionsVerificationPage() {
 
 
         {/* ================================================
-            EXECUTED — WAITING FOR VERIFY
+            EXECUTE
             ================================================ */}
 
-        {stage ===
-          "EXECUTED" && (
-          <section
-            className="panel"
-            style={{
-              marginBottom:
-                "18px",
-            }}
-          >
+        {authorized &&
+          !executed && (
+            <section
+              className="panel"
+              style={{
+                marginBottom:
+                  "14px",
 
-            <div className="panelHeader">
+                border:
+                  "1px solid rgba(89,207,160,0.14)",
+              }}
+            >
 
-              <div>
+              <div className="panelHeader">
 
-                <div className="panelEyebrow">
-                  {L(
-                    language,
-                    "EXECUTION COMPLETE",
-                    "اكتمل التنفيذ"
-                  )}
+                <div>
+
+                  <div className="panelEyebrow">
+                    {L(
+                      language,
+                      "CONTROLLED EXECUTION",
+                      "التنفيذ الخاضع للتحكم"
+                    )}
+                  </div>
+
+
+                  <h2>
+                    {L(
+                      language,
+                      "Execute Approved Correction",
+                      "تنفيذ التعديل المعتمد"
+                    )}
+                  </h2>
+
                 </div>
 
 
-                <h2>
-                  {L(
-                    language,
-                    "Run Post-Correction Verification",
-                    "بدء التحقق بعد التعديل"
-                  )}
-                </h2>
+                <Play
+                  size={21}
+                  aria-hidden="true"
+                />
 
               </div>
 
 
-              <RefreshCcw
-                size={22}
-                aria-hidden="true"
-              />
+              <div
+                style={{
+                  padding:
+                    "17px",
+                }}
+              >
 
-            </div>
+                <div
+                  className="integrityInfo"
+                  style={{
+                    margin:
+                      "0 0 13px",
+                  }}
+                >
+
+                  <ShieldCheck
+                    size={20}
+                    aria-hidden="true"
+                  />
 
 
-            <div
+                  <div>
+
+                    <strong>
+                      {L(
+                        language,
+                        "Execution authorization confirmed",
+                        "تم تأكيد تصريح التنفيذ"
+                      )}
+                    </strong>
+
+
+                    <span>
+                      {L(
+                        language,
+
+                        `This action will change ${biometricId} from ${beforeReference} to ${afterReference} only.`,
+
+                        `سيتم تغيير ربط السجل ${biometricId} من ${beforeReference} إلى ${afterReference} فقط.`
+                      )}
+                    </span>
+
+                  </div>
+
+                </div>
+
+
+                <button
+                  type="button"
+                  onClick={
+                    executeCorrection
+                  }
+                  style={{
+                    width:
+                      "100%",
+
+                    minHeight:
+                      "46px",
+
+                    borderRadius:
+                      "10px",
+
+                    border:
+                      "1px solid rgba(111,230,180,0.40)",
+
+                    background:
+                      "linear-gradient(90deg,#4bc58f,#68d9ab)",
+
+                    color:
+                      "#071c17",
+
+                    fontFamily:
+                      "inherit",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      900,
+                  }}
+                >
+
+                  <Play
+                    size={15}
+                    aria-hidden="true"
+                    style={{
+                      marginInlineEnd:
+                        "6px",
+
+                      verticalAlign:
+                        "middle",
+                    }}
+                  />
+
+
+                  {L(
+                    language,
+                    "Execute Authorized Correction",
+                    "تنفيذ التعديل المصرح به"
+                  )}
+
+                </button>
+
+              </div>
+
+            </section>
+          )}
+
+
+        {/* ================================================
+            VERIFY
+            ================================================ */}
+
+        {executed &&
+          !verified && (
+            <section
+              className="panel"
               style={{
-                padding:
-                  "18px",
+                marginBottom:
+                  "14px",
+
+                border:
+                  verificationFailed
+                    ? "1px solid rgba(255,80,100,0.14)"
+                    : "1px solid rgba(121,169,255,0.14)",
               }}
             >
 
+              <div className="panelHeader">
+
+                <div>
+
+                  <div className="panelEyebrow">
+                    {L(
+                      language,
+                      "POST-CORRECTION VERIFICATION",
+                      "التحقق بعد التعديل"
+                    )}
+                  </div>
+
+
+                  <h2>
+                    {verificationFailed
+                      ? L(
+                          language,
+                          "Run Verification Again",
+                          "إعادة التحقق"
+                        )
+                      : L(
+                          language,
+                          "Verify the New Relationship",
+                          "التحقق من الربط الجديد"
+                        )}
+                  </h2>
+
+                </div>
+
+
+                <RefreshCcw
+                  size={21}
+                  aria-hidden="true"
+                />
+
+              </div>
+
+
               <div
                 style={{
-                  marginBottom:
-                    "14px",
-
                   padding:
-                    "16px",
-
-                  borderRadius:
-                    "12px",
-
-                  border:
-                    "1px solid rgba(89,207,160,0.18)",
-
-                  background:
-                    "rgba(89,207,160,0.045)",
+                    "17px",
                 }}
               >
 
                 <div
                   style={{
-                    display:
-                      "flex",
+                    padding:
+                      "13px",
 
-                    alignItems:
-                      "center",
-
-                    gap:
-                      "8px",
+                    borderRadius:
+                      "10px",
 
                     color:
-                      "#59cfa0",
-                  }}
-                >
-                  <CheckCircle2
-                    size={20}
-                    aria-hidden="true"
-                  />
+                      "#8193aa",
 
-                  <strong
-                    style={{
-                      fontSize:
-                        "11px",
-                    }}
-                  >
-                    {L(
-                      language,
-                      "Runtime correction completed",
-                      "تم تنفيذ التعديل على نسخة التشغيل"
-                    )}
-                  </strong>
-                </div>
+                    background:
+                      "rgba(121,169,255,0.035)",
 
-
-                <span
-                  style={{
-                    display:
-                      "block",
-
-                    marginTop:
-                      "8px",
-
-                    color:
-                      "#8194ab",
+                    border:
+                      "1px solid rgba(121,169,255,0.08)",
 
                     fontSize:
-                      "9px",
+                      "9.5px",
 
                     lineHeight:
                       1.65,
@@ -1845,74 +3003,77 @@ export default function CorrectionsVerificationPage() {
                 >
                   {L(
                     language,
-                    `The biometric record is now linked to ${DEMO_CASE.after}. The case cannot be closed until verification confirms the new relationship.`,
-                    `أصبح السجل البيومتري مرتبطًا الآن بالمرجع ${DEMO_CASE.after}. ولا يمكن إغلاق الحالة قبل أن يؤكد التحقق سلامة الربط الجديد.`
+
+                    `Execution is complete. ${biometricId} is now associated with ${afterReference}. Verification must confirm that the new identity relationship is valid before closure.`,
+
+                    `اكتمل التنفيذ وأصبح السجل ${biometricId} مرتبطًا بالمرجع ${afterReference}. يجب أن يؤكد التحقق صحة الربط الجديد قبل إغلاق الحالة.`
                   )}
-                </span>
+                </div>
+
+
+                <button
+                  type="button"
+                  onClick={
+                    verifyCorrection
+                  }
+                  style={{
+                    width:
+                      "100%",
+
+                    minHeight:
+                      "46px",
+
+                    marginTop:
+                      "12px",
+
+                    borderRadius:
+                      "10px",
+
+                    border:
+                      "1px solid rgba(121,169,255,0.25)",
+
+                    background:
+                      "linear-gradient(90deg,rgba(70,140,255,0.88),rgba(90,165,255,0.88))",
+
+                    color:
+                      "#f3f7fc",
+
+                    fontFamily:
+                      "inherit",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      900,
+                  }}
+                >
+
+                  <RefreshCcw
+                    size={15}
+                    aria-hidden="true"
+                    style={{
+                      marginInlineEnd:
+                        "6px",
+
+                      verticalAlign:
+                        "middle",
+                    }}
+                  />
+
+
+                  {L(
+                    language,
+                    "Run Final Verification",
+                    "بدء التحقق النهائي"
+                  )}
+
+                </button>
 
               </div>
 
-
-              <button
-                type="button"
-                onClick={
-                  verifyCorrection
-                }
-                style={{
-                  width:
-                    "100%",
-
-                  minHeight:
-                    "48px",
-
-                  borderRadius:
-                    "12px",
-
-                  border:
-                    "1px solid rgba(121,169,255,0.28)",
-
-                  background:
-                    "linear-gradient(90deg,rgba(70,140,255,0.88),rgba(90,165,255,0.88))",
-
-                  color:
-                    "#f4f8fd",
-
-                  fontFamily:
-                    "inherit",
-
-                  fontSize:
-                    "11px",
-
-                  fontWeight:
-                    900,
-
-                  cursor:
-                    "pointer",
-                }}
-              >
-                <RefreshCcw
-                  size={16}
-                  aria-hidden="true"
-                  style={{
-                    marginInlineEnd:
-                      "7px",
-
-                    verticalAlign:
-                      "middle",
-                  }}
-                />
-
-                {L(
-                  language,
-                  "Run Final Verification",
-                  "بدء التحقق النهائي"
-                )}
-              </button>
-
-            </div>
-
-          </section>
-        )}
+            </section>
+          )}
 
 
         {/* ================================================
@@ -1924,10 +3085,10 @@ export default function CorrectionsVerificationPage() {
             className="panel"
             style={{
               marginBottom:
-                "18px",
+                "14px",
 
               border:
-                "1px solid rgba(89,207,160,0.20)",
+                "1px solid rgba(89,207,160,0.16)",
             }}
           >
 
@@ -1938,8 +3099,8 @@ export default function CorrectionsVerificationPage() {
                 <div className="panelEyebrow">
                   {L(
                     language,
-                    "POST-CORRECTION VERIFICATION",
-                    "التحقق بعد التصحيح"
+                    "VERIFICATION RESULT",
+                    "نتيجة التحقق"
                   )}
                 </div>
 
@@ -1948,15 +3109,15 @@ export default function CorrectionsVerificationPage() {
                   {L(
                     language,
                     "Verification Passed",
-                    "تم اجتياز التحقق"
+                    "نجح التحقق"
                   )}
                 </h2>
 
               </div>
 
 
-              <ShieldCheck
-                size={24}
+              <CheckCircle2
+                size={23}
                 color="#59cfa0"
                 aria-hidden="true"
               />
@@ -1965,193 +3126,215 @@ export default function CorrectionsVerificationPage() {
 
 
             <div
+              className="verificationResultGrid"
               style={{
+                display:
+                  "grid",
+
+                gridTemplateColumns:
+                  "120px 1fr",
+
+                gap:
+                  "17px",
+
+                alignItems:
+                  "center",
+
                 padding:
-                  "18px",
+                  "17px",
               }}
             >
 
               <div
                 style={{
-                  display:
-                    "grid",
+                  padding:
+                    "16px",
 
-                  gridTemplateColumns:
-                    "130px 1fr",
+                  borderRadius:
+                    "12px",
 
-                  gap:
-                    "18px",
-
-                  alignItems:
+                  textAlign:
                     "center",
+
+                  border:
+                    "1px solid rgba(89,207,160,0.15)",
+
+                  background:
+                    "rgba(89,207,160,0.045)",
                 }}
               >
 
-                <div
+                <span
                   style={{
-                    padding:
-                      "18px",
+                    display:
+                      "block",
 
-                    borderRadius:
-                      "14px",
+                    color:
+                      "#71849b",
 
-                    textAlign:
-                      "center",
-
-                    border:
-                      "1px solid rgba(89,207,160,0.20)",
-
-                    background:
-                      "rgba(89,207,160,0.055)",
+                    fontSize:
+                      "8px",
                   }}
                 >
-                  <span
-                    style={{
-                      display:
-                        "block",
+                  {L(
+                    language,
+                    "SCORE",
+                    "الدرجة"
+                  )}
+                </span>
 
-                      color:
-                        "#71849b",
 
-                      fontSize:
-                        "8px",
-                    }}
-                  >
-                    {L(
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "3px",
+
+                    color:
+                      "#59cfa0",
+
+                    fontSize:
+                      "34px",
+                  }}
+                >
+                  {verificationScore}
+                </strong>
+
+
+                <span
+                  style={{
+                    color:
+                      "#59cfa0",
+
+                    fontSize:
+                      "8px",
+
+                    fontWeight:
+                      850,
+                  }}
+                >
+                  PASSED
+                </span>
+
+              </div>
+
+
+              <div>
+
+                <ResultRow
+                  label={
+                    L(
                       language,
-                      "SCORE",
-                      "الدرجة"
-                    )}
-                  </span>
+                      "Identity Mapping",
+                      "ربط الهوية"
+                    )
+                  }
+                  value={
+                    identityMappingValid
+                      ? L(
+                          language,
+                          "VALID",
+                          "صحيح"
+                        )
+                      : L(
+                          language,
+                          "INVALID",
+                          "غير صحيح"
+                        )
+                  }
+                  success={
+                    identityMappingValid
+                  }
+                />
 
 
-                  <strong
-                    style={{
-                      display:
-                        "block",
-
-                      color:
-                        "#59cfa0",
-
-                      fontSize:
-                        "35px",
-
-                      marginTop:
-                        "4px",
-                    }}
-                  >
-                    {
-                      DEMO_CASE.verificationScore
-                    }
-                  </strong>
+                <ResultRow
+                  label={
+                    L(
+                      language,
+                      "Biometric Match",
+                      "مطابقة السجل البيومتري"
+                    )
+                  }
+                  value={
+                    biometricMatchPercent !==
+                    null
+                      ? `${biometricMatchPercent}%`
+                      : "—"
+                  }
+                  success
+                  dir="ltr"
+                />
 
 
-                  <span
-                    style={{
-                      color:
-                        "#59cfa0",
-
-                      fontSize:
-                        "9px",
-
-                      fontWeight:
-                        850,
-                    }}
-                  >
-                    PASSED
-                  </span>
-                </div>
-
-
-                <div>
-
-                  <ResultRow
-                    label={
-                      L(
-                        language,
-                        "Identity Mapping",
-                        "مطابقة الهوية"
-                      )
-                    }
-                    value={
-                      L(
-                        language,
-                        "VALID",
-                        "ناجحة"
-                      )
-                    }
-                    success
-                  />
+                <ResultRow
+                  label={
+                    L(
+                      language,
+                      "Original Conflict Resolved",
+                      "تم حل التعارض الأصلي"
+                    )
+                  }
+                  value={
+                    conflictResolved
+                      ? L(
+                          language,
+                          "YES",
+                          "نعم"
+                        )
+                      : L(
+                          language,
+                          "NO",
+                          "لا"
+                        )
+                  }
+                  success={
+                    conflictResolved
+                  }
+                />
 
 
-                  <ResultRow
-                    label={
-                      L(
-                        language,
-                        "Biometric Match",
-                        "مطابقة السجل البيومتري"
-                      )
-                    }
-                    value={
-                      `${DEMO_CASE.biometricMatchPercent}%`
-                    }
-                    success
-                    dir="ltr"
-                  />
+                <ResultRow
+                  label={
+                    L(
+                      language,
+                      "Secondary Conflict",
+                      "تعارض ثانوي"
+                    )
+                  }
+                  value={
+                    secondaryConflict
+                      ? L(
+                          language,
+                          "YES",
+                          "نعم"
+                        )
+                      : L(
+                          language,
+                          "NO",
+                          "لا"
+                        )
+                  }
+                  success={
+                    !secondaryConflict
+                  }
+                />
 
 
-                  <ResultRow
-                    label={
-                      L(
-                        language,
-                        "Original Conflict Resolved",
-                        "تم حل التعارض"
-                      )
-                    }
-                    value={
-                      L(
-                        language,
-                        "YES",
-                        "نعم"
-                      )
-                    }
-                    success
-                  />
-
-
-                  <ResultRow
-                    label={
-                      L(
-                        language,
-                        "Secondary Conflict",
-                        "تعارض ثانوي"
-                      )
-                    }
-                    value={
-                      L(
-                        language,
-                        "NO",
-                        "لا"
-                      )
-                    }
-                    success
-                  />
-
-
-                  <ResultRow
-                    label={
-                      L(
-                        language,
-                        "Final Status",
-                        "الحالة النهائية"
-                      )
-                    }
-                    value="VERIFIED_CLOSED"
-                    success
-                    dir="ltr"
-                  />
-
-                </div>
+                <ResultRow
+                  label={
+                    L(
+                      language,
+                      "Final Status",
+                      "الحالة النهائية"
+                    )
+                  }
+                  value="VERIFIED_CLOSED"
+                  success
+                  dir="ltr"
+                />
 
               </div>
 
@@ -2169,7 +3352,7 @@ export default function CorrectionsVerificationPage() {
           className="panel"
           style={{
             marginBottom:
-              "18px",
+              "14px",
           }}
         >
 
@@ -2180,8 +3363,8 @@ export default function CorrectionsVerificationPage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "AUDIT TRACE",
-                  "سجل الإجراءات"
+                  "CASE HISTORY",
+                  "سجل الحالة"
                 )}
               </div>
 
@@ -2189,8 +3372,8 @@ export default function CorrectionsVerificationPage() {
               <h2>
                 {L(
                   language,
-                  "Case Action Timeline",
-                  "التسلسل الكامل للإجراءات"
+                  "Action Timeline",
+                  "تسلسل الإجراءات"
                 )}
               </h2>
 
@@ -2198,7 +3381,7 @@ export default function CorrectionsVerificationPage() {
 
 
             <History
-              size={22}
+              size={21}
               aria-hidden="true"
             />
 
@@ -2208,18 +3391,20 @@ export default function CorrectionsVerificationPage() {
           <div
             style={{
               padding:
-                "14px 18px 18px",
+                "12px 17px 17px",
             }}
           >
 
             <AuditEvent
               number="01"
-              active
+              completed
               title={
                 L(
                   language,
-                  "AI investigation completed and correction recommendation prepared.",
-                  "تم إنشاء التحقيق بالذكاء الاصطناعي وتجهيز توصية التصحيح."
+
+                  "AI analyzed the case and prepared the correction recommendation.",
+
+                  "حلل الذكاء الاصطناعي الحالة وجهز توصية التعديل."
                 )
               }
             />
@@ -2227,12 +3412,19 @@ export default function CorrectionsVerificationPage() {
 
             <AuditEvent
               number="02"
-              active
+              completed={
+                officerApproved
+              }
+              active={
+                !officerApproved
+              }
               title={
                 L(
                   language,
-                  "Monitoring Officer reviewed the evidence and approved the recommendation.",
-                  "راجع موظف المراجعة الأدلة واعتمد التوصية."
+
+                  "Employee reviewed the evidence and recorded the first human approval.",
+
+                  "راجع الموظف الأدلة وسجل الموافقة البشرية الأولى."
                 )
               }
             />
@@ -2240,12 +3432,20 @@ export default function CorrectionsVerificationPage() {
 
             <AuditEvent
               number="03"
-              active
+              completed={
+                managerApproved
+              }
+              active={
+                officerApproved &&
+                !managerApproved
+              }
               title={
                 L(
                   language,
-                  "Manager provided the second human authorization.",
-                  "أصدر المدير الموافقة البشرية الثانية."
+
+                  "Manager recorded the second human approval.",
+
+                  "سجل المدير الموافقة البشرية الثانية."
                 )
               }
             />
@@ -2253,30 +3453,58 @@ export default function CorrectionsVerificationPage() {
 
             <AuditEvent
               number="04"
-              active={
+              completed={
                 executed
               }
+              active={
+                authorized &&
+                !executed
+              }
               title={
-                L(
-                  language,
-                  `Approved correction executed: ${DEMO_CASE.before} → ${DEMO_CASE.after}.`,
-                  `تم تنفيذ التعديل المعتمد: ${DEMO_CASE.before} ← ${DEMO_CASE.after}.`
-                )
+                executed
+                  ? L(
+                      language,
+
+                      `Approved correction executed: ${beforeReference} → ${afterReference}.`,
+
+                      `تم تنفيذ التعديل المعتمد: ${beforeReference} → ${afterReference}.`
+                    )
+                  : L(
+                      language,
+
+                      "Controlled correction waiting for execution.",
+
+                      "التعديل الخاضع للتحكم بانتظار التنفيذ."
+                    )
               }
             />
 
 
             <AuditEvent
               number="05"
-              active={
+              completed={
                 verified
               }
+              active={
+                executed &&
+                !verified
+              }
               title={
-                L(
-                  language,
-                  "Post-correction verification passed and the case was closed.",
-                  "تم اجتياز التحقق بعد التصحيح وإغلاق الحالة."
-                )
+                verified
+                  ? L(
+                      language,
+
+                      "Verification passed and the case was closed.",
+
+                      "نجح التحقق وتم إغلاق الحالة."
+                    )
+                  : L(
+                      language,
+
+                      "Post-correction verification required.",
+
+                      "التحقق بعد التعديل مطلوب."
+                    )
               }
             />
 
@@ -2286,26 +3514,26 @@ export default function CorrectionsVerificationPage() {
 
 
         {/* ================================================
-            FINAL SUCCESS ACTIONS
+            FINAL SUCCESS
             ================================================ */}
 
         {verified && (
           <section
             style={{
               marginBottom:
-                "18px",
+                "14px",
 
               padding:
-                "20px",
-
-              borderRadius:
                 "18px",
 
+              borderRadius:
+                "15px",
+
               border:
-                "1px solid rgba(89,207,160,0.28)",
+                "1px solid rgba(89,207,160,0.18)",
 
               background:
-                "linear-gradient(135deg, rgba(11,50,47,0.66), rgba(8,26,45,0.92))",
+                "rgba(89,207,160,0.04)",
             }}
           >
 
@@ -2314,16 +3542,16 @@ export default function CorrectionsVerificationPage() {
                 display:
                   "flex",
 
-                gap:
-                  "11px",
-
                 alignItems:
                   "flex-start",
+
+                gap:
+                  "10px",
               }}
             >
 
               <CheckCircle2
-                size={26}
+                size={23}
                 color="#59cfa0"
                 aria-hidden="true"
               />
@@ -2340,13 +3568,13 @@ export default function CorrectionsVerificationPage() {
                       "#59cfa0",
 
                     fontSize:
-                      "14px",
+                      "12px",
                   }}
                 >
                   {L(
                     language,
                     "Identity conflict resolved",
-                    "تم حل مشكلة التداخل"
+                    "تم حل مشكلة ربط الهوية"
                   )}
                 </strong>
 
@@ -2357,22 +3585,24 @@ export default function CorrectionsVerificationPage() {
                       "block",
 
                     marginTop:
-                      "7px",
+                      "6px",
 
                     color:
-                      "#8194ab",
+                      "#8193aa",
 
                     fontSize:
-                      "9px",
+                      "9.5px",
 
                     lineHeight:
-                      1.7,
+                      1.65,
                   }}
                 >
                   {L(
                     language,
-                    `${DEMO_CASE.biometricId} was moved from ${DEMO_CASE.before} to ${DEMO_CASE.after}. Verification passed with a score of ${DEMO_CASE.verificationScore}, the identity mapping is valid and no secondary conflict remains.`,
-                    `تم نقل السجل ${DEMO_CASE.biometricId} من المرجع ${DEMO_CASE.before} إلى المرجع ${DEMO_CASE.after}. ونجح التحقق بدرجة ${DEMO_CASE.verificationScore}، وأصبح ربط الهوية صحيحًا ولم يتبق أي تعارض ثانوي.`
+
+                    `${biometricId} was removed from ${beforeReference} and assigned to ${afterReference}. Verification passed and this case has been removed from Active Cases.`,
+
+                    `تمت إزالة السجل ${biometricId} من المرجع ${beforeReference} وربطه بالمرجع ${afterReference}. نجح التحقق وتمت إزالة الحالة من الحالات النشطة.`
                   )}
                 </span>
 
@@ -2391,18 +3621,20 @@ export default function CorrectionsVerificationPage() {
                   "1fr 1fr",
 
                 gap:
-                  "10px",
+                  "8px",
 
                 marginTop:
-                  "16px",
+                  "14px",
               }}
             >
 
               <Link
-                href="/reports-audit"
+                href={
+                  `/reports-audit?case=${caseData.id}`
+                }
                 style={{
                   minHeight:
-                    "45px",
+                    "42px",
 
                   display:
                     "flex",
@@ -2414,10 +3646,10 @@ export default function CorrectionsVerificationPage() {
                     "center",
 
                   gap:
-                    "8px",
+                    "6px",
 
                   borderRadius:
-                    "11px",
+                    "9px",
 
                   textDecoration:
                     "none",
@@ -2429,25 +3661,28 @@ export default function CorrectionsVerificationPage() {
                     "linear-gradient(90deg,#4bc58f,#68d9ab)",
 
                   border:
-                    "1px solid rgba(111,230,180,0.42)",
+                    "1px solid rgba(111,230,180,0.40)",
 
                   fontSize:
-                    "10px",
+                    "9.5px",
 
                   fontWeight:
                     900,
                 }}
               >
+
                 <FileCheck2
-                  size={15}
+                  size={14}
                   aria-hidden="true"
                 />
 
+
                 {L(
                   language,
-                  "View Final Report",
-                  "عرض التقرير النهائي"
+                  "Open Reports & Audit",
+                  "فتح التقارير والسجل"
                 )}
+
 
                 <ChevronRight
                   size={14}
@@ -2456,6 +3691,7 @@ export default function CorrectionsVerificationPage() {
                   }
                   aria-hidden="true"
                 />
+
               </Link>
 
 
@@ -2463,7 +3699,7 @@ export default function CorrectionsVerificationPage() {
                 href="/cases"
                 style={{
                   minHeight:
-                    "45px",
+                    "42px",
 
                   display:
                     "flex",
@@ -2475,10 +3711,10 @@ export default function CorrectionsVerificationPage() {
                     "center",
 
                   gap:
-                    "8px",
+                    "6px",
 
                   borderRadius:
-                    "11px",
+                    "9px",
 
                   textDecoration:
                     "none",
@@ -2490,20 +3726,22 @@ export default function CorrectionsVerificationPage() {
                     "rgba(121,169,255,0.04)",
 
                   border:
-                    "1px solid rgba(121,169,255,0.17)",
+                    "1px solid rgba(121,169,255,0.12)",
 
                   fontSize:
-                    "10px",
+                    "9.5px",
 
                   fontWeight:
                     850,
                 }}
               >
+
                 {L(
                   language,
-                  "Return to Cases",
-                  "العودة إلى الحالات"
+                  "Return to Active Cases",
+                  "العودة إلى الحالات النشطة"
                 )}
+
 
                 <ChevronRight
                   size={14}
@@ -2512,6 +3750,7 @@ export default function CorrectionsVerificationPage() {
                   }
                   aria-hidden="true"
                 />
+
               </Link>
 
             </div>
@@ -2521,21 +3760,22 @@ export default function CorrectionsVerificationPage() {
 
 
         {/* ================================================
-            CONTROL NOTE
+            GOVERNANCE
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
             margin:
-              "0 0 16px",
+              "0 0 14px",
 
             padding:
-              "18px",
+              "15px",
           }}
         >
+
           <ShieldCheck
-            size={23}
+            size={21}
             aria-hidden="true"
           />
 
@@ -2545,8 +3785,8 @@ export default function CorrectionsVerificationPage() {
             <strong>
               {L(
                 language,
-                "Controlled correction with mandatory verification",
-                "تصحيح خاضع للتحكم مع تحقق إلزامي"
+                "Verification controls case closure",
+                "التحقق هو الذي يسمح بإغلاق الحالة"
               )}
             </strong>
 
@@ -2554,8 +3794,10 @@ export default function CorrectionsVerificationPage() {
             <span>
               {L(
                 language,
-                "The demonstration preserves the Master Reference and original biometric source dataset. Only the authorized runtime mapping is changed, and case closure remains blocked until verification succeeds.",
-                "يحافظ العرض التجريبي على المرجع الرئيسي ومصدر البيانات البيومترية الأصلي. يتم تغيير ربط التشغيل المصرح به فقط، ويبقى إغلاق الحالة محظورًا حتى نجاح التحقق."
+
+                "Execution alone never closes the case. The case moves to Reports & Audit only after verification succeeds and the final status becomes VERIFIED_CLOSED.",
+
+                "تنفيذ التعديل وحده لا يغلق الحالة. تنتقل الحالة إلى التقارير والسجل فقط بعد نجاح التحقق وتحول حالتها النهائية إلى VERIFIED_CLOSED."
               )}
             </span>
 
@@ -2573,64 +3815,128 @@ export default function CorrectionsVerificationPage() {
           <span>
             {L(
               language,
-              "AI Biometric Reconciliation Platform · Execution & Verification",
-              "منصة المطابقة البيومترية بالذكاء الاصطناعي · التنفيذ والتحقق"
+
+              "AI Biometric Reconciliation Platform · Correction & Verification",
+
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · التعديل والتحقق"
             )}
           </span>
 
 
           <div>
 
-            <Activity
-              size={15}
-              aria-hidden="true"
-            />
+            {verified ? (
+              <CheckCircle2
+                size={14}
+                aria-hidden="true"
+              />
+            ) : (
+              <Activity
+                size={14}
+                aria-hidden="true"
+              />
+            )}
 
-            {verified
-              ? L(
-                  language,
-                  "Case Verified & Closed",
-                  "تم التحقق من الحالة وإغلاقها"
-                )
-              : L(
-                  language,
-                  "Controlled Workflow Active",
-                  "مسار التنفيذ الخاضع للتحكم نشط"
-                )}
+
+            <span dir="ltr">
+              {caseData.id}
+            </span>
 
           </div>
 
         </footer>
 
 
+        {/* ================================================
+            MOBILE
+            ================================================ */}
+
         <style jsx>{`
-          @media (max-width: 760px) {
-            .workflowGrid {
-              grid-template-columns: repeat(5, minmax(70px, 1fr)) !important;
-              overflow-x: auto;
-              padding-bottom: 4px;
+
+          @media (
+            max-width: 850px
+          ) {
+
+            .executionSummaryGrid {
+              grid-template-columns:
+                1fr
+                !important;
             }
 
-            .authorizationGrid {
-              grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          }
+
+
+          @media (
+            max-width: 760px
+          ) {
+
+            .executionWorkflow {
+              overflow-x:
+                auto;
             }
+
+
+            .executionWorkflowGrid {
+              min-width:
+                520px;
+            }
+
 
             .mappingGrid {
-              grid-template-columns: 1fr !important;
+              grid-template-columns:
+                1fr
+                !important;
             }
 
-            .mappingGrid > svg {
-              margin: 0 auto;
-              transform: rotate(90deg) !important;
+
+            :global(.executionMappingArrow) {
+              margin:
+                0 auto;
+
+              transform:
+                rotate(90deg)
+                !important;
             }
+
+
+            .verificationResultGrid {
+              grid-template-columns:
+                1fr
+                !important;
+            }
+
+
+            .verificationResultGrid
+            > div:first-child {
+              max-width:
+                150px;
+
+              width:
+                100%;
+
+              margin:
+                0 auto;
+            }
+
           }
 
-          @media (max-width: 520px) {
+
+          @media (
+            max-width: 520px
+          ) {
+
             .authorizationGrid,
+            .sourceProtectionGrid,
+            .ownershipGrid,
+            .lockedApprovalGrid,
             .finalButtons {
-              grid-template-columns: 1fr !important;
+              grid-template-columns:
+                1fr
+                !important;
             }
+
           }
+
         `}</style>
 
       </main>

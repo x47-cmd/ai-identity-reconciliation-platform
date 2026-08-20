@@ -1,31 +1,55 @@
 import {
-  COMPLEX_CASE_ID,
-  VERIFIED_CASE_ID,
+  TOTAL_CASE_COUNT,
 } from "../../lib/demo-data";
 
 
 /* =========================================================
    STATIC CASE ROUTES
 
-   GitHub Pages / static export supports only the
-   case detail routes generated here.
+   GitHub Pages uses Next.js Static Export.
 
-   Any other caseId returns 404.
+   Every synthetic case detail route must therefore be
+   generated during the build.
+
+   Valid synthetic case range:
+
+   CASE-2026-00001
+   →
+   CASE-2026-00053
+
+   Closed cases remain accessible from Reports & Audit.
+
+   Active cases remain accessible from the Cases workspace.
    ========================================================= */
 
-export const dynamicParams = false;
+export const dynamicParams =
+  false;
 
+
+/* =========================================================
+   GENERATE ALL CASE ROUTES
+   ========================================================= */
 
 export function generateStaticParams() {
-  return [
+  return Array.from(
     {
-      caseId: VERIFIED_CASE_ID,
+      length:
+        TOTAL_CASE_COUNT,
     },
 
-    {
-      caseId: COMPLEX_CASE_ID,
-    },
-  ];
+    (
+      _,
+      index
+    ) => ({
+      caseId:
+        `CASE-2026-${String(
+          index + 1
+        ).padStart(
+          5,
+          "0"
+        )}`,
+    })
+  );
 }
 
 

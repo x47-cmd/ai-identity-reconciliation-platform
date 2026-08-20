@@ -1,26 +1,32 @@
 "use client";
 
+import {
+  useEffect,
+} from "react";
+
 import Link from "next/link";
 
 import Sidebar from "../components/Sidebar";
 import { useLanguage } from "../components/LanguageProvider";
 
 import {
-  COMPLEX_DEMO_CASE,
+  ACTIVE_CASES,
   PLATFORM_METRICS,
-  VERIFIED_DEMO_CASE,
 } from "../lib/demo-data";
+
+import {
+  initializeDemoCaseStore,
+  useCaseStore,
+} from "../lib/case-store";
 
 import {
   Activity,
   AlertTriangle,
   BrainCircuit,
-  CheckCircle2,
   ChevronRight,
   CircleAlert,
   FileSearch,
   GitCompareArrows,
-  Search,
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
@@ -42,72 +48,84 @@ function L(
 
 
 /* =========================================================
-   WORKFLOW
+   SIMPLE WORKFLOW
+
+   Employee-facing explanation only.
+
+   1. AI detects and analyzes
+   2. Employee reviews
+   3. AI prepares correction
+   4. Manager approves
+   5. Correction is executed and verified
    ========================================================= */
 
 const workflowSteps = [
   {
-    number: 1,
+    number:
+      1,
 
     title: {
       en:
-        "Case Detection",
+        "Detect & Analyze",
 
       ar:
-        "اكتشاف الحالة",
+        "اكتشاف وتحليل",
     },
 
     description: {
       en:
-        "AI detects an identity or biometric linking problem.",
+        "AI detects the problem and analyzes the evidence.",
 
       ar:
-        "يكتشف الذكاء الاصطناعي مشكلة في الهوية أو ربط السجل البيومتري.",
+        "يكتشف الذكاء الاصطناعي المشكلة ويحلل الأدلة.",
     },
   },
 
   {
-    number: 2,
+    number:
+      2,
 
     title: {
       en:
-        "Officer Review",
+        "Employee Review",
 
       ar:
-        "تدقيق موظف المراجعة",
+        "تدقيق الموظف",
     },
 
     description: {
       en:
-        "An authorized officer reviews the evidence and recommendation.",
+        "The authorized employee reviews the case.",
 
       ar:
-        "يراجع الموظف المخول الأدلة والتوصية المقترحة.",
+        "يراجع الموظف المخول الحالة والتوصية.",
     },
   },
 
   {
-    number: 3,
+    number:
+      3,
 
     title: {
       en:
-        "AI Correction Proposal",
+        "Prepare Correction",
 
       ar:
-        "اقتراح التعديل بالذكاء الاصطناعي",
+        "تجهيز التعديل",
     },
 
     description: {
       en:
-        "AI prepares the proposed before-and-after correction.",
+        "AI prepares the proposed before-and-after change.",
 
       ar:
-        "يجهز الذكاء الاصطناعي الإجراء المقترح وحالة ما قبل وما بعد التعديل.",
+        "يجهز الذكاء الاصطناعي التعديل المقترح قبل وبعد.",
     },
   },
 
   {
-    number: 4,
+    number:
+      4,
 
     title: {
       en:
@@ -119,19 +137,20 @@ const workflowSteps = [
 
     description: {
       en:
-        "The manager authorizes or rejects the proposed correction.",
+        "The Manager approves or returns the correction.",
 
       ar:
-        "يعتمد المدير الإجراء المقترح أو يعيده للمراجعة.",
+        "يعتمد المدير التعديل أو يعيده للمراجعة.",
     },
   },
 
   {
-    number: 5,
+    number:
+      5,
 
     title: {
       en:
-        "Execution & Verification",
+        "Execute & Verify",
 
       ar:
         "التنفيذ والتحقق",
@@ -139,160 +158,10 @@ const workflowSteps = [
 
     description: {
       en:
-        "The approved correction is executed and verified before closure.",
+        "The approved change is executed and verified.",
 
       ar:
-        "يتم تنفيذ التعديل المعتمد ثم التحقق منه قبل إغلاق الحالة.",
-    },
-  },
-];
-
-
-/* =========================================================
-   REPRESENTATIVE CASES
-
-   Synthetic demonstration names only.
-
-   Identity-name policy:
-   - First Name + Second Name only
-   - No third name
-   - No surname
-   - No family name
-   - No tribe name
-
-   CASE-2026-00001 is the primary interactive
-   demonstration workflow.
-   ========================================================= */
-
-const cases = [
-  {
-    id:
-      VERIFIED_DEMO_CASE.id,
-
-    person:
-      VERIFIED_DEMO_CASE.person,
-
-    issue:
-      VERIFIED_DEMO_CASE.caseType,
-
-    aiFinding: {
-      en:
-        "AI detected an incorrect biometric-to-person link with possible impact on another person. The case is ready for authorized officer review.",
-
-      ar:
-        "اكتشف الذكاء الاصطناعي ربطًا غير صحيح للسجل البيومتري مع احتمال تأثير على شخص آخر، والحالة جاهزة الآن لتدقيق موظف المراجعة.",
-    },
-
-    confidence:
-      VERIFIED_DEMO_CASE.aiConfidence,
-
-    priority:
-      VERIFIED_DEMO_CASE.priority,
-
-    status:
-      "READY_FOR_OFFICER_REVIEW",
-
-    featured:
-      true,
-
-    action: {
-      href:
-        "/officer-review",
-
-      en:
-        "Start Officer Review",
-
-      ar:
-        "بدء تدقيق موظف المراجعة",
-    },
-  },
-
-  {
-    id:
-      "CASE-2026-00005",
-
-    person: {
-      en:
-        "Ahmed Saeed",
-
-      ar:
-        "أحمد سعيد",
-    },
-
-    issue:
-      "CRITICAL_HARM_IDENTITY_CONFLICT",
-
-    aiFinding: {
-      en:
-        "AI completed the analysis and prepared a correction recommendation. The case is now waiting for manager authorization.",
-
-      ar:
-        "اكتمل تحليل الذكاء الاصطناعي وتم تجهيز توصية بالتصحيح، والحالة الآن بانتظار اعتماد المدير.",
-    },
-
-    confidence:
-      99.96,
-
-    priority:
-      "IMMEDIATE",
-
-    status:
-      "AWAITING_MANAGER_APPROVAL",
-
-    featured:
-      false,
-
-    action: {
-      href:
-        "/manager-approval",
-
-      en:
-        "Open Manager Approval",
-
-      ar:
-        "فتح مسار موافقة المدير",
-    },
-  },
-
-  {
-    id:
-      COMPLEX_DEMO_CASE.id,
-
-    person:
-      COMPLEX_DEMO_CASE.person,
-
-    issue:
-      COMPLEX_DEMO_CASE.caseType,
-
-    aiFinding: {
-      en:
-        "AI combined five related findings and identified REF-002343 as the strongest reference candidate for the investigation.",
-
-      ar:
-        "جمع الذكاء الاصطناعي خمس نتائج مترابطة وحدد REF-002343 كأقوى مرشح مرجعي للتحقيق.",
-    },
-
-    confidence:
-      COMPLEX_DEMO_CASE.aiConfidence,
-
-    priority:
-      COMPLEX_DEMO_CASE.priority,
-
-    status:
-      COMPLEX_DEMO_CASE.finalStatus,
-
-    featured:
-      false,
-
-    action: {
-      href:
-        `/cases/${COMPLEX_DEMO_CASE.id}`,
-
-      en:
-        "View AI Investigation",
-
-      ar:
-        "عرض تحليل الحالة",
+        "يتم تنفيذ التعديل المعتمد ثم التحقق منه.",
     },
   },
 ];
@@ -317,18 +186,18 @@ function getIssueLabel(
 
     CRITICAL_HARM_IDENTITY_CONFLICT: {
       en:
-        "Critical Record Conflict",
+        "Critical Identity Conflict",
 
       ar:
-        "تعارض حرج في الربط",
+        "تعارض هوية حرج",
     },
 
     WRONG_MAPPING: {
       en:
-        "Incorrect Biometric Link",
+        "Incorrect Identity Link",
 
       ar:
-        "ربط بيومتري غير صحيح",
+        "ربط هوية غير صحيح",
     },
 
     COMPLEX_IDENTITY_CONFLICT: {
@@ -341,10 +210,10 @@ function getIssueLabel(
 
     DUPLICATE_IDENTITY: {
       en:
-        "Duplicate Reference Record",
+        "Duplicate Identity",
 
       ar:
-        "تكرار في السجل المرجعي",
+        "سجل هوية مكرر",
     },
 
     DATA_MISMATCH: {
@@ -352,31 +221,35 @@ function getIssueLabel(
         "Data Mismatch",
 
       ar:
-        "اختلاف بين البيانات",
+        "اختلاف في البيانات",
     },
 
     ORPHAN_RECORD: {
       en:
-        "Biometric Record Without Reference",
+        "Missing Identity Link",
 
       ar:
-        "سجل بيومتري بدون مرجع",
+        "سجل بدون مرجع مرتبط",
     },
   };
 
 
   return (
-    labels[issue]?.[
+    labels[
+      issue
+    ]?.[
       language
     ] ||
-    labels[issue]?.en ||
+    labels[
+      issue
+    ]?.en ||
     issue
   );
 }
 
 
 /* =========================================================
-   STATUS
+   STATUS LABELS
    ========================================================= */
 
 function getStatusLabel(
@@ -384,22 +257,6 @@ function getStatusLabel(
   language
 ) {
   const labels = {
-    READY_FOR_OFFICER_REVIEW: {
-      en:
-        "Ready for Officer Review",
-
-      ar:
-        "جاهزة لتدقيق الموظف",
-    },
-
-    AWAITING_MANAGER_APPROVAL: {
-      en:
-        "Waiting for Manager Approval",
-
-      ar:
-        "بانتظار موافقة المدير",
-    },
-
     AI_INVESTIGATED: {
       en:
         "AI Analysis Complete",
@@ -408,32 +265,88 @@ function getStatusLabel(
         "اكتمل تحليل الذكاء الاصطناعي",
     },
 
-    VERIFIED_CLOSED: {
+    READY_FOR_OFFICER_REVIEW: {
       en:
-        "Resolved & Verified",
+        "Ready for Employee Review",
 
       ar:
-        "تم الحل والتحقق",
+        "جاهزة لتدقيق الموظف",
+    },
+
+    AWAITING_MANAGER_APPROVAL: {
+      en:
+        "Waiting for Manager",
+
+      ar:
+        "بانتظار موافقة المدير",
+    },
+
+    READY_FOR_CORRECTION: {
+      en:
+        "Ready for Correction",
+
+      ar:
+        "جاهزة لتنفيذ التعديل",
+    },
+
+    AWAITING_VERIFICATION: {
+      en:
+        "Waiting for Verification",
+
+      ar:
+        "بانتظار التحقق",
+    },
+
+    VERIFICATION_FAILED: {
+      en:
+        "Verification Requires Review",
+
+      ar:
+        "التحقق يحتاج إلى مراجعة",
+    },
+
+    OFFICER_REJECTED: {
+      en:
+        "Returned by Employee",
+
+      ar:
+        "لم تعتمد من الموظف",
+    },
+
+    MANAGER_REJECTED: {
+      en:
+        "Not Approved by Manager",
+
+      ar:
+        "لم تعتمد من المدير",
     },
   };
 
 
   return (
-    labels[status]?.[
+    labels[
+      status
+    ]?.[
       language
     ] ||
-    labels[status]?.en ||
+    labels[
+      status
+    ]?.en ||
     status
   );
 }
 
+
+/* =========================================================
+   STATUS STYLE
+   ========================================================= */
 
 function getStatusColors(
   status
 ) {
   if (
     status ===
-    "VERIFIED_CLOSED"
+    "READY_FOR_OFFICER_REVIEW"
   ) {
     return {
       color:
@@ -443,7 +356,7 @@ function getStatusColors(
         "rgba(89,207,160,0.08)",
 
       border:
-        "rgba(89,207,160,0.22)",
+        "rgba(89,207,160,0.20)",
     };
   }
 
@@ -460,14 +373,14 @@ function getStatusColors(
         "rgba(255,189,103,0.08)",
 
       border:
-        "rgba(255,189,103,0.22)",
+        "rgba(255,189,103,0.20)",
     };
   }
 
 
   if (
     status ===
-    "READY_FOR_OFFICER_REVIEW"
+    "READY_FOR_CORRECTION"
   ) {
     return {
       color:
@@ -477,7 +390,41 @@ function getStatusColors(
         "rgba(89,207,160,0.08)",
 
       border:
-        "rgba(89,207,160,0.22)",
+        "rgba(89,207,160,0.20)",
+    };
+  }
+
+
+  if (
+    status ===
+    "AWAITING_VERIFICATION"
+  ) {
+    return {
+      color:
+        "#8db6ff",
+
+      background:
+        "rgba(121,169,255,0.08)",
+
+      border:
+        "rgba(121,169,255,0.19)",
+    };
+  }
+
+
+  if (
+    status ===
+    "VERIFICATION_FAILED"
+  ) {
+    return {
+      color:
+        "#ff7c89",
+
+      background:
+        "rgba(255,80,100,0.08)",
+
+      border:
+        "rgba(255,80,100,0.20)",
     };
   }
 
@@ -490,7 +437,7 @@ function getStatusColors(
       "rgba(121,169,255,0.07)",
 
     border:
-      "rgba(121,169,255,0.18)",
+      "rgba(121,169,255,0.17)",
   };
 }
 
@@ -504,9 +451,11 @@ function PriorityBadge({
   language,
 }) {
   const className =
-    priority === "IMMEDIATE"
+    priority ===
+    "IMMEDIATE"
       ? "priority immediate"
-      : priority === "HIGH"
+      : priority ===
+        "HIGH"
         ? "priority high"
         : "priority medium";
 
@@ -540,26 +489,131 @@ function PriorityBadge({
 
   return (
     <span className={className}>
-      {labels[
+      {
+        labels[
+          priority
+        ]?.[
+          language
+        ] ||
         priority
-      ]?.[
-        language
-      ] ||
-        priority}
+      }
     </span>
   );
 }
 
 
 /* =========================================================
-   METRIC
+   NEXT ACTION
+   ========================================================= */
+
+function getCaseAction(
+  item,
+  language
+) {
+  const status =
+    item.workflowStatus ||
+    item.finalStatus;
+
+
+  if (
+    status ===
+    "READY_FOR_OFFICER_REVIEW"
+  ) {
+    return {
+      href:
+        `/officer-review?case=${item.id}`,
+
+      label:
+        L(
+          language,
+          "Start Employee Review",
+          "بدء تدقيق الموظف"
+        ),
+
+      tone:
+        "green",
+    };
+  }
+
+
+  if (
+    status ===
+    "AWAITING_MANAGER_APPROVAL"
+  ) {
+    return {
+      href:
+        `/manager-approval?case=${item.id}`,
+
+      label:
+        L(
+          language,
+          "Open Manager Approval",
+          "فتح موافقة المدير"
+        ),
+
+      tone:
+        "amber",
+    };
+  }
+
+
+  if (
+    status ===
+    "READY_FOR_CORRECTION" ||
+    status ===
+    "AWAITING_VERIFICATION" ||
+    status ===
+    "VERIFICATION_FAILED"
+  ) {
+    return {
+      href:
+        `/corrections-verification?case=${item.id}`,
+
+      label:
+        status ===
+        "READY_FOR_CORRECTION"
+          ? L(
+              language,
+              "Open Correction",
+              "فتح تنفيذ التعديل"
+            )
+          : L(
+              language,
+              "Open Verification",
+              "فتح التحقق"
+            ),
+
+      tone:
+        "blue",
+    };
+  }
+
+
+  return {
+    href:
+      `/cases/${item.id}`,
+
+    label:
+      L(
+        language,
+        "View Case Analysis",
+        "عرض تحليل الحالة"
+      ),
+
+    tone:
+      "blue",
+  };
+}
+
+
+/* =========================================================
+   METRIC CARD
    ========================================================= */
 
 function Metric({
   icon: Icon,
   value,
   title,
-  description,
   accent,
 }) {
   return (
@@ -567,10 +621,10 @@ function Metric({
       className="metricCard"
       style={{
         minHeight:
-          "150px",
+          "122px",
 
         border:
-          `1px solid ${accent}22`,
+          `1px solid ${accent}20`,
 
         background:
           `linear-gradient(180deg, ${accent}08 0%, rgba(9,24,43,0.72) 100%)`,
@@ -591,7 +645,7 @@ function Metric({
         }}
       >
         <Icon
-          size={21}
+          size={20}
           aria-hidden="true"
         />
       </div>
@@ -606,18 +660,13 @@ function Metric({
         {title}
       </div>
 
-
-      <div className="metricSubtitle">
-        {description}
-      </div>
-
     </div>
   );
 }
 
 
 /* =========================================================
-   WORKFLOW STEPPER
+   WORKFLOW
    ========================================================= */
 
 function WorkflowOverview({
@@ -625,21 +674,22 @@ function WorkflowOverview({
 }) {
   return (
     <section
+      className="simpleWorkflow"
       style={{
         margin:
-          "20px 0",
+          "18px 0",
 
         padding:
-          "22px",
+          "20px",
 
         borderRadius:
-          "18px",
+          "17px",
 
         border:
           "1px solid rgba(89,207,160,0.13)",
 
         background:
-          "linear-gradient(135deg, rgba(16,45,66,0.82), rgba(8,24,43,0.88))",
+          "linear-gradient(135deg, rgba(16,45,66,0.78), rgba(8,24,43,0.88))",
       }}
     >
 
@@ -655,33 +705,34 @@ function WorkflowOverview({
             "9px",
 
           marginBottom:
-            "20px",
+            "18px",
 
           color:
             "#59cfa0",
         }}
       >
         <GitCompareArrows
-          size={21}
+          size={20}
           aria-hidden="true"
         />
 
         <strong
           style={{
             fontSize:
-              "14px",
+              "13px",
           }}
         >
           {L(
             language,
-            "How is an identity conflict handled?",
-            "كيف يتم التعامل مع التداخل؟"
+            "How is a detected case resolved?",
+            "كيف يتم حل الحالة؟"
           )}
         </strong>
       </div>
 
 
       <div
+        className="workflowGrid"
         style={{
           display:
             "grid",
@@ -690,152 +741,146 @@ function WorkflowOverview({
             "repeat(5, minmax(0, 1fr))",
 
           gap:
-            "12px",
+            "10px",
         }}
       >
-        {workflowSteps.map(
-          (step) => (
-            <div
-              key={step.number}
-              style={{
-                minWidth:
-                  0,
-
-                textAlign:
-                  "center",
-              }}
-            >
-
+        {
+          workflowSteps.map(
+            (
+              step
+            ) => (
               <div
+                key={
+                  step.number
+                }
+                className="workflowItem"
                 style={{
-                  width:
-                    "34px",
+                  minWidth:
+                    0,
 
-                  height:
-                    "34px",
-
-                  margin:
-                    "0 auto 10px",
-
-                  display:
-                    "grid",
-
-                  placeItems:
-                    "center",
+                  padding:
+                    "13px 10px",
 
                   borderRadius:
-                    "50%",
+                    "11px",
 
-                  border:
-                    step.number === 1
-                      ? "1px solid rgba(89,207,160,0.65)"
-                      : "1px solid rgba(121,169,255,0.28)",
+                  textAlign:
+                    "center",
 
                   background:
-                    step.number === 1
-                      ? "rgba(89,207,160,0.10)"
-                      : "rgba(121,169,255,0.05)",
+                    "rgba(255,255,255,0.018)",
 
-                  color:
-                    step.number === 1
-                      ? "#59cfa0"
-                      : "#9fb1c7",
-
-                  fontWeight:
-                    800,
-
-                  fontSize:
-                    "11px",
+                  border:
+                    "1px solid rgba(255,255,255,0.045)",
                 }}
               >
-                {step.number}
+
+                <div
+                  style={{
+                    width:
+                      "31px",
+
+                    height:
+                      "31px",
+
+                    margin:
+                      "0 auto 9px",
+
+                    display:
+                      "grid",
+
+                    placeItems:
+                      "center",
+
+                    borderRadius:
+                      "50%",
+
+                    border:
+                      step.number ===
+                      1
+                        ? "1px solid rgba(89,207,160,0.55)"
+                        : "1px solid rgba(121,169,255,0.24)",
+
+                    background:
+                      step.number ===
+                      1
+                        ? "rgba(89,207,160,0.09)"
+                        : "rgba(121,169,255,0.045)",
+
+                    color:
+                      step.number ===
+                      1
+                        ? "#59cfa0"
+                        : "#9aadc4",
+
+                    fontSize:
+                      "10px",
+
+                    fontWeight:
+                      850,
+                  }}
+                >
+                  {
+                    step.number
+                  }
+                </div>
+
+
+                <strong
+                  style={{
+                    display:
+                      "block",
+
+                    color:
+                      "#dbe6f2",
+
+                    fontSize:
+                      "9.5px",
+
+                    lineHeight:
+                      1.4,
+                  }}
+                >
+                  {
+                    step.title[
+                      language
+                    ] ||
+                    step.title.en
+                  }
+                </strong>
+
+
+                <span
+                  className="workflowDescription"
+                  style={{
+                    display:
+                      "block",
+
+                    marginTop:
+                      "5px",
+
+                    color:
+                      "#71849c",
+
+                    fontSize:
+                      "8px",
+
+                    lineHeight:
+                      1.45,
+                  }}
+                >
+                  {
+                    step.description[
+                      language
+                    ] ||
+                    step.description.en
+                  }
+                </span>
+
               </div>
-
-
-              <strong
-                style={{
-                  display:
-                    "block",
-
-                  color:
-                    "#dbe6f2",
-
-                  fontSize:
-                    "10px",
-
-                  lineHeight:
-                    1.45,
-                }}
-              >
-                {step.title[
-                  language
-                ] ||
-                  step.title.en}
-              </strong>
-
-
-              <span
-                className="workflowStepDescription"
-                style={{
-                  display:
-                    "block",
-
-                  marginTop:
-                    "6px",
-
-                  color:
-                    "#71849c",
-
-                  fontSize:
-                    "8px",
-
-                  lineHeight:
-                    1.5,
-                }}
-              >
-                {step.description[
-                  language
-                ] ||
-                  step.description.en}
-              </span>
-
-            </div>
+            )
           )
-        )}
-      </div>
-
-
-      <div
-        style={{
-          marginTop:
-            "19px",
-
-          paddingTop:
-            "14px",
-
-          borderTop:
-            "1px solid rgba(255,255,255,0.05)",
-
-          color:
-            "#7e91a8",
-
-          fontSize:
-            "9px",
-
-          lineHeight:
-            1.6,
-
-          textAlign:
-            "center",
-        }}
-      >
-        {L(
-          language,
-
-          "Every decision is recorded before the case can proceed to controlled execution and final verification.",
-
-          "يتم توثيق كل قرار قبل انتقال الحالة إلى التنفيذ المنضبط والتحقق النهائي."
-        )}
+        }
       </div>
 
     </section>
@@ -850,113 +895,108 @@ function WorkflowOverview({
 function CaseCard({
   item,
   language,
+  featured,
   arrowStyle,
 }) {
   const personName =
-    item.person[
+    item.person?.[
       language
     ] ||
-    item.person.en;
+    item.person?.en ||
+    item.id;
 
 
-  const aiFinding =
-    item.aiFinding[
+  const summary =
+    item.aiSummary?.[
       language
     ] ||
-    item.aiFinding.en;
+    item.aiSummary?.en ||
+    L(
+      language,
+      "AI analysis is available for this case.",
+      "تحليل الذكاء الاصطناعي متاح لهذه الحالة."
+    );
+
+
+  const status =
+    item.workflowStatus ||
+    item.finalStatus;
 
 
   const statusColors =
     getStatusColors(
-      item.status
+      status
     );
+
+
+  const action =
+    getCaseAction(
+      item,
+      language
+    );
+
+
+  const actionStyle =
+    action.tone ===
+    "green"
+      ? {
+          color:
+            "#071b16",
+
+          background:
+            "linear-gradient(90deg, #4bc58f, #67d8aa)",
+
+          border:
+            "1px solid rgba(111,230,180,0.40)",
+        }
+      : action.tone ===
+        "amber"
+        ? {
+            color:
+              "#ffbd67",
+
+            background:
+              "rgba(255,189,103,0.07)",
+
+            border:
+              "1px solid rgba(255,189,103,0.20)",
+          }
+        : {
+            color:
+              "#79a9ff",
+
+            background:
+              "rgba(121,169,255,0.07)",
+
+            border:
+              "1px solid rgba(121,169,255,0.18)",
+          };
 
 
   return (
     <article
       style={{
-        position:
-          "relative",
-
         padding:
-          "20px",
-
-        borderRadius:
           "18px",
 
+        borderRadius:
+          "15px",
+
         border:
-          item.featured
-            ? "1px solid rgba(89,207,160,0.42)"
-            : "1px solid rgba(121,169,255,0.12)",
+          featured
+            ? "1px solid rgba(89,207,160,0.30)"
+            : "1px solid rgba(121,169,255,0.10)",
 
         background:
-          item.featured
-            ? "linear-gradient(135deg, rgba(15,46,59,0.72), rgba(9,26,46,0.90))"
-            : "linear-gradient(135deg, rgba(12,31,52,0.84), rgba(8,24,43,0.88))",
-
-        boxShadow:
-          item.featured
-            ? "0 0 30px rgba(89,207,160,0.04)"
-            : "none",
+          featured
+            ? "linear-gradient(135deg, rgba(15,46,59,0.62), rgba(9,26,46,0.88))"
+            : "rgba(11,29,50,0.72)",
       }}
     >
 
-      {item.featured && (
-        <div
-          style={{
-            position:
-              "absolute",
-
-            top:
-              "14px",
-
-            insetInlineEnd:
-              "14px",
-
-            display:
-              "inline-flex",
-
-            alignItems:
-              "center",
-
-            gap:
-              "5px",
-
-            padding:
-              "5px 8px",
-
-            borderRadius:
-              "999px",
-
-            color:
-              "#59cfa0",
-
-            background:
-              "rgba(89,207,160,0.08)",
-
-            border:
-              "1px solid rgba(89,207,160,0.18)",
-
-            fontSize:
-              "8px",
-
-            fontWeight:
-              800,
-          }}
-        >
-          <ShieldCheck
-            size={12}
-            aria-hidden="true"
-          />
-
-          {L(
-            language,
-            "PRIMARY DEMO",
-            "الحالة الرئيسية"
-          )}
-        </div>
-      )}
-
+      {/* ================================================
+          NAME + PRIORITY
+          ================================================ */}
 
       <div
         style={{
@@ -970,16 +1010,52 @@ function CaseCard({
             "space-between",
 
           gap:
-            "16px",
-
-          paddingTop:
-            item.featured
-              ? "22px"
-              : "0",
+            "14px",
         }}
       >
 
         <div>
+
+          {
+            featured && (
+              <span
+                style={{
+                  display:
+                    "inline-flex",
+
+                  alignItems:
+                    "center",
+
+                  gap:
+                    "5px",
+
+                  marginBottom:
+                    "8px",
+
+                  color:
+                    "#59cfa0",
+
+                  fontSize:
+                    "8px",
+
+                  fontWeight:
+                    800,
+                }}
+              >
+                <ShieldCheck
+                  size={12}
+                  aria-hidden="true"
+                />
+
+                {L(
+                  language,
+                  "TOP PRIORITY",
+                  "أعلى أولوية"
+                )}
+              </span>
+            )
+          }
+
 
           <strong
             style={{
@@ -987,13 +1063,10 @@ function CaseCard({
                 "block",
 
               color:
-                "#e5eef8",
+                "#e4edf8",
 
               fontSize:
-                "15px",
-
-              lineHeight:
-                1.4,
+                "14px",
             }}
           >
             {personName}
@@ -1007,10 +1080,10 @@ function CaseCard({
                 "block",
 
               marginTop:
-                "5px",
+                "4px",
 
               color:
-                "#6c7f97",
+                "#657990",
 
               fontSize:
                 "9px",
@@ -1022,64 +1095,36 @@ function CaseCard({
         </div>
 
 
-        <div
-          style={{
-            minWidth:
-              "42px",
-
-            width:
-              "42px",
-
-            height:
-              "42px",
-
-            display:
-              "grid",
-
-            placeItems:
-              "center",
-
-            borderRadius:
-              "13px",
-
-            color:
-              item.featured
-                ? "#59cfa0"
-                : "#79a9ff",
-
-            background:
-              item.featured
-                ? "rgba(89,207,160,0.07)"
-                : "rgba(121,169,255,0.06)",
-
-            border:
-              item.featured
-                ? "1px solid rgba(89,207,160,0.16)"
-                : "1px solid rgba(121,169,255,0.13)",
-          }}
-        >
-          <UserCheck
-            size={20}
-            aria-hidden="true"
-          />
-        </div>
+        <PriorityBadge
+          priority={
+            item.priority
+          }
+          language={
+            language
+          }
+        />
 
       </div>
 
 
+      {/* ================================================
+          ESSENTIAL INFORMATION
+          ================================================ */}
+
       <div
+        className="caseEssentials"
         style={{
           display:
             "grid",
 
           gridTemplateColumns:
-            "repeat(3, minmax(0, 1fr))",
+            "1fr 0.65fr 1fr",
 
           gap:
             "10px",
 
           marginTop:
-            "18px",
+            "16px",
         }}
       >
 
@@ -1091,26 +1136,27 @@ function CaseCard({
                 "block",
 
               color:
-                "#657991",
+                "#667991",
 
               fontSize:
                 "8px",
 
               marginBottom:
-                "5px",
+                "4px",
             }}
           >
             {L(
               language,
-              "Problem Type",
-              "نوع المشكلة"
+              "Problem",
+              "المشكلة"
             )}
           </span>
+
 
           <strong
             style={{
               color:
-                "#d5dfeb",
+                "#d2ddea",
 
               fontSize:
                 "10px",
@@ -1119,10 +1165,12 @@ function CaseCard({
                 1.45,
             }}
           >
-            {getIssueLabel(
-              item.issue,
-              language
-            )}
+            {
+              getIssueLabel(
+                item.caseType,
+                language
+              )
+            }
           </strong>
 
         </div>
@@ -1136,21 +1184,22 @@ function CaseCard({
                 "block",
 
               color:
-                "#657991",
+                "#667991",
 
               fontSize:
                 "8px",
 
               marginBottom:
-                "5px",
+                "4px",
             }}
           >
             {L(
               language,
               "AI Confidence",
-              "ثقة الذكاء الاصطناعي"
+              "ثقة الذكاء"
             )}
           </span>
+
 
           <strong
             dir="ltr"
@@ -1159,10 +1208,12 @@ function CaseCard({
                 "#e6eef8",
 
               fontSize:
-                "14px",
+                "13px",
             }}
           >
-            {item.confidence}%
+            {
+              item.aiConfidence
+            }%
           </strong>
 
         </div>
@@ -1176,35 +1227,33 @@ function CaseCard({
                 "block",
 
               color:
-                "#657991",
+                "#667991",
 
               fontSize:
                 "8px",
 
               marginBottom:
-                "5px",
+                "4px",
             }}
           >
             {L(
               language,
-              "Current Status",
-              "الحالة الحالية"
+              "Next Step",
+              "الإجراء التالي"
             )}
           </span>
+
 
           <span
             style={{
               display:
                 "inline-flex",
 
-              alignItems:
-                "center",
-
               padding:
-                "6px 8px",
+                "5px 7px",
 
               borderRadius:
-                "8px",
+                "7px",
 
               color:
                 statusColors.color,
@@ -1216,19 +1265,21 @@ function CaseCard({
                 `1px solid ${statusColors.border}`,
 
               fontSize:
-                "9px",
+                "8.5px",
 
               fontWeight:
                 800,
 
               lineHeight:
-                1.4,
+                1.35,
             }}
           >
-            {getStatusLabel(
-              item.status,
-              language
-            )}
+            {
+              getStatusLabel(
+                status,
+                language
+              )
+            }
           </span>
 
         </div>
@@ -1236,38 +1287,36 @@ function CaseCard({
       </div>
 
 
+      {/* ================================================
+          AI SUMMARY
+          ================================================ */}
+
       <div
+        className="caseSummary"
         style={{
           display:
             "flex",
 
-          gap:
-            "8px",
-
           alignItems:
             "flex-start",
 
+          gap:
+            "7px",
+
           marginTop:
-            "18px",
+            "15px",
 
           paddingTop:
-            "14px",
+            "13px",
 
           borderTop:
             "1px solid rgba(255,255,255,0.045)",
         }}
       >
         <BrainCircuit
-          size={16}
+          size={15}
           color="#69a2ff"
           aria-hidden="true"
-          style={{
-            flex:
-              "0 0 auto",
-
-            marginTop:
-              "1px",
-          }}
         />
 
         <span
@@ -1276,20 +1325,32 @@ function CaseCard({
               "#8193aa",
 
             fontSize:
-              "10px",
+              "9.5px",
 
             lineHeight:
-              1.65,
+              1.6,
           }}
         >
-          {aiFinding}
+          {summary}
         </span>
-
       </div>
 
 
-      <div
+      {/* ================================================
+          ACTION
+          ================================================ */}
+
+      <Link
+        href={
+          action.href
+        }
         style={{
+          minHeight:
+            "40px",
+
+          marginTop:
+            "15px",
+
           display:
             "flex",
 
@@ -1297,108 +1358,38 @@ function CaseCard({
             "center",
 
           justifyContent:
-            "space-between",
+            "center",
 
           gap:
-            "12px",
+            "7px",
 
-          marginTop:
-            "18px",
+          borderRadius:
+            "10px",
+
+          textDecoration:
+            "none",
+
+          fontSize:
+            "10px",
+
+          fontWeight:
+            850,
+
+          ...actionStyle,
         }}
       >
+        {
+          action.label
+        }
 
-        <PriorityBadge
-          priority={
-            item.priority
+        <ChevronRight
+          size={14}
+          style={
+            arrowStyle
           }
-          language={
-            language
-          }
+          aria-hidden="true"
         />
-
-
-        <Link
-          href={
-            item.action.href
-          }
-          style={{
-            flex:
-              "1",
-
-            minHeight:
-              "42px",
-
-            display:
-              "flex",
-
-            alignItems:
-              "center",
-
-            justifyContent:
-              "center",
-
-            gap:
-              "8px",
-
-            padding:
-              "0 16px",
-
-            borderRadius:
-              "11px",
-
-            textDecoration:
-              "none",
-
-            fontSize:
-              "10px",
-
-            fontWeight:
-              850,
-
-            color:
-              item.featured
-                ? "#061b17"
-                : statusColors.color,
-
-            background:
-              item.featured
-                ? "linear-gradient(90deg, #4bc58f, #68d9ab)"
-                : statusColors.background,
-
-            border:
-              item.featured
-                ? "1px solid rgba(111,230,180,0.45)"
-                : `1px solid ${statusColors.border}`,
-          }}
-        >
-          {item.status ===
-          "AI_INVESTIGATED" ? (
-            <Search
-              size={15}
-              aria-hidden="true"
-            />
-          ) : (
-            <UserCheck
-              size={15}
-              aria-hidden="true"
-            />
-          )}
-
-          {item.action[
-            language
-          ] ||
-            item.action.en}
-
-          <ChevronRight
-            size={14}
-            style={
-              arrowStyle
-            }
-            aria-hidden="true"
-          />
-        </Link>
-
-      </div>
+      </Link>
 
     </article>
   );
@@ -1412,11 +1403,25 @@ function CaseCard({
 export default function CasesPage() {
   const {
     language,
-  } = useLanguage();
+  } =
+    useLanguage();
+
+
+  const store =
+    useCaseStore();
+
+
+  useEffect(
+    () => {
+      initializeDemoCaseStore();
+    },
+    []
+  );
 
 
   const isArabic =
-    language === "ar";
+    language ===
+    "ar";
 
 
   const arrowStyle = {
@@ -1425,6 +1430,167 @@ export default function CasesPage() {
         ? "rotate(180deg)"
         : "none",
   };
+
+
+  /* =======================================================
+     ACTIVE CASES ONLY
+
+     Historical / VERIFIED_CLOSED cases are deliberately
+     excluded from this workspace.
+     ======================================================= */
+
+  const activeCases =
+    store.initialized
+      ? store.cases.filter(
+          (
+            item
+          ) =>
+            item.active &&
+            !item.closed &&
+            item.finalStatus !==
+              "VERIFIED_CLOSED"
+        )
+      : ACTIVE_CASES;
+
+
+  const priorityOrder = {
+    IMMEDIATE:
+      3,
+
+    HIGH:
+      2,
+
+    MEDIUM:
+      1,
+  };
+
+
+  const sortedActiveCases =
+    [
+      ...activeCases,
+    ].sort(
+      (
+        a,
+        b
+      ) => {
+
+        const priorityDifference =
+          (
+            priorityOrder[
+              b.priority
+            ] ||
+            0
+          )
+          -
+          (
+            priorityOrder[
+              a.priority
+            ] ||
+            0
+          );
+
+
+        if (
+          priorityDifference !==
+          0
+        ) {
+          return (
+            priorityDifference
+          );
+        }
+
+
+        const protectiveDifference =
+          Number(
+            b.protectivePriority ||
+            0
+          )
+          -
+          Number(
+            a.protectivePriority ||
+            0
+          );
+
+
+        if (
+          protectiveDifference !==
+          0
+        ) {
+          return (
+            protectiveDifference
+          );
+        }
+
+
+        return (
+          a.id.localeCompare(
+            b.id
+          )
+        );
+      }
+    );
+
+
+  const importantCases =
+    sortedActiveCases.slice(
+      0,
+      3
+    );
+
+
+  /* =======================================================
+     DYNAMIC COUNTS
+     ======================================================= */
+
+  const activeCount =
+    activeCases.length;
+
+
+  const urgentCount =
+    activeCases.filter(
+      (
+        item
+      ) =>
+        item.priority ===
+        "IMMEDIATE"
+    ).length;
+
+
+  const officerQueueCount =
+    activeCases.filter(
+      (
+        item
+      ) =>
+        (
+          item.workflowStatus ||
+          item.finalStatus
+        ) ===
+        "READY_FOR_OFFICER_REVIEW"
+    ).length;
+
+
+  const managerQueueCount =
+    activeCases.filter(
+      (
+        item
+      ) =>
+        (
+          item.workflowStatus ||
+          item.finalStatus
+        ) ===
+        "AWAITING_MANAGER_APPROVAL"
+    ).length;
+
+
+  const protectiveCount =
+    activeCases.filter(
+      (
+        item
+      ) =>
+        Boolean(
+          item.wronglyAffected
+        )
+    ).length;
 
 
   return (
@@ -1451,8 +1617,8 @@ export default function CasesPage() {
 
               {L(
                 language,
-                "AI-DETECTED BIOMETRIC CASES",
-                "الحالات البيومترية المكتشفة بالذكاء الاصطناعي"
+                "ACTIVE IDENTITY CASES",
+                "حالات الهوية النشطة"
               )}
             </div>
 
@@ -1470,9 +1636,9 @@ export default function CasesPage() {
               {L(
                 language,
 
-                "Review identity conflicts and incorrect biometric links detected by AI, then follow the required action from investigation through approval, execution and verification.",
+                "Review active identity problems and continue each case from the exact step that requires action.",
 
-                "تعرض هذه الشاشة حالات تداخل الهوية والربط غير الصحيح التي اكتشفها الذكاء الاصطناعي، ويمكن متابعة كل حالة خطوة بخطوة من التدقيق حتى التنفيذ والتحقق."
+                "راجع حالات الهوية النشطة، وافتح كل حالة من الخطوة التي تحتاج إلى إجراء."
               )}
             </p>
 
@@ -1482,94 +1648,80 @@ export default function CasesPage() {
 
 
         {/* ================================================
-            KPIs
+            SIMPLE KPIs
+
+            No completed cases are shown here.
             ================================================ */}
 
         <section className="statsGrid">
 
           <Metric
-            icon={FileSearch}
+            icon={
+              FileSearch
+            }
             value={
-              PLATFORM_METRICS.aggregatedCases
+              activeCount
             }
             accent="#9a7cff"
             title={
               L(
                 language,
-                "Detected Cases",
-                "الحالات المكتشفة"
-              )
-            }
-            description={
-              L(
-                language,
-                "Identity integrity cases detected",
-                "حالات رصدها نظام المطابقة"
+                "Active Cases",
+                "الحالات النشطة"
               )
             }
           />
 
 
           <Metric
-            icon={CircleAlert}
-            value={
-              PLATFORM_METRICS.priority.immediate
+            icon={
+              CircleAlert
             }
-            accent="#69a2ff"
+            value={
+              urgentCount
+            }
+            accent="#ff7c89"
             title={
               L(
                 language,
-                "Urgent Cases",
+                "Urgent",
                 "حالات فورية"
               )
             }
-            description={
-              L(
-                language,
-                "Require priority attention",
-                "تحتاج إلى أولوية في المراجعة"
-              )
-            }
           />
 
 
           <Metric
-            icon={UserCheck}
-            value="5"
-            accent="#ffbd67"
-            title={
-              L(
-                language,
-                "Awaiting Review",
-                "بانتظار المراجعة"
-              )
+            icon={
+              UserCheck
             }
-            description={
-              L(
-                language,
-                "Waiting for human authorization",
-                "تنتظر قرارًا بشريًا"
-              )
+            value={
+              officerQueueCount
             }
-          />
-
-
-          <Metric
-            icon={CheckCircle2}
-            value="1"
             accent="#59cfa0"
             title={
               L(
                 language,
-                "Resolved & Verified",
-                "تم الحل والتحقق"
+                "Waiting for Employee",
+                "بانتظار الموظف"
               )
             }
-            description={
+          />
+
+
+          <Metric
+            icon={
+              ShieldCheck
+            }
+            value={
+              managerQueueCount
+            }
+            accent="#ffbd67"
+            title={
               L(
                 language,
-                "Completed demonstration workflow",
-                "حالة اكتملت حتى الإغلاق"
+                "Waiting for Manager",
+                "بانتظار المدير"
               )
             }
           />
@@ -1578,7 +1730,7 @@ export default function CasesPage() {
 
 
         {/* ================================================
-            WORKFLOW EXPLANATION
+            WORKFLOW
             ================================================ */}
 
         <WorkflowOverview
@@ -1590,55 +1742,62 @@ export default function CasesPage() {
 
         {/* ================================================
             PROTECTIVE WARNING
+
+            Active protective cases only.
             ================================================ */}
 
-        <section className="alertBanner">
+        {
+          protectiveCount >
+          0 && (
+            <section className="alertBanner">
 
-          <div className="alertIcon">
-            <AlertTriangle
-              size={24}
-              aria-hidden="true"
-            />
-          </div>
-
-
-          <div className="alertText">
-
-            <strong>
-              {L(
-                language,
-
-                `${PLATFORM_METRICS.wronglyAffectedCases} cases may affect another person`,
-
-                `${PLATFORM_METRICS.wronglyAffectedCases} حالات قد تؤثر على شخص آخر`
-              )}
-            </strong>
+              <div className="alertIcon">
+                <AlertTriangle
+                  size={23}
+                  aria-hidden="true"
+                />
+              </div>
 
 
-            <span>
-              {L(
-                language,
+              <div className="alertText">
 
-                "These cases receive elevated protective priority because an incorrect identity relationship may negatively affect someone who does not own the associated record.",
+                <strong>
+                  {L(
+                    language,
 
-                "تحصل هذه الحالات على أولوية حماية أعلى لأن الربط غير الصحيح قد يؤدي إلى تأثير سلبي على شخص لا تعود إليه البيانات المرتبطة."
-              )}
-            </span>
+                    `${protectiveCount} active cases may affect another person`,
 
-          </div>
+                    `${protectiveCount} حالات نشطة قد تؤثر على شخص آخر`
+                  )}
+                </strong>
 
-        </section>
+
+                <span>
+                  {L(
+                    language,
+
+                    "These cases are given higher attention because an incorrect identity link could affect someone who does not own the related record.",
+
+                    "تحصل هذه الحالات على أولوية أعلى لأن الربط الخاطئ قد يؤثر على شخص لا تعود إليه البيانات المرتبطة."
+                  )}
+                </span>
+
+              </div>
+
+            </section>
+          )
+        }
 
 
         {/* ================================================
-            CASE LIST
+            TOP 3 ACTIVE CASES
             ================================================ */}
 
         <section
           className="panel"
           style={{
             marginTop:
-              "20px",
+              "18px",
           }}
         >
 
@@ -1649,8 +1808,8 @@ export default function CasesPage() {
               <div className="panelEyebrow">
                 {L(
                   language,
-                  "CURRENT CASES",
-                  "الحالات الحالية"
+                  "PRIORITY ACTIVE CASES",
+                  "أهم الحالات النشطة"
                 )}
               </div>
 
@@ -1658,8 +1817,8 @@ export default function CasesPage() {
               <h2>
                 {L(
                   language,
-                  "Select a Case and Continue the Workflow",
-                  "اختر الحالة وتابع الإجراء التالي"
+                  "Cases Requiring Attention Now",
+                  "الحالات التي تحتاج إلى إجراء الآن"
                 )}
               </h2>
 
@@ -1667,6 +1826,7 @@ export default function CasesPage() {
 
 
             <div
+              className="monitoringLabel"
               style={{
                 display:
                   "flex",
@@ -1675,24 +1835,24 @@ export default function CasesPage() {
                   "center",
 
                 gap:
-                  "7px",
+                  "6px",
 
                 color:
                   "#6f829a",
 
                 fontSize:
-                  "10px",
+                  "9px",
               }}
             >
               <Activity
-                size={15}
+                size={14}
                 aria-hidden="true"
               />
 
               {L(
                 language,
-                "AI monitoring active",
-                "المراقبة الذكية نشطة"
+                "Monitoring Active",
+                "المراقبة نشطة"
               )}
             </div>
 
@@ -1705,89 +1865,145 @@ export default function CasesPage() {
                 "grid",
 
               gap:
-                "14px",
+                "12px",
 
               padding:
-                "18px",
+                "15px",
             }}
           >
-            {cases.map(
-              (item) => (
-                <CaseCard
-                  key={
-                    item.id
-                  }
-                  item={
-                    item
-                  }
-                  language={
-                    language
-                  }
-                  arrowStyle={
-                    arrowStyle
-                  }
-                />
+            {
+              importantCases.map(
+                (
+                  item,
+                  index
+                ) => (
+                  <CaseCard
+                    key={
+                      item.id
+                    }
+                    item={
+                      item
+                    }
+                    language={
+                      language
+                    }
+                    featured={
+                      index ===
+                      0
+                    }
+                    arrowStyle={
+                      arrowStyle
+                    }
+                  />
+                )
               )
-            )}
+            }
           </div>
 
+
+          {/* ==============================================
+              VIEW ALL ACTIVE CASES
+
+              New dedicated page.
+              ============================================== */}
 
           <div
             style={{
               padding:
-                "14px 18px",
-
-              borderTop:
-                "1px solid rgba(255,255,255,0.05)",
-
-              color:
-                "#657890",
-
-              fontSize:
-                "9px",
-
-              lineHeight:
-                1.6,
+                "0 15px 16px",
             }}
           >
-            {L(
-              language,
+            <Link
+              href="/cases/all"
+              style={{
+                minHeight:
+                  "39px",
 
-              `The cards above are representative demonstration cases. The validated synthetic dataset contains ${PLATFORM_METRICS.aggregatedCases} detected cases in total.`,
+                width:
+                  "100%",
 
-              `تعرض البطاقات أعلاه حالات تمثيلية للمحاكاة، بينما تحتوي مجموعة البيانات الاصطناعية المعتمدة على ${PLATFORM_METRICS.aggregatedCases} حالة مكتشفة إجمالًا.`
-            )}
+                display:
+                  "flex",
+
+                alignItems:
+                  "center",
+
+                justifyContent:
+                  "center",
+
+                gap:
+                  "6px",
+
+                borderRadius:
+                  "10px",
+
+                textDecoration:
+                  "none",
+
+                color:
+                  "#79a9ff",
+
+                background:
+                  "rgba(70,140,255,0.045)",
+
+                border:
+                  "1px solid rgba(70,140,255,0.11)",
+
+                fontSize:
+                  "10px",
+
+                fontWeight:
+                  800,
+              }}
+            >
+              {L(
+                language,
+
+                `View All Active Cases (${activeCount})`,
+
+                `عرض جميع الحالات النشطة (${activeCount})`
+              )}
+
+              <ChevronRight
+                size={14}
+                style={
+                  arrowStyle
+                }
+                aria-hidden="true"
+              />
+            </Link>
           </div>
 
         </section>
 
 
         {/* ================================================
-            GOVERNANCE
+            CLOSED CASE RULE
             ================================================ */}
 
         <section
           className="integrityInfo"
           style={{
             margin:
-              "16px 0 0",
+              "14px 0 0",
 
             padding:
-              "18px",
+              "15px",
           }}
         >
           <ShieldCheck
-            size={23}
+            size={21}
             aria-hidden="true"
           />
+
 
           <div>
 
             <strong>
               {L(
                 language,
-                "AI analyzes — authorized staff approve",
-                "الذكاء الاصطناعي يحلل — والموظفون المخولون يعتمدون"
+                "Completed cases leave this workspace",
+                "الحالات المكتملة تخرج من هذه الصفحة"
               )}
             </strong>
 
@@ -1796,9 +2012,9 @@ export default function CasesPage() {
               {L(
                 language,
 
-                "AI identifies the problem and prepares the proposed correction. Sensitive identity changes remain blocked until the authorized officer and manager complete the required approvals.",
+                "After correction and successful verification, the case is removed from Active Cases and kept in Reports & Audit with its full history.",
 
-                "يحدد الذكاء الاصطناعي المشكلة ويجهز التصحيح المقترح، بينما تبقى التغييرات الحساسة محظورة حتى استكمال اعتماد موظف المراجعة وموافقة المدير."
+                "بعد تنفيذ التعديل ونجاح التحقق، تختفي الحالة من الحالات النشطة وتنتقل إلى التقارير والسجل مع الاحتفاظ بكامل تاريخها."
               )}
             </span>
 
@@ -1816,8 +2032,8 @@ export default function CasesPage() {
           <span>
             {L(
               language,
-              "AI Biometric Reconciliation Platform · Cases",
-              "منصة المطابقة البيومترية بالذكاء الاصطناعي · الحالات"
+              "AI Biometric Reconciliation Platform · Active Cases",
+              "منصة المطابقة البيومترية بالذكاء الاصطناعي · الحالات النشطة"
             )}
           </span>
 
@@ -1825,14 +2041,14 @@ export default function CasesPage() {
           <div>
 
             <Activity
-              size={15}
+              size={14}
               aria-hidden="true"
             />
 
             {L(
               language,
-              "Continuous Monitoring Active",
-              "المراقبة المستمرة نشطة"
+              `${PLATFORM_METRICS.aggregatedCases} detected historically`,
+              `${PLATFORM_METRICS.aggregatedCases} حالة مكتشفة إجمالًا`
             )}
 
           </div>
@@ -1840,18 +2056,85 @@ export default function CasesPage() {
         </footer>
 
 
+        {/* ================================================
+            MOBILE FINE-TUNING
+            ================================================ */}
+
         <style jsx>{`
-          @media (max-width: 760px) {
-            .workflowStepDescription {
-              display: none !important;
+
+          @media (
+            max-width: 760px
+          ) {
+
+            .workflowGrid {
+              grid-template-columns:
+                repeat(
+                  2,
+                  minmax(
+                    0,
+                    1fr
+                  )
+                )
+                !important;
             }
+
+
+            .workflowItem:last-child {
+              grid-column:
+                1 / -1;
+            }
+
+
+            .workflowDescription {
+              display:
+                none
+                !important;
+            }
+
+
+            .caseEssentials {
+              grid-template-columns:
+                1fr
+                1fr
+                !important;
+            }
+
+
+            .caseEssentials
+            > div:last-child {
+              grid-column:
+                1 / -1;
+            }
+
+
+            .monitoringLabel {
+              display:
+                none
+                !important;
+            }
+
           }
 
-          @media (max-width: 560px) {
-            :global(.statsGrid) {
-              grid-template-columns: repeat(2, minmax(0, 1fr));
+
+          @media (
+            max-width: 460px
+          ) {
+
+            .simpleWorkflow {
+              padding:
+                15px
+                !important;
             }
+
+
+            .caseSummary {
+              margin-top:
+                12px
+                !important;
+            }
+
           }
+
         `}</style>
 
       </main>
